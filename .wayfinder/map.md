@@ -27,6 +27,8 @@ A decision-complete spec for the Oleoziza front MVP (Vue PWA on mock services): 
 
 ## Decisions so far
 
+- [Offline writes in a Vue PWA: IndexedDB queue and iOS limits](tickets/0003-offline-writes-in-vue-pwa.md): own Dexie outbox + sync loop (no Background Sync), client UUIDs + Idempotency-Key, Operators on the installed iOS app; money confirmations online-only.
+
 ## Not yet specified
 
 - Dashboard KPIs: which figures Management sees first, and per-Season comparisons.
