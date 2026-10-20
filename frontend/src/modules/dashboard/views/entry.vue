@@ -1,6 +1,8 @@
 <template>
   <app-layout>
-    <section class="flex flex-col gap-6">
+    <management-home-prototype v-if="authStore.session?.role === 'management'" />
+    <operator-home-prototype v-else-if="authStore.session?.role === 'operator'" />
+    <section v-else class="flex flex-col gap-6">
       <div>
         <h1 class="heading-one">{{ $t('dashboard.welcome', { name: authStore.salutation }) }}</h1>
         <p class="body-two">{{ authStore.isStaff ? $t('dashboard.subtitle') : $t('dashboard.clientSubtitle') }}</p>
@@ -51,6 +53,8 @@ import { PERMISSIONS } from 'auth/constants/permissions';
 
 import AppLayout from 'global/components/app-layout.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
+import ManagementHomePrototype from 'dashboard/prototype/management-home.prototype.vue';
+import OperatorHomePrototype from 'dashboard/prototype/operator-home.prototype.vue';
 
 // stores
 const authStore = useAuthStore();
