@@ -10,6 +10,7 @@ A decision-complete spec for the Oleoziza front MVP (Vue PWA on mock services): 
 ## Notes
 
 - Domain: one owner running several mills (Sites); main activity is Service Milling, with Purchases and Product sales on the side. Vocabulary lives in [GLOSSARY.md](../GLOSSARY.md); consult and update it.
+- Repo layout: `frontend/` (Vue PWA); `backend/` and Docker setup to come as separate efforts. Glossary, map and docs stay at the root.
 - Skills to consult every session: `domain-modeling` (always), `vue-frontend-style` (any front structure decision).
 - Standing decisions from charting (2026-10-20):
   - Stack: Vue 3 + Vite + TypeScript + Tailwind + Pinia + vite-plugin-pwa, Ali's module-per-business conventions.
