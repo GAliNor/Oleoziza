@@ -1,0 +1,10 @@
+{
+  "welcome": "Bonjour {name}",
+  "subtitle": "Vue d'ensemble de vos moulins",
+  "clientSubtitle": "Votre espace client arrive bientôt.",
+  "sites": "Sites",
+  "permissionCount": "Aucune autorisation sur ce site | 1 autorisation sur ce site | {n} autorisations sur ce site",
+  "financeVisible": "finances visibles",
+  "dataSource": "Source des données : {source}",
+  "loadError": "Impossible de charger les sites."
+}

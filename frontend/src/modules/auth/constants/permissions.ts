@@ -1,0 +1,43 @@
+import type { Permission, Role } from 'auth/types/auth';
+
+export const PERMISSIONS: readonly Permission[] = [
+  'reception.create',
+  'weighing.create',
+  'lot.update_status',
+  'pressing.create',
+  'withdrawal.create',
+  'client.create',
+  'client.edit',
+  'client.manage_access',
+  'payment.record',
+  'payment.confirm',
+  'payment.cancel',
+  'expense.record',
+  'purchase.create',
+  'sale.create',
+  'daily_price.set',
+  'product.manage',
+  'finance.view',
+  'stock.view',
+  'user.manage',
+  'site.manage',
+  'season.manage',
+  'audit_trail.view',
+];
+
+export const ROLE_DEFAULT_PERMISSIONS: Record<Role, readonly Permission[]> = {
+  management: PERMISSIONS,
+  operator: [
+    'reception.create',
+    'weighing.create',
+    'lot.update_status',
+    'pressing.create',
+    'withdrawal.create',
+    'client.create',
+    'client.edit',
+    'payment.record',
+    'purchase.create',
+    'sale.create',
+  ],
+  client: [],
+};

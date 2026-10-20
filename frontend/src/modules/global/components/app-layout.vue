@@ -7,7 +7,7 @@
       </div>
       <nav class="flex flex-col gap-1">
         <router-link
-          v-for="item in navItems"
+          v-for="item in visibleNavItems"
           :key="item.name"
           :to="{ name: item.name }"
           class="nav-link"
@@ -17,19 +17,41 @@
           {{ $t(item.labelKey) }}
         </router-link>
       </nav>
+      <div class="mt-auto flex flex-col gap-1 border-t border-neutral-200 pt-4">
+        <p class="truncate px-3 text-sm font-medium text-neutral-800">{{ authStore.fullName }}</p>
+        <p v-if="authStore.session" class="px-3 body-two">{{ $t(`auth.roles.${authStore.session.role}`) }}</p>
+        <button v-if="canSwitchOperator" type="button" class="nav-link mt-2" @click="handleSwitchOperator">
+          <user-switch-line-icon class="h-5 w-5" />
+          {{ $t('auth.switch.action') }}
+        </button>
+        <button type="button" class="nav-link" @click="handleLogout">
+          <logout-line-icon class="h-5 w-5" />
+          {{ $t('auth.logout') }}
+        </button>
+      </div>
     </aside>
 
     <div class="flex min-w-0 flex-1 flex-col">
       <header
-        class="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-neutral-200
-          bg-white/90 px-4 py-3 backdrop-blur md:px-8"
+        class="sticky top-0 z-40 flex items-center gap-3 border-b border-neutral-200 bg-white/90 px-4 py-3
+          backdrop-blur md:px-8"
       >
-        <div class="flex items-center gap-2 md:hidden">
-          <olive-fill-icon class="h-7 w-7 text-primary-olive" />
-          <span class="text-lg font-semibold text-accent-brown">{{ $t('global.appName') }}</span>
-        </div>
+        <olive-fill-icon class="h-7 w-7 shrink-0 text-primary-olive md:hidden" />
+        <site-switcher />
         <slot name="header" />
-        <network-badge class="ml-auto" />
+        <network-badge class="ml-auto shrink-0" />
+        <button
+          v-if="canSwitchOperator"
+          type="button"
+          class="icon-btn md:hidden"
+          :aria-label="$t('auth.switch.action')"
+          @click="handleSwitchOperator"
+        >
+          <user-switch-line-icon class="h-5 w-5" />
+        </button>
+        <button type="button" class="icon-btn md:hidden" :aria-label="$t('auth.logout')" @click="handleLogout">
+          <logout-line-icon class="h-5 w-5" />
+        </button>
       </header>
 
       <main class="flex-1 px-4 pt-6 pb-24 md:px-8 md:pb-8">
@@ -42,7 +64,7 @@
         pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <router-link
-        v-for="item in navItems"
+        v-for="item in visibleNavItems"
         :key="item.name"
         :to="{ name: item.name }"
         class="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs text-neutral-500"
@@ -54,20 +76,50 @@
     </nav>
 
     <update-banner />
+    <app-toast />
   </div>
 </template>
 
 <script setup lang="ts">
 // imports
-import type { Component } from 'vue';
+import { computed, type Component } from 'vue';
+import { useRouter } from 'vue-router';
 
+import { useAuthStore } from 'auth/stores/auth';
+import type { Permission } from 'auth/types/auth';
+
+import AppToast from 'global/components/app-toast.vue';
 import NetworkBadge from 'global/components/network-badge.vue';
+import SiteSwitcher from 'global/components/site-switcher.vue';
 import UpdateBanner from 'global/components/update-banner.vue';
 import HomeLineIcon from 'global/icons/home-line.icon.vue';
+import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
+import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
+import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
+
+// stores
+const authStore = useAuthStore();
+const router = useRouter();
 
 // variables
-const navItems: { name: string; labelKey: string; icon: Component }[] = [
+const navItems: { name: string; labelKey: string; icon: Component; permission?: Permission }[] = [
   { name: 'dashboard', labelKey: 'global.nav.dashboard', icon: HomeLineIcon },
+  { name: 'site', labelKey: 'global.nav.sites', icon: MapPinLineIcon, permission: 'site.manage' },
 ];
+
+// computed
+const visibleNavItems = computed(() => navItems.filter((item) => !item.permission || authStore.can(item.permission)));
+const canSwitchOperator = computed((): boolean => authStore.session?.role === 'operator');
+
+// event handlers
+const handleSwitchOperator = async (): Promise<void> => {
+  authStore.lock();
+  await router.push({ name: 'auth-switch' });
+};
+
+const handleLogout = async (): Promise<void> => {
+  await authStore.logout();
+  await router.push({ name: 'auth-login' });
+};
 </script>

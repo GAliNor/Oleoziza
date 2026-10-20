@@ -43,6 +43,8 @@ export default defineConfig({
       '~': fromSrc(''),
       global: fromSrc('modules/global'),
       dashboard: fromSrc('modules/dashboard'),
+      auth: fromSrc('modules/auth'),
+      site: fromSrc('modules/site'),
     },
   },
 });

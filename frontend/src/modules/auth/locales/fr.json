@@ -1,0 +1,160 @@
+{
+  "logout": "Se déconnecter",
+  "backToLogin": "Retour à la connexion",
+  "roles": {
+    "management": "Direction",
+    "operator": "Opérateur",
+    "client": "Client"
+  },
+  "errors": {
+    "invalid_identifier": "Saisissez un numéro marocain (06…, 07…) ou une adresse e-mail valide.",
+    "unknown_identifier": "Aucun compte actif ne correspond à cet identifiant.",
+    "method_not_allowed": "Ce mode de connexion n'est pas activé pour ce compte. Contactez le moulin.",
+    "invalid_credential": "Code ou mot de passe incorrect.",
+    "invalid_code": "Code SMS incorrect.",
+    "locked": "Trop d'essais. Réessayez après {time}.",
+    "disabled": "Ce compte est désactivé. Contactez le moulin.",
+    "invalid_invitation": "Cette invitation n'est plus valable. Demandez-en une nouvelle au moulin.",
+    "invalid_reset": "Ce lien n'est plus valable. Recommencez la réinitialisation.",
+    "staff_reset": "Demandez à la direction de réinitialiser votre accès.",
+    "session_expired": "Votre session a expiré. Reconnectez-vous.",
+    "network": "Connexion impossible. Vérifiez le réseau et réessayez."
+  },
+  "pinPad": {
+    "filled": "{count} chiffres saisis sur {total}",
+    "erase": "Effacer"
+  },
+  "password": {
+    "show": "Afficher le mot de passe",
+    "hide": "Masquer le mot de passe"
+  },
+  "credential": {
+    "choosePin": "Choisissez un code PIN à {length} chiffres",
+    "confirmPin": "Saisissez-le une seconde fois",
+    "weakPin": "Code trop simple. Évitez les suites et les chiffres répétés.",
+    "pinMismatch": "Les deux codes ne correspondent pas. Recommencez.",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmez le mot de passe",
+    "passwordRule": "Au moins {length} caractères.",
+    "passwordMismatch": "Les deux mots de passe ne correspondent pas."
+  },
+  "demo": {
+    "title": "Comptes de démonstration (mode mock)"
+  },
+  "dev": {
+    "smsCode": "SMS simulé : votre code est {code}",
+    "resetLink": "E-mail simulé : ouvrez {link} pour choisir un nouveau mot de passe"
+  },
+  "login": {
+    "eyebrow": "Compte",
+    "title": "Connexion à votre espace",
+    "subtitle": "Saisissez votre téléphone ou votre e-mail.",
+    "identifier": "Téléphone ou e-mail",
+    "identifierPlaceholder": "06 12 34 56 78 ou nom{'@'}exemple.ma",
+    "continue": "Continuer",
+    "changeIdentifier": "Modifier",
+    "methodTitle": {
+      "pin": "Votre code PIN",
+      "password": "Votre mot de passe",
+      "otp": "Code reçu par SMS"
+    },
+    "secretLabel": {
+      "password": "Mot de passe",
+      "otp": "Code à 6 chiffres"
+    },
+    "submit": "Se connecter",
+    "success": "Connexion réussie",
+    "redirecting": "Bienvenue {name}, ouverture de votre espace…",
+    "resend": "Renvoyer le code",
+    "resendIn": "Renvoyer le code dans {seconds} s",
+    "useOtp": "Recevoir un code par SMS",
+    "usePin": "Utiliser mon code PIN",
+    "forgot": {
+      "pin": "Code PIN oublié ?",
+      "password": "Mot de passe oublié ?"
+    }
+  },
+  "offerPin": {
+    "title": "Connexion plus rapide",
+    "subtitle": "Créez un code PIN pour ne plus attendre de SMS.",
+    "save": "Enregistrer le code",
+    "later": "Plus tard",
+    "saved": "Code PIN enregistré."
+  },
+  "invitation": {
+    "eyebrow": "Invitation",
+    "title": "Bienvenue, {firstName}",
+    "subtitle": {
+      "pin": "{invitedBy} vous a invité. Choisissez votre code PIN pour activer votre compte.",
+      "password": "{invitedBy} vous a invité. Choisissez votre mot de passe pour activer votre compte."
+    },
+    "accept": "Activer mon compte",
+    "invalidTitle": "Invitation non valable"
+  },
+  "reset": {
+    "eyebrow": "Accès oublié",
+    "title": {
+      "identifier": "Réinitialiser l'accès",
+      "code": "Code reçu par SMS",
+      "emailSent": "Vérifiez vos e-mails",
+      "staff": "Contactez la direction",
+      "newSecret": "Nouvel accès",
+      "done": "Accès modifié"
+    },
+    "subtitle": {
+      "identifier": "Saisissez votre téléphone ou votre e-mail.",
+      "code": "Saisissez le code que nous venons d'envoyer.",
+      "emailSent": "Nous vous avons envoyé un lien pour choisir un nouveau mot de passe.",
+      "staff": "Les accès du personnel sont réinitialisés par la direction.",
+      "newSecret": "Choisissez votre nouvel accès.",
+      "done": "Vous pouvez maintenant vous connecter."
+    },
+    "send": "Envoyer",
+    "save": "Enregistrer"
+  },
+  "changeCredential": {
+    "eyebrow": "Sécurité",
+    "title": {
+      "pin": "Changez votre code PIN",
+      "password": "Changez votre mot de passe"
+    },
+    "subtitle": "{firstName}, votre accès a été créé par le moulin. Choisissez-en un personnel.",
+    "save": "Enregistrer",
+    "skip": "Plus tard",
+    "saved": {
+      "pin": "Code PIN modifié.",
+      "password": "Mot de passe modifié."
+    }
+  },
+  "switch": {
+    "action": "Changer d'opérateur",
+    "eyebrow": "Appareil partagé",
+    "title": "Qui travaille ?",
+    "subtitle": "Touchez votre nom puis saisissez votre code PIN.",
+    "empty": "Aucun opérateur ne s'est encore connecté sur cet appareil avec un code PIN.",
+    "forget": "Retirer {name} de cet appareil",
+    "otherAccount": "Autre compte",
+    "enterPin": "Saisissez votre code PIN",
+    "back": "Choisir un autre nom"
+  },
+  "layout": {
+    "footer": "© 2026 Oleoziza · Huileries de l'Oriental"
+  },
+  "showcase": {
+    "oilTitle": "Huile produite · Saison 2026-2027",
+    "growth": "{value} %",
+    "litres": "≈ {value} litres",
+    "months": {
+      "oct": "Oct.",
+      "nov": "Nov.",
+      "dec": "Déc.",
+      "jan": "Janv."
+    },
+    "lotPressed": "Lot 214 pressé",
+    "lotPressedDetail": "Huilerie Oujda",
+    "paymentConfirmed": "Paiement confirmé",
+    "paymentConfirmedDetail": "Driss El Ouafi · 2 450 DH",
+    "minutesAgo": "il y a {minutes} min",
+    "yieldTitle": "Rendement moyen"
+  }
+}

@@ -11,6 +11,7 @@ export interface ISiteService {
 export interface ISiteStore {
   sites: ISite[];
   currentSiteId: string | null;
+  loadedForUserId: string | null;
   isLoading: boolean;
   hasError: boolean;
 }

@@ -2,17 +2,21 @@
 import { createI18n } from 'vue-i18n';
 import type { App } from 'vue';
 
-import type fr from '~/locales/fr.json';
-
 // variables
-type MessageSchema = typeof fr;
+type LocaleMessages = Record<string, unknown>;
 
-const files = import.meta.glob<MessageSchema>('../locales/*.json', { eager: true, import: 'default' });
-const messages = Object.fromEntries(
-  Object.entries(files).map(([path, content]) => [path.replace(/^.*\/(.+)\.json$/, '$1'), content]),
-);
+const files = import.meta.glob<LocaleMessages>('../modules/*/locales/*.json', { eager: true, import: 'default' });
 
-export const i18n = createI18n<[MessageSchema], string, false>({
+const toCamelCase = (value: string): string => value.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+
+const messages = Object.entries(files).reduce<Record<string, Record<string, LocaleMessages>>>((all, [path, content]) => {
+  const [, moduleName, locale] = path.match(/modules\/([^/]+)\/locales\/([^/]+)\.json$/) ?? [];
+  if (!moduleName || !locale) return all;
+  all[locale] = { ...all[locale], [toCamelCase(moduleName)]: content };
+  return all;
+}, {});
+
+export const i18n = createI18n({
   legacy: false,
   locale: 'fr',
   fallbackLocale: 'fr',

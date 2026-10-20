@@ -1,0 +1,23 @@
+{
+  "appName": "Oleoziza",
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "sites": "Sites"
+  },
+  "network": {
+    "online": "En ligne",
+    "offline": "Hors ligne"
+  },
+  "update": {
+    "available": "Une nouvelle version est disponible.",
+    "reload": "Mettre à jour",
+    "dismiss": "Plus tard"
+  },
+  "site": {
+    "label": "Site",
+    "all": "Tous les sites"
+  },
+  "toast": {
+    "close": "Fermer"
+  }
+}

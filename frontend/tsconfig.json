@@ -19,7 +19,9 @@
     "paths": {
       "~/*": ["src/*"],
       "global/*": ["src/modules/global/*"],
-      "dashboard/*": ["src/modules/dashboard/*"]
+      "dashboard/*": ["src/modules/dashboard/*"],
+      "auth/*": ["src/modules/auth/*"],
+      "site/*": ["src/modules/site/*"]
     }
   },
   "include": ["env.d.ts", "src/**/*.ts", "src/**/*.vue"]

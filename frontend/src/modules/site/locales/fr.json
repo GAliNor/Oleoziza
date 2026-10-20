@@ -1,0 +1,15 @@
+{
+  "title": "Sites",
+  "subtitle": "Les moulins gérés dans Oleoziza",
+  "edit": "Modifier",
+  "form": {
+    "createTitle": "Nouveau site",
+    "editTitle": "Modifier le site",
+    "name": "Nom",
+    "city": "Ville",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saved": "Site enregistré.",
+    "error": "Impossible d'enregistrer le site."
+  }
+}
