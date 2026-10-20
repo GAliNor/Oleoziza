@@ -114,7 +114,6 @@ _Avoid_: Campagne, campaign, year
 One mill owned by the owner, with its own Operators, activity, stock and treasury.
 _Avoid_: Mill, factory, branch, workspace
 
-
 **Workspace**:
 The area of the app dedicated to one role (Management, Operator).
 _Avoid_: Dashboard, site, mill

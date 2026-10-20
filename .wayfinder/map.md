@@ -32,6 +32,7 @@ A decision-complete spec for the Oleoziza front MVP (Vue PWA on mock services): 
 ## Decisions so far
 
 - [Offline writes in a Vue PWA: IndexedDB queue and iOS limits](tickets/0003-offline-writes-in-vue-pwa.md): own Dexie outbox + sync loop (no Background Sync), client UUIDs + Idempotency-Key, Operators on the installed iOS app; money confirmations online-only.
+- [Set up the front project](tickets/0012-front-project-setup.md): Vue 3.5 + Vite 8 + Tailwind 4 + Pinia 4 + PWA scaffold on npm 11, TypeScript pinned to 5.9; mock/API switch per service file, Site as the first global resource.
 
 ## Not yet specified
 
