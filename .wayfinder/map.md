@@ -9,13 +9,17 @@ A decision-complete spec for the Oleoziza front MVP (Vue PWA on mock services): 
 
 ## Notes
 
-- Domain: single olive oil mill; main activity is Service Milling, with Purchases and Product sales on the side. Vocabulary lives in [GLOSSARY.md](../GLOSSARY.md); consult and update it.
+- Domain: one owner running several mills (Sites); main activity is Service Milling, with Purchases and Product sales on the side. Vocabulary lives in [GLOSSARY.md](../GLOSSARY.md); consult and update it.
 - Skills to consult every session: `domain-modeling` (always), `vue-frontend-style` (any front structure decision).
 - Standing decisions from charting (2026-10-20):
   - Stack: Vue 3 + Vite + TypeScript + Tailwind + Pinia + vite-plugin-pwa, Ali's module-per-business conventions.
   - Data: per-module services with one async interface; `VITE_DATA_SOURCE=mock|api` picks the implementation; mock data are constants, with simulated latency/errors.
   - UI in French, i18n-ready (all labels in locale files).
   - Offline: Operator writes work offline via a sync queue with a "pending sync" badge; Management and Client Space read cached data only.
+  - Multi-site (2026-10-20): each Site has its own Operators, Receptions, stock and treasury. Users are assigned one or more Sites and see only those; Management can have all Sites plus a consolidated view. Clients are shared across Sites and see their activity at every Site.
+  - Audit Trail: every change records who did what, when, and on which Site; visible to Management.
+  - Clients are either Individuals or Companies.
+  - Execution override: the "Set up the front project" task is carried into this map at Ali's request and is built, not just decided.
   - Personas: Management, Operator, Client. Roles are permission bundles; Management grants Permissions (e.g. confirm Payments) in the Backoffice.
   - Client login: phone + PIN, email + password, and phone + SMS code (OTP), all three.
   - One Lot per Reception; several Weighings per Reception; Lot status queue (received → waiting → pressing → pressed → withdrawn); no appointments.
@@ -43,4 +47,3 @@ A decision-complete spec for the Oleoziza front MVP (Vue PWA on mock services): 
 - The backend itself (the MVP targets mock services).
 - Real integration with the scale software and ticket printer (modelled and simulated only).
 - Pressing appointments / slot booking.
-- Multiple mills or sites.

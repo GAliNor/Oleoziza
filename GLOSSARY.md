@@ -1,6 +1,6 @@
 # Oleoziza
 
-Management of a single olive oil mill: receiving and pressing olives, buying olives, selling oil, and following each client's account.
+Management of one owner's olive oil mills (Sites): receiving and pressing olives, buying olives, selling oil, and following each client's account.
 
 ## People
 
@@ -13,8 +13,16 @@ Mill staff who record the day-to-day activity (receptions, weighings, pressings)
 _Avoid_: Agent, employee, worker
 
 **Client**:
-A person who brings olives to the mill, either to have them pressed (Service Milling) or to sell them (Purchase), or both.
+An Individual or a Company that brings olives to a Site, either to have them pressed (Service Milling) or to sell them (Purchase), or both; shared across all Sites.
 _Avoid_: Customer, farmer, supplier, account
+
+**Individual**:
+A Client who is a private person.
+_Avoid_: Particulier, person, natural person
+
+**Company**:
+A Client that is a legal entity, with its own legal identity and contact persons.
+_Avoid_: Entreprise, business, organisation
 
 **Permission**:
 A single right (such as confirming Payments) that Management grants to a user on top of their role.
@@ -88,6 +96,12 @@ _Avoid_: Avoir, credit
 Money the mill gives back to a Client after a cancellation.
 _Avoid_: Reimbursement, chargeback
 
+## Accountability
+
+**Audit Trail**:
+The record of who did what, when, on which Site, for every change in the app.
+_Avoid_: History, log, traçabilité
+
 ## Time
 
 **Season**:
@@ -95,6 +109,11 @@ One olive harvest campaign (roughly November to February), opened and closed by 
 _Avoid_: Campagne, campaign, year
 
 ## Areas
+
+**Site**:
+One mill owned by the owner, with its own Operators, activity, stock and treasury.
+_Avoid_: Mill, factory, branch, workspace
+
 
 **Workspace**:
 The area of the app dedicated to one role (Management, Operator).
