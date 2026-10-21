@@ -39,7 +39,8 @@
         <olive-fill-icon class="h-7 w-7 shrink-0 text-primary-olive md:hidden" />
         <site-switcher />
         <slot name="header" />
-        <network-badge class="ml-auto shrink-0" />
+        <span class="ml-auto" aria-hidden="true" />
+        <network-badge class="shrink-0" />
         <button
           v-if="canSwitchOperator"
           type="button"

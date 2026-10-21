@@ -218,3 +218,99 @@ export const formatDelta = (current: number, previous: number): string => {
   const delta = ((current - previous) / previous) * 100;
   return `${delta >= 0 ? '+' : '−'}${Math.abs(delta).toFixed(1)} %`;
 };
+
+export interface IClientPrototype {
+  name: string;
+  kind: 'individual' | 'company';
+  siteId: string;
+  seasonKg: number;
+  lots: number;
+  oilStockKg: number;
+  balance: number;
+  lastVisit: string;
+  state: IFollowUpPrototype['state'];
+}
+
+export interface IPaymentPrototype {
+  client: string;
+  method: 'Espèces' | 'Virement' | 'Chèque';
+  amount: number;
+  at: string;
+  by: string;
+  hasProof: boolean;
+}
+
+export interface ITankStoragePrototype {
+  tankId: string;
+  lotCode: string;
+  client: string;
+  kind: 'client' | 'mill';
+  kg: number;
+  startDay: number;
+  endDay: number | null;
+}
+
+export const VARIETY_FIGURES = [
+  { variety: 'Picholine marocaine', olivesKg: 401200, oilKg: 73100, lots: 214 },
+  { variety: 'Haouzia', olivesKg: 98600, oilKg: 17200, lots: 61 },
+  { variety: 'Menara', olivesKg: 71300, oilKg: 12600, lots: 44 },
+  { variety: 'Arbequina', olivesKg: 41300, oilKg: 6900, lots: 19 },
+];
+
+export const MODE_SPLIT = { serviceKg: 438900, purchaseKg: 173500 };
+
+export const PRODUCTION_EXTRA = {
+  lotsPressedSeason: 338,
+  averageWaitHours: 5.4,
+  previousAverageWaitHours: 7.1,
+  lotsPressedToday: 9,
+};
+
+export const WEEKLY_REVENUE = [
+  { week: 'S1', amount: 38400 },
+  { week: 'S2', amount: 61200 },
+  { week: 'S3', amount: 84900 },
+  { week: 'S4', amount: 97300 },
+];
+
+export const PAYMENTS_TO_CONFIRM: IPaymentPrototype[] = [
+  { client: 'Mohammed Benali', method: 'Espèces', amount: 920, at: 'auj. 10:58', by: 'Hamid', hasProof: false },
+  { client: 'Coopérative Angad', method: 'Virement', amount: 9500, at: 'auj. 09:40', by: 'Rachid', hasProof: true },
+  { client: 'Said Tahiri', method: 'Chèque', amount: 1025, at: 'hier 17:12', by: 'Abdelkader', hasProof: true },
+  { client: 'Naima Lahlou', method: 'Espèces', amount: 390, at: 'hier 16:30', by: 'Hamid', hasProof: false },
+  { client: 'Domaine Zegzel', method: 'Virement', amount: 2616, at: 'hier 11:05', by: 'Abdelkader', hasProof: true },
+];
+
+export const CLIENTS: IClientPrototype[] = [
+  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 18400, lastVisit: 'auj.', state: 'at-risk' },
+  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 36900, lots: 8, oilStockKg: 0, balance: 4120, lastVisit: 'auj.', state: 'active' },
+  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 5140, lots: 3, oilStockKg: 412, balance: 920, lastVisit: 'auj.', state: 'active' },
+  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4310, lots: 2, oilStockKg: 389, balance: 1025, lastVisit: 'auj.', state: 'active' },
+  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 2980, lots: 2, oilStockKg: 172, balance: 495, lastVisit: 'il y a 9 j', state: 'at-risk' },
+  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockKg: 0, balance: 0, lastVisit: 'auj.', state: 'active' },
+  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1720, lots: 2, oilStockKg: 151, balance: 430, lastVisit: 'auj.', state: 'active' },
+  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1200, lots: 1, oilStockKg: 0, balance: 0, lastVisit: 'il y a 21 j', state: 'inactive' },
+];
+
+export const TANK_STORAGE: ITankStoragePrototype[] = [
+  { tankId: 'A1', lotCode: 'L-0118', client: 'Achat · Coopérative Angad', kind: 'mill', kg: 6200, startDay: -18, endDay: null },
+  { tankId: 'A1', lotCode: 'L-0131', client: 'Stock du moulin (achats)', kind: 'mill', kg: 5400, startDay: -11, endDay: null },
+  { tankId: 'A1', lotCode: 'L-0144', client: 'Stock du moulin (achats)', kind: 'mill', kg: 3500, startDay: -4, endDay: null },
+  { tankId: 'A2', lotCode: 'L-0109', client: 'Driss Amrani', kind: 'client', kg: 1800, startDay: -20, endDay: -9 },
+  { tankId: 'A2', lotCode: 'L-0127', client: 'Abdellah Moussaoui', kind: 'client', kg: 2900, startDay: -13, endDay: -2 },
+  { tankId: 'A2', lotCode: 'L-0139', client: 'Mohammed Benali', kind: 'client', kg: 412, startDay: -6, endDay: null },
+  { tankId: 'A2', lotCode: 'L-0152', client: 'Said Tahiri', kind: 'client', kg: 389, startDay: 0, endDay: null },
+  { tankId: 'A3', lotCode: 'L-0121', client: 'Naima Lahlou', kind: 'client', kg: 3100, startDay: -16, endDay: -1 },
+  { tankId: 'A3', lotCode: 'L-0136', client: 'Khadija Bouzidi', kind: 'client', kg: 2600, startDay: -8, endDay: null },
+  { tankId: 'A3', lotCode: 'L-0146', client: 'Fatima Zahra El Idrissi', kind: 'client', kg: 3500, startDay: -3, endDay: null },
+  { tankId: 'B1', lotCode: 'B-0061', client: 'Achat · Domaine Zegzel', kind: 'mill', kg: 9800, startDay: -15, endDay: null },
+  { tankId: 'B1', lotCode: 'B-0079', client: 'Latifa Berrada', kind: 'client', kg: 151, startDay: -5, endDay: null },
+  { tankId: 'B2', lotCode: 'B-0072', client: 'Hassan Ziani', kind: 'client', kg: 172, startDay: -9, endDay: null },
+  { tankId: 'B2', lotCode: 'B-0058', client: 'Youssef Kaddouri', kind: 'client', kg: 2080, startDay: -19, endDay: -7 },
+];
+
+export const dayLabel = (offset: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+};
