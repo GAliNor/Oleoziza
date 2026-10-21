@@ -1,8 +1,8 @@
 <template>
   <!-- PROTOTYPE: chosen Management Home (variant A, ticket 0019): alert band → today → queue → Season → week → Tanks → Clients. -->
   <section class="mx-auto flex max-w-6xl flex-col gap-5">
-    <div class="flex flex-wrap items-end justify-between gap-2">
-      <div>
+    <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
+      <div class="flex flex-col gap-1.5">
         <h1 class="heading-one">Bonjour {{ authStore.salutation }}</h1>
         <p class="body-two">{{ scopeName }} · {{ SEASON.name }}, jour {{ SEASON.dayOfSeason }} · mis à jour à 11:04</p>
       </div>
