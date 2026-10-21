@@ -1,37 +1,25 @@
 <template>
-  <div class="card flex flex-col gap-4 rounded-2xl p-5">
+  <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h2 class="heading-two">Planning des cuves</h2>
         <p class="body-two">Huile stockée par lot, du pressage au retrait</p>
       </div>
       <div class="flex items-center gap-2">
-        <div class="flex rounded-xl bg-neutral-100 p-1">
-          <button
-            v-for="option in PERIODS"
-            :key="option.days"
-            type="button"
-            class="rounded-lg px-3 py-1.5 text-sm font-medium text-neutral-600"
-            :class="{ 'bg-white text-neutral-900 shadow-sm': periodDays === option.days }"
-            @click="handlePeriod(option.days)"
-          >
-            {{ option.label }}
-          </button>
-        </div>
         <button type="button" class="icon-btn" aria-label="Période précédente" @click="offset -= periodDays">←</button>
         <p class="min-w-32 text-center text-sm font-medium text-neutral-800 tabular-nums">{{ dayLabel(startDay) }} – {{ dayLabel(endDay) }}</p>
         <button type="button" class="icon-btn" aria-label="Période suivante" @click="offset += periodDays">→</button>
       </div>
     </div>
 
-    <div class="flex items-center gap-4 text-xs text-neutral-600">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600">
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-primary-olive-mid" /> Huile d’un client</span>
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-accent-sand" /> Stock du moulin</span>
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm border border-dashed border-neutral-400 bg-neutral-100" /> Retiré</span>
     </div>
 
     <div class="overflow-x-auto">
-      <div class="min-w-[760px]">
+      <div :key="`${startDay}-${periodDays}`" class="min-w-190">
         <div class="grid border-b border-neutral-200 pb-1" :style="gridStyle">
           <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Cuve</p>
           <p
@@ -40,7 +28,7 @@
             class="text-center text-[11px] tabular-nums"
             :class="day === 0 ? 'font-semibold text-primary-olive-dark' : 'text-neutral-500'"
           >
-            {{ periodDays > 14 && day % 3 !== 0 && day !== 0 ? '' : dayLabel(day) }}
+            {{ isLabelShown(day) ? dayLabel(day) : '' }}
           </p>
         </div>
 
@@ -53,11 +41,11 @@
             <div class="absolute inset-y-0 bg-primary-olive-light/30" :style="todayStyle" />
             <template v-for="(lane, laneIndex) in lanesOf(tank.id)" :key="laneIndex">
               <div
-                v-for="entry in lane"
+                v-for="(entry, entryIndex) in lane"
                 :key="entry.lotCode"
-                class="absolute flex h-[26px] items-center overflow-hidden rounded-md px-2 text-xs font-medium whitespace-nowrap"
+                class="grow-x absolute flex h-6.5 items-center overflow-hidden rounded-md px-2 text-xs font-medium whitespace-nowrap"
                 :class="barClass(entry)"
-                :style="barStyle(entry, laneIndex)"
+                :style="{ ...barStyle(entry, laneIndex), animationDelay: `${(laneIndex + entryIndex) * 70}ms` }"
                 :title="`${entry.client} · ${entry.lotCode} · ${formatKg(entry.kg)} · ${dayLabel(entry.startDay)} → ${entry.endDay === null ? 'en cours' : dayLabel(entry.endDay)}`"
               >
                 {{ entry.client }} · {{ formatKg(entry.kg) }}
@@ -73,23 +61,19 @@
 <script setup lang="ts">
 // PROTOTYPE — Tank schedule as a Gantt: one row per Tank, one bar per Lot's oil from Pressing to Withdrawal (ticket 0019 follow-up).
 // imports
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { dayLabel, formatKg, TANK_STORAGE, type ITankPrototype, type ITankStoragePrototype } from 'dashboard/prototype/mock-home.prototype';
+import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
 
 // props
-defineProps<{ tanks: ITankPrototype[] }>();
+const props = defineProps<{ tanks: ITankPrototype[]; period: IPeriodPrototype }>();
 
 // variables
-const PERIODS = [
-  { days: 7, label: 'Semaine' },
-  { days: 14, label: '2 semaines' },
-  { days: 28, label: 'Mois' },
-];
-const periodDays = ref(14);
 const offset = ref(0);
 
 // computed
+const periodDays = computed((): number => Math.max(props.period.days, 7));
 const startDay = computed((): number => offset.value - periodDays.value + 4);
 const endDay = computed((): number => startDay.value + periodDays.value - 1);
 const days = computed((): number[] => Array.from({ length: periodDays.value }, (_, index) => startDay.value + index));
@@ -129,9 +113,16 @@ const barClass = (entry: ITankStoragePrototype): string => {
   return entry.kind === 'mill' ? 'bg-accent-sand text-neutral-900' : 'bg-primary-olive-mid text-neutral-900';
 };
 
-// event handlers
-const handlePeriod = (value: number): void => {
-  periodDays.value = value;
-  offset.value = 0;
+const isLabelShown = (day: number): boolean => {
+  const step = periodDays.value > 30 ? 5 : periodDays.value > 14 ? 3 : 1;
+  return day === 0 || (day - startDay.value) % step === 0;
 };
+
+// watchers
+watch(
+  () => props.period.key,
+  (key) => {
+    offset.value = key === 'previous' ? -365 : 0;
+  },
+);
 </script>

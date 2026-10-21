@@ -1,13 +1,13 @@
 <template>
   <!-- PROTOTYPE: chosen Operator Home (variant C, ticket 0018): hero cards, then one flat list of Lots with their stage, narrowed by filters. -->
   <section class="mx-auto flex max-w-5xl flex-col gap-4">
-    <div>
+    <div class="rise flex flex-col gap-1.5">
       <h1 class="heading-one">Bonjour {{ authStore.session?.firstName }}</h1>
       <p class="body-two">{{ visibleLots.length }} lots aujourd’hui · {{ pendingSyncCount }} à synchroniser</p>
     </div>
 
-    <div class="grid gap-3 md:grid-cols-2">
-      <div class="rounded-3xl bg-primary-olive-dark p-5 text-white">
+    <div class="stagger grid gap-3 md:grid-cols-2">
+      <div class="lift rounded-3xl bg-primary-olive-dark p-5 text-white">
         <p class="text-xs font-semibold tracking-widest text-primary-olive-light uppercase">En pressage</p>
         <template v-if="lotsByStatus.pressing[0]">
           <p class="mt-1 text-2xl font-semibold">{{ lotsByStatus.pressing[0].client }}</p>
@@ -18,7 +18,7 @@
         </template>
         <p v-else class="mt-2 text-primary-olive-light">La ligne est libre.</p>
       </div>
-      <div class="card flex flex-col justify-between gap-3 rounded-3xl p-5">
+      <div class="card lift flex flex-col justify-between gap-3 rounded-3xl p-5">
         <div>
           <p class="eyebrow">Prochain à presser</p>
           <template v-if="lotsByStatus.waiting[0]">
@@ -34,30 +34,22 @@
       </div>
     </div>
 
-    <div class="-mx-4 flex gap-2 overflow-x-auto px-4 py-1 md:mx-0 md:px-0">
-      <button
-        v-for="filter in STATUS_FILTERS"
-        :key="filter.key"
-        type="button"
-        class="chip min-h-10 shrink-0 border px-3.5 text-sm"
-        :class="statusFilter === filter.key ? 'border-primary-olive bg-primary-olive-light text-primary-olive-dark' : 'border-neutral-200 bg-white text-neutral-700'"
-        @click="statusFilter = filter.key"
-      >
-        {{ filter.label }} <span class="font-semibold tabular-nums">{{ filterCount(filter.key) }}</span>
-      </button>
+    <div class="rise flex min-w-0 items-center gap-2">
+      <segmented-control v-model="statusFilter" :options="statusOptions" class="min-w-0" />
       <button
         type="button"
-        class="chip min-h-10 shrink-0 border px-3.5 text-sm"
+        class="min-h-10 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors duration-300"
         :class="isMineOnly ? 'border-accent-brown bg-accent-sand/25 text-accent-brown' : 'border-neutral-200 bg-white text-neutral-700'"
+        :aria-pressed="isMineOnly"
         @click="isMineOnly = !isMineOnly"
       >
         Mes lots
       </button>
     </div>
 
-    <div class="grid gap-2 md:grid-cols-2">
+    <TransitionGroup tag="div" name="list" class="relative grid gap-2 md:grid-cols-2">
       <lot-card v-for="lot in filteredLots" :key="lot.id" :lot="lot" is-status-shown @open="handleOpen" @advance="handleQuickAdvance" />
-    </div>
+    </TransitionGroup>
     <p v-if="!filteredLots.length" class="body-two py-10 text-center">Aucun lot pour ce filtre</p>
 
     <lot-sheet :lot="openLot" @close="openLot = null" @advance="handleSheetAdvance" />
@@ -84,6 +76,7 @@ import {
 
 import LotCard from 'dashboard/prototype/lot-card.prototype.vue';
 import LotSheet from 'dashboard/prototype/lot-sheet.prototype.vue';
+import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
 
 // stores
 const authStore = useAuthStore();
@@ -112,6 +105,7 @@ const lotsByStatus = computed(
       ILotPrototype[]
     >,
 );
+const statusOptions = computed(() => STATUS_FILTERS.map((filter) => ({ ...filter, count: filterCount(filter.key) })));
 const pendingSyncCount = computed((): number => siteLots.value.filter((lot) => lot.isPendingSync).length);
 const filteredLots = computed((): ILotPrototype[] =>
   visibleLots.value

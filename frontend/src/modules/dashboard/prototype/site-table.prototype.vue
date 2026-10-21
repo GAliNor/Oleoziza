@@ -1,6 +1,6 @@
 <template>
   <div class="card overflow-x-auto rounded-2xl p-0">
-    <table class="w-full min-w-[640px] text-sm">
+    <table class="w-full min-w-160 text-sm">
       <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
         <tr>
           <th class="px-4 py-3 font-semibold">Site</th>

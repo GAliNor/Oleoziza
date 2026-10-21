@@ -1,23 +1,13 @@
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="stagger flex flex-col gap-4">
     <div class="flex flex-col gap-3 md:flex-row md:items-center">
       <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Rechercher un client" />
-      <div class="flex gap-2 overflow-x-auto">
-        <button
-          v-for="filter in STATE_FILTERS"
-          :key="filter.key"
-          type="button"
-          class="chip min-h-10 shrink-0 border px-3.5 text-sm"
-          :class="stateFilter === filter.key ? 'border-primary-olive bg-primary-olive-light text-primary-olive-dark' : 'border-neutral-200 bg-white text-neutral-700'"
-          @click="stateFilter = filter.key"
-        >
-          {{ filter.label }} <span class="font-semibold tabular-nums">{{ countOf(filter.key) }}</span>
-        </button>
-      </div>
+      <segmented-control v-model="stateFilter" :options="stateOptions" />
     </div>
+    <p class="body-two">{{ filteredClients.length }} clients venus {{ period.noun }}</p>
 
-    <div class="card overflow-x-auto rounded-2xl p-0">
-      <table class="w-full min-w-[720px] text-sm">
+    <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
+      <table class="w-full min-w-180 text-sm">
         <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
           <tr>
             <th class="px-4 py-3 font-semibold">Client</th>
@@ -30,6 +20,7 @@
           </tr>
         </thead>
         <tbody>
+          <TransitionGroup name="list">
           <tr v-for="client in filteredClients" :key="client.name" class="border-t border-neutral-100 hover:bg-neutral-50">
             <td class="px-4 py-3">
               <p class="font-medium text-neutral-900">{{ client.name }}</p>
@@ -44,6 +35,7 @@
             <td class="px-4 py-3 text-neutral-600">{{ client.lastVisit }}</td>
             <td class="px-4 py-3"><span class="chip" :class="STATE_CLASSES[client.state]">{{ STATE_LABELS[client.state] }}</span></td>
           </tr>
+          </TransitionGroup>
         </tbody>
       </table>
       <p v-if="!filteredClients.length" class="body-two px-5 py-8 text-center">Aucun client</p>
@@ -58,9 +50,12 @@ import { computed, ref } from 'vue';
 
 import { useSiteStore } from 'global/stores/site';
 import { CLIENTS, formatDh, formatKg, type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
+import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+
+import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
 
 // props
-defineProps<{ isFinanceShown: boolean }>();
+const props = defineProps<{ isFinanceShown: boolean; period: IPeriodPrototype }>();
 
 // stores
 const siteStore = useSiteStore();
@@ -84,8 +79,13 @@ const stateFilter = ref<StateFilter>('all');
 
 // computed
 const siteClients = computed((): IClientPrototype[] =>
-  CLIENTS.filter((client) => siteStore.isAllSites || client.siteId === siteStore.currentSiteId),
+  CLIENTS.filter(
+    (client) =>
+      (siteStore.isAllSites || client.siteId === siteStore.currentSiteId) &&
+      (props.period.key === 'previous' || client.lastVisitDays < props.period.days),
+  ),
 );
+const stateOptions = computed(() => STATE_FILTERS.map((filter) => ({ ...filter, count: countOf(filter.key) })));
 const filteredClients = computed((): IClientPrototype[] =>
   siteClients.value
     .filter((client) => stateFilter.value === 'all' || client.state === stateFilter.value)

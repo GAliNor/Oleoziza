@@ -201,3 +201,137 @@
     filter: none;
   }
 }
+
+.tab-switch-enter-active {
+  transition:
+    opacity 0.45s var(--ease-premium),
+    transform 0.45s var(--ease-premium),
+    filter 0.45s var(--ease-premium);
+}
+
+.tab-switch-leave-active {
+  transition:
+    opacity 0.18s ease-in,
+    transform 0.18s ease-in;
+}
+
+.tab-switch-enter-from {
+  opacity: 0;
+  transform: translateY(10px) scale(0.985);
+  filter: blur(6px);
+}
+
+.tab-switch-leave-to {
+  opacity: 0;
+  transform: scale(0.99);
+}
+
+.sheet-enter-active,
+.sheet-leave-active {
+  transition: opacity 0.35s var(--ease-premium);
+}
+
+.sheet-enter-active > section,
+.sheet-leave-active > section {
+  transition: transform 0.5s var(--ease-premium);
+}
+
+.sheet-enter-from,
+.sheet-leave-to {
+  opacity: 0;
+}
+
+.sheet-enter-from > section,
+.sheet-leave-to > section {
+  transform: translateY(40px) scale(0.97);
+}
+
+.list-move,
+.list-enter-active {
+  transition:
+    opacity 0.4s var(--ease-premium),
+    transform 0.4s var(--ease-premium);
+}
+
+.list-leave-active {
+  position: absolute;
+  opacity: 0;
+  transition: none;
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+.grow-y {
+  transform-origin: bottom;
+  animation: grow-y 0.9s var(--ease-premium) both;
+}
+
+.grow-x {
+  transform-origin: left;
+  animation: grow-x 0.8s var(--ease-premium) both;
+}
+
+.lift {
+  transition:
+    transform 0.35s var(--ease-premium),
+    box-shadow 0.35s var(--ease-premium),
+    border-color 0.35s var(--ease-premium);
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -14px rgb(41 37 36 / 0.25);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grow-y,
+  .grow-x {
+    animation: none;
+  }
+
+  .lift:hover {
+    transform: none;
+  }
+
+  .tab-switch-enter-active,
+  .tab-switch-leave-active,
+  .sheet-enter-active > section,
+  .sheet-leave-active > section,
+  .list-move,
+  .list-enter-active {
+    transition: opacity 0.2s linear;
+  }
+
+  .tab-switch-enter-from,
+  .tab-switch-leave-to,
+  .sheet-enter-from > section,
+  .sheet-leave-to > section,
+  .list-enter-from {
+    transform: none;
+    filter: none;
+  }
+}

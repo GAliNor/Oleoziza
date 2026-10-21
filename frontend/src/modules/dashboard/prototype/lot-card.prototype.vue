@@ -1,6 +1,6 @@
 <template>
   <article
-    class="card flex flex-col gap-3 transition-colors hover:border-primary-olive-mid"
+    class="card lift flex min-w-0 cursor-pointer flex-col gap-3 hover:border-primary-olive-mid"
     :class="{ 'p-3': isCompact }"
     role="button"
     tabindex="0"
@@ -24,7 +24,7 @@
       <span
         v-for="(status, index) in LOT_STATUSES"
         :key="status"
-        class="h-1.5 flex-1 rounded-full"
+        class="h-1.5 flex-1 rounded-full transition-colors duration-700 ease-(--ease-premium)"
         :class="index <= currentIndex ? 'bg-primary-olive' : 'bg-neutral-200'"
       />
     </div>

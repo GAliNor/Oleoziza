@@ -1,17 +1,19 @@
 <template>
-  <div class="card flex flex-col gap-4 rounded-2xl p-5">
-    <div class="flex items-baseline justify-between">
+  <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
       <h2 class="heading-two">Cuves</h2>
-      <p class="body-two">{{ formatKg(totalFill) }} / {{ formatKg(totalCapacity) }}</p>
+      <p class="body-two tabular-nums">{{ formatKg(totalFill) }} / {{ formatKg(totalCapacity) }}</p>
     </div>
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3" :class="{ 'lg:grid-cols-5': tanks.length > 3 }">
-      <div v-for="tank in tanks" :key="tank.id" class="flex flex-col overflow-hidden rounded-xl border border-neutral-200">
-        <div class="relative h-24 bg-neutral-100">
+    <div class="grid flex-1 auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3" :class="{ 'xl:grid-cols-5': tanks.length > 3 }">
+      <div v-for="(tank, index) in tanks" :key="tank.id" class="lift flex min-h-32 min-w-0 flex-col overflow-hidden rounded-xl border border-neutral-200">
+        <div class="relative flex-1 overflow-hidden bg-neutral-100">
           <div
-            class="absolute inset-x-0 bottom-0 transition-[height] duration-700"
+            class="grow-y absolute inset-x-0 bottom-0"
             :class="fillRatio(tank) >= 0.9 ? 'bg-accent-sand' : 'bg-primary-olive-mid'"
-            :style="{ height: `${fillRatio(tank) * 100}%` }"
-          />
+            :style="{ height: `${fillRatio(tank) * 100}%`, animationDelay: `${index * 70}ms`, animationDuration: '1.2s' }"
+          >
+            <div class="absolute inset-x-0 top-0 h-px bg-white/60" />
+          </div>
           <p class="absolute inset-0 flex items-center justify-center text-lg font-semibold text-neutral-900 tabular-nums">
             {{ Math.round(fillRatio(tank) * 100) }} %
           </p>
@@ -26,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — Tank fill cards, liquid-level style from reference 05 (ticket 0019).
+// PROTOTYPE — Tank cards that fill their block, with a liquid level rising on load, from reference 05 (ticket 0019).
 // imports
 import { computed } from 'vue';
 

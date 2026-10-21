@@ -228,6 +228,7 @@ export interface IClientPrototype {
   oilStockKg: number;
   balance: number;
   lastVisit: string;
+  lastVisitDays: number;
   state: IFollowUpPrototype['state'];
 }
 
@@ -282,14 +283,14 @@ export const PAYMENTS_TO_CONFIRM: IPaymentPrototype[] = [
 ];
 
 export const CLIENTS: IClientPrototype[] = [
-  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 18400, lastVisit: 'auj.', state: 'at-risk' },
-  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 36900, lots: 8, oilStockKg: 0, balance: 4120, lastVisit: 'auj.', state: 'active' },
-  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 5140, lots: 3, oilStockKg: 412, balance: 920, lastVisit: 'auj.', state: 'active' },
-  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4310, lots: 2, oilStockKg: 389, balance: 1025, lastVisit: 'auj.', state: 'active' },
-  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 2980, lots: 2, oilStockKg: 172, balance: 495, lastVisit: 'il y a 9 j', state: 'at-risk' },
-  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockKg: 0, balance: 0, lastVisit: 'auj.', state: 'active' },
-  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1720, lots: 2, oilStockKg: 151, balance: 430, lastVisit: 'auj.', state: 'active' },
-  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1200, lots: 1, oilStockKg: 0, balance: 0, lastVisit: 'il y a 21 j', state: 'inactive' },
+  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 18400, lastVisit: 'auj.', lastVisitDays: 0, state: 'at-risk' },
+  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 36900, lots: 8, oilStockKg: 0, balance: 4120, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
+  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 5140, lots: 3, oilStockKg: 412, balance: 920, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
+  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4310, lots: 2, oilStockKg: 389, balance: 1025, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
+  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 2980, lots: 2, oilStockKg: 172, balance: 495, lastVisit: 'il y a 9 j', lastVisitDays: 9, state: 'at-risk' },
+  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockKg: 0, balance: 0, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
+  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1720, lots: 2, oilStockKg: 151, balance: 430, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
+  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1200, lots: 1, oilStockKg: 0, balance: 0, lastVisit: 'il y a 21 j', lastVisitDays: 21, state: 'inactive' },
 ];
 
 export const TANK_STORAGE: ITankStoragePrototype[] = [
@@ -313,4 +314,36 @@ export const dayLabel = (offset: number): string => {
   const date = new Date();
   date.setDate(date.getDate() + offset);
   return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+};
+
+export const SEASON_WEEKS = [
+  { week: 'S1', oliveKg: 61800, oilKg: 10900 },
+  { week: 'S2', oliveKg: 88400, oilKg: 15600 },
+  { week: 'S3', oliveKg: 117300, oilKg: 21100 },
+  { week: 'S4', oliveKg: 129600, oilKg: 23500 },
+  { week: 'S5', oliveKg: 104900, oilKg: 18700 },
+  { week: 'S6', oliveKg: 110400, oilKg: 20000 },
+];
+
+export const olivesBars = (periodKey: string, scale: number): { title: string; bars: { label: string; value: number; lines: string[] }[] } => {
+  if (periodKey === 'today' || periodKey === 'week') {
+    return {
+      title: 'Olives reçues, 7 derniers jours',
+      bars: LAST_SEVEN_DAYS.map((day) => ({
+        label: day.day,
+        value: day.oliveKg * scale,
+        lines: [`${formatKg(day.oliveKg * scale)} d’olives`, `${formatKg(day.oilKg * scale)} d’huile`],
+      })),
+    };
+  }
+  const weeks = periodKey === 'month' ? SEASON_WEEKS.slice(-4) : SEASON_WEEKS;
+  const factor = periodKey === 'previous' ? 1.62 * scale : scale;
+  return {
+    title: periodKey === 'month' ? 'Olives reçues, par semaine ce mois' : 'Olives reçues, par semaine de saison',
+    bars: weeks.map((week) => ({
+      label: week.week,
+      value: week.oliveKg * factor,
+      lines: [`${formatKg(week.oliveKg * factor)} d’olives`, `${formatKg(week.oilKg * factor)} d’huile`],
+    })),
+  };
 };
