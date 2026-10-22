@@ -7,29 +7,43 @@
     </div>
 
     <div class="stagger grid gap-3 md:grid-cols-2">
-      <div class="lift rounded-3xl bg-primary-olive-dark p-5 text-white">
-        <p class="text-xs font-semibold tracking-widest text-primary-olive-light uppercase">En pressage</p>
-        <template v-if="lotsByStatus.pressing[0]">
-          <p class="mt-1 text-2xl font-semibold">{{ lotsByStatus.pressing[0].client }}</p>
-          <p class="text-primary-olive-light">{{ lotsByStatus.pressing[0].code }} · {{ formatKg(lotsByStatus.pressing[0].netKg) }} · depuis 11:15</p>
-          <button type="button" class="mt-4 w-full rounded-xl bg-white py-3 font-medium text-primary-olive-dark" @click="handleQuickAdvance(lotsByStatus.pressing[0])">
-            Saisir l’huile obtenue
-          </button>
-        </template>
-        <p v-else class="mt-2 text-primary-olive-light">La ligne est libre.</p>
-      </div>
-      <div class="card lift flex flex-col justify-between gap-3 rounded-3xl p-5">
-        <div>
-          <p class="eyebrow">Prochain à presser</p>
-          <template v-if="lotsByStatus.waiting[0]">
-            <p class="mt-1 text-2xl font-semibold text-neutral-900">{{ lotsByStatus.waiting[0].client }}</p>
-            <p class="body-two">{{ lotsByStatus.waiting[0].code }} · {{ formatKg(lotsByStatus.waiting[0].netKg) }} · {{ lotsByStatus.waiting.length - 1 }} autres en attente</p>
-          </template>
-          <p v-else class="body-two mt-2">Personne en attente.</p>
+      <div class="lift flex flex-col gap-4 rounded-3xl bg-primary-olive-dark p-5 text-white">
+        <p class="text-xs font-semibold tracking-widest text-primary-olive-light uppercase">Production du jour</p>
+        <div class="grid grid-cols-3 gap-3">
+          <hero-stat label="Olives" :value="todayFigures.oliveKg" unit="kg" :sub="`${todayFigures.receptions} réceptions`" is-dark />
+          <hero-stat label="Huile" :value="todayFigures.oilKg" unit="kg" :sub="formatLitres(todayFigures.oilKg)" is-dark />
+          <hero-stat label="Rendement" :value="todayFigures.yieldPct" :decimals="1" unit="%" :sub="`${todayFigures.pressedCount} lots pressés`" is-dark />
         </div>
-        <div class="flex gap-2">
-          <button v-if="lotsByStatus.waiting[0]" type="button" class="btn-secondary flex-1" @click="handleQuickAdvance(lotsByStatus.waiting[0])">Lancer</button>
-          <button type="button" class="btn-primary flex-1" @click="handleNewReception">+ Réception</button>
+        <div class="mt-auto flex items-center gap-3 border-t border-white/15 pt-4">
+          <div class="min-w-0 flex-1">
+            <p class="text-xs text-primary-olive-light">En pressage</p>
+            <p v-if="lotsByStatus.pressing[0]" class="truncate font-medium">{{ lotsByStatus.pressing[0].client }} · {{ formatKg(lotsByStatus.pressing[0].netKg) }}</p>
+            <p v-else class="font-medium">La ligne est libre</p>
+          </div>
+          <button
+            v-if="lotsByStatus.pressing[0]"
+            type="button"
+            class="shrink-0 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-primary-olive-dark"
+            @click="handleQuickAdvance(lotsByStatus.pressing[0])"
+          >
+            Saisir l’huile
+          </button>
+        </div>
+      </div>
+      <div class="card lift flex flex-col gap-4 rounded-3xl p-5">
+        <p class="eyebrow">À traiter</p>
+        <div class="grid grid-cols-3 gap-3">
+          <hero-stat label="À mettre en file" :value="lotsByStatus.received.length" :sub="formatKg(sumNetKg(lotsByStatus.received))" />
+          <hero-stat label="En attente" :value="lotsByStatus.waiting.length" :sub="`≈ ${formatHours(queueHours)} de pressage`" />
+          <hero-stat label="À retirer" :value="lotsByStatus.pressed.length" :sub="formatKg(sumOilKg(lotsByStatus.pressed))" />
+        </div>
+        <div class="mt-auto flex items-center gap-2 border-t border-neutral-100 pt-4">
+          <div class="min-w-0 flex-1">
+            <p class="text-xs text-neutral-500">Prochain à presser</p>
+            <p class="truncate font-medium text-neutral-900">{{ lotsByStatus.waiting[0]?.client ?? 'Personne en attente' }}</p>
+          </div>
+          <button v-if="lotsByStatus.waiting[0]" type="button" class="btn-secondary shrink-0" @click="handleQuickAdvance(lotsByStatus.waiting[0])">Lancer</button>
+          <button type="button" class="btn-primary shrink-0" @click="handleNewReception">+ Réception</button>
         </div>
       </div>
     </div>
@@ -68,12 +82,14 @@ import {
   advanceLot,
   createLots,
   formatKg,
+  formatLitres,
   LOT_STATUSES,
   STATUS_LABELS,
   type ILotPrototype,
   type LotStatus,
 } from 'dashboard/prototype/mock-home.prototype';
 
+import HeroStat from 'dashboard/prototype/hero-stat.prototype.vue';
 import LotCard from 'dashboard/prototype/lot-card.prototype.vue';
 import LotSheet from 'dashboard/prototype/lot-sheet.prototype.vue';
 import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
@@ -84,6 +100,7 @@ const siteStore = useSiteStore();
 const toastStore = useToastStore();
 
 // variables
+const LINE_THROUGHPUT_KG_PER_HOUR = 1500;
 const STATUS_FILTERS: { key: LotStatus | 'active'; label: string }[] = [
   { key: 'active', label: 'En cours' },
   ...LOT_STATUSES.map((status) => ({ key: status, label: STATUS_LABELS[status] })),
@@ -105,6 +122,19 @@ const lotsByStatus = computed(
       ILotPrototype[]
     >,
 );
+const todayFigures = computed(() => {
+  const pressed = visibleLots.value.filter((lot) => lot.oilKg !== null);
+  const oilKg = sumOilKg(pressed);
+  const pressedNetKg = sumNetKg(pressed);
+  return {
+    oliveKg: sumNetKg(visibleLots.value),
+    receptions: visibleLots.value.length,
+    oilKg,
+    yieldPct: pressedNetKg ? (oilKg / pressedNetKg) * 100 : 0,
+    pressedCount: pressed.length,
+  };
+});
+const queueHours = computed((): number => sumNetKg(lotsByStatus.value.waiting) / LINE_THROUGHPUT_KG_PER_HOUR);
 const statusOptions = computed(() => STATUS_FILTERS.map((filter) => ({ ...filter, count: filterCount(filter.key) })));
 const pendingSyncCount = computed((): number => siteLots.value.filter((lot) => lot.isPendingSync).length);
 const filteredLots = computed((): ILotPrototype[] =>
@@ -114,6 +144,15 @@ const filteredLots = computed((): ILotPrototype[] =>
 );
 
 // methods
+const sumNetKg = (list: ILotPrototype[]): number => list.reduce((total, lot) => total + lot.netKg, 0);
+
+const sumOilKg = (list: ILotPrototype[]): number => list.reduce((total, lot) => total + (lot.oilKg ?? 0), 0);
+
+const formatHours = (hours: number): string => {
+  const minutes = Math.round(hours * 60);
+  return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`;
+};
+
 const filterCount = (key: LotStatus | 'active'): number =>
   visibleLots.value.filter((lot) => (key === 'active' ? lot.status !== 'withdrawn' : lot.status === key)).length;
 
