@@ -14,6 +14,7 @@ export type Permission =
   | 'client.edit'
   | 'client.manage_access'
   | 'payment.record'
+  | 'payout.record'
   | 'payment.confirm'
   | 'payment.cancel'
   | 'expense.record'

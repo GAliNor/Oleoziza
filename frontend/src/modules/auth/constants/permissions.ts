@@ -10,6 +10,7 @@ export const PERMISSIONS: readonly Permission[] = [
   'client.edit',
   'client.manage_access',
   'payment.record',
+  'payout.record',
   'payment.confirm',
   'payment.cancel',
   'expense.record',
@@ -36,8 +37,8 @@ export const ROLE_DEFAULT_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'client.create',
     'client.edit',
     'payment.record',
+    'payout.record',
     'purchase.create',
-    'sale.create',
   ],
   client: [],
 };
