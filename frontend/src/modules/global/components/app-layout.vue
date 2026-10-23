@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-dvh md:flex">
+  <operator-shell v-if="isOperator">
+    <slot />
+  </operator-shell>
+  <div v-else class="min-h-dvh md:flex">
     <aside class="hidden w-64 shrink-0 flex-col gap-6 border-r border-neutral-200 bg-white p-4 md:flex">
       <div class="flex items-center gap-2 px-3">
         <olive-fill-icon class="h-8 w-8 text-primary-olive" />
@@ -98,6 +101,7 @@ import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
 import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
+import OperatorShell from 'global/components/operator-shell.vue';
 
 // stores
 const authStore = useAuthStore();
@@ -111,6 +115,7 @@ const navItems: { name: string; labelKey: string; icon: Component; permission?: 
 
 // computed
 const visibleNavItems = computed(() => navItems.filter((item) => !item.permission || authStore.can(item.permission)));
+const isOperator = computed((): boolean => authStore.session?.role === 'operator');
 const canSwitchOperator = computed((): boolean => authStore.session?.role === 'operator');
 
 // event handlers

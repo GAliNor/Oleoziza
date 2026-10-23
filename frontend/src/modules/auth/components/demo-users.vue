@@ -21,7 +21,7 @@
 <script setup lang="ts">
 // imports
 import { USERS_MOCK } from 'auth/constants/mock-auth';
-import { formatPhone } from 'auth/composables/normalize-identifier';
+import { formatPhone } from 'global/composables/phone';
 import type { IMockUser } from 'auth/types/mock-auth';
 
 // emits

@@ -1,0 +1,18 @@
+{
+  "kinds": {
+    "individual": "Particulier",
+    "company": "Entreprise"
+  },
+  "search": {
+    "title": "Quel client ?",
+    "placeholder": "Nom ou téléphone",
+    "noResult": "Aucun client trouvé pour « {query} ».",
+    "loadError": "Impossible de charger les clients.",
+    "purposes": {
+      "any": "Rechercher",
+      "withdrawal": "Retrait",
+      "payment": "Encaisser",
+      "payout": "Payer"
+    }
+  }
+}

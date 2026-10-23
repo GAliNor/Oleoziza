@@ -21,7 +21,9 @@
       "global/*": ["src/modules/global/*"],
       "dashboard/*": ["src/modules/dashboard/*"],
       "auth/*": ["src/modules/auth/*"],
-      "site/*": ["src/modules/site/*"]
+      "site/*": ["src/modules/site/*"],
+      "reception/*": ["src/modules/reception/*"],
+      "client/*": ["src/modules/client/*"]
     }
   },
   "include": ["env.d.ts", "src/**/*.ts", "src/**/*.vue"]

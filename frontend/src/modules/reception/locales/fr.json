@@ -1,0 +1,106 @@
+{
+  "modes": {
+    "service": "Trituration à façon",
+    "purchase": "Achat"
+  },
+  "clientKinds": {
+    "individual": "Particulier",
+    "company": "Entreprise"
+  },
+  "containers": {
+    "sac": "Sacs",
+    "caisse": "Caisses"
+  },
+  "quality": {
+    "clean": "Propres",
+    "leaves": "Avec feuilles",
+    "bruised": "Abîmées",
+    "fallen": "Tombées au sol",
+    "fermented": "Fermentées"
+  },
+  "pendingSync": "À synchroniser",
+  "loadError": "Impossible de charger les réceptions.",
+  "retry": "Réessayer",
+  "saveError": "L’enregistrement a échoué, réessayez.",
+  "clientPicker": {
+    "placeholder": "Nom ou téléphone du client",
+    "noResult": "Aucun client trouvé pour « {query} ».",
+    "change": "Changer",
+    "create": "Nouveau client",
+    "createNamed": "Nouveau client « {query} »",
+    "namePlaceholder": "Prénom et nom",
+    "companyPlaceholder": "Raison sociale",
+    "phonePlaceholder": "Téléphone (06…)",
+    "offlineHint": "Hors ligne, le client est créé sur ce poste ; un doublon éventuel sera fusionné par la Direction.",
+    "cancel": "Annuler",
+    "confirm": "Créer",
+    "new": "nouveau",
+    "otherSites": "aussi client à {sites}",
+    "noPermission": "Vous ne pouvez pas créer de client sur ce site."
+  },
+  "open": {
+    "eyebrow": "Arrivée · {site}",
+    "title": "Nouvelle réception",
+    "subtitle": "Le lot apparaît tout de suite dans la file « Reçu » ; on le pèse ensuite au poste bascule.",
+    "client": "Client",
+    "mode": "Type",
+    "dailyPrice": "Prix du jour {price}/kg, figé à l’ouverture",
+    "dailyPriceMissing": "Prix du jour manquant : le lot sera chiffré quand la Direction le fixera.",
+    "variety": "Variété",
+    "details": "Détails",
+    "optional": "facultatif",
+    "announcedContainers": "Contenants annoncés",
+    "announcedPlaceholder": "ex. 24",
+    "plate": "Immatriculation",
+    "platePlaceholder": "12345-أ-6",
+    "origin": "Provenance",
+    "originPlaceholder": "Commune, douar",
+    "qualityLabel": "État des olives",
+    "note": "Remarque",
+    "weighNow": "Ouvrir et peser",
+    "weighLater": "Ouvrir, peser plus tard",
+    "opened": "{code} ouvert pour {client}"
+  },
+  "station": {
+    "eyebrow": "{code} · Poste bascule",
+    "otherLots": "Lots à peser",
+    "weighings": "{count} pesée | {count} pesées",
+    "containersWeighed": "Contenants pesés",
+    "noWeighing": "Aucune pesée pour l’instant",
+    "gross": "Brut",
+    "net": "Net",
+    "grossHint": "brut {gross} − tare {tare}",
+    "scale": "Bascule",
+    "manual": "saisie",
+    "readScale": "Lire la bascule",
+    "reading": "Lecture…",
+    "scaleError": "La bascule ne répond pas : saisissez le poids.",
+    "tareLine": "− tare {tare} =",
+    "netLine": "Net {net}",
+    "tareOverGross": "La tare dépasse le poids brut.",
+    "add": "Ajouter la pesée",
+    "later": "Plus tard",
+    "finish": "Terminer la réception",
+    "finishHint": "Le poids net sera figé et le lot passera « En attente ».",
+    "notFound": "Ce lot n’est plus à peser sur ce site.",
+    "back": "Retour à l’accueil",
+    "added": "Pesée {index} : {net}",
+    "containerTare": "{kg} kg"
+  },
+  "pad": {
+    "erase": "Effacer"
+  },
+  "done": {
+    "waiting": "En attente de pressage",
+    "purchase": "Achat à {price}/kg · {amount}",
+    "print": "Imprimer le ticket de réception",
+    "printed": "Ticket {code} envoyé à l’imprimante",
+    "again": "Nouvelle réception",
+    "home": "Accueil"
+  },
+  "weigh": {
+    "title": "Lots à peser",
+    "subtitle": "Aucun lot reçu en attente de pesée | {count} lot reçu | {count} lots reçus",
+    "empty": "Aucun lot à peser pour l’instant."
+  }
+}

@@ -13,6 +13,7 @@ export const PERMISSIONS: readonly Permission[] = [
   'payout.record',
   'payment.confirm',
   'payment.cancel',
+  'record.correct',
   'expense.record',
   'purchase.create',
   'sale.create',

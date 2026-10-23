@@ -97,6 +97,39 @@
     @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
 
+  .weight-key {
+    @apply flex h-16 items-center justify-center rounded-2xl bg-neutral-100 text-2xl font-medium text-neutral-900
+      transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none hover:bg-neutral-200/70
+      active:scale-95 active:bg-primary-olive-light disabled:opacity-40 disabled:active:scale-100;
+  }
+
+  .avatar {
+    @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold;
+  }
+
+  .toggle-tile {
+    @apply min-h-12 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-700
+      transition-colors duration-300 ease-(--ease-premium) hover:border-neutral-300;
+  }
+
+  .toggle-tile-active {
+    @apply border-primary-olive-dark bg-primary-olive-dark text-white hover:border-primary-olive-dark;
+  }
+
+  .choice-chip {
+    @apply min-h-11 rounded-full border border-neutral-200 bg-white px-4 text-sm text-neutral-700
+      transition-colors duration-300 ease-(--ease-premium) hover:border-neutral-300;
+  }
+
+  .choice-chip-active {
+    @apply border-accent-brown bg-accent-sand/25 font-medium text-accent-brown hover:border-accent-brown;
+  }
+
+  .dock-action {
+    @apply flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl text-xs font-semibold
+      transition-transform duration-200 ease-(--ease-premium) active:scale-95 md:min-h-24;
+  }
+
   .skeleton {
     @apply animate-pulse rounded-md bg-neutral-200;
   }

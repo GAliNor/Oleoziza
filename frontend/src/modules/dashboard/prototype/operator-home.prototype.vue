@@ -73,11 +73,14 @@
 <script setup lang="ts">
 // PROTOTYPE — chosen Operator Home (ticket 0018). Mock data only; nothing is saved.
 // imports
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
 import { useToastStore } from 'global/stores/toast';
+import { useReceptionStore } from 'reception/stores/reception';
+import { toPrototypeLot } from 'dashboard/prototype/reception-bridge.prototype';
 import {
   advanceLot,
   createLots,
@@ -95,6 +98,8 @@ import LotSheet from 'dashboard/prototype/lot-sheet.prototype.vue';
 import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
 
 // stores
+const router = useRouter();
+const receptionStore = useReceptionStore();
 const authStore = useAuthStore();
 const siteStore = useSiteStore();
 const toastStore = useToastStore();
@@ -143,6 +148,28 @@ const filteredLots = computed((): ILotPrototype[] =>
     .sort((first, second) => second.receivedAt.localeCompare(first.receivedAt)),
 );
 
+// watchers
+watch(
+  () => siteStore.currentSite?.id,
+  (siteId) => {
+    if (siteId) receptionStore.fetchSite(siteId);
+  },
+  { immediate: true },
+);
+
+watch(
+  () => receptionStore.lots,
+  (receptionLots) => {
+    receptionLots.forEach((receptionLot) => {
+      const mapped = toPrototypeLot(receptionLot, authStore.session?.firstName ?? '');
+      const index = lots.findIndex((lot) => lot.code === mapped.code);
+      if (index === -1) lots.unshift(mapped);
+      else lots.splice(index, 1, mapped);
+    });
+  },
+  { immediate: true, deep: true },
+);
+
 // methods
 const sumNetKg = (list: ILotPrototype[]): number => list.reduce((total, lot) => total + lot.netKg, 0);
 
@@ -162,6 +189,10 @@ const handleOpen = (lot: ILotPrototype): void => {
 };
 
 const handleQuickAdvance = (lot: ILotPrototype): void => {
+  if (lot.status === 'received') {
+    router.push({ name: 'reception-station', params: { code: lot.code } });
+    return;
+  }
   if (lot.status === 'pressing') {
     openLot.value = lot;
     return;
@@ -171,11 +202,15 @@ const handleQuickAdvance = (lot: ILotPrototype): void => {
 };
 
 const handleSheetAdvance = (lot: ILotPrototype, oilKg?: number): void => {
+  if (lot.status === 'received') {
+    handleQuickAdvance(lot);
+    return;
+  }
   advanceLot(lot, oilKg);
   toastStore.push(`${lot.code} → ${STATUS_LABELS[lot.status]}`, 'success');
 };
 
 const handleNewReception = (): void => {
-  toastStore.push('Prototype : le formulaire de réception fait l’objet de son propre ticket.', 'info');
+  router.push({ name: 'reception-new' });
 };
 </script>

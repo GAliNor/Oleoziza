@@ -45,6 +45,8 @@ export default defineConfig({
       dashboard: fromSrc('modules/dashboard'),
       auth: fromSrc('modules/auth'),
       site: fromSrc('modules/site'),
+      reception: fromSrc('modules/reception'),
+      client: fromSrc('modules/client'),
     },
   },
 });

@@ -18,5 +18,17 @@
   },
   "toast": {
     "close": "Fermer"
+  },
+  "shell": {
+    "dock": "Actions",
+    "search": "Rechercher un client",
+    "pendingSync": "{count} élément à synchroniser | {count} éléments à synchroniser",
+    "switchOperator": "{name}, changer d’opérateur",
+    "actions": {
+      "reception": "Réception",
+      "weigh": "Peser",
+      "withdrawal": "Retrait",
+      "payment": "Encaisser"
+    }
   }
 }

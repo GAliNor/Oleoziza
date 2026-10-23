@@ -67,7 +67,7 @@ export const STATUS_LABELS: Record<LotStatus, string> = {
 };
 
 export const NEXT_STEP_LABELS: Record<LotStatus, string | null> = {
-  received: 'Mettre en attente',
+  received: 'Peser',
   waiting: 'Lancer le pressage',
   pressing: 'Saisir l’huile',
   pressed: 'Enregistrer un retrait',
