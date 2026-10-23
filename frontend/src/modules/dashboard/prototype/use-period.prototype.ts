@@ -23,9 +23,9 @@ export const PERIODS: IPeriodPrototype[] = [
 export const usePeriod = (): { period: ComputedRef<IPeriodPrototype>; selectPeriod: (key: PeriodKey) => void } => {
   const route = useRoute();
   const router = useRouter();
-  const period = computed((): IPeriodPrototype => PERIODS.find((item) => item.key === route.query.period) ?? PERIODS[0]);
+  const period = computed((): IPeriodPrototype => PERIODS.find((item) => item.key === route.query.period) ?? PERIODS[1]);
   const selectPeriod = (key: PeriodKey): void => {
-    router.replace({ query: { ...route.query, period: key === 'today' ? undefined : key } });
+    router.replace({ query: { ...route.query, period: key === 'week' ? undefined : key } });
   };
   return { period, selectPeriod };
 };

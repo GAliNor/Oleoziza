@@ -163,13 +163,6 @@ export const TANKS: ITankPrototype[] = [
   { id: 'B2', siteId: SITE_BERKANE_ID, name: 'Cuve B2', capacityKg: 15000, fillKg: 2250, isBio: false },
 ];
 
-export const FOLLOW_UPS: IFollowUpPrototype[] = [
-  { client: 'Coopérative Angad', note: 'Solde de 18 400 DH depuis 21 jours', state: 'at-risk' },
-  { client: 'Hassan Ziani', note: 'Huile pressée non retirée depuis 9 jours', state: 'at-risk' },
-  { client: 'Mohammed Benali', note: 'Venu aujourd’hui · 3ᵉ apport de la saison', state: 'active' },
-  { client: 'Rkia Hammouti', note: 'Pas venue depuis 3 semaines (12 t la saison dernière)', state: 'inactive' },
-];
-
 export const SITE_FIGURES: ISiteFiguresPrototype[] = [
   { siteId: SITE_OUJDA_ID, name: 'Huilerie Oujda', oliveKgToday: 13420, receptionsToday: 11, oilKgToday: 1780, queue: 6, yieldPct: 18.4, revenueSeason: 412800, outstanding: 64300 },
   { siteId: SITE_BERKANE_ID, name: 'Huilerie Berkane', oliveKgToday: 7380, receptionsToday: 7, oilKgToday: 1020, queue: 3, yieldPct: 17.6, revenueSeason: 268500, outstanding: 31900 },
@@ -178,27 +171,12 @@ export const SITE_FIGURES: ISiteFiguresPrototype[] = [
 export const SEASON = {
   name: 'Saison 2026-2027',
   dayOfSeason: 22,
-  netResult: 186400,
-  previousNetResult: 162900,
-  breakdown: [
-    { label: 'Trituration à façon', amount: 248600 },
-    { label: 'Ventes d’huile', amount: 371200 },
-    { label: 'Sous-produits (grignons)', amount: 61500 },
-    { label: 'Achats d’olives', amount: -421300 },
-    { label: 'Charges', amount: -73600 },
-  ],
   olivesKg: 612400,
   previousOlivesKg: 548900,
   oilKg: 109800,
   previousOilKg: 101300,
   yieldPct: 17.9,
   previousYieldPct: 18.5,
-};
-
-export const ALERTS = {
-  paymentsToConfirm: 7,
-  amountToConfirm: 23850,
-  amountToCollect: 96200,
 };
 
 export const LAST_SEVEN_DAYS = [
@@ -232,15 +210,6 @@ export interface IClientPrototype {
   state: IFollowUpPrototype['state'];
 }
 
-export interface IPaymentPrototype {
-  client: string;
-  method: 'Espèces' | 'Virement' | 'Chèque';
-  amount: number;
-  at: string;
-  by: string;
-  hasProof: boolean;
-}
-
 export interface ITankStoragePrototype {
   tankId: string;
   lotCode: string;
@@ -266,21 +235,6 @@ export const PRODUCTION_EXTRA = {
   previousAverageWaitHours: 7.1,
   lotsPressedToday: 9,
 };
-
-export const WEEKLY_REVENUE = [
-  { week: 'S1', amount: 38400 },
-  { week: 'S2', amount: 61200 },
-  { week: 'S3', amount: 84900 },
-  { week: 'S4', amount: 97300 },
-];
-
-export const PAYMENTS_TO_CONFIRM: IPaymentPrototype[] = [
-  { client: 'Mohammed Benali', method: 'Espèces', amount: 920, at: 'auj. 10:58', by: 'Hamid', hasProof: false },
-  { client: 'Coopérative Angad', method: 'Virement', amount: 9500, at: 'auj. 09:40', by: 'Rachid', hasProof: true },
-  { client: 'Said Tahiri', method: 'Chèque', amount: 1025, at: 'hier 17:12', by: 'Abdelkader', hasProof: true },
-  { client: 'Naima Lahlou', method: 'Espèces', amount: 390, at: 'hier 16:30', by: 'Hamid', hasProof: false },
-  { client: 'Domaine Zegzel', method: 'Virement', amount: 2616, at: 'hier 11:05', by: 'Abdelkader', hasProof: true },
-];
 
 export const CLIENTS: IClientPrototype[] = [
   { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 18400, lastVisit: 'auj.', lastVisitDays: 0, state: 'at-risk' },
@@ -347,3 +301,105 @@ export const olivesBars = (periodKey: string, scale: number): { title: string; b
     })),
   };
 };
+
+export type PaymentMethodKey = 'cash' | 'cheque' | 'transfer' | 'oil';
+
+export interface ISalesFiguresPrototype {
+  revenue: number;
+  collected: number;
+  pending: number;
+  outstanding: number;
+  pendingCount: number;
+}
+
+export interface ISalesBarPrototype {
+  label: string;
+  revenue: number;
+  collected: number;
+  isCurrent: boolean;
+}
+
+export interface IServedClientPrototype {
+  name: string;
+  kind: IClientPrototype['kind'];
+  lastStep: 'Réception' | 'Pressage' | 'Retrait';
+  lastAt: string;
+  lots: number;
+  oliveKg: number;
+}
+
+export const SALES_SEASON: ISalesFiguresPrototype = { revenue: 371200, collected: 289400, pending: 23850, outstanding: 57950, pendingCount: 7 };
+
+export const PAYMENT_METHODS: { key: PaymentMethodKey; label: string; amount: number; tone: string }[] = [
+  { key: 'cash', label: 'Espèces', amount: 154300, tone: '#5C6A47' },
+  { key: 'cheque', label: 'Chèque', amount: 61800, tone: '#96A586' },
+  { key: 'transfer', label: 'Virement', amount: 58700, tone: '#D4A373' },
+  { key: 'oil', label: 'Part d’huile', amount: 14600, tone: '#A66127' },
+];
+
+const DAILY_SALES = [
+  { label: 'mer.', revenue: 14200, collected: 11800 },
+  { label: 'jeu.', revenue: 18900, collected: 12400 },
+  { label: 'ven.', revenue: 9600, collected: 9100 },
+  { label: 'sam.', revenue: 22300, collected: 15700 },
+  { label: 'dim.', revenue: 6100, collected: 6100 },
+  { label: 'lun.', revenue: 16800, collected: 10200 },
+  { label: 'auj.', revenue: 12400, collected: 4300 },
+];
+
+const WEEKLY_SALES = [
+  { label: 'S1', revenue: 38400, collected: 33100 },
+  { label: 'S2', revenue: 52700, collected: 46900 },
+  { label: 'S3', revenue: 68900, collected: 58200 },
+  { label: 'S4', revenue: 79300, collected: 64800 },
+  { label: 'S5', revenue: 70200, collected: 52300 },
+  { label: 'S6', revenue: 61700, collected: 34100 },
+];
+
+export const salesFigures = (factor: number): ISalesFiguresPrototype => {
+  const revenue = SALES_SEASON.revenue * factor;
+  const span = Math.min(factor, 1);
+  const pending = revenue * (SALES_SEASON.pending / SALES_SEASON.revenue + 0.12 * (1 - span));
+  const outstanding = revenue * (SALES_SEASON.outstanding / SALES_SEASON.revenue) * (0.6 + 0.4 * span);
+  return {
+    revenue,
+    collected: revenue - pending - outstanding,
+    pending,
+    outstanding,
+    pendingCount: Math.max(1, Math.round(SALES_SEASON.pendingCount * Math.min(factor * 4, 1))),
+  };
+};
+
+export const salesBars = (periodKey: string, scale: number): { title: string; bars: ISalesBarPrototype[] } => {
+  if (periodKey === 'today' || periodKey === 'week') {
+    return {
+      title: 'CA et encaissé, 7 derniers jours',
+      bars: DAILY_SALES.map((day, index) => ({ label: day.label, revenue: day.revenue * scale, collected: day.collected * scale, isCurrent: index === DAILY_SALES.length - 1 })),
+    };
+  }
+  const weeks = periodKey === 'month' ? WEEKLY_SALES.slice(-4) : WEEKLY_SALES;
+  const factor = periodKey === 'previous' ? 1.48 * scale : scale;
+  return {
+    title: periodKey === 'month' ? 'CA et encaissé, par semaine ce mois' : 'CA et encaissé, par semaine de saison',
+    bars: weeks.map((week, index) => ({
+      label: week.label,
+      revenue: week.revenue * factor,
+      collected: week.collected * factor,
+      isCurrent: periodKey !== 'previous' && index === weeks.length - 1,
+    })),
+  };
+};
+
+export const SERVED_CLIENTS: (IServedClientPrototype & { siteId: string; days: number })[] = [
+  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Réception', lastAt: 'auj. 10:52', lots: 1, oliveKg: 1840, days: 0 },
+  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Pressage', lastAt: 'auj. 12:30', lots: 1, oliveKg: 2050, days: 0 },
+  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, lastStep: 'Réception', lastAt: 'auj. 09:18', lots: 3, oliveKg: 9420, days: 0 },
+  { name: 'Driss Amrani', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Retrait', lastAt: 'auj. 16:05', lots: 1, oliveKg: 1300, days: 0 },
+  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, lastStep: 'Pressage', lastAt: 'auj. 08:00', lots: 2, oliveKg: 7930, days: 0 },
+  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, lastStep: 'Réception', lastAt: 'auj. 09:05', lots: 1, oliveKg: 860, days: 0 },
+  { name: 'Naima Lahlou', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Retrait', lastAt: 'hier 15:40', lots: 1, oliveKg: 780, days: 1 },
+  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Réception', lastAt: 'lun. 08:40', lots: 2, oliveKg: 2240, days: 2 },
+  { name: 'Youssef Kaddouri', kind: 'individual', siteId: SITE_BERKANE_ID, lastStep: 'Retrait', lastAt: 'sam. 11:20', lots: 2, oliveKg: 2690, days: 4 },
+  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, lastStep: 'Pressage', lastAt: 'il y a 9 j', lots: 2, oliveKg: 2980, days: 9 },
+  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Retrait', lastAt: 'il y a 21 j', lots: 1, oliveKg: 1200, days: 21 },
+];
