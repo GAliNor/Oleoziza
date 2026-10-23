@@ -5,9 +5,6 @@
       <h2 class="heading-two truncate">{{ client.name }}</h2>
       <p class="body-two">{{ formatPhone(client.phone) }} · {{ client.kind === 'company' ? 'Entreprise' : 'Particulier' }}</p>
     </div>
-    <button v-if="isClosable" type="button" class="icon-btn hidden lg:inline-flex" aria-label="Fermer" @click="emit('close')">
-      <close-line-icon class="h-5 w-5" />
-    </button>
   </header>
 </template>
 
@@ -17,11 +14,6 @@
 import { formatPhone } from 'global/composables/phone';
 import type { IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';
 
-import CloseLineIcon from 'global/icons/close-line.icon.vue';
-
 // props
-withDefaults(defineProps<{ client: IManagementClientPrototype; isClosable?: boolean }>(), { isClosable: false });
-
-// emits
-const emit = defineEmits<{ close: [] }>();
+defineProps<{ client: IManagementClientPrototype }>();
 </script>

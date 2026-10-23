@@ -1,12 +1,12 @@
 <template>
-  <!-- PROTOTYPE: Management Clients page at /clients (ticket 0030): A's table, B's detail beside it; ?client= keeps the open Client. -->
+  <!-- PROTOTYPE: Management Clients page at /clients (ticket 0030): the detail slides in over the table; ?client= keeps the open Client. -->
   <section class="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4">
     <header class="rise flex flex-col gap-1">
       <h1 class="heading-one">Clients</h1>
       <p class="body-two">{{ scopeName }} · {{ rows.length }} clients · chiffres de la saison</p>
     </header>
 
-    <div class="rise flex flex-col gap-3 md:flex-row md:items-center">
+    <div v-show="!isOpen" class="rise flex flex-col gap-3 md:flex-row md:items-center">
       <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Nom ou téléphone" />
       <segmented-control v-model="stateFilter" :options="stateOptions" aria-label="Suivi" />
     </div>
@@ -14,31 +14,27 @@
     <div class="flex min-w-0 gap-4 overflow-hidden">
       <div
         class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)"
-        :class="{ '-ml-[calc(100%+1rem)] max-lg:h-0 lg:ml-0 lg:w-[42%]': isOpen }"
+        :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }"
       >
         <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
           <table class="w-full text-sm">
             <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
               <tr>
                 <th class="px-4 py-3 font-semibold">Client</th>
-                <template v-if="!isOpen">
-                  <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">Olives</th>
-                  <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">Lots</th>
-                  <th class="px-4 py-3 text-right font-semibold">Huile</th>
-                </template>
+                <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">Olives</th>
+                <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">Lots</th>
+                <th class="px-4 py-3 text-right font-semibold">Huile</th>
                 <th v-if="isFinanceShown" class="px-4 py-3 text-right font-semibold">Solde</th>
-                <template v-if="!isOpen">
-                  <th class="hidden px-4 py-3 font-semibold lg:table-cell">Dernière venue</th>
-                  <th class="hidden px-4 py-3 font-semibold md:table-cell">Suivi</th>
-                </template>
+                <th class="hidden px-4 py-3 font-semibold lg:table-cell">Dernière venue</th>
+                <th class="hidden px-4 py-3 font-semibold md:table-cell">Suivi</th>
               </tr>
             </thead>
             <tbody :key="`${page}-${stateFilter}-${search}`" class="stagger">
               <tr
                 v-for="client in pageRows"
                 :key="client.id"
-                class="cursor-pointer border-t border-neutral-100 transition-colors"
-                :class="client.id === activeClient?.id && isOpen ? 'bg-primary-olive-light/40' : 'hover:bg-neutral-50'"
+                class="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
+                :class="{ 'bg-primary-olive-light/40': client.id === lastClientId }"
                 tabindex="0"
                 @click="handleOpen(client.id)"
                 @keydown.enter="handleOpen(client.id)"
@@ -50,18 +46,14 @@
                   </p>
                   <p class="body-two truncate pl-4">{{ client.kind === 'company' ? 'Entreprise' : 'Particulier' }} · {{ client.sites.length }} site{{ client.sites.length > 1 ? 's' : '' }}</p>
                 </td>
-                <template v-if="!isOpen">
-                  <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ formatKg(client.seasonKg) }}</td>
-                  <td class="hidden px-4 py-3 text-right tabular-nums md:table-cell">{{ client.lots }}</td>
-                  <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ client.oilStockKg ? formatKg(client.oilStockKg) : '—' }}</td>
-                </template>
+                <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ formatKg(client.seasonKg) }}</td>
+                <td class="hidden px-4 py-3 text-right tabular-nums md:table-cell">{{ client.lots }}</td>
+                <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ client.oilStockKg ? formatKg(client.oilStockKg) : '—' }}</td>
                 <td v-if="isFinanceShown" class="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums" :class="client.balance ? 'text-accent-rust' : 'text-neutral-400'">
                   {{ client.balance ? formatDh(client.balance) : '—' }}
                 </td>
-                <template v-if="!isOpen">
-                  <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-600 lg:table-cell">{{ client.lastVisit }}</td>
-                  <td class="hidden px-4 py-3 md:table-cell"><span class="chip" :class="STATE_CLASSES[client.state]">{{ STATE_LABELS[client.state] }}</span></td>
-                </template>
+                <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-600 lg:table-cell">{{ client.lastVisit }}</td>
+                <td class="hidden px-4 py-3 md:table-cell"><span class="chip" :class="STATE_CLASSES[client.state]">{{ STATE_LABELS[client.state] }}</span></td>
               </tr>
             </tbody>
           </table>
@@ -90,14 +82,17 @@
 
       <aside
         v-if="activeClient"
-        class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium) lg:w-auto lg:flex-1"
+        class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium)"
         :class="isOpen ? 'opacity-100' : 'pointer-events-none max-h-0 opacity-0'"
         :aria-hidden="!isOpen"
       >
-        <button type="button" class="link self-start lg:hidden" @click="handleClose">← Clients</button>
+        <button type="button" class="btn-secondary inline-flex items-center gap-2 self-start" @click="handleClose">
+          <arrow-left-line-icon class="h-5 w-5" />
+          Retour aux clients
+        </button>
         <div :key="activeClient.id" class="stagger flex flex-col gap-4">
-          <client-header :client="activeClient" is-closable @close="handleClose" />
-          <div class="grid grid-cols-3 gap-2">
+          <client-header :client="activeClient" />
+          <div class="grid grid-cols-3 gap-2 lg:gap-3">
             <div class="card p-3">
               <p class="body-two text-xs">Huile en stock</p>
               <p class="text-xl font-semibold tabular-nums">{{ formatKg(activeClient.oilStockKg) }}</p>
@@ -122,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — Management Clients page (ticket 0030): alphabetical paginated table; a row slides the table aside and opens the detail.
+// PROTOTYPE — Management Clients page (ticket 0030): alphabetical paginated table; a row slides the table out and the detail in.
 // imports
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -135,6 +130,7 @@ import { MANAGEMENT_CLIENTS, type IManagementClientPrototype } from 'client/prot
 import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
 import ClientHeader from 'client/prototype/client-header.prototype.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
+import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 
 // stores
 const authStore = useAuthStore();
@@ -206,6 +202,7 @@ watch(
 // event handlers
 const handleOpen = (id: string): void => {
   router.replace({ query: { ...route.query, client: id } });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const handleClose = (): void => {
