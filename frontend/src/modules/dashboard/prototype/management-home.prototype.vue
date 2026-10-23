@@ -18,7 +18,6 @@
       <overview-tab v-if="tab === 'overview'" key="overview" :period="period" :scale="scopeShare" :tanks="scopeTanks" :is-finance-shown="isFinanceShown" />
       <production-tab v-else-if="tab === 'production'" key="production" :scale="scopeShare" :period="period" :tanks="scopeTanks" />
       <finance-tab v-else-if="tab === 'finance'" key="finance" :scale="scopeShare" :period="period" />
-      <clients-tab v-else-if="tab === 'clients'" key="clients" :is-finance-shown="isFinanceShown" :period="period" />
       <div v-else key="tanks">
         <div class="hidden md:block"><tank-gantt :tanks="scopeTanks" :period="period" /></div>
         <tank-planning-cards class="md:hidden" :tanks="scopeTanks" :period="period" />
@@ -38,7 +37,6 @@ import { useSiteStore } from 'global/stores/site';
 import { SITE_FIGURES, TANKS } from 'dashboard/prototype/mock-home.prototype';
 import { PERIODS, usePeriod } from 'dashboard/prototype/use-period.prototype';
 
-import ClientsTab from 'dashboard/prototype/clients-tab.prototype.vue';
 import FinanceTab from 'dashboard/prototype/finance-tab.prototype.vue';
 import OverviewTab from 'dashboard/prototype/overview-tab.prototype.vue';
 import ProductionTab from 'dashboard/prototype/production-tab.prototype.vue';
@@ -54,12 +52,11 @@ const router = useRouter();
 const { period, selectPeriod } = usePeriod();
 
 // variables
-type HomeTab = 'overview' | 'production' | 'finance' | 'clients' | 'tanks';
+type HomeTab = 'overview' | 'production' | 'finance' | 'tanks';
 const TABS: { key: HomeTab; label: string; isFinance?: boolean }[] = [
   { key: 'overview', label: 'Vue d’ensemble' },
   { key: 'production', label: 'Production' },
   { key: 'finance', label: 'Finances', isFinance: true },
-  { key: 'clients', label: 'Clients' },
   { key: 'tanks', label: 'Planning cuves' },
 ];
 const totalRevenue = SITE_FIGURES.reduce((sum, site) => sum + site.revenueSeason, 0);

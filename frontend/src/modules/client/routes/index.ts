@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/clients',
     name: 'client-search',
-    component: () => import('client/views/search.vue'),
+    component: () => import('client/prototype/clients-entry.prototype.vue'),
     meta: { roles: ['operator', 'management'] },
   },
   {

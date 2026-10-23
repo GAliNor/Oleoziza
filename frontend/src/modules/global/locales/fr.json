@@ -2,6 +2,7 @@
   "appName": "Oleoziza",
   "nav": {
     "dashboard": "Tableau de bord",
+    "clients": "Clients",
     "sites": "Sites"
   },
   "network": {

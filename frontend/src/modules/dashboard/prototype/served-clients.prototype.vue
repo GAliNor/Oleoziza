@@ -2,7 +2,7 @@
   <div class="card flex min-w-0 flex-col gap-3 rounded-2xl p-5">
     <div class="flex items-baseline justify-between gap-3">
       <h2 class="heading-two">Clients traités</h2>
-      <router-link :to="{ query: { ...route.query, tab: 'clients' } }" class="link whitespace-nowrap">Tous les clients →</router-link>
+      <router-link :to="{ name: 'client-search' }" class="link whitespace-nowrap">Tous les clients →</router-link>
     </div>
     <p class="body-two -mt-2">{{ clients.length }} clients avec une réception, un pressage ou un retrait {{ period.noun }}</p>
     <ul class="flex flex-col divide-y divide-neutral-100">
@@ -22,10 +22,9 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — "Clients traités": Clients with any Lot activity in the period, linking to the Clients tab until the Clients page exists (ticket 0028).
+// PROTOTYPE — "Clients traités": Clients with any Lot activity in the period, linking to the Clients page (tickets 0028 and 0030).
 // imports
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
 
 import { useSiteStore } from 'global/stores/site';
 import { formatKg, SERVED_CLIENTS, type IServedClientPrototype } from 'dashboard/prototype/mock-home.prototype';
@@ -35,7 +34,6 @@ import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype'
 const props = withDefaults(defineProps<{ period: IPeriodPrototype; limit?: number }>(), { limit: 6 });
 
 // stores
-const route = useRoute();
 const siteStore = useSiteStore();
 
 // variables

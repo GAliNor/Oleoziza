@@ -52,6 +52,11 @@
         </li>
         <li v-if="!lots.length" class="body-two py-6 text-center">Aucun lot cette saison</li>
       </ul>
+
+      <template v-if="managementClient">
+        <h2 class="heading-two mt-2">Direction</h2>
+        <management-client-detail :client="managementClient" :is-finance-shown="authStore.can('finance.view')" />
+      </template>
     </section>
     <p v-else class="body-two py-16 text-center">Client introuvable</p>
   </app-layout>
@@ -63,18 +68,22 @@
 import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { formatPhone } from 'global/composables/phone';
 import { useClientStore } from 'global/stores/client';
 import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
+import { findManagementClient } from 'client/prototype/mock-management-clients.prototype';
 
 import AppLayout from 'global/components/app-layout.vue';
+import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
 
 // stores
 const route = useRoute();
 const router = useRouter();
+const authStore = useAuthStore();
 const siteStore = useSiteStore();
 const toastStore = useToastStore();
 const receptionStore = useReceptionStore();
@@ -89,6 +98,7 @@ const ACTIONS: { key: string; label: string; tone: string; hint: (account: IAcco
 ];
 
 // computed
+const managementClient = computed(() => (authStore.session?.role === 'management' ? findManagementClient(String(route.params.id)) : undefined));
 const client = computed(() => clientStore.clientById(String(route.params.id)));
 const account = computed((): IAccountPrototype => (client.value ? (CLIENT_ACCOUNTS_PROTOTYPE[client.value.name] ?? EMPTY_ACCOUNT) : EMPTY_ACCOUNT));
 const lots = computed(() => [

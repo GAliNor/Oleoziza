@@ -90,12 +90,13 @@ import { computed, type Component } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useAuthStore } from 'auth/stores/auth';
-import type { Permission } from 'auth/types/auth';
+import type { Permission, Role } from 'auth/types/auth';
 
 import AppToast from 'global/components/app-toast.vue';
 import NetworkBadge from 'global/components/network-badge.vue';
 import SiteSwitcher from 'global/components/site-switcher.vue';
 import UpdateBanner from 'global/components/update-banner.vue';
+import GroupLineIcon from 'global/icons/group-line.icon.vue';
 import HomeLineIcon from 'global/icons/home-line.icon.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
@@ -108,13 +109,18 @@ const authStore = useAuthStore();
 const router = useRouter();
 
 // variables
-const navItems: { name: string; labelKey: string; icon: Component; permission?: Permission }[] = [
+const navItems: { name: string; labelKey: string; icon: Component; permission?: Permission; roles?: Role[] }[] = [
   { name: 'dashboard', labelKey: 'global.nav.dashboard', icon: HomeLineIcon },
+  { name: 'client-search', labelKey: 'global.nav.clients', icon: GroupLineIcon, roles: ['management'] },
   { name: 'site', labelKey: 'global.nav.sites', icon: MapPinLineIcon, permission: 'site.manage' },
 ];
 
 // computed
-const visibleNavItems = computed(() => navItems.filter((item) => !item.permission || authStore.can(item.permission)));
+const visibleNavItems = computed(() =>
+  navItems.filter(
+    (item) => (!item.permission || authStore.can(item.permission)) && (!item.roles || (authStore.session !== null && item.roles.includes(authStore.session.role))),
+  ),
+);
 const isOperator = computed((): boolean => authStore.session?.role === 'operator');
 const canSwitchOperator = computed((): boolean => authStore.session?.role === 'operator');
 
