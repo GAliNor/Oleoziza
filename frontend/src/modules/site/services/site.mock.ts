@@ -16,4 +16,11 @@ export default class SiteAdminMockService implements ISiteAdminService {
     Object.assign(site, form);
     return mockResolve(site);
   }
+
+  delete(id: string): Promise<void> {
+    const index = SITES_MOCK.findIndex((candidate) => candidate.id === id);
+    if (index === -1) return mockReject(new Error('site_not_found'));
+    SITES_MOCK.splice(index, 1);
+    return mockResolve(undefined);
+  }
 }

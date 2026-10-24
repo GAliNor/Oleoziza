@@ -1,7 +1,21 @@
 {
   "title": "Sites",
   "subtitle": "Les moulins gérés dans Oleoziza",
-  "edit": "Modifier",
+  "count": "aucun site | {n} site | {n} sites",
+  "create": "Nouveau site",
+  "back": "Retour aux sites",
+  "searchPlaceholder": "Nom ou ville",
+  "empty": "Aucun site",
+  "table": {
+    "site": "Site",
+    "city": "Ville"
+  },
+  "pagination": {
+    "label": "Pages",
+    "range": "{first}–{last} sur {total}",
+    "previous": "Page précédente",
+    "next": "Page suivante"
+  },
   "form": {
     "createTitle": "Nouveau site",
     "editTitle": "Modifier le site",
@@ -11,5 +25,13 @@
     "save": "Enregistrer",
     "saved": "Site enregistré.",
     "error": "Impossible d'enregistrer le site."
+  },
+  "delete": {
+    "title": "Supprimer le site",
+    "hint": "Le site disparaît de la liste et du sélecteur de site.",
+    "action": "Supprimer",
+    "confirm": "Confirmer la suppression",
+    "deleted": "Site supprimé.",
+    "error": "Impossible de supprimer le site."
   }
 }

@@ -19,6 +19,11 @@ class SiteAdminApiService extends BaseService implements ISiteAdminService {
     const response = await axios<ISite>(config);
     return response.data;
   }
+
+  async delete(id: string): Promise<void> {
+    const config = this.getConfig({ method: 'DELETE', url: `${this._BASE_API_URL}/${id}` });
+    await axios(config);
+  }
 }
 
 export default IS_MOCK_DATA_SOURCE ? SiteAdminMockService : SiteAdminApiService;

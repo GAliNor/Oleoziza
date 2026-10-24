@@ -8,6 +8,7 @@ export interface ISiteForm {
 export interface ISiteAdminService {
   create(form: ISiteForm): Promise<ISite>;
   update(id: string, form: ISiteForm): Promise<ISite>;
+  delete(id: string): Promise<void>;
 }
 
 export interface ISiteAdminStore {
