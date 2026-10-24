@@ -25,6 +25,8 @@ export const PERMISSIONS: readonly Permission[] = [
   'site.manage',
   'season.manage',
   'audit_trail.view',
+  'dashboard.view',
+  'payment_method.manage',
 ];
 
 export const ROLE_DEFAULT_PERMISSIONS: Record<Role, readonly Permission[]> = {

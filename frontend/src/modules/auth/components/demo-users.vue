@@ -2,7 +2,7 @@
   <details class="rounded-2xl border border-dashed border-accent-sand bg-accent-sand/10 p-4">
     <summary class="cursor-pointer text-sm font-medium text-accent-brown">{{ $t('auth.demo.title') }}</summary>
     <ul class="mt-3 flex flex-col gap-1">
-      <li v-for="user in USERS_MOCK" :key="user.id">
+      <li v-for="user in DEMO_USERS" :key="user.id">
         <button
           type="button"
           class="flex w-full flex-col rounded-lg px-2 py-1.5 text-left hover:bg-white"
@@ -26,6 +26,9 @@ import type { IMockUser } from 'auth/types/mock-auth';
 
 // emits
 const emit = defineEmits<{ (event: 'select', identifier: string): void }>();
+
+// variables
+const DEMO_USERS = USERS_MOCK.filter((user) => user.hint);
 
 // event handlers
 const handleSelect = (user: IMockUser): void => {

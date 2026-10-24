@@ -23,7 +23,10 @@
       "auth/*": ["src/modules/auth/*"],
       "site/*": ["src/modules/site/*"],
       "reception/*": ["src/modules/reception/*"],
-      "client/*": ["src/modules/client/*"]
+      "client/*": ["src/modules/client/*"],
+      "user/*": ["src/modules/user/*"],
+      "finance/*": ["src/modules/finance/*"],
+      "lot/*": ["src/modules/lot/*"]
     }
   },
   "include": ["env.d.ts", "src/**/*.ts", "src/**/*.vue"]

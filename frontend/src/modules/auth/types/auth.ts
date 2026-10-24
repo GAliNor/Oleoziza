@@ -28,7 +28,9 @@ export type Permission =
   | 'user.manage'
   | 'site.manage'
   | 'season.manage'
-  | 'audit_trail.view';
+  | 'audit_trail.view'
+  | 'dashboard.view'
+  | 'payment_method.manage';
 
 export type AuthErrorCode =
   | 'invalid_identifier'

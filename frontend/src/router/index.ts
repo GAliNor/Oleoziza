@@ -3,6 +3,8 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
+import { useNavigation } from 'global/composables/use-navigation';
+import { HOME_ROUTE_NAME } from 'global/constants/navigation';
 
 // variables
 const modules = import.meta.glob<RouteRecordRaw[]>('../modules/*/routes/index.ts', { eager: true, import: 'default' });
@@ -28,7 +30,11 @@ router.beforeEach(async (to) => {
   }
   if (to.meta.roles && !to.meta.roles.includes(authStore.session.role)) return { name: 'dashboard' };
   if (authStore.isStaff) await useSiteStore().fetchSites();
-  if (to.meta.permission && !authStore.can(to.meta.permission)) return { name: 'dashboard' };
+  if (to.meta.permission && !authStore.can(to.meta.permission)) return { name: HOME_ROUTE_NAME };
+  if (to.name === HOME_ROUTE_NAME) {
+    const { canOpenHome, getLandingRoute } = useNavigation();
+    if (!canOpenHome()) return getLandingRoute() ?? true;
+  }
   return true;
 });
 

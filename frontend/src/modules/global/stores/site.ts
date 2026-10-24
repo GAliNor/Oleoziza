@@ -26,15 +26,14 @@ export const useSiteStore = defineStore('site', {
   }),
   getters: {
     accessibleSites(state): ISite[] {
-      const claimedSites = useAuthStore().session?.sites ?? {};
+      const session = useAuthStore().session;
+      if (session?.isOwner) return state.sites;
+      const claimedSites = session?.sites ?? {};
       return state.sites.filter((site) => site.id in claimedSites);
     },
     canSelectAll(): boolean {
-      const claimedSites = useAuthStore().session?.sites ?? {};
-      return (
-        this.accessibleSites.length > 1 &&
-        this.accessibleSites.every((site) => claimedSites[site.id]?.includes('finance.view'))
-      );
+      const authStore = useAuthStore();
+      return this.accessibleSites.length > 1 && this.accessibleSites.every((site) => authStore.hasPermission('finance.view', site.id));
     },
     isAllSites: (state): boolean => state.currentSiteId === ALL_SITES,
     currentSite(state): ISite | undefined {

@@ -17,6 +17,8 @@ export interface IMockUser {
   isOwner: boolean;
   sites: Record<string, readonly Permission[]>;
   hint: string;
+  lastLoginAt?: string | null;
+  invitedAt?: string | null;
 }
 
 export interface IMockInvitation {

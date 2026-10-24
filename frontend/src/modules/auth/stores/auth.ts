@@ -67,6 +67,7 @@ export const useAuthStore = defineStore('auth', {
       (permission: Permission, siteId: string | null): boolean => {
         const sites = state.session?.sites ?? {};
         if (!siteId) return false;
+        if (state.session?.isOwner) return true;
         if (siteId === ALL_SITES) {
           const siteIds = Object.keys(sites);
           return siteIds.length > 0 && siteIds.every((id) => sites[id].includes(permission));

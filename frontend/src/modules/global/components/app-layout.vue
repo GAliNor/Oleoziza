@@ -86,43 +86,42 @@
 
 <script setup lang="ts">
 // imports
-import { computed, type Component } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from 'auth/stores/auth';
-import type { Permission, Role } from 'auth/types/auth';
+import { useSiteStore } from 'global/stores/site';
+import { useNavigation } from 'global/composables/use-navigation';
+import { HOME_ROUTE_NAME } from 'global/constants/navigation';
 
 import AppToast from 'global/components/app-toast.vue';
 import NetworkBadge from 'global/components/network-badge.vue';
 import SiteSwitcher from 'global/components/site-switcher.vue';
 import UpdateBanner from 'global/components/update-banner.vue';
-import GroupLineIcon from 'global/icons/group-line.icon.vue';
-import HomeLineIcon from 'global/icons/home-line.icon.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
-import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
 import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
 import OperatorShell from 'global/components/operator-shell.vue';
 
 // stores
 const authStore = useAuthStore();
+const siteStore = useSiteStore();
+const route = useRoute();
 const router = useRouter();
-
-// variables
-const navItems: { name: string; labelKey: string; icon: Component; permission?: Permission; roles?: Role[] }[] = [
-  { name: 'dashboard', labelKey: 'global.nav.dashboard', icon: HomeLineIcon },
-  { name: 'client-search', labelKey: 'global.nav.clients', icon: GroupLineIcon, roles: ['management'] },
-  { name: 'site', labelKey: 'global.nav.sites', icon: MapPinLineIcon, permission: 'site.manage' },
-];
+const { visibleNavItems, canOpenHome, getLandingRoute } = useNavigation();
 
 // computed
-const visibleNavItems = computed(() =>
-  navItems.filter(
-    (item) => (!item.permission || authStore.can(item.permission)) && (!item.roles || (authStore.session !== null && item.roles.includes(authStore.session.role))),
-  ),
-);
 const isOperator = computed((): boolean => authStore.session?.role === 'operator');
 const canSwitchOperator = computed((): boolean => authStore.session?.role === 'operator');
+
+// watchers
+watch(
+  () => siteStore.currentSiteId,
+  () => {
+    const isAllowed = route.name === HOME_ROUTE_NAME ? canOpenHome() : !route.meta.permission || authStore.can(route.meta.permission);
+    if (!isAllowed) router.replace(getLandingRoute() ?? { name: HOME_ROUTE_NAME });
+  },
+);
 
 // event handlers
 const handleSwitchOperator = async (): Promise<void> => {

@@ -28,8 +28,6 @@
         <router-link v-if="authStore.deviceProfiles.length" :to="{ name: 'auth-switch' }" class="link self-center">
           {{ $t('auth.switch.action') }}
         </router-link>
-
-        <demo-users v-if="IS_MOCK_DATA_SOURCE" @select="handleDemoSelect" />
       </div>
 
       <div v-else-if="step === 'offerPin'" key="offerPin" class="stagger flex flex-col gap-8">
@@ -127,7 +125,6 @@ import type { LoginMethod } from 'auth/types/auth';
 import AuthHeading from 'auth/components/auth-heading.vue';
 import CodeInput from 'auth/components/code-input.vue';
 import CredentialForm from 'auth/components/credential-form.vue';
-import DemoUsers from 'auth/components/demo-users.vue';
 import PasswordInput from 'auth/components/password-input.vue';
 import PinPad from 'auth/components/pin-pad.vue';
 import AnimatedCheckIcon from 'global/icons/animated-check.icon.vue';
@@ -245,11 +242,6 @@ const login = async (value: string): Promise<void> => {
 
 // event handlers
 const handleIdentifierSubmit = (): void => {
-  fetchLoginOptions();
-};
-
-const handleDemoSelect = (value: string): void => {
-  identifierInput.value = value;
   fetchLoginOptions();
 };
 

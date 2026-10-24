@@ -2,7 +2,10 @@
   "appName": "Oleoziza",
   "nav": {
     "dashboard": "Tableau de bord",
+    "operations": "Opérations",
+    "finances": "Finances",
     "clients": "Clients",
+    "users": "Utilisateurs",
     "sites": "Sites"
   },
   "network": {

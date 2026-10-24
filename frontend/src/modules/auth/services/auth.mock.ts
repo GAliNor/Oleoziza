@@ -4,15 +4,14 @@ import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
 import { isEmail } from 'auth/composables/normalize-identifier';
 import {
-  INVITATIONS_MOCK,
   MOCK_ACCESS_TOKEN_TTL_S,
   MOCK_LOCK_MS,
   MOCK_MAX_FAILED_TRIES,
   MOCK_RESET_LINK_TOKEN,
   MOCK_SIGNING_JWK,
   MOCK_SMS_CODE,
-  USERS_MOCK,
 } from 'auth/constants/mock-auth';
+import { MOCK_INVITATIONS_DB, MOCK_USERS_DB } from 'auth/services/users.mock-db';
 import type {
   AuthErrorCode,
   CredentialKind,
@@ -31,8 +30,8 @@ import type { IMockUser } from 'auth/types/mock-auth';
 const REFRESH_STORAGE_KEY = 'oleoziza.mock.refreshSessions';
 const REFRESH_TTL_MS = 30 * 24 * 60 * 60_000;
 
-const users: IMockUser[] = structuredClone(USERS_MOCK);
-const invitations = structuredClone(INVITATIONS_MOCK);
+const users: IMockUser[] = MOCK_USERS_DB;
+const invitations = MOCK_INVITATIONS_DB;
 const failedTries = new Map<string, { count: number; lockedUntil: number | null }>();
 const skippedCredentialChange = new Set<string>();
 let pendingEmailResetUserId: string | null = null;
@@ -81,6 +80,7 @@ const openSession = async (user: IMockUser, method: LoginMethod | null): Promise
   writeRefreshSessions({ ...readRefreshSessions(), [sid]: { userId: user.id, expiresAt: Date.now() + REFRESH_TTL_MS } });
   failedTries.delete(user.id);
   user.status = 'active';
+  user.lastLoginAt = new Date().toISOString();
   const credentialKind: CredentialKind | null =
     method === 'email_password' ? 'password' : user.loginMethods.includes('phone_pin') ? 'pin' : null;
   return {

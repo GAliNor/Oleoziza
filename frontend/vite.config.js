@@ -47,6 +47,9 @@ export default defineConfig({
       site: fromSrc('modules/site'),
       reception: fromSrc('modules/reception'),
       client: fromSrc('modules/client'),
+      user: fromSrc('modules/user'),
+      finance: fromSrc('modules/finance'),
+      lot: fromSrc('modules/lot'),
     },
   },
 });
