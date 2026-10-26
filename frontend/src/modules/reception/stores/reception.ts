@@ -5,6 +5,7 @@ import { useAuthStore } from 'auth/stores/auth';
 import { useSyncStore } from 'global/stores/sync';
 import { useClientStore } from 'global/stores/client';
 import { draftNetKg } from 'reception/composables/weighing';
+import { createId } from 'global/composables/crypto';
 import type { ILot, IOpenReceptionPayload, IReceptionStore, IWeighingDraft } from 'reception/types/reception';
 
 const receptionService = new ReceptionService();
@@ -50,7 +51,7 @@ export const useReceptionStore = defineStore('reception', {
         const lot = await receptionService.openReception({
           ...payload,
           quality: [...payload.quality],
-          id: crypto.randomUUID(),
+          id: createId(),
           receivedBy: this.operatorName,
         });
         this.upsertLot(lot);
@@ -60,7 +61,7 @@ export const useReceptionStore = defineStore('reception', {
     async addWeighing(lot: ILot, draft: IWeighingDraft): Promise<ILot | null> {
       return this.save(async () => {
         const updated = await receptionService.addWeighing(lot.id, {
-          id: crypto.randomUUID(),
+          id: createId(),
           kind: draft.kind,
           grossKg: draft.kind === 'gross' ? draft.grossKg : null,
           containers: { ...draft.containers },

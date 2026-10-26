@@ -1,11 +1,12 @@
 import { mockReject, mockResolve } from 'global/services/mock';
+import { createId } from 'global/composables/crypto';
 import { SITES_MOCK } from 'global/constants/mock-sites';
 import type { ISite } from 'global/types/site';
 import type { ISiteAdminService, ISiteForm } from 'site/types/site';
 
 export default class SiteAdminMockService implements ISiteAdminService {
   create(form: ISiteForm): Promise<ISite> {
-    const site: ISite = { id: crypto.randomUUID(), ...form };
+    const site: ISite = { id: createId(), ...form };
     SITES_MOCK.push(site);
     return mockResolve(site);
   }

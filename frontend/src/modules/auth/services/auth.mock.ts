@@ -1,7 +1,8 @@
-import { SignJWT, decodeJwt, importJWK } from 'jose';
+import { SignJWT, UnsecuredJWT, decodeJwt, importJWK } from 'jose';
 
 import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
+import { createId, hasWebCrypto } from 'global/composables/crypto';
 import { isEmail } from 'auth/composables/normalize-identifier';
 import {
   MOCK_ACCESS_TOKEN_TTL_S,
@@ -58,8 +59,7 @@ const writeRefreshSessions = (sessions: Record<string, { userId: string; expires
 };
 
 const signAccessToken = async (user: IMockUser, sid: string): Promise<string> => {
-  const key = await importJWK(MOCK_SIGNING_JWK, 'ES256');
-  return new SignJWT({
+  const claims = {
     sid,
     role: user.role,
     isOwner: user.isOwner,
@@ -67,16 +67,22 @@ const signAccessToken = async (user: IMockUser, sid: string): Promise<string> =>
     title: user.title,
     firstName: user.firstName,
     lastName: user.lastName,
-  })
+  };
+  const expiresAt = Math.floor(Date.now() / 1000) + MOCK_ACCESS_TOKEN_TTL_S;
+  if (!hasWebCrypto()) {
+    return new UnsecuredJWT(claims).setSubject(user.id).setIssuedAt().setExpirationTime(expiresAt).encode();
+  }
+  const key = await importJWK(MOCK_SIGNING_JWK, 'ES256');
+  return new SignJWT(claims)
     .setProtectedHeader({ alg: 'ES256' })
     .setSubject(user.id)
     .setIssuedAt()
-    .setExpirationTime(Math.floor(Date.now() / 1000) + MOCK_ACCESS_TOKEN_TTL_S)
+    .setExpirationTime(expiresAt)
     .sign(key);
 };
 
 const openSession = async (user: IMockUser, method: LoginMethod | null): Promise<ILoginResult> => {
-  const sid = crypto.randomUUID();
+  const sid = createId();
   writeRefreshSessions({ ...readRefreshSessions(), [sid]: { userId: user.id, expiresAt: Date.now() + REFRESH_TTL_MS } });
   failedTries.delete(user.id);
   user.status = 'active';

@@ -6,6 +6,7 @@ import { useSiteStore } from 'global/stores/site';
 import { setAccessToken } from 'global/services/access-token';
 import { readStorage, writeStorage } from 'global/composables/storage';
 import { createSalt, hashPin, verifyPin } from 'auth/composables/hash-pin';
+import { hasWebCrypto } from 'global/composables/crypto';
 import { ALL_SITES } from 'global/constants/site';
 import { REFRESH_MARGIN_MS, STORAGE_KEYS } from 'auth/constants/auth';
 import type {
@@ -182,7 +183,7 @@ export const useAuthStore = defineStore('auth', {
       return authService.resetCredential(payload);
     },
     async saveDeviceProfile(pin: string): Promise<void> {
-      if (!this.session || this.session.role !== 'operator' || !this.accessToken) return;
+      if (!this.session || this.session.role !== 'operator' || !this.accessToken || !hasWebCrypto()) return;
       const salt = createSalt();
       const profile: IDeviceProfile = {
         userId: this.session.userId,

@@ -2,6 +2,7 @@ import { decodeJwt } from 'jose';
 
 import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
+import { createId } from 'global/composables/crypto';
 import { MOCK_INVITATIONS_DB, MOCK_USERS_DB } from 'auth/services/users.mock-db';
 import type { LoginMethod, Permission } from 'auth/types/auth';
 import type { IMockUser } from 'auth/types/mock-auth';
@@ -38,7 +39,7 @@ const inviterName = (): string => {
 };
 
 const invite = (user: IMockUser): void => {
-  const token = crypto.randomUUID();
+  const token = createId();
   MOCK_INVITATIONS_DB.push({ token, userId: user.id, invitedBy: inviterName() });
   user.invitedAt = new Date().toISOString();
   console.info(`[mock] Invitation: /invitation/${token}`);
@@ -54,7 +55,7 @@ export default class UserMockService implements IUserService {
     if (MOCK_USERS_DB.some((user) => identifiers.includes(user.phone) || identifiers.includes(user.email))) return mockReject(new Error('identifier_taken'));
     const isOperator = form.role === 'operator';
     const user: IMockUser = {
-      id: crypto.randomUUID(),
+      id: createId(),
       role: form.role,
       clientId: null,
       firstName: form.firstName,

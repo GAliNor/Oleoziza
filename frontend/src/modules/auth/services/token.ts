@@ -1,5 +1,7 @@
-import { compactVerify, importJWK, type CryptoKey } from 'jose';
+import { compactVerify, decodeJwt, importJWK, type CryptoKey } from 'jose';
 
+import { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import { hasWebCrypto } from 'global/composables/crypto';
 import type { IAccessClaims } from 'auth/types/auth';
 
 export default class TokenService {
@@ -11,6 +13,7 @@ export default class TokenService {
   }
 
   async verify(token: string): Promise<IAccessClaims> {
+    if (IS_MOCK_DATA_SOURCE && !hasWebCrypto()) return decodeJwt(token) as unknown as IAccessClaims;
     const { payload } = await compactVerify(token, await this.getPublicKey(), { algorithms: ['ES256'] });
     return JSON.parse(new TextDecoder().decode(payload)) as IAccessClaims;
   }
