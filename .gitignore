@@ -8,3 +8,4 @@ dev-dist/
 .wayfinder/
 docs/
 GLOSSARY.md
+!/.env

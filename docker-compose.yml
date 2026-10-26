@@ -1,0 +1,23 @@
+services:
+  oleoziza_frontend:
+    container_name: oleoziza_frontend_${CURRENT_ENV}
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+    restart: always
+    env_file:
+      - ./env_files/development/frontend.env
+    environment:
+      CURRENT_ENV: ${CURRENT_ENV}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - '${PORT_FRONTEND}:5173'
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: network-oleoziza_${CURRENT_ENV}
+    driver: bridge
