@@ -118,6 +118,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { useSiteStore } from 'global/stores/site';
 import { useUserStore } from 'user/stores/user';
+import { matchesFilter } from 'user/composables/filter';
 import { formatFullName } from 'user/composables/format';
 import { NEW_USER, PAGE_SIZE, USER_FILTERS, USER_VIEWS } from 'user/constants/user';
 import type { ISite } from 'global/types/site';
@@ -198,12 +199,6 @@ watch(
 );
 
 // methods
-const matchesFilter = (user: IStaffUser, key: UserFilter): boolean => {
-  if (key === 'management' || key === 'operator') return user.role === key && user.status !== 'disabled';
-  if (key === 'invited' || key === 'disabled') return user.status === key;
-  return user.status !== 'disabled';
-};
-
 const showPageOf = (id: string): void => {
   const index = filteredRows.value.findIndex((user) => user.id === id);
   if (index !== -1) page.value = Math.floor(index / PAGE_SIZE) + 1;

@@ -1,9 +1,10 @@
 <template>
-  <!-- PROTOTYPE: variant A (ticket 0034): the four tiles, then the app's table with « À confirmer » / « Tous les mouvements » tabs; a row slides the table out for the detail. -->
+  <!-- PROTOTYPE: Finances view (ticket 0034): the four tiles, then the app's table with « À confirmer » / « Tous les mouvements » tabs; a row slides the table out for the detail. -->
   <finance-tiles v-show="!isOpen" class="rise" :figures="figures" :period="period" layout="grid" :is-active="tab === 'pending'" @pending="handleTab('pending')" />
 
-  <div v-show="!isOpen" class="rise flex flex-col gap-3 lg:flex-row lg:items-center">
-    <div class="inline-flex self-start rounded-xl bg-neutral-100 p-1" role="tablist">
+  <div v-show="!isOpen" class="rise flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Client, référence ou n°" />
+    <div class="inline-flex shrink-0 self-start rounded-xl bg-neutral-100 p-1 md:self-auto" role="tablist">
       <button
         v-for="(label, key) in TABS"
         :key="key"
@@ -17,10 +18,6 @@
         {{ label }}
         <span v-if="key === 'pending'" class="chip ml-1 bg-warning-amber/15 text-warning-amber">{{ pending.length }}</span>
       </button>
-    </div>
-    <input v-model="search" class="input lg:max-w-xs" type="search" placeholder="Client, référence ou n°" />
-    <div class="flex flex-wrap gap-2">
-      <button v-for="(label, key) in KINDS" :key="key" type="button" class="choice-chip" :class="{ 'choice-chip-active': kind === key }" @click="kind = key">{{ label }}</button>
     </div>
   </div>
 
@@ -39,7 +36,7 @@
               <th class="hidden px-4 py-3 font-semibold sm:table-cell">Statut</th>
             </tr>
           </thead>
-          <tbody :key="`${tab}-${page}-${kind}-${search}`" class="stagger">
+          <tbody :key="`${tab}-${page}-${search}`" class="stagger">
             <tr
               v-for="movement in pageRows"
               :key="movement.id"
@@ -109,9 +106,7 @@ const { inPeriod, pending, figures, period, find } = useFinancePrototype();
 // variables
 const PAGE_SIZE = 10;
 const TABS = { pending: 'À confirmer', all: 'Tous les mouvements' } as const;
-const KINDS = { all: 'Tous', payment: 'Paiements reçus', payout: 'Versements payés' } as const;
 const search = ref('');
-const kind = ref<keyof typeof KINDS>('all');
 const page = ref(1);
 const lastId = ref<string | null>(null);
 
@@ -121,7 +116,6 @@ const rows = computed((): IMovementPrototype[] => {
   const query = search.value.trim().toLowerCase();
   return (tab.value === 'pending' ? pending.value : inPeriod.value).filter(
     (movement) =>
-      (kind.value === 'all' || movement.kind === kind.value) &&
       [movement.client, movement.code, movement.reference ?? '', movement.label].some((value) => value.toLowerCase().includes(query)),
   );
 });
@@ -134,7 +128,7 @@ const active = computed((): IMovementPrototype | undefined => find(openId.value 
 const nextPendingId = computed((): string | null => pending.value.find((movement) => movement.id !== openId.value)?.id ?? null);
 
 // watchers
-watch([search, kind, tab], () => {
+watch([search, tab], () => {
   page.value = 1;
 });
 watch(

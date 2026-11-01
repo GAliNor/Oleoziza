@@ -27,6 +27,7 @@ export interface ILotPrototype {
   isMine: boolean;
   isPendingSync: boolean;
   steps: ITimelineStep[];
+  daysAgo?: number;
 }
 
 export interface ITankPrototype {
@@ -35,6 +36,7 @@ export interface ITankPrototype {
   name: string;
   capacityKg: number;
   fillKg: number;
+  variety: string;
   isBio: boolean;
 }
 
@@ -125,19 +127,19 @@ const buildSteps = (lot: Omit<ILotPrototype, 'steps'>): ITimelineStep[] => {
 };
 
 const RAW_LOTS: Omit<ILotPrototype, 'steps' | 'isMine' | 'id'>[] = [
-  { code: 'L-0158', siteId: SITE_OUJDA_ID, client: 'Mohammed Benali', variety: 'Picholine marocaine', mode: 'service', status: 'received', netKg: 1840, oilKg: null, receivedAt: '10:52', operator: 'Hamid', isPendingSync: true },
-  { code: 'L-0157', siteId: SITE_OUJDA_ID, client: 'Fatima Zahra El Idrissi', variety: 'Haouzia', mode: 'service', status: 'received', netKg: 620, oilKg: null, receivedAt: '10:31', operator: 'Rachid', isPendingSync: false },
-  { code: 'L-0156', siteId: SITE_OUJDA_ID, client: 'Coopérative Angad', variety: 'Picholine marocaine', mode: 'purchase', status: 'waiting', netKg: 3210, oilKg: null, receivedAt: '09:18', operator: 'Hamid', isPendingSync: false },
-  { code: 'L-0155', siteId: SITE_OUJDA_ID, client: 'Abdellah Moussaoui', variety: 'Menara', mode: 'service', status: 'waiting', netKg: 940, oilKg: null, receivedAt: '08:55', operator: 'Hamid', isPendingSync: false },
-  { code: 'L-0154', siteId: SITE_OUJDA_ID, client: 'Khadija Bouzidi', variety: 'Picholine marocaine', mode: 'service', status: 'waiting', netKg: 1120, oilKg: null, receivedAt: '08:40', operator: 'Rachid', isPendingSync: false },
-  { code: 'L-0153', siteId: SITE_OUJDA_ID, client: 'Mustapha Ouchen', variety: 'Haouzia', mode: 'service', status: 'pressing', netKg: 1560, oilKg: null, receivedAt: '08:12', operator: 'Hamid', isPendingSync: false },
-  { code: 'L-0152', siteId: SITE_OUJDA_ID, client: 'Said Tahiri', variety: 'Picholine marocaine', mode: 'service', status: 'pressed', netKg: 2050, oilKg: 389, receivedAt: '07:45', operator: 'Abdelkader', isPendingSync: false },
-  { code: 'L-0151', siteId: SITE_OUJDA_ID, client: 'Naima Lahlou', variety: 'Menara', mode: 'service', status: 'pressed', netKg: 780, oilKg: 141, receivedAt: '07:30', operator: 'Hamid', isPendingSync: false },
-  { code: 'L-0149', siteId: SITE_OUJDA_ID, client: 'Driss Amrani', variety: 'Picholine marocaine', mode: 'service', status: 'withdrawn', netKg: 1300, oilKg: 247, receivedAt: '07:05', operator: 'Hamid', isPendingSync: false },
-  { code: 'B-0087', siteId: SITE_BERKANE_ID, client: 'Youssef Kaddouri', variety: 'Picholine marocaine', mode: 'service', status: 'received', netKg: 1410, oilKg: null, receivedAt: '10:20', operator: 'Abdelkader', isPendingSync: false },
-  { code: 'B-0086', siteId: SITE_BERKANE_ID, client: 'Latifa Berrada', variety: 'Arbequina', mode: 'service', status: 'waiting', netKg: 860, oilKg: null, receivedAt: '09:05', operator: 'Abdelkader', isPendingSync: false },
-  { code: 'B-0085', siteId: SITE_BERKANE_ID, client: 'Domaine Zegzel', variety: 'Picholine marocaine', mode: 'purchase', status: 'pressing', netKg: 4120, oilKg: null, receivedAt: '08:00', operator: 'Abdelkader', isPendingSync: false },
-  { code: 'B-0084', siteId: SITE_BERKANE_ID, client: 'Hassan Ziani', variety: 'Haouzia', mode: 'service', status: 'pressed', netKg: 990, oilKg: 172, receivedAt: '07:20', operator: 'Abdelkader', isPendingSync: false },
+  { code: 'OJ-2627-0158', siteId: SITE_OUJDA_ID, client: 'Mohammed Benali', variety: 'Picholine marocaine', mode: 'service', status: 'received', netKg: 1840, oilKg: null, receivedAt: '10:52', operator: 'Hamid', isPendingSync: true },
+  { code: 'OJ-2627-0157', siteId: SITE_OUJDA_ID, client: 'Fatima Zahra El Idrissi', variety: 'Haouzia', mode: 'service', status: 'received', netKg: 620, oilKg: null, receivedAt: '10:31', operator: 'Rachid', isPendingSync: false },
+  { code: 'OJ-2627-0156', siteId: SITE_OUJDA_ID, client: 'Coopérative Angad', variety: 'Picholine marocaine', mode: 'purchase', status: 'waiting', netKg: 3210, oilKg: null, receivedAt: '09:18', operator: 'Hamid', isPendingSync: false },
+  { code: 'OJ-2627-0155', siteId: SITE_OUJDA_ID, client: 'Abdellah Moussaoui', variety: 'Menara', mode: 'service', status: 'waiting', netKg: 940, oilKg: null, receivedAt: '08:55', operator: 'Hamid', isPendingSync: false },
+  { code: 'OJ-2627-0154', siteId: SITE_OUJDA_ID, client: 'Khadija Bouzidi', variety: 'Picholine marocaine', mode: 'service', status: 'waiting', netKg: 1120, oilKg: null, receivedAt: '08:40', operator: 'Rachid', isPendingSync: false },
+  { code: 'OJ-2627-0153', siteId: SITE_OUJDA_ID, client: 'Mustapha Ouchen', variety: 'Haouzia', mode: 'service', status: 'pressing', netKg: 1560, oilKg: null, receivedAt: '08:12', operator: 'Hamid', isPendingSync: false },
+  { code: 'OJ-2627-0152', siteId: SITE_OUJDA_ID, client: 'Said Tahiri', variety: 'Picholine marocaine', mode: 'service', status: 'pressed', netKg: 2050, oilKg: 389, receivedAt: '07:45', operator: 'Abdelkader', isPendingSync: false },
+  { code: 'OJ-2627-0151', siteId: SITE_OUJDA_ID, client: 'Naima Lahlou', variety: 'Menara', mode: 'service', status: 'pressed', netKg: 780, oilKg: 141, receivedAt: '07:30', operator: 'Hamid', isPendingSync: false },
+  { code: 'OJ-2627-0149', siteId: SITE_OUJDA_ID, client: 'Driss Amrani', variety: 'Picholine marocaine', mode: 'service', status: 'withdrawn', netKg: 1300, oilKg: 247, receivedAt: '07:05', operator: 'Hamid', isPendingSync: false },
+  { code: 'BK-2627-0087', siteId: SITE_BERKANE_ID, client: 'Youssef Kaddouri', variety: 'Picholine marocaine', mode: 'service', status: 'received', netKg: 1410, oilKg: null, receivedAt: '10:20', operator: 'Abdelkader', isPendingSync: false },
+  { code: 'BK-2627-0086', siteId: SITE_BERKANE_ID, client: 'Latifa Berrada', variety: 'Arbequina', mode: 'service', status: 'waiting', netKg: 860, oilKg: null, receivedAt: '09:05', operator: 'Abdelkader', isPendingSync: false },
+  { code: 'BK-2627-0085', siteId: SITE_BERKANE_ID, client: 'Domaine Zegzel', variety: 'Picholine marocaine', mode: 'purchase', status: 'pressing', netKg: 4120, oilKg: null, receivedAt: '08:00', operator: 'Abdelkader', isPendingSync: false },
+  { code: 'BK-2627-0084', siteId: SITE_BERKANE_ID, client: 'Hassan Ziani', variety: 'Haouzia', mode: 'service', status: 'pressed', netKg: 990, oilKg: 172, receivedAt: '07:20', operator: 'Abdelkader', isPendingSync: false },
 ];
 
 export const createLots = (): ILotPrototype[] =>
@@ -156,15 +158,15 @@ export const advanceLot = (lot: ILotPrototype, oilKg?: number): void => {
 };
 
 export const TANKS: ITankPrototype[] = [
-  { id: 'A1', siteId: SITE_OUJDA_ID, name: 'Cuve A1', capacityKg: 20000, fillKg: 15100, isBio: true },
-  { id: 'A2', siteId: SITE_OUJDA_ID, name: 'Cuve A2', capacityKg: 20000, fillKg: 8050, isBio: false },
-  { id: 'A3', siteId: SITE_OUJDA_ID, name: 'Cuve A3', capacityKg: 10000, fillKg: 9200, isBio: false },
-  { id: 'B1', siteId: SITE_BERKANE_ID, name: 'Cuve B1', capacityKg: 15000, fillKg: 13800, isBio: false },
-  { id: 'B2', siteId: SITE_BERKANE_ID, name: 'Cuve B2', capacityKg: 15000, fillKg: 2250, isBio: false },
+  { id: 'A1', siteId: SITE_OUJDA_ID, name: 'Cuve A1', capacityKg: 20000, fillKg: 15100, variety: 'Picholine marocaine', isBio: true },
+  { id: 'A2', siteId: SITE_OUJDA_ID, name: 'Cuve A2', capacityKg: 20000, fillKg: 8050, variety: 'Picholine marocaine', isBio: false },
+  { id: 'A3', siteId: SITE_OUJDA_ID, name: 'Cuve A3', capacityKg: 10000, fillKg: 9200, variety: 'Menara', isBio: false },
+  { id: 'B1', siteId: SITE_BERKANE_ID, name: 'Cuve B1', capacityKg: 15000, fillKg: 13800, variety: 'Picholine marocaine', isBio: false },
+  { id: 'B2', siteId: SITE_BERKANE_ID, name: 'Cuve B2', capacityKg: 15000, fillKg: 2250, variety: 'Arbequina', isBio: false },
 ];
 
 export const SITE_FIGURES: ISiteFiguresPrototype[] = [
-  { siteId: SITE_OUJDA_ID, name: 'Huilerie Oujda', oliveKgToday: 13420, receptionsToday: 11, oilKgToday: 1780, queue: 6, yieldPct: 18.4, revenueSeason: 412800, outstanding: 64300 },
+  { siteId: SITE_OUJDA_ID, name: 'AMANA OLIVE D’ORIENT', oliveKgToday: 13420, receptionsToday: 11, oilKgToday: 1780, queue: 6, yieldPct: 18.4, revenueSeason: 412800, outstanding: 64300 },
   { siteId: SITE_BERKANE_ID, name: 'Huilerie Berkane', oliveKgToday: 7380, receptionsToday: 7, oilKgToday: 1020, queue: 3, yieldPct: 17.6, revenueSeason: 268500, outstanding: 31900 },
 ];
 
@@ -248,20 +250,20 @@ export const CLIENTS: IClientPrototype[] = [
 ];
 
 export const TANK_STORAGE: ITankStoragePrototype[] = [
-  { tankId: 'A1', lotCode: 'L-0118', client: 'Achat · Coopérative Angad', kind: 'mill', kg: 6200, startDay: -18, endDay: null },
-  { tankId: 'A1', lotCode: 'L-0131', client: 'Stock du moulin (achats)', kind: 'mill', kg: 5400, startDay: -11, endDay: null },
-  { tankId: 'A1', lotCode: 'L-0144', client: 'Stock du moulin (achats)', kind: 'mill', kg: 3500, startDay: -4, endDay: null },
-  { tankId: 'A2', lotCode: 'L-0109', client: 'Driss Amrani', kind: 'client', kg: 1800, startDay: -20, endDay: -9 },
-  { tankId: 'A2', lotCode: 'L-0127', client: 'Abdellah Moussaoui', kind: 'client', kg: 2900, startDay: -13, endDay: -2 },
-  { tankId: 'A2', lotCode: 'L-0139', client: 'Mohammed Benali', kind: 'client', kg: 412, startDay: -6, endDay: null },
-  { tankId: 'A2', lotCode: 'L-0152', client: 'Said Tahiri', kind: 'client', kg: 389, startDay: 0, endDay: null },
-  { tankId: 'A3', lotCode: 'L-0121', client: 'Naima Lahlou', kind: 'client', kg: 3100, startDay: -16, endDay: -1 },
-  { tankId: 'A3', lotCode: 'L-0136', client: 'Khadija Bouzidi', kind: 'client', kg: 2600, startDay: -8, endDay: null },
-  { tankId: 'A3', lotCode: 'L-0146', client: 'Fatima Zahra El Idrissi', kind: 'client', kg: 3500, startDay: -3, endDay: null },
-  { tankId: 'B1', lotCode: 'B-0061', client: 'Achat · Domaine Zegzel', kind: 'mill', kg: 9800, startDay: -15, endDay: null },
-  { tankId: 'B1', lotCode: 'B-0079', client: 'Latifa Berrada', kind: 'client', kg: 151, startDay: -5, endDay: null },
-  { tankId: 'B2', lotCode: 'B-0072', client: 'Hassan Ziani', kind: 'client', kg: 172, startDay: -9, endDay: null },
-  { tankId: 'B2', lotCode: 'B-0058', client: 'Youssef Kaddouri', kind: 'client', kg: 2080, startDay: -19, endDay: -7 },
+  { tankId: 'A1', lotCode: 'OJ-2627-0118', client: 'Achat · Coopérative Angad', kind: 'mill', kg: 6200, startDay: -18, endDay: null },
+  { tankId: 'A1', lotCode: 'OJ-2627-0131', client: 'Stock du moulin (achats)', kind: 'mill', kg: 5400, startDay: -11, endDay: null },
+  { tankId: 'A1', lotCode: 'OJ-2627-0144', client: 'Stock du moulin (achats)', kind: 'mill', kg: 3500, startDay: -4, endDay: null },
+  { tankId: 'A2', lotCode: 'OJ-2627-0109', client: 'Driss Amrani', kind: 'client', kg: 1800, startDay: -20, endDay: -9 },
+  { tankId: 'A2', lotCode: 'OJ-2627-0127', client: 'Abdellah Moussaoui', kind: 'client', kg: 2900, startDay: -13, endDay: -2 },
+  { tankId: 'A2', lotCode: 'OJ-2627-0139', client: 'Mohammed Benali', kind: 'client', kg: 412, startDay: -6, endDay: null },
+  { tankId: 'A2', lotCode: 'OJ-2627-0152', client: 'Said Tahiri', kind: 'client', kg: 389, startDay: 0, endDay: null },
+  { tankId: 'A3', lotCode: 'OJ-2627-0121', client: 'Naima Lahlou', kind: 'client', kg: 3100, startDay: -16, endDay: -1 },
+  { tankId: 'A3', lotCode: 'OJ-2627-0136', client: 'Khadija Bouzidi', kind: 'client', kg: 2600, startDay: -8, endDay: null },
+  { tankId: 'A3', lotCode: 'OJ-2627-0146', client: 'Fatima Zahra El Idrissi', kind: 'client', kg: 3500, startDay: -3, endDay: null },
+  { tankId: 'B1', lotCode: 'BK-2627-0061', client: 'Achat · Domaine Zegzel', kind: 'mill', kg: 9800, startDay: -15, endDay: null },
+  { tankId: 'B1', lotCode: 'BK-2627-0079', client: 'Latifa Berrada', kind: 'client', kg: 151, startDay: -5, endDay: null },
+  { tankId: 'B2', lotCode: 'BK-2627-0072', client: 'Hassan Ziani', kind: 'client', kg: 172, startDay: -9, endDay: null },
+  { tankId: 'B2', lotCode: 'BK-2627-0058', client: 'Youssef Kaddouri', kind: 'client', kg: 2080, startDay: -19, endDay: -7 },
 ];
 
 export const dayLabel = (offset: number): string => {

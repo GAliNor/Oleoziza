@@ -1,7 +1,9 @@
 {
   "appName": "Oleoziza",
+  "back": "Retour",
   "nav": {
     "dashboard": "Tableau de bord",
+    "dashboardShort": "Accueil",
     "operations": "Opérations",
     "finances": "Finances",
     "clients": "Clients",
@@ -11,11 +13,6 @@
   "network": {
     "offline": "Hors ligne"
   },
-  "update": {
-    "available": "Une nouvelle version est disponible.",
-    "reload": "Mettre à jour",
-    "dismiss": "Plus tard"
-  },
   "site": {
     "label": "Site",
     "all": "Tous les sites"
@@ -24,15 +21,8 @@
     "close": "Fermer"
   },
   "shell": {
-    "dock": "Actions",
     "search": "Rechercher un client",
     "pendingSync": "{count} élément à synchroniser | {count} éléments à synchroniser",
-    "switchOperator": "{name}, changer d’opérateur",
-    "actions": {
-      "reception": "Réception",
-      "weigh": "Peser",
-      "withdrawal": "Retrait",
-      "payment": "Encaisser"
-    }
+    "switchOperator": "{name}, changer d’opérateur"
   }
 }

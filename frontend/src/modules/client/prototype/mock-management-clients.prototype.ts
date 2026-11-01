@@ -2,6 +2,7 @@
 import { CLIENTS_MOCK } from 'global/constants/mock-clients';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
 import { CLIENTS, type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { ORIGIN_SUGGESTIONS } from 'reception/constants/reception';
 
 export interface ISiteShareDetailPrototype {
   siteId: string;
@@ -15,12 +16,14 @@ export interface ISiteShareDetailPrototype {
 export interface IManagementClientPrototype extends IClientPrototype {
   id: string;
   phone: string;
+  identifier: string;
+  region: string;
+  email: string | null;
   sites: ISiteShareDetailPrototype[];
   history: { code: string; siteName: string; step: string; kg: number; at: string }[];
-  audit: { at: string; by: string; text: string }[];
 }
 
-const SITE_NAMES: Record<string, string> = { [SITE_OUJDA_ID]: 'Huilerie Oujda', [SITE_BERKANE_ID]: 'Huilerie Berkane' };
+const SITE_NAMES: Record<string, string> = { [SITE_OUJDA_ID]: 'AMANA OLIVE D’ORIENT', [SITE_BERKANE_ID]: 'Huilerie Berkane' };
 
 const EXTRA_CLIENTS: IClientPrototype[] = [
   { name: 'Abdelhak Bouhaddou', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 3620, lots: 2, oilStockKg: 0, balance: 0, lastVisit: 'il y a 4 j', lastVisitDays: 4, state: 'active' },
@@ -39,7 +42,25 @@ const EXTRA_CLIENTS: IClientPrototype[] = [
   { name: 'Zakaria Bensaid', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2310, lots: 2, oilStockKg: 0, balance: 0, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
 ];
 
-const lotCode = (siteId: string, number: number): string => `${siteId === SITE_OUJDA_ID ? 'L' : 'B'}-${String(number).padStart(4, '0')}`;
+const lotCode = (siteId: string, number: number): string => `${siteId === SITE_OUJDA_ID ? 'OJ' : 'BK'}-2627-${String(number).padStart(4, '0')}`;
+
+const slugOf = (name: string): string =>
+  name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z]+/g, '.')
+    .replace(/^\.|\.$/g, '');
+
+const identifierOf = (client: IClientPrototype, index: number): string =>
+  client.kind === 'company'
+    ? String(150_000_000_000_000 + (index + 1) * 7_919_311_013 + 4_217)
+    : `${client.siteId === SITE_OUJDA_ID ? 'F' : 'FA'}${String(100_000 + ((index * 48_271) % 900_000)).slice(0, 6)}`;
+
+const emailOf = (client: IClientPrototype, index: number): string | null => {
+  if (client.kind === 'company') return `contact@${slugOf(client.name).replace(/\./g, '-')}.ma`;
+  return index % 3 === 1 ? null : `${slugOf(client.name)}@gmail.com`;
+};
 
 export const MANAGEMENT_CLIENTS: IManagementClientPrototype[] = [...CLIENTS, ...EXTRA_CLIENTS].map((client, index) => {
   const source = CLIENTS_MOCK.find((item) => item.name === client.name);
@@ -58,16 +79,14 @@ export const MANAGEMENT_CLIENTS: IManagementClientPrototype[] = [...CLIENTS, ...
   return {
     ...client,
     id: source?.id ?? `prototype-${index}`,
-    phone: source?.phone ?? '',
+    phone: source?.phone ?? `+2126${String(61_000_000 + index * 1_234_567).slice(0, 8)}`,
+    identifier: identifierOf(client, index),
+    region: ORIGIN_SUGGESTIONS[(index * 5) % ORIGIN_SUGGESTIONS.length],
+    email: emailOf(client, index),
     sites,
     history: [
       { code: lotCode(client.siteId, 150 - index), siteName: SITE_NAMES[client.siteId], step: 'Pressé', kg: Math.round(client.seasonKg / client.lots), at: client.lastVisit },
       { code: lotCode(client.siteId, 110 - index), siteName: SITE_NAMES[client.siteId], step: 'Retiré', kg: Math.round((client.seasonKg / client.lots) * 0.9), at: 'il y a 2 sem.' },
-    ],
-    audit: [
-      { at: client.lastVisit, by: 'Hamid', text: 'Réception enregistrée' },
-      { at: 'il y a 6 j', by: 'Mohammed Taibi', text: 'Paiement confirmé (espèces)' },
-      { at: 'il y a 3 sem.', by: 'Rachid', text: 'Téléphone corrigé · motif : erreur de saisie' },
     ],
   };
 });

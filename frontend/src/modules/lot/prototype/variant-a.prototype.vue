@@ -1,26 +1,6 @@
 <template>
-  <!-- PROTOTYPE: variant A (ticket 0036): the app's register table with status chips and an « à vérifier » banner; a row slides the table out for the Lot, corrections in a side panel. -->
-  <button
-    v-if="toReview.length && !isOpen"
-    type="button"
-    class="rise card flex items-center gap-3 rounded-2xl border-danger-red/30 bg-danger-red/5 text-left transition hover:bg-danger-red/10"
-    @click="status = status === 'review' ? 'all' : 'review'"
-  >
-    <span class="avatar h-9 w-9 bg-danger-red/15 text-danger-red">!</span>
-    <span class="flex-1">
-      <span class="block font-semibold text-neutral-900">{{ toReview.length }} lot(s) à vérifier</span>
-      <span class="block body-two">Saisies hors ligne en conflit ou faites sans le droit</span>
-    </span>
-    <span class="text-sm font-medium text-danger-red">{{ status === 'review' ? 'Tout afficher' : 'Voir' }} →</span>
-  </button>
-
+  <!-- PROTOTYPE: table view (ticket 0036): the app's register table with status chips; a row slides the table out for the Lot. -->
   <div v-show="!isOpen" class="rise flex flex-col gap-3">
-    <div class="flex flex-col gap-3 md:flex-row md:items-center">
-      <input v-model="search" class="input md:max-w-xs" type="search" placeholder="N° de lot ou Client" />
-      <div class="flex flex-wrap gap-2">
-        <button v-for="(label, key) in MODES" :key="key" type="button" class="choice-chip" :class="{ 'choice-chip-active': mode === key }" @click="mode = key">{{ label }}</button>
-      </div>
-    </div>
     <div class="no-scrollbar flex gap-2 overflow-x-auto">
       <button type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': status === 'all' }" @click="status = 'all'">Tous <span class="text-neutral-400 tabular-nums">{{ scoped.length }}</span></button>
       <button v-for="key in LOT_STATUSES" :key="key" type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': status === key }" @click="status = key">
@@ -44,7 +24,7 @@
               <th class="hidden px-4 py-3 font-semibold sm:table-cell">Statut</th>
             </tr>
           </thead>
-          <tbody :key="`${page}-${status}-${mode}-${search}`" class="stagger">
+          <tbody :key="`${page}-${status}-${search}`" class="stagger">
             <tr
               v-for="lot in pageRows"
               :key="lot.id"
@@ -55,19 +35,10 @@
               @keydown.enter="handleOpen(lot.id)"
             >
               <td class="px-4 py-3 whitespace-nowrap">
-                <p class="font-medium text-neutral-900">
-                  {{ lot.code }}
-                  <span v-if="lot.review" class="ml-1 inline-block h-2 w-2 rounded-full bg-danger-red" title="À vérifier" />
-                </p>
+                <p class="font-medium text-neutral-900">{{ lot.code }}</p>
                 <p class="body-two">{{ formatDate(lot.receivedAt) }}</p>
               </td>
-              <td class="px-4 py-3">
-                <p class="text-neutral-900">{{ lot.client }}</p>
-                <p class="body-two">
-                  {{ lot.mode === 'service' ? 'Façon' : 'Achat' }}
-                  <span v-if="lot.corrections.length" class="chip ml-1 bg-accent-sand/30 text-accent-brown">corrigé</span>
-                </p>
-              </td>
+              <td class="px-4 py-3 text-neutral-900">{{ lot.client }}</td>
               <td class="hidden px-4 py-3 text-neutral-700 lg:table-cell">{{ lot.variety }}</td>
               <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ lot.netKg.toLocaleString('fr-FR') }} kg</td>
               <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ lot.oilKg ? `${lot.oilKg.toLocaleString('fr-FR')} kg` : '—' }}</td>
@@ -90,7 +61,7 @@
 
     <aside v-if="active" class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium)" :class="isOpen ? 'opacity-100' : 'pointer-events-none max-h-0 opacity-0'" :aria-hidden="!isOpen">
       <button type="button" class="btn-secondary self-start" @click="handleClose">← Retour aux lots</button>
-      <lot-detail :key="active.id" :lot="active" correction-style="panel" />
+      <lot-detail :key="active.id" :lot="active" />
     </aside>
   </div>
 </template>
@@ -106,27 +77,26 @@ import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
 
 import LotDetail from 'lot/prototype/lot-detail.prototype.vue';
 
+// props
+const props = defineProps<{ search: string }>();
+
 // stores
 const route = useRoute();
 const router = useRouter();
-const { scoped, toReview, find } = useLotsPrototype();
+const { scoped, find } = useLotsPrototype();
 
 // variables
 const PAGE_SIZE = 10;
-const MODES = { all: 'Tous', service: 'Façon', purchase: 'Achat' } as const;
-const search = ref('');
-const status = ref<LotStatus | 'all' | 'review'>('all');
-const mode = ref<keyof typeof MODES>('all');
+const status = ref<LotStatus | 'all'>('all');
 const page = ref(1);
 const lastId = ref<string | null>(null);
 
 // computed
 const rows = computed((): ILotRecordPrototype[] => {
-  const query = search.value.trim().toLowerCase();
+  const query = props.search.trim().toLowerCase();
   return scoped.value.filter(
     (lot) =>
-      (status.value === 'all' || (status.value === 'review' ? lot.review : lot.status === status.value)) &&
-      (mode.value === 'all' || lot.mode === mode.value) &&
+      (status.value === 'all' || lot.status === status.value) &&
       (lot.code.toLowerCase().includes(query) || lot.client.toLowerCase().includes(query)),
   );
 });
@@ -138,7 +108,7 @@ const isOpen = computed((): boolean => find(openId.value) !== undefined);
 const active = computed((): ILotRecordPrototype | undefined => find(openId.value ?? lastId.value));
 
 // watchers
-watch([search, status, mode], () => {
+watch([() => props.search, status], () => {
   page.value = 1;
 });
 watch(

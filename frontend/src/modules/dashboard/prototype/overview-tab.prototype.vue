@@ -1,6 +1,6 @@
 <template>
   <div class="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-3">
-    <div class="stagger flex min-w-0 flex-col gap-5 lg:col-span-2">
+    <div class="stagger flex min-w-0 flex-col gap-5" :class="isFinanceShown ? 'lg:col-span-2' : 'lg:col-span-3'">
       <p class="eyebrow text-neutral-500">Production</p>
       <div class="-mt-3 grid grid-cols-2 gap-3">
         <kpi-tile v-for="tile in productionTiles" :key="tile.label" v-bind="tile" />
@@ -10,19 +10,16 @@
       <week-bars :title="olivesChart.title" unit="kg" :bars="olivesChart.bars" />
       <tank-cards :tanks="tanks" />
     </div>
-    <div class="stagger flex min-w-0 flex-col gap-5">
-      <template v-if="isFinanceShown">
-        <p class="eyebrow text-neutral-500">Ventes</p>
-        <money-tiles :figures="sales" :period="period" is-stacked class="-mt-3" />
-        <sales-lines :title="salesChart.title" :bars="salesChart.bars" />
-      </template>
-      <served-clients :period="period" :limit="8" />
+    <div v-if="isFinanceShown" class="stagger flex min-w-0 flex-col gap-5">
+      <p class="eyebrow text-neutral-500">Ventes</p>
+      <money-tiles :figures="sales" :period="period" is-stacked class="-mt-3" />
+      <sales-lines :title="salesChart.title" :bars="salesChart.bars" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — "Vue d'ensemble" tab v2, variant C of ticket 0028: production on the left, sales and "Clients traités" on the right.
+// PROTOTYPE — "Vue d'ensemble" tab v2, variant C of ticket 0028: production on the left, sales on the right.
 // imports
 import { computed } from 'vue';
 
@@ -46,7 +43,6 @@ import KpiTile from 'dashboard/prototype/kpi-tile.prototype.vue';
 import LotQueueStrip from 'dashboard/prototype/lot-queue-strip.prototype.vue';
 import MoneyTiles from 'dashboard/prototype/money-tiles.prototype.vue';
 import SalesLines from 'dashboard/prototype/sales-lines.prototype.vue';
-import ServedClients from 'dashboard/prototype/served-clients.prototype.vue';
 import SiteTable from 'dashboard/prototype/site-table.prototype.vue';
 import TankCards from 'dashboard/prototype/tank-cards.prototype.vue';
 import WeekBars from 'dashboard/prototype/week-bars.prototype.vue';

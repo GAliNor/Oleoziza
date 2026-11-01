@@ -35,6 +35,7 @@
         <div v-for="tank in tanks" :key="tank.id" class="grid border-b border-neutral-100 py-2" :style="gridStyle">
           <div class="pr-2">
             <p class="text-sm font-medium text-neutral-900">{{ tank.name }}</p>
+            <p class="truncate text-xs font-medium text-primary-olive-dark" :title="tank.variety">{{ tank.variety }}</p>
             <p class="text-xs text-neutral-500 tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKg(tank.capacityKg) }}</p>
           </div>
           <div class="relative" :style="{ gridColumn: `2 / span ${periodDays}`, height: `${lanesOf(tank.id).length * 30 + 4}px` }">

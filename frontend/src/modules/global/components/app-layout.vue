@@ -3,7 +3,10 @@
     <slot />
   </operator-shell>
   <div v-else class="min-h-dvh md:flex">
-    <aside class="hidden w-64 shrink-0 flex-col gap-6 border-r border-neutral-200 bg-white p-4 md:flex">
+    <aside
+      class="hidden w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-neutral-200 bg-white p-4
+        md:sticky md:top-0 md:flex md:h-dvh"
+    >
       <div class="flex items-center gap-2 px-3">
         <olive-fill-icon class="h-8 w-8 text-primary-olive" />
         <span class="text-xl font-semibold text-accent-brown">{{ $t('global.appName') }}</span>
@@ -40,6 +43,7 @@
           backdrop-blur md:px-8"
       >
         <olive-fill-icon class="h-7 w-7 shrink-0 text-primary-olive md:hidden" />
+        <back-button />
         <site-switcher />
         <slot name="header" />
         <span class="ml-auto" aria-hidden="true" />
@@ -71,15 +75,14 @@
         v-for="item in visibleNavItems"
         :key="item.name"
         :to="{ name: item.name }"
-        class="flex min-h-14 flex-1 flex-col items-center justify-center gap-1 text-xs text-neutral-500"
+        class="flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-xs text-neutral-500"
         active-class="text-primary-olive-dark"
       >
         <component :is="item.icon" class="h-6 w-6" />
-        {{ $t(item.labelKey) }}
+        <span class="max-w-full truncate whitespace-nowrap">{{ $t(item.shortLabelKey ?? item.labelKey) }}</span>
       </router-link>
     </nav>
 
-    <update-banner />
     <app-toast />
   </div>
 </template>
@@ -95,9 +98,9 @@ import { useNavigation } from 'global/composables/use-navigation';
 import { HOME_ROUTE_NAME } from 'global/constants/navigation';
 
 import AppToast from 'global/components/app-toast.vue';
+import BackButton from 'global/components/back-button.vue';
 import NetworkBadge from 'global/components/network-badge.vue';
 import SiteSwitcher from 'global/components/site-switcher.vue';
-import UpdateBanner from 'global/components/update-banner.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
 import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';

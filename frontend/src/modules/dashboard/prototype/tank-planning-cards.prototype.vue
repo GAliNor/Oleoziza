@@ -19,10 +19,13 @@
     <div :key="startDay" class="stagger flex flex-col gap-3">
       <div v-for="tank in tanks" :key="tank.id" class="card flex flex-col gap-3 rounded-2xl p-4">
         <div class="flex items-baseline justify-between gap-2">
-          <p class="font-semibold text-neutral-900">
-            {{ tank.name }} <span v-if="tank.isBio" class="chip ml-1 bg-success-green/10 text-[10px] text-success-green">Bio</span>
-          </p>
-          <p class="text-sm text-neutral-500 tabular-nums">{{ formatKg(tank.fillKg) }} / {{ formatKg(tank.capacityKg) }}</p>
+          <div class="min-w-0">
+            <p class="font-semibold text-neutral-900">
+              {{ tank.name }} <span v-if="tank.isBio" class="chip ml-1 bg-success-green/10 text-[10px] text-success-green">Bio</span>
+            </p>
+            <p class="truncate text-sm font-medium text-primary-olive-dark">{{ tank.variety }}</p>
+          </div>
+          <p class="text-sm whitespace-nowrap text-neutral-500 tabular-nums">{{ formatKg(tank.fillKg) }} / {{ formatKg(tank.capacityKg) }}</p>
         </div>
         <div class="flex h-2.5 overflow-hidden rounded-full bg-neutral-100">
           <div

@@ -37,21 +37,11 @@
         </li>
       </ul>
     </div>
-
-    <div v-can="'audit_trail.view'" class="card flex flex-col gap-2 rounded-2xl p-4">
-      <p class="eyebrow text-neutral-500">Journal d’audit</p>
-      <ol class="flex flex-col gap-2 border-l border-neutral-200 pl-3 text-sm">
-        <li v-for="line in client.audit" :key="line.at + line.text">
-          <p class="text-neutral-800">{{ line.text }}</p>
-          <p class="text-xs text-neutral-500">{{ line.at }} · {{ line.by }}</p>
-        </li>
-      </ol>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — Management-only parts of a Client (all Sites, Lot history, Audit Trail) for the Clients page (ticket 0030).
+// PROTOTYPE — Management-only parts of a Client (all Sites, Lot history) for the Clients page (ticket 0030).
 // imports
 import { formatDh, formatKg } from 'dashboard/prototype/mock-home.prototype';
 import type { IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';

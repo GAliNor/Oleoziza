@@ -3,11 +3,11 @@
   <section class="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4">
     <header class="rise flex flex-col gap-1">
       <h1 class="heading-one">Clients</h1>
-      <p class="body-two">{{ scopeName }} · {{ rows.length }} clients · chiffres de la saison</p>
+      <p class="body-two">{{ scopeName }} · {{ rows.length }} clients</p>
     </header>
 
     <div v-show="!isOpen" class="rise flex flex-col gap-3 md:flex-row md:items-center">
-      <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Nom ou téléphone" />
+      <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Nom, téléphone ou identifiant" />
       <segmented-control v-model="stateFilter" :options="stateOptions" aria-label="Suivi" />
     </div>
 
@@ -21,17 +21,16 @@
             <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
               <tr>
                 <th class="px-4 py-3 font-semibold">Client</th>
-                <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">Olives</th>
-                <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">Lots</th>
-                <th class="px-4 py-3 text-right font-semibold">Huile</th>
-                <th v-if="isFinanceShown" class="px-4 py-3 text-right font-semibold">Solde</th>
-                <th class="hidden px-4 py-3 font-semibold lg:table-cell">Dernière venue</th>
-                <th class="hidden px-4 py-3 font-semibold md:table-cell">Suivi</th>
+                <th class="hidden px-4 py-3 font-semibold sm:table-cell">Identifiant</th>
+                <th class="hidden px-4 py-3 font-semibold lg:table-cell">Région</th>
+                <th class="hidden px-4 py-3 font-semibold md:table-cell">Type</th>
+                <th class="px-4 py-3 font-semibold">Téléphone</th>
+                <th class="hidden px-4 py-3 font-semibold xl:table-cell">Email</th>
               </tr>
             </thead>
             <tbody :key="`${page}-${stateFilter}-${search}`" class="stagger">
               <tr
-                v-for="client in pageRows"
+                v-for="(client, index) in pageRows"
                 :key="client.id"
                 class="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
                 :class="{ 'bg-primary-olive-light/40': client.id === lastClientId }"
@@ -40,20 +39,26 @@
                 @keydown.enter="handleOpen(client.id)"
               >
                 <td class="px-4 py-3">
-                  <p class="flex items-center gap-2 font-medium text-neutral-900">
-                    <span class="h-2 w-2 shrink-0 rounded-full" :class="STATE_DOTS[client.state]" :title="STATE_LABELS[client.state]" />
-                    <span class="truncate">{{ client.name }}</span>
-                  </p>
-                  <p class="body-two truncate pl-4">{{ client.kind === 'company' ? 'Entreprise' : 'Particulier' }} · {{ client.sites.length }} site{{ client.sites.length > 1 ? 's' : '' }}</p>
+                  <div class="flex min-w-0 items-center gap-3">
+                    <avatar-tag class="h-10 w-10" :name="client.name" :kind="client.kind === 'company' ? 'company' : 'client'" :delay="index * 40" />
+                    <div class="min-w-0">
+                      <p class="truncate font-medium text-neutral-900">{{ client.name }}</p>
+                      <p class="body-two truncate sm:hidden">{{ client.identifier }}</p>
+                    </div>
+                  </div>
                 </td>
-                <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ formatKg(client.seasonKg) }}</td>
-                <td class="hidden px-4 py-3 text-right tabular-nums md:table-cell">{{ client.lots }}</td>
-                <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ client.oilStockKg ? formatKg(client.oilStockKg) : '—' }}</td>
-                <td v-if="isFinanceShown" class="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums" :class="client.balance ? 'text-accent-rust' : 'text-neutral-400'">
-                  {{ client.balance ? formatDh(client.balance) : '—' }}
+                <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-700 tabular-nums sm:table-cell">
+                  {{ client.identifier }}
+                  <span class="block text-xs text-neutral-400">{{ client.kind === 'company' ? 'ICE' : 'CIN' }}</span>
                 </td>
-                <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-600 lg:table-cell">{{ client.lastVisit }}</td>
-                <td class="hidden px-4 py-3 md:table-cell"><span class="chip" :class="STATE_CLASSES[client.state]">{{ STATE_LABELS[client.state] }}</span></td>
+                <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-700 lg:table-cell">{{ client.region }}</td>
+                <td class="hidden px-4 py-3 md:table-cell">
+                  <span class="chip" :class="client.kind === 'company' ? 'bg-accent-sand/30 text-accent-brown' : 'bg-primary-olive-light text-primary-olive-dark'">
+                    {{ KIND_LABELS[client.kind] }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-neutral-700 tabular-nums">{{ formatPhone(client.phone) }}</td>
+                <td class="hidden max-w-56 truncate px-4 py-3 text-neutral-700 xl:table-cell">{{ client.email ?? '—' }}</td>
               </tr>
             </tbody>
           </table>
@@ -109,7 +114,6 @@
             </div>
           </div>
           <management-client-detail :client="activeClient" :is-finance-shown="isFinanceShown" />
-          <router-link :to="{ name: 'client-page', params: { id: activeClient.id } }" class="btn-secondary text-center">Ouvrir la fiche comptoir</router-link>
         </div>
       </aside>
     </div>
@@ -124,12 +128,14 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
+import { formatPhone } from 'global/composables/phone';
 import { formatDh, formatKg, type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MANAGEMENT_CLIENTS, type IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';
 
 import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
 import ClientHeader from 'client/prototype/client-header.prototype.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
+import AvatarTag from 'global/components/avatar-tag.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 
 // stores
@@ -148,13 +154,7 @@ const STATE_FILTERS: { key: StateFilter; label: string }[] = [
   { key: 'active', label: 'Actifs' },
   { key: 'inactive', label: 'Inactifs' },
 ];
-const STATE_LABELS: Record<ClientState, string> = { active: 'Actif', 'at-risk': 'À relancer', inactive: 'Inactif' };
-const STATE_CLASSES: Record<ClientState, string> = {
-  active: 'bg-success-green/10 text-success-green',
-  'at-risk': 'bg-accent-gold/30 text-accent-brown',
-  inactive: 'bg-neutral-100 text-neutral-600',
-};
-const STATE_DOTS: Record<ClientState, string> = { active: 'bg-success-green', 'at-risk': 'bg-accent-gold', inactive: 'bg-neutral-300' };
+const KIND_LABELS: Record<IClientPrototype['kind'], string> = { individual: 'Particulier', company: 'Entreprise' };
 const search = ref('');
 const stateFilter = ref<StateFilter>('all');
 const page = ref(1);
@@ -174,7 +174,11 @@ const filteredRows = computed((): IManagementClientPrototype[] => {
   const digits = query.replace(/\D/g, '');
   return rows.value
     .filter((client) => stateFilter.value === 'all' || client.state === stateFilter.value)
-    .filter((client) => client.name.toLowerCase().includes(query) || (digits.length > 2 && client.phone.includes(digits)))
+    .filter(
+      (client) =>
+        [client.name, client.identifier, client.email ?? ''].some((value) => value.toLowerCase().includes(query)) ||
+        (digits.length > 2 && client.phone.includes(digits.replace(/^0/, ''))),
+    )
     .sort((first, second) => first.name.localeCompare(second.name, 'fr'));
 });
 const pageCount = computed((): number => Math.max(1, Math.ceil(filteredRows.value.length / PAGE_SIZE)));

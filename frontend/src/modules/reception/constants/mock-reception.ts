@@ -35,7 +35,7 @@ export const LOTS_MOCK: ILot[] = [
   {
     ...baseLot,
     id: 'l0a1b2c3-0001-4000-8000-000000000158',
-    code: 'L-0158',
+    code: 'OJ-2627-0158',
     siteId: SITE_OUJDA_ID,
     clientId: CLIENTS_MOCK[0].id,
     clientName: CLIENTS_MOCK[0].name,
@@ -56,7 +56,7 @@ export const LOTS_MOCK: ILot[] = [
   {
     ...baseLot,
     id: 'l0a1b2c3-0001-4000-8000-000000000157',
-    code: 'L-0157',
+    code: 'OJ-2627-0157',
     siteId: SITE_OUJDA_ID,
     clientId: CLIENTS_MOCK[1].id,
     clientName: CLIENTS_MOCK[1].name,
@@ -72,7 +72,7 @@ export const LOTS_MOCK: ILot[] = [
   {
     ...baseLot,
     id: 'l0a1b2c3-0001-4000-8000-000000000087',
-    code: 'B-0087',
+    code: 'BK-2627-0087',
     siteId: SITE_BERKANE_ID,
     clientId: CLIENTS_MOCK[7].id,
     clientName: CLIENTS_MOCK[7].name,
@@ -88,8 +88,8 @@ export const LOTS_MOCK: ILot[] = [
 ];
 
 export const LAST_LOT_NUMBER_MOCK: Record<string, { prefix: string; number: number }> = {
-  [SITE_OUJDA_ID]: { prefix: 'L', number: 158 },
-  [SITE_BERKANE_ID]: { prefix: 'B', number: 87 },
+  [SITE_OUJDA_ID]: { prefix: 'OJ-2627', number: 158 },
+  [SITE_BERKANE_ID]: { prefix: 'BK-2627', number: 87 },
 };
 
 export const SETTINGS_MOCK: Record<string, ISiteReceptionSettings> = {

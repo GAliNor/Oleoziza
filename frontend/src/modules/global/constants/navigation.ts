@@ -10,7 +10,7 @@ import UserSettingsLineIcon from 'global/icons/user-settings-line.icon.vue';
 export const HOME_ROUTE_NAME = 'dashboard';
 
 export const NAV_ITEMS: INavItem[] = [
-  { name: HOME_ROUTE_NAME, labelKey: 'global.nav.dashboard', icon: HomeLineIcon, managementPermission: 'dashboard.view' },
+  { name: HOME_ROUTE_NAME, labelKey: 'global.nav.dashboard', shortLabelKey: 'global.nav.dashboardShort', icon: HomeLineIcon, managementPermission: 'dashboard.view' },
   { name: 'lot', labelKey: 'global.nav.operations', icon: ScaleLineIcon, permission: 'audit_trail.view', roles: ['management'] },
   { name: 'finance', labelKey: 'global.nav.finances', icon: CoinsLineIcon, permission: 'finance.view', roles: ['management'] },
   { name: 'client-search', labelKey: 'global.nav.clients', icon: GroupLineIcon, roles: ['management'] },

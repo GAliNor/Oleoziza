@@ -9,6 +9,34 @@
   html {
     @apply bg-neutral-50 text-neutral-800 antialiased;
   }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-2 border-transparent bg-primary-olive-mid bg-clip-padding;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-olive;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-color: theme(colors.primary-olive-mid) transparent;
+      scrollbar-width: thin;
+    }
+  }
 }
 
 @layer components {
@@ -123,11 +151,6 @@
 
   .choice-chip-active {
     @apply border-accent-brown bg-accent-sand/25 font-medium text-accent-brown hover:border-accent-brown;
-  }
-
-  .dock-action {
-    @apply flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl text-xs font-semibold
-      transition-transform duration-200 ease-(--ease-premium) active:scale-95 md:min-h-24;
   }
 
   .skeleton {

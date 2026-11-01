@@ -18,9 +18,13 @@
             {{ Math.round(fillRatio(tank) * 100) }} %
           </p>
         </div>
-        <div class="flex items-center justify-between gap-1 bg-white px-2 py-1.5">
-          <p class="truncate text-xs font-semibold text-neutral-700">{{ tank.name }}</p>
-          <span v-if="tank.isBio" class="chip bg-success-green/10 px-1.5 text-[10px] text-success-green">Bio</span>
+        <div class="flex flex-col gap-0.5 bg-white px-2 py-1.5">
+          <div class="flex items-center justify-between gap-1">
+            <p class="truncate text-xs font-semibold text-neutral-700">{{ tank.name }}</p>
+            <span v-if="tank.isBio" class="chip bg-success-green/10 px-1.5 text-[10px] text-success-green">Bio</span>
+          </div>
+          <p class="truncate text-xs font-medium text-primary-olive-dark" :title="tank.variety">{{ tank.variety }}</p>
+          <p class="text-[11px] text-neutral-500 tabular-nums">{{ formatKg(tank.fillKg) }}</p>
         </div>
       </div>
     </div>
