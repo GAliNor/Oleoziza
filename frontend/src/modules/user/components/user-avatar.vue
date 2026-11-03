@@ -2,7 +2,7 @@
   <avatar-tag
     :name="formatFullName(user)"
     kind="user"
-    :fallback-class="user.role === 'management' ? 'bg-accent-brown text-white' : 'bg-primary-olive-light text-primary-olive-dark'"
+    :fallback-class="user.role === 'management' ? 'bg-accent-brown text-white' : 'bg-selected text-fg-brand'"
   />
 </template>
 

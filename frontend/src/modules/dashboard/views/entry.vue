@@ -10,7 +10,7 @@
 
       <div v-if="authStore.isStaff" class="flex flex-col gap-3">
         <h2 class="heading-two">{{ $t('dashboard.sites') }}</h2>
-        <p v-if="siteStore.hasError" class="body-one text-danger-red">{{ $t('dashboard.loadError') }}</p>
+        <p v-if="siteStore.hasError" class="body-one text-fg-danger">{{ $t('dashboard.loadError') }}</p>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <template v-if="siteStore.isLoading">
             <div v-for="index in 2" :key="index" class="skeleton h-20" />
@@ -20,13 +20,13 @@
             v-else
             :key="site.id"
             type="button"
-            class="card flex items-center gap-3 text-left transition-colors hover:border-primary-olive"
-            :class="{ 'border-primary-olive': site.id === siteStore.currentSiteId || siteStore.isAllSites }"
+            class="card flex items-center gap-3 text-left transition-colors hover:border-brand"
+            :class="{ 'border-brand': site.id === siteStore.currentSiteId || siteStore.isAllSites }"
             @click="handleSelectSite(site.id)"
           >
-            <map-pin-line-icon class="h-6 w-6 text-accent-rust" />
+            <map-pin-line-icon class="h-6 w-6 text-fg-place" />
             <div>
-              <p class="font-medium text-neutral-800">{{ site.name }}</p>
+              <p class="font-medium text-fg-default">{{ site.name }}</p>
               <p class="body-two">{{ site.city }}</p>
             </div>
           </button>

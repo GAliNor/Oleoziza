@@ -1,7 +1,7 @@
 <template>
   <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
     <table class="w-full text-sm">
-      <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
+      <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
         <tr>
           <th class="px-4 py-3 font-semibold">{{ $t('user.table.user') }}</th>
           <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('user.table.role') }}</th>
@@ -14,8 +14,8 @@
         <tr
           v-for="user in users"
           :key="user.id"
-          class="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
-          :class="{ 'bg-primary-olive-light/40': user.id === highlightedId }"
+          class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+          :class="{ 'bg-selected/40': user.id === highlightedId }"
           tabindex="0"
           @click="emit('open', user.id)"
           @keydown.enter="emit('open', user.id)"
@@ -24,19 +24,19 @@
             <div class="flex items-center gap-3">
               <user-avatar :user="user" class="h-9 w-9" />
               <div class="min-w-0">
-                <p class="truncate font-medium" :class="user.status === 'disabled' ? 'text-neutral-400' : 'text-neutral-900'">{{ formatFullName(user) }}</p>
+                <p class="truncate font-medium" :class="user.status === 'disabled' ? 'text-fg-muted' : 'text-fg-display'">{{ formatFullName(user) }}</p>
                 <p class="body-two truncate">{{ user.email ?? formatPhone(user.phone ?? '') }}</p>
               </div>
             </div>
           </td>
-          <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-700 md:table-cell">
+          <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph md:table-cell">
             {{ $t(`user.roles.${user.role}`) }}
-            <span v-if="user.isOwner" class="chip ml-1 bg-accent-gold/30 text-accent-brown">{{ $t('user.owner') }}</span>
+            <span v-if="user.isOwner" class="chip ml-1 bg-highlight/30 text-fg-accent">{{ $t('user.owner') }}</span>
           </td>
           <td class="hidden px-4 py-3 lg:table-cell">
-            <span v-for="siteId in Object.keys(user.sites)" :key="siteId" class="chip mr-1 bg-neutral-100 text-neutral-700">{{ siteCity(siteId) }}</span>
+            <span v-for="siteId in Object.keys(user.sites)" :key="siteId" class="chip mr-1 bg-subtle text-fg-primary-paragraph">{{ siteCity(siteId) }}</span>
           </td>
-          <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-600 lg:table-cell">
+          <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph lg:table-cell">
             {{ user.lastLoginAt ? formatDateTime(user.lastLoginAt) : '—' }}
           </td>
           <td class="px-4 py-3 whitespace-nowrap">

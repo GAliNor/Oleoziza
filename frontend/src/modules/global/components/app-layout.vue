@@ -4,12 +4,12 @@
   </operator-shell>
   <div v-else class="min-h-dvh md:flex">
     <aside
-      class="hidden w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-neutral-200 bg-white p-4
+      class="hidden w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-default bg-surface p-4
         md:sticky md:top-0 md:flex md:h-dvh"
     >
       <div class="flex items-center gap-2 px-3">
-        <olive-fill-icon class="h-8 w-8 text-primary-olive" />
-        <span class="text-xl font-semibold text-accent-brown">{{ $t('global.appName') }}</span>
+        <olive-fill-icon class="h-8 w-8 text-fg-brand" />
+        <span class="text-xl font-semibold text-fg-accent">{{ $t('global.appName') }}</span>
       </div>
       <nav class="flex flex-col gap-1">
         <router-link
@@ -23,8 +23,8 @@
           {{ $t(item.labelKey) }}
         </router-link>
       </nav>
-      <div class="mt-auto flex flex-col gap-1 border-t border-neutral-200 pt-4">
-        <p class="truncate px-3 text-sm font-medium text-neutral-800">{{ authStore.fullName }}</p>
+      <div class="mt-auto flex flex-col gap-1 border-t border-default pt-4">
+        <p class="truncate px-3 text-sm font-medium text-fg-default">{{ authStore.fullName }}</p>
         <p v-if="authStore.session" class="px-3 body-two">{{ $t(`auth.roles.${authStore.session.role}`) }}</p>
         <button v-if="canSwitchOperator" type="button" class="nav-link mt-2" @click="handleSwitchOperator">
           <user-switch-line-icon class="h-5 w-5" />
@@ -39,10 +39,10 @@
 
     <div class="flex min-w-0 flex-1 flex-col">
       <header
-        class="sticky top-0 z-40 flex items-center gap-3 border-b border-neutral-200 bg-white/90 px-4 py-3
+        class="sticky top-0 z-40 flex items-center gap-3 border-b border-default bg-surface/90 px-4 py-3
           backdrop-blur md:px-8"
       >
-        <olive-fill-icon class="h-7 w-7 shrink-0 text-primary-olive md:hidden" />
+        <olive-fill-icon class="h-7 w-7 shrink-0 text-fg-brand md:hidden" />
         <back-button />
         <site-switcher />
         <slot name="header" />
@@ -68,15 +68,15 @@
     </div>
 
     <nav
-      class="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-neutral-200 bg-white
+      class="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-default bg-surface
         pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <router-link
         v-for="item in visibleNavItems"
         :key="item.name"
         :to="{ name: item.name }"
-        class="flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-xs text-neutral-500"
-        active-class="text-primary-olive-dark"
+        class="flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-xs text-fg-secondary-paragraph"
+        active-class="text-fg-brand"
       >
         <component :is="item.icon" class="h-6 w-6" />
         <span class="max-w-full truncate whitespace-nowrap">{{ $t(item.shortLabelKey ?? item.labelKey) }}</span>

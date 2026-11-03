@@ -1,39 +1,39 @@
 @layer components {
   .btn-primary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary-olive-dark px-5
-      text-sm font-medium text-white shadow-sm shadow-primary-olive-dark/20
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-action px-5
+      text-sm font-medium text-fg-on-action shadow-raised shadow-primary-olive-dark/20
       transition-[background-color,box-shadow,transform,opacity] duration-300 ease-(--ease-premium)
-      hover:bg-primary-olive hover:shadow-md hover:shadow-primary-olive-dark/25 active:scale-[0.98]
-      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-olive
+      hover:bg-action-hover hover:shadow-raised hover:shadow-primary-olive-dark/25 active:scale-[0.98]
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus
       disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:active:scale-100;
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white
-      px-5 text-sm font-medium text-neutral-800 transition-[background-color,border-color,transform] duration-300
-      ease-(--ease-premium) hover:border-neutral-300 hover:bg-neutral-50 active:scale-[0.98]
-      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-olive;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-default bg-surface
+      px-5 text-sm font-medium text-fg-default transition-[background-color,border-color,transform] duration-300
+      ease-(--ease-premium) hover:border-strong hover:bg-page active:scale-[0.98]
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus;
   }
 
   .link {
-    @apply text-sm font-medium text-primary-olive-dark underline-offset-4 hover:underline
-      disabled:cursor-not-allowed disabled:text-neutral-400 disabled:no-underline;
+    @apply text-sm font-medium text-fg-brand underline-offset-4 hover:underline
+      disabled:cursor-not-allowed disabled:text-fg-muted disabled:no-underline;
   }
 
   .icon-btn {
-    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-600 transition-colors
-      hover:bg-primary-olive-light hover:text-primary-olive-dark;
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg text-fg-primary-paragraph transition-colors
+      hover:bg-selected hover:text-fg-brand;
   }
 
   .pin-key {
-    @apply flex h-16 items-center justify-center rounded-full bg-neutral-100 text-2xl font-light text-neutral-900
+    @apply flex h-16 items-center justify-center rounded-full bg-subtle text-2xl font-light text-fg-display
       transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none
-      hover:bg-neutral-200/70 active:scale-90 active:bg-primary-olive-light disabled:opacity-40;
+      hover:bg-emphasis/70 active:scale-90 active:bg-selected disabled:opacity-40;
   }
 
   .weight-key {
-    @apply flex h-16 items-center justify-center rounded-2xl bg-neutral-100 text-2xl font-medium text-neutral-900
-      transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none hover:bg-neutral-200/70
-      active:scale-95 active:bg-primary-olive-light disabled:opacity-40 disabled:active:scale-100;
+    @apply flex h-16 items-center justify-center rounded-2xl bg-subtle text-2xl font-medium text-fg-display
+      transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none hover:bg-emphasis/70
+      active:scale-95 active:bg-selected disabled:opacity-40 disabled:active:scale-100;
   }
 }

@@ -1,15 +1,15 @@
 <template>
   <article class="card flex flex-col gap-4 rounded-2xl">
     <header class="flex flex-wrap items-center gap-3">
-      <map-pin-line-icon class="h-5 w-5 text-accent-rust" />
-      <h4 class="font-semibold text-neutral-900">{{ siteName }}</h4>
+      <map-pin-line-icon class="h-5 w-5 text-fg-place" />
+      <h4 class="font-semibold text-fg-display">{{ siteName }}</h4>
       <span class="body-two tabular-nums">{{ $t('user.detail.rightsCount', { count: granted.length, total: PERMISSIONS.length }) }}</span>
-      <span v-if="!canManageSite(user, siteId) && canEdit(user)" class="chip bg-neutral-100 text-neutral-600">{{ $t('user.detail.readOnlySite') }}</span>
+      <span v-if="!canManageSite(user, siteId) && canEdit(user)" class="chip bg-subtle text-fg-primary-paragraph">{{ $t('user.detail.readOnlySite') }}</span>
       <button
         v-else-if="canManageSite(user, siteId) && isRemovable"
         type="button"
         class="link ml-auto"
-        :class="isRemoveArmed ? 'font-semibold text-danger-red' : 'text-danger-red/80'"
+        :class="isRemoveArmed ? 'font-semibold text-fg-danger' : 'text-fg-danger/80'"
         :disabled="userStore.isSaving"
         @click="handleRemove"
       >
@@ -26,7 +26,7 @@
           type="button"
           role="switch"
           :aria-checked="granted.includes(permission)"
-          class="flex min-h-11 items-center gap-3 rounded-lg px-2 text-left text-sm transition-colors hover:bg-neutral-50
+          class="flex min-h-11 items-center gap-3 rounded-lg px-2 text-left text-sm transition-colors hover:bg-page
             disabled:cursor-not-allowed disabled:hover:bg-transparent"
           :disabled="!canGrant(user, siteId, permission) || pendingPermission !== null"
           :title="canEdit(user) && !canGrant(user, siteId, permission) ? $t('user.detail.locked') : undefined"
@@ -34,18 +34,18 @@
         >
           <span
             class="relative h-6 w-10 shrink-0 rounded-full transition-colors duration-300"
-            :class="[granted.includes(permission) ? 'bg-primary-olive-dark' : 'bg-neutral-300', { 'animate-pulse': pendingPermission === permission }]"
+            :class="[granted.includes(permission) ? 'bg-action' : 'bg-emphasis', { 'animate-pulse': pendingPermission === permission }]"
           >
             <span
-              class="absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow transition-transform duration-300 ease-(--ease-premium)"
+              class="absolute top-1 left-1 h-4 w-4 rounded-full bg-surface shadow-raised transition-transform duration-300 ease-(--ease-premium)"
               :class="{ 'translate-x-4': granted.includes(permission) }"
             />
           </span>
-          <span class="flex-1" :class="granted.includes(permission) ? 'text-neutral-900' : 'text-neutral-500'">
+          <span class="flex-1" :class="granted.includes(permission) ? 'text-fg-display' : 'text-fg-secondary-paragraph'">
             {{ $t(`user.permissions.${permission}`) }}
           </span>
-          <span v-if="isDefault(user, permission)" class="text-xs text-neutral-400">{{ $t('user.detail.default') }}</span>
-          <lock-line-icon v-if="canEdit(user) && !canGrant(user, siteId, permission)" class="h-4 w-4 shrink-0 text-neutral-400" />
+          <span v-if="isDefault(user, permission)" class="text-xs text-fg-muted">{{ $t('user.detail.default') }}</span>
+          <lock-line-icon v-if="canEdit(user) && !canGrant(user, siteId, permission)" class="h-4 w-4 shrink-0 text-fg-muted" />
         </button>
       </section>
     </div>

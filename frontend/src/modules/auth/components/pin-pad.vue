@@ -7,8 +7,8 @@
         class="h-3.5 w-3.5 rounded-full border-2 transition-[background-color,border-color,transform] duration-300
           ease-(--ease-premium)"
         :class="[
-          hasError ? 'border-danger-red' : 'border-primary-olive',
-          index <= modelValue.length ? 'scale-125 bg-primary-olive' : 'scale-100',
+          hasError ? 'border-danger' : 'border-brand',
+          index <= modelValue.length ? 'scale-125 bg-action' : 'scale-100',
         ]"
       />
     </div>

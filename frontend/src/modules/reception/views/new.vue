@@ -32,7 +32,7 @@
             {{ $t(`reception.modes.${option}`) }}
           </button>
         </div>
-        <p v-if="mode === 'purchase'" class="rounded-xl bg-accent-sand/20 px-3 py-2 text-sm text-accent-brown">
+        <p v-if="mode === 'purchase'" class="rounded-xl bg-accent-subtle px-3 py-2 text-sm text-fg-accent">
           {{ dailyPrice === null ? $t('reception.open.dailyPriceMissing') : $t('reception.open.dailyPrice', { price: formatDh(dailyPrice) }) }}
         </p>
       </section>
@@ -55,7 +55,7 @@
 
       <details class="card group">
         <summary class="label flex cursor-pointer list-none items-center justify-between">
-          <span>{{ $t('reception.open.details') }} <span class="font-normal text-neutral-500">({{ $t('reception.open.optional') }})</span></span>
+          <span>{{ $t('reception.open.details') }} <span class="font-normal text-fg-secondary-paragraph">({{ $t('reception.open.optional') }})</span></span>
           <chevron-down-line-icon class="h-5 w-5 transition-transform group-open:rotate-180" />
         </summary>
         <div class="mt-4 flex flex-col gap-3">

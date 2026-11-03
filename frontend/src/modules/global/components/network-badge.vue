@@ -1,5 +1,5 @@
 <template>
-  <span v-if="!isOnline" class="chip bg-accent-gold text-neutral-800" role="status">
+  <span v-if="!isOnline" class="chip bg-highlight text-fg-default" role="status">
     <wifi-off-line-icon class="h-3.5 w-3.5" />
     {{ $t('global.network.offline') }}
   </span>

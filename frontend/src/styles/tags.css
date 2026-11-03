@@ -4,12 +4,12 @@
   }
 
   .choice-chip {
-    @apply min-h-11 rounded-full border border-neutral-200 bg-white px-4 text-sm text-neutral-700
-      transition-colors duration-300 ease-(--ease-premium) hover:border-neutral-300;
+    @apply min-h-11 rounded-full border border-default bg-surface px-4 text-sm text-fg-primary-paragraph
+      transition-colors duration-300 ease-(--ease-premium) hover:border-strong;
   }
 
   .choice-chip-active {
-    @apply border-accent-brown bg-accent-sand/25 font-medium text-accent-brown hover:border-accent-brown;
+    @apply border-accent bg-accent-subtle font-medium text-fg-accent hover:border-accent;
   }
 
   .avatar {

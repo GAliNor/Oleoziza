@@ -1,7 +1,7 @@
 <template>
   <div class="card flex flex-wrap items-center gap-2 rounded-2xl p-4">
-    <p class="label mr-2">File des lots <span class="font-normal text-neutral-500">· maintenant</span></p>
-    <span v-for="status in STATUSES" :key="status" class="chip bg-neutral-100 px-3 py-1 text-sm text-neutral-700">
+    <p class="label mr-2">File des lots <span class="font-normal text-fg-secondary-paragraph">· maintenant</span></p>
+    <span v-for="status in STATUSES" :key="status" class="chip bg-subtle px-3 py-1 text-sm text-fg-primary-paragraph">
       {{ STATUS_LABELS[status] }} <span class="font-semibold tabular-nums">{{ queue[status] }}</span>
     </span>
     <a href="#" class="link ml-auto">Voir la file →</a>

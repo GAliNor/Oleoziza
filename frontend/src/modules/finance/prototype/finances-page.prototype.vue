@@ -9,7 +9,7 @@
         </div>
         <segmented-control :model-value="period.key" :options="PERIODS" aria-label="Période" @update:model-value="selectPeriod" />
       </header>
-      <p v-if="isReadOnly" class="chip self-start bg-neutral-100 text-neutral-600">Tous les sites · lecture seule</p>
+      <p v-if="isReadOnly" class="chip self-start bg-subtle text-fg-primary-paragraph">Tous les sites · lecture seule</p>
 
       <variant-a />
     </section>

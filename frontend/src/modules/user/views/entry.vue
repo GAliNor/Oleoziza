@@ -24,10 +24,10 @@
             :aria-pressed="filter === key"
             @click="filter = key"
           >
-            {{ $t(`user.filters.${key}`) }} <span class="text-neutral-400 tabular-nums">{{ counts[key] }}</span>
+            {{ $t(`user.filters.${key}`) }} <span class="text-fg-muted tabular-nums">{{ counts[key] }}</span>
           </button>
         </div>
-        <div class="inline-flex self-start rounded-xl bg-neutral-100 p-1 lg:ml-auto" role="radiogroup" :aria-label="$t('user.views.label')">
+        <div class="inline-flex self-start rounded-xl bg-subtle p-1 lg:ml-auto" role="radiogroup" :aria-label="$t('user.views.label')">
           <button
             v-for="key in USER_VIEWS"
             :key="key"
@@ -35,7 +35,7 @@
             role="radio"
             :aria-checked="view === key"
             class="min-h-10 rounded-lg px-4 text-sm font-medium transition-colors duration-300 ease-(--ease-premium)"
-            :class="view === key ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
+            :class="view === key ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default'"
             @click="handleView(key)"
           >
             {{ $t(`user.views.${key}`) }}
@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <p v-if="userStore.hasError && !userStore.users.length" class="card body-two text-danger-red">{{ $t('user.loadError') }}</p>
+      <p v-if="userStore.hasError && !userStore.users.length" class="card body-two text-fg-danger">{{ $t('user.loadError') }}</p>
 
       <div class="flex min-w-0 gap-4 overflow-hidden">
         <div
@@ -70,7 +70,7 @@
                   :key="number"
                   type="button"
                   class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums transition-colors"
-                  :class="number === page ? 'bg-primary-olive-dark text-white' : 'text-neutral-600 hover:bg-neutral-100'"
+                  :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'"
                   :aria-current="number === page ? 'page' : undefined"
                   @click="handlePage(number)"
                 >

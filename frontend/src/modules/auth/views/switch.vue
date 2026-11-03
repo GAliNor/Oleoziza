@@ -10,16 +10,16 @@
             <button
               type="button"
               class="card flex w-full flex-col items-center gap-3 py-6 transition-[transform,box-shadow,border-color] duration-300
-              ease-(--ease-premium) hover:-translate-y-0.5 hover:border-primary-olive-mid hover:shadow-md active:scale-[0.98]"
+              ease-(--ease-premium) hover:-translate-y-0.5 hover:border-brand hover:shadow-raised active:scale-[0.98]"
               @click="handleSelect(profile)"
             >
               <span
-                class="flex h-14 w-14 items-center justify-center rounded-full bg-primary-olive-light text-lg
-                  font-semibold text-primary-olive-dark"
+                class="flex h-14 w-14 items-center justify-center rounded-full bg-selected text-lg
+                  font-semibold text-fg-brand"
               >
                 {{ initials(profile) }}
               </span>
-              <span class="text-center text-sm font-medium text-neutral-800">{{ profile.firstName }} {{ profile.lastName }}</span>
+              <span class="text-center text-sm font-medium text-fg-default">{{ profile.firstName }} {{ profile.lastName }}</span>
             </button>
             <button
               type="button"

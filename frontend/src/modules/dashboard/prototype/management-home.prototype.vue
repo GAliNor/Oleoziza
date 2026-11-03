@@ -6,7 +6,7 @@
         <h1 class="heading-one">Bonjour {{ authStore.salutation }}</h1>
         <p class="body-two">{{ scopeName }}</p>
       </div>
-      <p v-if="!isFinanceShown" class="chip bg-neutral-100 text-neutral-600">Finances masquées (autorisation « finance.view »)</p>
+      <p v-if="!isFinanceShown" class="chip bg-subtle text-fg-primary-paragraph">Finances masquées (autorisation « finance.view »)</p>
     </div>
 
     <div class="rise flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

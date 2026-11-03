@@ -5,26 +5,26 @@
       <p class="body-two tabular-nums">{{ formatKg(totalFill) }} / {{ formatKg(totalCapacity) }}</p>
     </div>
     <div class="grid flex-1 auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3" :class="{ 'xl:grid-cols-5': tanks.length > 3 }">
-      <div v-for="(tank, index) in tanks" :key="tank.id" class="lift flex min-h-32 min-w-0 flex-col overflow-hidden rounded-xl border border-neutral-200">
-        <div class="relative flex-1 overflow-hidden bg-neutral-100">
+      <div v-for="(tank, index) in tanks" :key="tank.id" class="lift flex min-h-32 min-w-0 flex-col overflow-hidden rounded-xl border border-default">
+        <div class="relative flex-1 overflow-hidden bg-subtle">
           <div
             class="grow-y absolute inset-x-0 bottom-0"
             :class="fillRatio(tank) >= 0.9 ? 'bg-accent-sand' : 'bg-primary-olive-mid'"
             :style="{ height: `${fillRatio(tank) * 100}%`, animationDelay: `${index * 70}ms`, animationDuration: '1.2s' }"
           >
-            <div class="absolute inset-x-0 top-0 h-px bg-white/60" />
+            <div class="absolute inset-x-0 top-0 h-px bg-surface/60" />
           </div>
-          <p class="absolute inset-0 flex items-center justify-center text-lg font-semibold text-neutral-900 tabular-nums">
+          <p class="absolute inset-0 flex items-center justify-center text-lg font-semibold text-fg-display tabular-nums">
             {{ Math.round(fillRatio(tank) * 100) }} %
           </p>
         </div>
-        <div class="flex flex-col gap-0.5 bg-white px-2 py-1.5">
+        <div class="flex flex-col gap-0.5 bg-surface px-2 py-1.5">
           <div class="flex items-center justify-between gap-1">
-            <p class="truncate text-xs font-semibold text-neutral-700">{{ tank.name }}</p>
-            <span v-if="tank.isBio" class="chip bg-success-green/10 px-1.5 text-[10px] text-success-green">Bio</span>
+            <p class="truncate text-xs font-semibold text-fg-primary-paragraph">{{ tank.name }}</p>
+            <span v-if="tank.isBio" class="chip bg-success-subtle px-1.5 text-[10px] text-fg-success">Bio</span>
           </div>
-          <p class="truncate text-xs font-medium text-primary-olive-dark" :title="tank.variety">{{ tank.variety }}</p>
-          <p class="text-[11px] text-neutral-500 tabular-nums">{{ formatKg(tank.fillKg) }}</p>
+          <p class="truncate text-xs font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
+          <p class="text-[11px] text-fg-secondary-paragraph tabular-nums">{{ formatKg(tank.fillKg) }}</p>
         </div>
       </div>
     </div>

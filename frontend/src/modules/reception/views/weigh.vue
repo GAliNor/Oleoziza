@@ -15,15 +15,15 @@
         <li v-for="lot in receptionStore.receivedLots" :key="lot.id">
           <router-link
             :to="{ name: 'reception-station', params: { code: lot.code } }"
-            class="card lift flex min-h-20 items-center gap-3 hover:border-primary-olive-mid"
+            class="card lift flex min-h-20 items-center gap-3 hover:border-brand"
           >
             <span class="min-w-0 flex-1">
-              <span class="block truncate font-semibold text-neutral-900">{{ lot.clientName }}</span>
+              <span class="block truncate font-semibold text-fg-display">{{ lot.clientName }}</span>
               <span class="body-two block truncate">{{ lot.code }} · {{ lot.variety }} · {{ formatTime(lot.receivedAt) }}</span>
-              <span v-if="lot.isPendingSync" class="chip mt-1 bg-warning-amber/15 text-warning-amber">{{ $t('reception.pendingSync') }}</span>
+              <span v-if="lot.isPendingSync" class="chip mt-1 bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
             </span>
             <span class="text-right">
-              <span class="block text-lg font-semibold text-neutral-900 tabular-nums">{{ formatKg(lot.netKg) }}</span>
+              <span class="block text-lg font-semibold text-fg-display tabular-nums">{{ formatKg(lot.netKg) }}</span>
               <span class="body-two block">{{ $t('reception.station.weighings', lot.weighings.length) }}</span>
             </span>
           </router-link>

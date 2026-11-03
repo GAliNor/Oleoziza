@@ -7,7 +7,7 @@
           <h1 class="heading-one">Opérations</h1>
           <p class="body-two">{{ scopeName }} · registre des lots {{ period.noun }} · {{ scoped.length }} lots</p>
         </div>
-        <div v-show="!isLotOpen" class="inline-flex shrink-0 self-start rounded-xl bg-neutral-100 p-1 md:self-auto" role="radiogroup" aria-label="Affichage">
+        <div v-show="!isLotOpen" class="inline-flex shrink-0 self-start rounded-xl bg-subtle p-1 md:self-auto" role="radiogroup" aria-label="Affichage">
           <button
             v-for="(label, key) in VIEWS"
             :key="key"
@@ -15,7 +15,7 @@
             role="radio"
             :aria-checked="view === key"
             class="min-h-10 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ease-(--ease-premium)"
-            :class="view === key ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
+            :class="view === key ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default'"
             @click="handleView(key)"
           >
             {{ label }}

@@ -11,7 +11,7 @@
         <p class="flex-1 text-sm">{{ toast.message }}</p>
         <button
           type="button"
-          class="text-neutral-500 hover:text-neutral-800"
+          class="text-fg-secondary-paragraph hover:text-fg-default"
           :aria-label="$t('global.toast.close')"
           @click="handleDismiss(toast.id)"
         >
@@ -34,10 +34,10 @@ const toastStore = useToastStore();
 
 // variables
 const TONE_CLASSES: Record<ToastTone, string> = {
-  info: 'border-info-blue/40',
-  success: 'border-success-green/40',
-  danger: 'border-danger-red/40 text-danger-red',
-  dev: 'border-dashed border-accent-sand bg-accent-sand/10 text-accent-brown',
+  info: 'border-info-subtle',
+  success: 'border-success-subtle',
+  danger: 'border-danger-subtle text-fg-danger',
+  dev: 'border-dashed border-accent bg-accent-subtle text-fg-accent',
 };
 
 // event handlers

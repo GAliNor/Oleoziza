@@ -12,7 +12,7 @@
         <div class="stagger grid grid-cols-2 gap-3">
           <button
             type="button"
-            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-primary-olive-dark text-base font-semibold text-white active:scale-[0.98]"
+            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-action text-base font-semibold text-fg-on-action active:scale-[0.98]"
             @click="desk.receive()"
           >
             <add-line-icon class="h-8 w-8" />
@@ -20,8 +20,8 @@
           </button>
           <button
             type="button"
-            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-primary-olive-dark bg-white text-base font-semibold
-              text-primary-olive-dark active:scale-[0.98]"
+            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-brand bg-surface text-base font-semibold
+              text-fg-brand active:scale-[0.98]"
             @click="handleOpenPanel({ kind: 'client' })"
           >
             <user-add-line-icon class="h-8 w-8" />
@@ -30,17 +30,17 @@
         </div>
 
         <label class="relative">
-          <search-line-icon class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-neutral-400" />
+          <search-line-icon class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-fg-muted" />
           <input v-model="query" class="input pl-12" type="search" placeholder="Chercher un client" />
         </label>
 
         <div v-if="query && searched.length" class="flex flex-col gap-2">
-          <div v-for="client in searched" :key="client.name" class="flex items-center gap-3 rounded-2xl bg-accent-sand/15 p-3">
+          <div v-for="client in searched" :key="client.name" class="flex items-center gap-3 rounded-2xl bg-accent-subtle p-3">
             <avatar-tag class="h-14 w-14" :name="client.name" :kind="client.kind" />
             <div class="min-w-0 flex-1">
-              <p class="truncate text-lg font-semibold text-neutral-900">{{ client.name }}</p>
-              <p v-for="line in desk.accountLines(client)" :key="line" class="text-sm text-neutral-700">{{ line }}</p>
-              <p v-if="!client.lots.length" class="text-sm text-neutral-500">Aucun lot en cours</p>
+              <p class="truncate text-lg font-semibold text-fg-display">{{ client.name }}</p>
+              <p v-for="line in desk.accountLines(client)" :key="line" class="text-sm text-fg-primary-paragraph">{{ line }}</p>
+              <p v-if="!client.lots.length" class="text-sm text-fg-secondary-paragraph">Aucun lot en cours</p>
             </div>
           </div>
         </div>
@@ -50,21 +50,21 @@
         </p>
 
         <h2 class="label">{{ query ? 'Lots trouvés' : 'En cours' }} · {{ listed.length }}</h2>
-        <ul class="flex flex-col divide-y divide-neutral-200 border-y border-neutral-200">
+        <ul class="flex flex-col divide-y divide-default border-y border-default">
           <li v-for="lot in visible" :key="lot.id" class="flex items-center gap-3 py-3">
             <avatar-tag class="h-12 w-12" :name="lot.client" :kind="desk.avatarKind(lot.client)" />
             <div class="min-w-0 flex-1">
-              <p class="truncate font-semibold text-neutral-900">{{ lot.client }}</p>
-              <p class="truncate text-sm text-neutral-600">{{ desk.stageSentence(lot) }}</p>
+              <p class="truncate font-semibold text-fg-display">{{ lot.client }}</p>
+              <p class="truncate text-sm text-fg-primary-paragraph">{{ desk.stageSentence(lot) }}</p>
               <div class="mt-1.5 flex items-center gap-1">
                 <span
                   v-for="(status, index) in LOT_STATUSES"
                   :key="status"
                   class="h-1.5 w-6 rounded-full"
-                  :class="index <= LOT_STATUSES.indexOf(lot.status) ? 'bg-primary-olive' : 'bg-neutral-200'"
+                  :class="index <= LOT_STATUSES.indexOf(lot.status) ? 'bg-action' : 'bg-emphasis'"
                   aria-hidden="true"
                 />
-                <span class="ml-2 truncate text-xs text-neutral-400">{{ desk.ageLabel(lot) }}</span>
+                <span class="ml-2 truncate text-xs text-fg-muted">{{ desk.ageLabel(lot) }}</span>
               </div>
             </div>
             <button

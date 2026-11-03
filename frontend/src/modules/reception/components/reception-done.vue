@@ -1,7 +1,7 @@
 <template>
   <section class="rise mx-auto flex w-full max-w-md flex-col items-center gap-5 py-6 text-center">
-    <span class="flex h-20 w-20 items-center justify-center rounded-full bg-primary-olive-light">
-      <animated-check-icon class="h-10 w-10 text-primary-olive-dark" />
+    <span class="flex h-20 w-20 items-center justify-center rounded-full bg-selected">
+      <animated-check-icon class="h-10 w-10 text-fg-brand" />
     </span>
     <div>
       <p class="eyebrow">{{ lot.code }} · {{ $t('reception.done.waiting') }}</p>
@@ -11,7 +11,7 @@
         {{ $t('reception.done.purchase', { price: formatDh(lot.dailyPricePerKg), amount: formatDh(lot.netKg * lot.dailyPricePerKg) }) }}
       </p>
     </div>
-    <span v-if="lot.isPendingSync" class="chip bg-warning-amber/15 text-warning-amber">{{ $t('reception.pendingSync') }}</span>
+    <span v-if="lot.isPendingSync" class="chip bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
     <div class="flex w-full flex-col gap-2">
       <button type="button" class="btn-primary min-h-14" @click="handlePrint">{{ $t('reception.done.print') }}</button>
       <div class="grid grid-cols-2 gap-2">

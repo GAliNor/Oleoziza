@@ -12,7 +12,7 @@
     />
     <button
       type="button"
-      class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-neutral-500 hover:text-neutral-800"
+      class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-fg-secondary-paragraph hover:text-fg-default"
       :aria-label="showPassword ? $t('auth.password.hide') : $t('auth.password.show')"
       @click="handleToggle"
     >

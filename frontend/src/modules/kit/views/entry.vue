@@ -124,7 +124,7 @@ const TONES = [
   { name: 'accent', classes: 'bg-accent-subtle text-fg-accent' },
   { name: 'highlight', classes: 'bg-highlight text-fg-default' },
 ] as const;
-const SEMANTIC_PREFIXES = { 'text-color': 'text', 'background-color': 'bg', 'border-color': 'border' } as const;
+const SEMANTIC_PREFIXES = { 'text-color': 'text', 'background-color': 'bg', 'border-color': 'border', 'ring-color': 'ring', 'outline-color': 'outline' } as const;
 const THEME_TOKENS_CSS = tokensCss.slice(0, tokensCss.indexOf('\n.dark {'));
 
 const colors = readTokens(THEME_TOKENS_CSS, 'color');

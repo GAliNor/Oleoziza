@@ -1,12 +1,12 @@
 <template>
-  <div class="min-h-dvh bg-white md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+  <div class="min-h-dvh bg-surface md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
     <auth-art class="h-56 md:sticky md:top-0 md:order-2 md:h-dvh" />
 
     <div class="flex min-h-[calc(100dvh-14rem)] flex-col px-6 pt-20 pb-8 md:min-h-dvh md:px-12 md:py-10 lg:px-20 xl:px-28">
       <header class="rise flex items-center justify-between gap-4">
         <div class="flex items-center gap-2.5">
-          <olive-fill-icon class="h-8 w-8 text-primary-olive" />
-          <span class="text-lg font-semibold tracking-tight text-accent-brown">{{ $t('global.appName') }}</span>
+          <olive-fill-icon class="h-8 w-8 text-fg-brand" />
+          <span class="text-lg font-semibold tracking-tight text-fg-accent">{{ $t('global.appName') }}</span>
         </div>
       </header>
 

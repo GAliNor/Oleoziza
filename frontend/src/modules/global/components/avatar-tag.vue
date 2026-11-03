@@ -1,7 +1,7 @@
 <template>
   <span
     class="avatar-tag avatar overflow-hidden"
-    :class="faceUri ? 'bg-primary-olive-light' : fallbackClass"
+    :class="faceUri ? 'bg-selected' : fallbackClass"
     :style="{ animationDelay: `${delay}ms` }"
     :title="name"
   >
@@ -20,7 +20,7 @@ import type { AvatarKind } from 'global/types/avatar';
 // props
 const props = withDefaults(defineProps<{ name: string; kind: AvatarKind; delay?: number; fallbackClass?: string }>(), {
   delay: 0,
-  fallbackClass: 'bg-primary-olive-dark text-white',
+  fallbackClass: 'bg-action text-fg-on-action',
 });
 
 // variables

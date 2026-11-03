@@ -28,7 +28,7 @@
               />
             </svg>
             <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p class="text-xs text-neutral-500">{{ hovered ? hovered.label : 'Encaissé' }}</p>
+              <p class="text-xs text-fg-secondary-paragraph">{{ hovered ? hovered.label : 'Encaissé' }}</p>
               <p class="text-lg font-semibold tabular-nums">{{ formatDh(hovered ? hovered.amount : sales.collected) }}</p>
             </div>
           </div>
@@ -37,12 +37,12 @@
               v-for="slice in slices"
               :key="slice.key"
               class="flex items-center justify-between gap-3 rounded-lg px-2 py-1"
-              :class="{ 'bg-neutral-50': hoveredKey === slice.key }"
+              :class="{ 'bg-page': hoveredKey === slice.key }"
               @mouseenter="hoveredKey = slice.key"
               @mouseleave="hoveredKey = null"
             >
-              <span class="flex items-center gap-2 text-neutral-700"><span class="h-2.5 w-2.5 rounded-full" :style="{ background: slice.tone }" /> {{ slice.label }}</span>
-              <span class="tabular-nums text-neutral-500">{{ slice.pct.toFixed(0) }} %</span>
+              <span class="flex items-center gap-2 text-fg-primary-paragraph"><span class="h-2.5 w-2.5 rounded-full" :style="{ background: slice.tone }" /> {{ slice.label }}</span>
+              <span class="tabular-nums text-fg-secondary-paragraph">{{ slice.pct.toFixed(0) }} %</span>
             </li>
           </ul>
         </div>

@@ -12,6 +12,7 @@
   --color-accent-brown: #8b5a2b;
   --color-accent-sand: #d4a373;
   --color-accent-gold: #e9c46a;
+  --color-accent-cream: #efe9dc;
   --color-neutral-50: #fafaf9;
   --color-neutral-100: #f5f5f4;
   --color-neutral-200: #e7e5e4;
@@ -37,6 +38,8 @@
   --radius-2xl: 1rem;
   --radius-3xl: 1.5rem;
 
+  --shadow-*: initial;
+
   /* Elevation: a hairline outline, a resting lift (cards), and floating layers (glass cards, menus, toasts). */
   --shadow-hairline: 0 0 0 1px --alpha(var(--color-neutral-800) / 6%);
   --shadow-raised: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -52,6 +55,7 @@
   --text-color-fg-secondary-paragraph: var(--color-neutral-500);
   --text-color-fg-muted: var(--color-neutral-400);
   --text-color-fg-on-action: var(--color-white);
+  --text-color-fg-on-action-muted: var(--color-primary-olive-light);
   --text-color-fg-brand: var(--color-primary-olive-dark);
   --text-color-fg-accent: var(--color-accent-brown);
   --text-color-fg-highlight: var(--color-accent-gold);
@@ -64,11 +68,13 @@
   --background-color-page: var(--color-neutral-50);
   --background-color-surface: var(--color-white);
   --background-color-subtle: var(--color-neutral-100);
+  --background-color-emphasis: var(--color-neutral-200);
   --background-color-action: var(--color-primary-olive-dark);
   --background-color-action-hover: var(--color-primary-olive);
   --background-color-selected: var(--color-primary-olive-light);
   --background-color-accent-subtle: --alpha(var(--color-accent-sand) / 30%);
   --background-color-highlight: var(--color-accent-gold);
+  --background-color-danger: var(--color-danger-red);
   --background-color-success-subtle: --alpha(var(--color-success-green) / 12%);
   --background-color-warning-subtle: --alpha(var(--color-warning-amber) / 12%);
   --background-color-danger-subtle: --alpha(var(--color-danger-red) / 12%);
@@ -77,12 +83,23 @@
   --border-color-subtle: var(--color-neutral-100);
   --border-color-default: var(--color-neutral-200);
   --border-color-strong: var(--color-neutral-300);
+  --border-color-surface: var(--color-white);
+  --border-color-danger: var(--color-danger-red);
   --border-color-brand: var(--color-primary-olive-dark);
   --border-color-accent: var(--color-accent-brown);
   --border-color-success-subtle: --alpha(var(--color-success-green) / 40%);
   --border-color-warning-subtle: --alpha(var(--color-warning-amber) / 40%);
   --border-color-danger-subtle: --alpha(var(--color-danger-red) / 40%);
   --border-color-info-subtle: --alpha(var(--color-info-blue) / 40%);
+
+  --outline-color-focus: var(--color-primary-olive);
+
+  --ring-color-surface: var(--color-white);
+  --ring-color-default: var(--color-neutral-200);
+  --ring-color-selected: var(--color-primary-olive-light);
+  --ring-color-brand: var(--color-primary-olive);
+  --ring-color-highlight: var(--color-accent-gold);
+  --ring-color-warning: var(--color-warning-amber);
 }
 
 /* Provisional dark mapping, switchable from /kit only, to prove the mechanism; the Design tokens page ticket sets the real values. */
@@ -93,6 +110,7 @@
   --text-color-fg-secondary-paragraph: var(--color-neutral-400);
   --text-color-fg-muted: var(--color-neutral-500);
   --text-color-fg-on-action: var(--color-neutral-900);
+  --text-color-fg-on-action-muted: var(--color-neutral-800);
   --text-color-fg-brand: var(--color-primary-olive-light);
   --text-color-fg-accent: var(--color-accent-sand);
   --text-color-fg-place: var(--color-accent-sand);
@@ -100,6 +118,7 @@
   --background-color-page: var(--color-neutral-900);
   --background-color-surface: var(--color-neutral-800);
   --background-color-subtle: var(--color-neutral-700);
+  --background-color-emphasis: var(--color-neutral-600);
   --background-color-action: var(--color-primary-olive-mid);
   --background-color-action-hover: var(--color-primary-olive-light);
   --background-color-selected: var(--color-primary-olive-dark);
@@ -107,6 +126,14 @@
   --border-color-subtle: var(--color-neutral-800);
   --border-color-default: var(--color-neutral-700);
   --border-color-strong: var(--color-neutral-600);
+  --border-color-surface: var(--color-neutral-800);
   --border-color-brand: var(--color-primary-olive-mid);
   --border-color-accent: var(--color-accent-sand);
+
+  --outline-color-focus: var(--color-primary-olive-light);
+
+  --ring-color-surface: var(--color-neutral-800);
+  --ring-color-default: var(--color-neutral-700);
+  --ring-color-selected: var(--color-primary-olive-dark);
+  --ring-color-brand: var(--color-primary-olive-mid);
 }

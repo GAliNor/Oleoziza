@@ -2,7 +2,7 @@
   <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
       <h2 class="heading-two">{{ title }}</h2>
-      <div class="flex items-center gap-3 text-xs text-neutral-600">
+      <div class="flex items-center gap-3 text-xs text-fg-primary-paragraph">
         <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-primary-olive-light" /> CA</span>
         <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-primary-olive-dark" /> Encaissé</span>
       </div>
@@ -31,7 +31,7 @@
       <Transition name="fade-step">
         <div
           v-if="hoveredIndex !== null"
-          class="pointer-events-none absolute -top-2 rounded-lg bg-neutral-900 px-3 py-2 text-xs whitespace-nowrap text-white shadow-lg transition-[left] duration-300 ease-(--ease-premium)"
+          class="pointer-events-none absolute -top-2 rounded-lg bg-neutral-900 px-3 py-2 text-xs whitespace-nowrap text-white shadow-overlay transition-[left] duration-300 ease-(--ease-premium)"
           :style="{ left: `clamp(0px, calc(${(hoveredIndex + 0.5) * (100 / bars.length)}% - 70px), calc(100% - 150px))` }"
         >
           <p class="font-semibold">{{ bars[hoveredIndex].label }}</p>
@@ -40,8 +40,8 @@
         </div>
       </Transition>
     </div>
-    <div class="flex gap-3 border-t border-neutral-200 pt-2">
-      <p v-for="bar in bars" :key="bar.label" class="flex-1 text-center text-xs" :class="bar.isCurrent ? 'font-semibold text-primary-olive-dark' : 'text-neutral-500'">
+    <div class="flex gap-3 border-t border-default pt-2">
+      <p v-for="bar in bars" :key="bar.label" class="flex-1 text-center text-xs" :class="bar.isCurrent ? 'font-semibold text-fg-brand' : 'text-fg-secondary-paragraph'">
         {{ bar.label }}
       </p>
     </div>

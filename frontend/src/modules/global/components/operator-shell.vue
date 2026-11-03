@@ -1,8 +1,8 @@
 <template>
   <div class="flex min-h-dvh min-w-0 flex-col">
-    <header class="sticky top-0 z-30 flex items-center gap-2 border-b border-neutral-200 bg-white/90 px-4 py-2.5 backdrop-blur md:px-8">
+    <header class="sticky top-0 z-30 flex items-center gap-2 border-b border-default bg-surface/90 px-4 py-2.5 backdrop-blur md:px-8">
       <router-link :to="{ name: 'dashboard' }" class="shrink-0" :aria-label="$t('global.nav.dashboard')">
-        <olive-fill-icon class="h-7 w-7 text-primary-olive" />
+        <olive-fill-icon class="h-7 w-7 text-fg-brand" />
       </router-link>
       <back-button />
       <site-switcher />
@@ -13,7 +13,7 @@
       </router-link>
       <span
         v-if="syncStore.pendingCount"
-        class="chip shrink-0 bg-warning-amber/15 py-1.5 text-warning-amber"
+        class="chip shrink-0 bg-warning-subtle py-1.5 text-fg-warning"
         role="status"
         :title="$t('global.shell.pendingSync', syncStore.pendingCount)"
       >
@@ -21,13 +21,13 @@
       </span>
       <button
         type="button"
-        class="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-neutral-200 bg-white pr-3 pl-1 text-sm font-medium text-neutral-800"
+        class="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-default bg-surface pr-3 pl-1 text-sm font-medium text-fg-default"
         :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
         @click="handleSwitchOperator"
       >
         <avatar-tag class="h-9 w-9" :name="authStore.fullName" kind="user" fallback-class="bg-accent-brown text-white" />
         <span class="max-w-24 truncate">{{ operatorName }}</span>
-        <user-switch-line-icon class="h-4 w-4 text-neutral-500" />
+        <user-switch-line-icon class="h-4 w-4 text-fg-secondary-paragraph" />
       </button>
       <button type="button" class="icon-btn shrink-0" :aria-label="$t('auth.logout')" @click="handleLogout">
         <logout-line-icon class="h-5 w-5" />

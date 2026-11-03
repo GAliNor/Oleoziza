@@ -39,10 +39,10 @@ export const METHOD_LABELS: Record<PaymentMethodKey, string> = { cash: 'Espèces
 export const STATUS_LABELS: Record<MovementStatus, string> = { pending: 'À confirmer', confirmed: 'Confirmé', rejected: 'Rejeté', cancelled: 'Annulé' };
 
 export const STATUS_CLASSES: Record<MovementStatus, string> = {
-  pending: 'bg-warning-amber/15 text-warning-amber',
-  confirmed: 'bg-success-green/10 text-success-green',
-  rejected: 'bg-danger-red/10 text-danger-red',
-  cancelled: 'bg-neutral-200 text-neutral-600',
+  pending: 'bg-warning-subtle text-fg-warning',
+  confirmed: 'bg-success-subtle text-fg-success',
+  rejected: 'bg-danger-subtle text-fg-danger',
+  cancelled: 'bg-emphasis text-fg-primary-paragraph',
 };
 
 export const PURPOSE_LABELS: Record<MovementPurpose, string> = { fee: 'Frais de trituration', sale: 'Vente', purchase: 'Achat d’olives' };

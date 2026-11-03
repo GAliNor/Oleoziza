@@ -11,8 +11,8 @@ defineProps<{ status: StaffStatus }>();
 
 // variables
 const STATUS_CLASSES: Record<StaffStatus, string> = {
-  active: 'bg-success-green/10 text-success-green',
-  invited: 'bg-info-blue/10 text-info-blue',
-  disabled: 'bg-neutral-200 text-neutral-600',
+  active: 'bg-success-subtle text-fg-success',
+  invited: 'bg-info-subtle text-fg-info',
+  disabled: 'bg-emphasis text-fg-primary-paragraph',
 };
 </script>

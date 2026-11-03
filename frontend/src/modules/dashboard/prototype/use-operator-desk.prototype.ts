@@ -30,11 +30,11 @@ export const MOVE_LABELS: Record<LotStatus, string | null> = {
 };
 
 export const MOVE_TONES: Record<LotStatus, string> = {
-  received: 'bg-info-blue/10 text-info-blue',
-  waiting: 'bg-accent-sand/30 text-accent-brown',
-  pressing: 'bg-primary-olive-dark text-white',
-  pressed: 'bg-primary-olive-light text-primary-olive-dark',
-  withdrawn: 'bg-neutral-100 text-neutral-500',
+  received: 'bg-info-subtle text-fg-info',
+  waiting: 'bg-accent-subtle text-fg-accent',
+  pressing: 'bg-action text-fg-on-action',
+  pressed: 'bg-selected text-fg-brand',
+  withdrawn: 'bg-subtle text-fg-secondary-paragraph',
 };
 
 const COMPANY_PATTERN = /coop|domaine|sarl|huilerie|société|ste /i;

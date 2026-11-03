@@ -1,14 +1,14 @@
 <template>
   <div class="card lift flex min-w-0 flex-col gap-1.5 rounded-2xl p-5">
-    <p class="eyebrow text-neutral-500">{{ label }}</p>
-    <p class="text-3xl font-semibold tracking-tight text-neutral-900 tabular-nums">
-      {{ formatted }}<span v-if="unit" class="ml-1 text-base font-medium text-neutral-500">{{ unit }}</span>
+    <p class="eyebrow text-fg-secondary-paragraph">{{ label }}</p>
+    <p class="text-3xl font-semibold tracking-tight text-fg-display tabular-nums">
+      {{ formatted }}<span v-if="unit" class="ml-1 text-base font-medium text-fg-secondary-paragraph">{{ unit }}</span>
     </p>
     <p v-if="sub" class="body-two">{{ sub }}</p>
-    <p v-if="delta" class="flex items-center gap-1 text-xs font-medium" :class="isDeltaGood ? 'text-success-green' : 'text-danger-red'">
-      {{ delta }} <span class="font-normal text-neutral-500">{{ deltaLabel ?? 'vs saison préc.' }}</span>
+    <p v-if="delta" class="flex items-center gap-1 text-xs font-medium" :class="isDeltaGood ? 'text-fg-success' : 'text-fg-danger'">
+      {{ delta }} <span class="font-normal text-fg-secondary-paragraph">{{ deltaLabel ?? 'vs saison préc.' }}</span>
     </p>
-    <div v-if="progress !== undefined" class="mt-1 h-1.5 overflow-hidden rounded-full bg-neutral-100">
+    <div v-if="progress !== undefined" class="mt-1 h-1.5 overflow-hidden rounded-full bg-subtle">
       <div class="grow-x h-full rounded-full bg-primary-olive transition-[width] duration-700 ease-(--ease-premium)" :style="{ width: `${Math.min(progress, 100)}%` }" />
     </div>
   </div>

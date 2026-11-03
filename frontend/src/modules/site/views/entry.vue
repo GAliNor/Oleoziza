@@ -23,7 +23,7 @@
         >
           <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
             <table class="w-full text-sm">
-              <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
+              <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
                 <tr>
                   <th class="px-4 py-3 font-semibold">{{ $t('site.table.site') }}</th>
                   <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('site.table.city') }}</th>
@@ -33,20 +33,20 @@
                 <tr
                   v-for="site in pageRows"
                   :key="site.id"
-                  class="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
-                  :class="{ 'bg-primary-olive-light/40': site.id === lastSiteId }"
+                  class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+                  :class="{ 'bg-selected/40': site.id === lastSiteId }"
                   tabindex="0"
                   @click="handleOpen(site.id)"
                   @keydown.enter="handleOpen(site.id)"
                 >
                   <td class="px-4 py-3">
-                    <p class="flex items-center gap-2 font-medium text-neutral-900">
-                      <map-pin-line-icon class="h-4 w-4 shrink-0 text-accent-rust" />
+                    <p class="flex items-center gap-2 font-medium text-fg-display">
+                      <map-pin-line-icon class="h-4 w-4 shrink-0 text-fg-place" />
                       <span class="truncate">{{ site.name }}</span>
                     </p>
                     <p class="body-two truncate pl-6 md:hidden">{{ site.city }}</p>
                   </td>
-                  <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-600 md:table-cell">{{ site.city }}</td>
+                  <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph md:table-cell">{{ site.city }}</td>
                 </tr>
               </tbody>
             </table>
@@ -66,7 +66,7 @@
                 :key="number"
                 type="button"
                 class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums transition-colors"
-                :class="number === page ? 'bg-primary-olive-dark text-white' : 'text-neutral-600 hover:bg-neutral-100'"
+                :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'"
                 :aria-current="number === page ? 'page' : undefined"
                 @click="handlePage(number)"
               >
@@ -91,7 +91,7 @@
           </button>
           <div :key="activeSite?.id ?? NEW_SITE" class="stagger flex max-w-2xl flex-col gap-4">
             <header v-if="activeSite" class="flex items-center gap-3">
-              <span class="avatar h-12 w-12 bg-primary-olive-dark text-white"><map-pin-line-icon class="h-6 w-6" /></span>
+              <span class="avatar h-12 w-12 bg-action text-fg-on-action"><map-pin-line-icon class="h-6 w-6" /></span>
               <div class="min-w-0 flex-1">
                 <h2 class="heading-two truncate">{{ activeSite.name }}</h2>
                 <p class="body-two">{{ activeSite.city }}</p>
@@ -100,15 +100,15 @@
 
             <site-form :site="activeSite" @saved="handleSaved" @cancel="handleClose" />
 
-            <div v-if="activeSite" class="card flex flex-col gap-3 rounded-2xl border-danger-red/30 md:flex-row md:items-center">
+            <div v-if="activeSite" class="card flex flex-col gap-3 rounded-2xl border-danger-subtle md:flex-row md:items-center">
               <div class="min-w-0 flex-1">
-                <p class="font-medium text-neutral-900">{{ $t('site.delete.title') }}</p>
+                <p class="font-medium text-fg-display">{{ $t('site.delete.title') }}</p>
                 <p class="body-two">{{ $t('site.delete.hint') }}</p>
               </div>
               <button
                 type="button"
-                class="btn-secondary border-danger-red/40 text-danger-red hover:border-danger-red hover:bg-danger-red/5"
-                :class="{ 'bg-danger-red text-white hover:bg-danger-red/90': isDeleteArmed }"
+                class="btn-secondary border-danger-subtle text-fg-danger hover:border-danger hover:bg-danger-subtle"
+                :class="{ 'bg-danger text-fg-on-action hover:bg-danger/90': isDeleteArmed }"
                 :disabled="siteAdminStore.isSaving"
                 @click="handleDelete"
               >

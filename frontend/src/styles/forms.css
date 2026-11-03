@@ -1,25 +1,25 @@
 @layer components {
   .label {
-    @apply text-sm font-medium text-neutral-800;
+    @apply text-sm font-medium text-fg-default;
   }
 
   .input {
-    @apply min-h-13 w-full rounded-2xl border border-neutral-200 bg-neutral-50/60 px-4 text-base text-neutral-800
+    @apply min-h-13 w-full rounded-2xl border border-default bg-page/60 px-4 text-base text-fg-default
       transition-[border-color,box-shadow,background-color] duration-300 ease-(--ease-premium)
-      placeholder:text-neutral-400 hover:border-neutral-300 focus:border-primary-olive focus:bg-white
+      placeholder:text-fg-muted hover:border-strong focus:border-brand focus:bg-surface
       focus:shadow-[0_0_0_4px] focus:shadow-primary-olive-light/70 focus:outline-none disabled:opacity-60;
   }
 
   .form-error {
-    @apply text-sm text-danger-red;
+    @apply text-sm text-fg-danger;
   }
 
   .toggle-tile {
-    @apply min-h-12 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-700
-      transition-colors duration-300 ease-(--ease-premium) hover:border-neutral-300;
+    @apply min-h-12 rounded-xl border border-default bg-surface px-3 text-sm font-medium text-fg-primary-paragraph
+      transition-colors duration-300 ease-(--ease-premium) hover:border-strong;
   }
 
   .toggle-tile-active {
-    @apply border-primary-olive-dark bg-primary-olive-dark text-white hover:border-primary-olive-dark;
+    @apply border-brand bg-action text-fg-on-action hover:border-brand;
   }
 }

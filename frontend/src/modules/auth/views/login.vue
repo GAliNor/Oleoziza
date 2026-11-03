@@ -38,11 +38,11 @@
       </div>
 
       <div v-else-if="step === 'success'" key="success" class="stagger flex flex-col items-center gap-6 py-8 text-center" role="status">
-        <div class="success-badge flex h-24 w-24 items-center justify-center rounded-full bg-success-green/10">
-          <animated-check-icon class="h-12 w-12 text-success-green" />
+        <div class="success-badge flex h-24 w-24 items-center justify-center rounded-full bg-success-subtle">
+          <animated-check-icon class="h-12 w-12 text-fg-success" />
         </div>
         <div class="flex flex-col gap-2">
-          <h1 class="heading-one text-success-green">{{ $t('auth.login.success') }}</h1>
+          <h1 class="heading-one text-fg-success">{{ $t('auth.login.success') }}</h1>
           <p class="body-two">{{ $t('auth.login.redirecting', { name: authStore.salutation }) }}</p>
         </div>
       </div>
@@ -50,8 +50,8 @@
       <div v-else :key="step" class="stagger flex flex-col gap-8">
         <auth-heading :eyebrow="$t('auth.login.eyebrow')" :title="$t(`auth.login.methodTitle.${step}`)" />
 
-        <div class="flex items-center justify-between gap-3 rounded-2xl bg-neutral-100/80 py-2 pr-2 pl-4">
-          <span class="truncate text-sm font-medium text-neutral-800">{{ displayIdentifier }}</span>
+        <div class="flex items-center justify-between gap-3 rounded-2xl bg-subtle/80 py-2 pr-2 pl-4">
+          <span class="truncate text-sm font-medium text-fg-default">{{ displayIdentifier }}</span>
           <button type="button" class="btn-secondary min-h-9 shrink-0 px-4" @click="handleChangeIdentifier">
             {{ $t('auth.login.changeIdentifier') }}
           </button>

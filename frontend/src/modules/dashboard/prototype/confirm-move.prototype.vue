@@ -6,14 +6,14 @@
       <avatar-tag class="h-24 w-24" :name="lot.client" :kind="kind" />
       <p class="body-two">Vous allez</p>
       <h2 class="heading-two text-2xl">{{ MOVE_LABELS[lot.status] }}</h2>
-      <p class="text-lg text-neutral-800">pour <strong>{{ lot.client }}</strong></p>
+      <p class="text-lg text-fg-default">pour <strong>{{ lot.client }}</strong></p>
       <p class="body-two">{{ lot.variety }} · {{ formatKg(lot.netKg) }} · {{ lot.code }}</p>
     </div>
 
     <div class="flex items-center justify-center gap-3 text-sm font-medium">
-      <span class="rounded-full bg-neutral-100 px-3 py-1.5 text-neutral-600">{{ STATUS_LABELS[lot.status] }}</span>
+      <span class="rounded-full bg-subtle px-3 py-1.5 text-fg-primary-paragraph">{{ STATUS_LABELS[lot.status] }}</span>
       <span aria-hidden="true">→</span>
-      <span class="rounded-full bg-primary-olive-dark px-3 py-1.5 text-white">{{ nextLabel }}</span>
+      <span class="rounded-full bg-action px-3 py-1.5 text-fg-on-action">{{ nextLabel }}</span>
     </div>
 
     <label v-if="lot.status === 'pressing'" class="flex flex-col gap-1">

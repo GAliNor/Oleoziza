@@ -1,7 +1,7 @@
 <template>
   <div class="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-3">
     <div class="stagger flex min-w-0 flex-col gap-5" :class="isFinanceShown ? 'lg:col-span-2' : 'lg:col-span-3'">
-      <p class="eyebrow text-neutral-500">Production</p>
+      <p class="eyebrow text-fg-secondary-paragraph">Production</p>
       <div class="-mt-3 grid grid-cols-2 gap-3">
         <kpi-tile v-for="tile in productionTiles" :key="tile.label" v-bind="tile" />
       </div>
@@ -11,7 +11,7 @@
       <tank-cards :tanks="tanks" />
     </div>
     <div v-if="isFinanceShown" class="stagger flex min-w-0 flex-col gap-5">
-      <p class="eyebrow text-neutral-500">Ventes</p>
+      <p class="eyebrow text-fg-secondary-paragraph">Ventes</p>
       <money-tiles :figures="sales" :period="period" is-stacked class="-mt-3" />
       <sales-lines :title="salesChart.title" :bars="salesChart.bars" />
     </div>

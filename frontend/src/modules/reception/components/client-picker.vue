@@ -1,14 +1,14 @@
 <template>
   <div class="flex flex-col gap-3">
-    <div v-if="modelValue && !isPicking" class="flex items-center gap-3 rounded-2xl border border-primary-olive-mid bg-primary-olive-light/40 p-3">
-      <span class="avatar bg-primary-olive-dark text-white">{{ initials(modelValue.name) }}</span>
+    <div v-if="modelValue && !isPicking" class="flex items-center gap-3 rounded-2xl border border-brand bg-selected/40 p-3">
+      <span class="avatar bg-action text-fg-on-action">{{ initials(modelValue.name) }}</span>
       <div class="min-w-0 flex-1">
-        <p class="truncate font-semibold text-neutral-900">{{ modelValue.name }}</p>
+        <p class="truncate font-semibold text-fg-display">{{ modelValue.name }}</p>
         <p class="body-two truncate">
           {{ formatPhone(modelValue.phone) }} · {{ $t(`reception.clientKinds.${modelValue.kind}`) }}
-          <span v-if="modelValue.isPendingSync" class="chip ml-1 bg-info-blue/10 text-info-blue">{{ $t('reception.clientPicker.new') }}</span>
+          <span v-if="modelValue.isPendingSync" class="chip ml-1 bg-info-subtle text-fg-info">{{ $t('reception.clientPicker.new') }}</span>
         </p>
-        <p v-if="otherSites.length" class="text-xs text-accent-brown">
+        <p v-if="otherSites.length" class="text-xs text-fg-accent">
           {{ $t('reception.clientPicker.otherSites', { sites: otherSites.join(', ') }) }}
         </p>
       </div>
@@ -21,16 +21,16 @@
         <li v-for="client in results" :key="client.id">
           <button
             type="button"
-            class="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-3 py-2 text-left transition-colors
-              hover:border-primary-olive-mid"
+            class="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-default bg-surface px-3 py-2 text-left transition-colors
+              hover:border-brand"
             @click="handlePick(client)"
           >
-            <span class="avatar bg-neutral-100 text-neutral-600">{{ initials(client.name) }}</span>
+            <span class="avatar bg-subtle text-fg-primary-paragraph">{{ initials(client.name) }}</span>
             <span class="min-w-0 flex-1">
-              <span class="block truncate font-medium text-neutral-900">{{ client.name }}</span>
+              <span class="block truncate font-medium text-fg-display">{{ client.name }}</span>
               <span class="body-two block truncate">{{ formatPhone(client.phone) }}</span>
             </span>
-            <span v-if="client.kind === 'company'" class="chip bg-accent-sand/30 text-accent-brown">{{ $t('reception.clientKinds.company') }}</span>
+            <span v-if="client.kind === 'company'" class="chip bg-accent-subtle text-fg-accent">{{ $t('reception.clientKinds.company') }}</span>
           </button>
         </li>
       </ul>
@@ -41,7 +41,7 @@
       </button>
     </template>
 
-    <form v-else class="flex flex-col gap-3 rounded-2xl bg-neutral-50 p-4" @submit.prevent="handleCreate">
+    <form v-else class="flex flex-col gap-3 rounded-2xl bg-page p-4" @submit.prevent="handleCreate">
       <div class="grid grid-cols-2 gap-2">
         <button
           v-for="kind in CLIENT_KINDS"

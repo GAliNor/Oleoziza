@@ -1,8 +1,8 @@
 <template>
-  <div v-if="isStacked" class="card flex min-w-0 flex-col divide-y divide-neutral-100 rounded-2xl p-0">
+  <div v-if="isStacked" class="card flex min-w-0 flex-col divide-y divide-subtle rounded-2xl p-0">
     <div v-for="tile in tiles" :key="tile.key" class="flex items-center justify-between gap-3 px-5 py-3.5">
       <div class="min-w-0">
-        <p class="eyebrow text-neutral-500">{{ tile.label }}</p>
+        <p class="eyebrow text-fg-secondary-paragraph">{{ tile.label }}</p>
         <p class="body-two truncate">{{ tile.sub }}</p>
       </div>
       <p class="text-2xl font-semibold tracking-tight whitespace-nowrap tabular-nums" :class="tile.tone">{{ formatDh(tile.value) }}</p>
@@ -29,9 +29,9 @@ const props = withDefaults(defineProps<{ figures: ISalesFiguresPrototype; period
 // computed
 const share = (value: number): string => `${Math.round((value / (props.figures.revenue || 1)) * 100)} % du CA`;
 const tiles = computed(() => [
-  { key: 'revenue', label: `Chiffre d’affaires · ${props.period.label}`, value: props.figures.revenue, sub: 'ventes d’huile et produits', tone: 'text-neutral-900' },
-  { key: 'collected', label: 'Encaissé', value: props.figures.collected, sub: share(props.figures.collected), tone: 'text-primary-olive-dark' },
-  { key: 'pending', label: 'À confirmer', value: props.figures.pending, sub: `${props.figures.pendingCount} paiements · voir →`, tone: 'text-warning-amber' },
-  { key: 'outstanding', label: 'Reste à encaisser', value: props.figures.outstanding, sub: share(props.figures.outstanding), tone: 'text-accent-rust' },
+  { key: 'revenue', label: `Chiffre d’affaires · ${props.period.label}`, value: props.figures.revenue, sub: 'ventes d’huile et produits', tone: 'text-fg-display' },
+  { key: 'collected', label: 'Encaissé', value: props.figures.collected, sub: share(props.figures.collected), tone: 'text-fg-brand' },
+  { key: 'pending', label: 'À confirmer', value: props.figures.pending, sub: `${props.figures.pendingCount} paiements · voir →`, tone: 'text-fg-warning' },
+  { key: 'outstanding', label: 'Reste à encaisser', value: props.figures.outstanding, sub: share(props.figures.outstanding), tone: 'text-fg-warning' },
 ]);
 </script>

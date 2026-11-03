@@ -33,11 +33,11 @@
         </div>
         <dl class="flex flex-col gap-2 text-sm">
           <div class="flex items-center justify-between gap-2">
-            <dt class="flex items-center gap-2 text-neutral-700"><span class="h-2.5 w-2.5 rounded-full bg-primary-olive" /> Trituration à façon</dt>
+            <dt class="flex items-center gap-2 text-fg-primary-paragraph"><span class="h-2.5 w-2.5 rounded-full bg-primary-olive" /> Trituration à façon</dt>
             <dd class="font-medium whitespace-nowrap tabular-nums">{{ formatKg(MODE_SPLIT.serviceKg * factor) }} · {{ servicePct }} %</dd>
           </div>
           <div class="flex items-center justify-between gap-2">
-            <dt class="flex items-center gap-2 text-neutral-700"><span class="h-2.5 w-2.5 rounded-full bg-accent-sand" /> Achats</dt>
+            <dt class="flex items-center gap-2 text-fg-primary-paragraph"><span class="h-2.5 w-2.5 rounded-full bg-accent-sand" /> Achats</dt>
             <dd class="font-medium whitespace-nowrap tabular-nums">{{ formatKg(MODE_SPLIT.purchaseKg * factor) }} · {{ 100 - servicePct }} %</dd>
           </div>
         </dl>
@@ -47,7 +47,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
       <div class="card min-w-0 overflow-x-auto rounded-2xl p-0 lg:col-span-3">
         <table class="w-full min-w-130 text-sm">
-          <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
+          <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
             <tr>
               <th class="px-4 py-3 font-semibold">Variété</th>
               <th class="px-4 py-3 text-right font-semibold">Lots</th>
@@ -57,14 +57,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in VARIETY_FIGURES" :key="row.variety" class="border-t border-neutral-100">
-              <td class="px-4 py-3 font-medium text-neutral-900">{{ row.variety }}</td>
+            <tr v-for="(row, index) in VARIETY_FIGURES" :key="row.variety" class="border-t border-subtle">
+              <td class="px-4 py-3 font-medium text-fg-display">{{ row.variety }}</td>
               <td class="px-4 py-3 text-right tabular-nums">{{ Math.max(1, Math.round(row.lots * factor)) }}</td>
               <td class="px-4 py-3 text-right tabular-nums">{{ formatKg(row.olivesKg * factor) }}</td>
               <td class="px-4 py-3 text-right tabular-nums">{{ formatKg(row.oilKg * factor) }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <div class="h-1.5 w-20 overflow-hidden rounded-full bg-neutral-100">
+                  <div class="h-1.5 w-20 overflow-hidden rounded-full bg-subtle">
                     <div class="grow-x h-full rounded-full bg-primary-olive" :style="{ width: `${(yieldOf(row) / 24) * 100}%`, animationDelay: `${index * 60}ms` }" />
                   </div>
                   <span class="tabular-nums">{{ yieldOf(row).toFixed(1) }} %</span>

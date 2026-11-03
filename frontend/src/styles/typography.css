@@ -1,25 +1,25 @@
 @layer components {
   .heading-one {
-    @apply text-2xl font-semibold text-accent-brown md:text-3xl;
+    @apply text-2xl font-semibold text-fg-accent md:text-3xl;
   }
 
   .display-one {
-    @apply text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl;
+    @apply text-3xl font-semibold tracking-tight text-fg-display md:text-4xl;
   }
 
   .heading-two {
-    @apply text-lg font-semibold text-neutral-800;
+    @apply text-lg font-semibold text-fg-default;
   }
 
   .body-one {
-    @apply text-base text-neutral-700;
+    @apply text-base text-fg-primary-paragraph;
   }
 
   .body-two {
-    @apply text-sm text-neutral-500;
+    @apply text-sm text-fg-secondary-paragraph;
   }
 
   .eyebrow {
-    @apply text-xs font-semibold tracking-widest text-primary-olive uppercase;
+    @apply text-xs font-semibold tracking-widest text-fg-brand uppercase;
   }
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="md:p-3" aria-hidden="true">
     <div
-      class="relative h-full overflow-hidden bg-gradient-to-b from-primary-olive-light/70 via-[#EFE9DC]
+      class="relative h-full overflow-hidden bg-gradient-to-b from-primary-olive-light/70 via-accent-cream
         to-accent-sand/50 md:rounded-[2rem]"
     >
       <div class="sun absolute top-[14%] right-[14%] h-20 w-20 rounded-full bg-accent-gold/70 blur-[1px] md:h-32 md:w-32" />
@@ -19,12 +19,12 @@
 
       <div class="absolute inset-0 hidden md:block">
         <div class="glass-card float-card absolute top-[9%] left-[8%] w-[min(21rem,52%)]" style="--rise-delay: 250ms">
-          <p class="text-xs font-medium tracking-wide text-neutral-500 uppercase">{{ $t('auth.showcase.oilTitle') }}</p>
+          <p class="text-xs font-medium tracking-wide text-fg-secondary-paragraph uppercase">{{ $t('auth.showcase.oilTitle') }}</p>
           <div class="mt-2 flex items-baseline gap-3">
-            <p class="text-3xl font-semibold tracking-tight text-neutral-900 tabular-nums">
-              {{ $n(SHOWCASE_OIL_KG) }} <span class="text-lg font-medium text-neutral-500">kg</span>
+            <p class="text-3xl font-semibold tracking-tight text-fg-display tabular-nums">
+              {{ $n(SHOWCASE_OIL_KG) }} <span class="text-lg font-medium text-fg-secondary-paragraph">kg</span>
             </p>
-            <span class="chip bg-success-green/10 text-success-green">
+            <span class="chip bg-success-subtle text-fg-success">
               <arrow-up-line-icon class="h-3 w-3" />
               {{ $t('auth.showcase.growth', { value: $n(SHOWCASE_GROWTH_PERCENT) }) }}
             </span>
@@ -33,13 +33,13 @@
 
           <div class="mt-5 flex h-28 items-end gap-3">
             <div v-for="month in SHOWCASE_MONTHLY_OIL" :key="month.monthKey" class="flex flex-1 flex-col items-center gap-1.5">
-              <span v-if="month.kg === peakKg" class="text-[11px] font-medium text-neutral-700 tabular-nums">{{ $n(month.kg) }}</span>
+              <span v-if="month.kg === peakKg" class="text-[11px] font-medium text-fg-primary-paragraph tabular-nums">{{ $n(month.kg) }}</span>
               <div
                 class="bar w-full rounded-t-[4px]"
                 :class="month.kg === peakKg ? 'bg-primary-olive-dark' : 'bg-primary-olive-mid'"
                 :style="{ height: `${(month.kg / peakKg) * 64}px` }"
               />
-              <span class="text-[11px] text-neutral-500">{{ $t(`auth.showcase.months.${month.monthKey}`) }}</span>
+              <span class="text-[11px] text-fg-secondary-paragraph">{{ $t(`auth.showcase.months.${month.monthKey}`) }}</span>
             </div>
           </div>
         </div>
@@ -52,19 +52,19 @@
             :style="{ '--rise-delay': `${450 + index * 150}ms`, '--float-delay': `${index * 1.2}s` }"
           >
             <span
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-olive-light text-sm
-                font-semibold text-primary-olive-dark"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-selected text-sm
+                font-semibold text-fg-brand"
             >
               {{ item.initials }}
             </span>
             <div class="min-w-0 flex-1">
               <div class="flex items-baseline justify-between gap-2">
-                <p class="truncate text-sm font-semibold text-neutral-900">{{ $t(`auth.showcase.${item.titleKey}`) }}</p>
-                <p class="hidden shrink-0 text-[11px] text-neutral-400 xl:block">
+                <p class="truncate text-sm font-semibold text-fg-display">{{ $t(`auth.showcase.${item.titleKey}`) }}</p>
+                <p class="hidden shrink-0 text-[11px] text-fg-muted xl:block">
                   {{ $t(`auth.showcase.${item.timeKey}`, { minutes: item.minutes }) }}
                 </p>
               </div>
-              <p class="truncate text-xs text-neutral-500">{{ $t(`auth.showcase.${item.detailKey}`) }}</p>
+              <p class="truncate text-xs text-fg-secondary-paragraph">{{ $t(`auth.showcase.${item.detailKey}`) }}</p>
             </div>
           </div>
         </div>
@@ -73,12 +73,12 @@
           class="glass-card float-card absolute top-[48%] left-[8%] flex items-center gap-3 py-3"
           style="--rise-delay: 750ms; --float-delay: 2s"
         >
-          <span class="flex h-10 w-10 items-center justify-center rounded-full bg-accent-gold/30 text-accent-brown">
+          <span class="flex h-10 w-10 items-center justify-center rounded-full bg-highlight/30 text-fg-accent">
             <olive-fill-icon class="h-5 w-5" />
           </span>
           <div>
-            <p class="text-xs text-neutral-500">{{ $t('auth.showcase.yieldTitle') }}</p>
-            <p class="text-lg font-semibold tracking-tight text-neutral-900 tabular-nums">
+            <p class="text-xs text-fg-secondary-paragraph">{{ $t('auth.showcase.yieldTitle') }}</p>
+            <p class="text-lg font-semibold tracking-tight text-fg-display tabular-nums">
               {{ $n(SHOWCASE_YIELD_PERCENT) }} %
             </p>
           </div>

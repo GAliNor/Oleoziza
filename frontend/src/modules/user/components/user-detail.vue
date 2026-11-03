@@ -6,7 +6,7 @@
         <h2 class="heading-two truncate">{{ user.title ? `${user.title} ` : '' }}{{ formatFullName(user) }}</h2>
         <p class="flex flex-wrap items-center gap-2 body-two">
           <span>{{ $t(`user.roles.${user.role}`) }}</span>
-          <span v-if="user.isOwner" class="chip bg-accent-gold/30 text-accent-brown">{{ $t('user.owner') }}</span>
+          <span v-if="user.isOwner" class="chip bg-highlight/30 text-fg-accent">{{ $t('user.owner') }}</span>
           <user-status-chip :status="user.status" />
           <span v-if="user.lastLoginAt">· {{ $t('user.detail.lastLogin', { at: formatDateTime(user.lastLoginAt) }) }}</span>
           <span v-else-if="user.invitedAt">· {{ $t('user.detail.invitedAt', { at: formatDateTime(user.invitedAt) }) }}</span>
@@ -15,8 +15,8 @@
       </div>
     </header>
 
-    <p v-if="user.isOwner" class="card border-accent-gold/60 bg-accent-gold/10 body-two">{{ $t('user.detail.ownerNote') }}</p>
-    <p v-else-if="isMe" class="card bg-neutral-50 body-two">{{ $t('user.detail.selfNote') }}</p>
+    <p v-if="user.isOwner" class="card border-accent/60 bg-highlight/10 body-two">{{ $t('user.detail.ownerNote') }}</p>
+    <p v-else-if="isMe" class="card bg-page body-two">{{ $t('user.detail.selfNote') }}</p>
 
     <div class="card grid gap-4 rounded-2xl md:grid-cols-2">
       <div class="flex flex-col gap-3">
@@ -24,11 +24,11 @@
         <dl class="flex flex-col gap-2">
           <div>
             <dt class="label">{{ $t('user.detail.phone') }}</dt>
-            <dd class="text-neutral-900 tabular-nums">{{ user.phone ? formatPhone(user.phone) : '—' }}</dd>
+            <dd class="text-fg-display tabular-nums">{{ user.phone ? formatPhone(user.phone) : '—' }}</dd>
           </div>
           <div>
             <dt class="label">{{ $t('user.detail.email') }}</dt>
-            <dd class="truncate text-neutral-900">{{ user.email ?? '—' }}</dd>
+            <dd class="truncate text-fg-display">{{ user.email ?? '—' }}</dd>
           </div>
         </dl>
       </div>
@@ -65,8 +65,8 @@
       <button
         v-if="user.status !== 'disabled'"
         type="button"
-        class="btn-secondary border-danger-red/40 text-danger-red hover:border-danger-red hover:bg-danger-red/5"
-        :class="{ 'bg-danger-red text-white hover:bg-danger-red/90': isDisableArmed }"
+        class="btn-secondary border-danger-subtle text-fg-danger hover:border-danger hover:bg-danger-subtle"
+        :class="{ 'bg-danger text-fg-on-action hover:bg-danger/90': isDisableArmed }"
         :disabled="userStore.isSaving"
         @click="handleDisable"
       >

@@ -18,7 +18,7 @@
       >
         <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
           <table class="w-full text-sm">
-            <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
+            <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
               <tr>
                 <th class="px-4 py-3 font-semibold">Client</th>
                 <th class="hidden px-4 py-3 font-semibold sm:table-cell">Identifiant</th>
@@ -32,8 +32,8 @@
               <tr
                 v-for="(client, index) in pageRows"
                 :key="client.id"
-                class="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
-                :class="{ 'bg-primary-olive-light/40': client.id === lastClientId }"
+                class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+                :class="{ 'bg-selected/40': client.id === lastClientId }"
                 tabindex="0"
                 @click="handleOpen(client.id)"
                 @keydown.enter="handleOpen(client.id)"
@@ -42,23 +42,23 @@
                   <div class="flex min-w-0 items-center gap-3">
                     <avatar-tag class="h-10 w-10" :name="client.name" :kind="client.kind === 'company' ? 'company' : 'client'" :delay="index * 40" />
                     <div class="min-w-0">
-                      <p class="truncate font-medium text-neutral-900">{{ client.name }}</p>
+                      <p class="truncate font-medium text-fg-display">{{ client.name }}</p>
                       <p class="body-two truncate sm:hidden">{{ client.identifier }}</p>
                     </div>
                   </div>
                 </td>
-                <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-700 tabular-nums sm:table-cell">
+                <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph tabular-nums sm:table-cell">
                   {{ client.identifier }}
-                  <span class="block text-xs text-neutral-400">{{ client.kind === 'company' ? 'ICE' : 'CIN' }}</span>
+                  <span class="block text-xs text-fg-muted">{{ client.kind === 'company' ? 'ICE' : 'CIN' }}</span>
                 </td>
-                <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-700 lg:table-cell">{{ client.region }}</td>
+                <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph lg:table-cell">{{ client.region }}</td>
                 <td class="hidden px-4 py-3 md:table-cell">
-                  <span class="chip" :class="client.kind === 'company' ? 'bg-accent-sand/30 text-accent-brown' : 'bg-primary-olive-light text-primary-olive-dark'">
+                  <span class="chip" :class="client.kind === 'company' ? 'bg-accent-subtle text-fg-accent' : 'bg-selected text-fg-brand'">
                     {{ KIND_LABELS[client.kind] }}
                   </span>
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-neutral-700 tabular-nums">{{ formatPhone(client.phone) }}</td>
-                <td class="hidden max-w-56 truncate px-4 py-3 text-neutral-700 xl:table-cell">{{ client.email ?? '—' }}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-fg-primary-paragraph tabular-nums">{{ formatPhone(client.phone) }}</td>
+                <td class="hidden max-w-56 truncate px-4 py-3 text-fg-primary-paragraph xl:table-cell">{{ client.email ?? '—' }}</td>
               </tr>
             </tbody>
           </table>
@@ -74,7 +74,7 @@
               :key="number"
               type="button"
               class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums transition-colors"
-              :class="number === page ? 'bg-primary-olive-dark text-white' : 'text-neutral-600 hover:bg-neutral-100'"
+              :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'"
               :aria-current="number === page ? 'page' : undefined"
               @click="page = number"
             >
@@ -102,9 +102,9 @@
               <p class="body-two text-xs">Huile en stock</p>
               <p class="text-xl font-semibold tabular-nums">{{ formatKg(activeClient.oilStockKg) }}</p>
             </div>
-            <div class="card p-3" :class="{ 'border-accent-rust/40 bg-accent-rust/5': isFinanceShown && activeClient.balance }">
+            <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': isFinanceShown && activeClient.balance }">
               <p class="body-two text-xs">Doit au moulin</p>
-              <p class="text-xl font-semibold tabular-nums" :class="{ 'text-accent-rust': isFinanceShown && activeClient.balance }">
+              <p class="text-xl font-semibold tabular-nums" :class="{ 'text-fg-warning': isFinanceShown && activeClient.balance }">
                 {{ isFinanceShown ? formatDh(activeClient.balance) : '—' }}
               </p>
             </div>

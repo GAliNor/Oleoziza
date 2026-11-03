@@ -20,47 +20,47 @@
           :to="{ name: 'reception-station', params: { code: item.code } }"
           replace
           class="flex shrink-0 flex-col rounded-2xl border px-3 py-2 transition-colors"
-          :class="item.id === lot.id ? 'border-primary-olive-dark bg-primary-olive-light/50' : 'border-neutral-200 bg-white'"
+          :class="item.id === lot.id ? 'border-brand bg-selected/50' : 'border-default bg-surface'"
         >
-          <span class="text-sm font-semibold text-neutral-900">{{ item.clientName }}</span>
-          <span class="text-xs text-neutral-500 tabular-nums">{{ item.code }} · {{ formatKg(item.netKg) }}</span>
+          <span class="text-sm font-semibold text-fg-display">{{ item.clientName }}</span>
+          <span class="text-xs text-fg-secondary-paragraph tabular-nums">{{ item.code }} · {{ formatKg(item.netKg) }}</span>
         </router-link>
       </nav>
 
       <div class="grid gap-4 md:grid-cols-[1fr_22rem] md:items-start">
-        <div class="rounded-3xl bg-primary-olive-dark p-5 text-white md:col-start-1 md:row-start-1">
+        <div class="rounded-3xl bg-action p-5 text-fg-on-action md:col-start-1 md:row-start-1">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-xs tracking-widest text-primary-olive-light uppercase">{{ $t('reception.station.eyebrow', { code: lot.code }) }}</p>
+              <p class="text-xs tracking-widest text-fg-on-action-muted uppercase">{{ $t('reception.station.eyebrow', { code: lot.code }) }}</p>
               <p class="truncate text-lg font-semibold">{{ lot.clientName }}</p>
-              <p class="text-sm text-primary-olive-light">{{ $t(`reception.modes.${lot.mode}`) }} · {{ lot.variety }}</p>
+              <p class="text-sm text-fg-on-action-muted">{{ $t(`reception.modes.${lot.mode}`) }} · {{ lot.variety }}</p>
             </div>
-            <span v-if="lot.isPendingSync" class="chip shrink-0 bg-white/15 text-white">{{ $t('reception.pendingSync') }}</span>
+            <span v-if="lot.isPendingSync" class="chip shrink-0 bg-surface/15 text-fg-on-action">{{ $t('reception.pendingSync') }}</span>
           </div>
           <p class="mt-4 text-5xl font-semibold tabular-nums">{{ formatKg(lot.netKg) }}</p>
-          <p class="text-sm text-primary-olive-light tabular-nums">
+          <p class="text-sm text-fg-on-action-muted tabular-nums">
             {{ formatQuintals(lot.netKg) }} · {{ $t('reception.station.weighings', lot.weighings.length) }}
             <template v-if="lot.dailyPricePerKg !== null"> · {{ formatDh(lot.netKg * lot.dailyPricePerKg) }}</template>
           </p>
           <div v-if="lot.announcedContainers" class="mt-4">
-            <div class="flex justify-between text-xs text-primary-olive-light">
+            <div class="flex justify-between text-xs text-fg-on-action-muted">
               <span>{{ $t('reception.station.containersWeighed') }}</span>
               <span class="tabular-nums">{{ containersWeighed }} / {{ lot.announcedContainers }}</span>
             </div>
-            <div class="mt-1 h-2 overflow-hidden rounded-full bg-white/15">
-              <div class="h-full rounded-full bg-accent-gold transition-[width] duration-700 ease-(--ease-premium)" :style="{ width: `${containerProgress}%` }" />
+            <div class="mt-1 h-2 overflow-hidden rounded-full bg-surface/15">
+              <div class="h-full rounded-full bg-highlight transition-[width] duration-700 ease-(--ease-premium)" :style="{ width: `${containerProgress}%` }" />
             </div>
           </div>
         </div>
 
         <aside v-can="'weighing.create'" class="card flex flex-col gap-3 rounded-3xl md:sticky md:top-20 md:col-start-2 md:row-span-2 md:row-start-1">
-          <div class="grid grid-cols-2 rounded-2xl bg-neutral-100 p-1">
+          <div class="grid grid-cols-2 rounded-2xl bg-subtle p-1">
             <button
               v-for="kind in WEIGHING_KINDS"
               :key="kind"
               type="button"
               class="min-h-11 rounded-xl text-sm font-medium transition-colors"
-              :class="draft.kind === kind ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500'"
+              :class="draft.kind === kind ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph'"
               @click="draft.kind = kind"
             >
               {{ $t(`reception.station.${kind}`) }}
@@ -101,12 +101,12 @@
           <button type="button" class="btn-primary min-h-16 text-base" :disabled="!canAdd" @click="handleAddWeighing">
             {{ $t('reception.station.add') }}
           </button>
-          <div class="grid grid-cols-2 gap-2 border-t border-neutral-100 pt-3">
+          <div class="grid grid-cols-2 gap-2 border-t border-subtle pt-3">
             <router-link :to="{ name: 'dashboard' }" class="btn-secondary">{{ $t('reception.station.later') }}</router-link>
             <button
               v-can="'reception.create'"
               type="button"
-              class="btn-secondary border-primary-olive-dark text-primary-olive-dark"
+              class="btn-secondary border-brand text-fg-brand"
               :disabled="!lot.weighings.length || receptionStore.isSaving"
               :title="$t('reception.station.finishHint')"
               @click="handleFinish"
@@ -120,23 +120,23 @@
           <li
             v-for="(weighing, index) in reversedWeighings"
             :key="weighing.id"
-            class="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3"
+            class="flex items-center gap-3 rounded-2xl border border-default bg-surface px-4 py-3"
             :class="{ rise: index === 0 }"
           >
-            <span class="avatar h-9 w-9 bg-neutral-100 text-neutral-700">{{ lot.weighings.length - index }}</span>
-            <span class="min-w-0 flex-1 text-sm text-neutral-500">
+            <span class="avatar h-9 w-9 bg-subtle text-fg-primary-paragraph">{{ lot.weighings.length - index }}</span>
+            <span class="min-w-0 flex-1 text-sm text-fg-secondary-paragraph">
               {{ formatTime(weighing.recordedAt) }} · {{ weighing.source === 'scale' ? $t('reception.station.scale') : $t('reception.station.manual') }}
               <template v-if="weighing.kind === 'gross' && weighing.grossKg !== null">
                 · {{ $t('reception.station.grossHint', { gross: formatKg(weighing.grossKg), tare: formatKg(weighing.grossKg - weighing.netKg) }) }}
               </template>
-              <span class="block text-xs text-neutral-400">{{ weighing.recordedBy }}</span>
+              <span class="block text-xs text-fg-muted">{{ weighing.recordedBy }}</span>
             </span>
             <span class="flex flex-col items-end gap-1">
-              <span class="font-semibold text-neutral-900 tabular-nums">{{ formatKg(weighing.netKg) }}</span>
-              <span v-if="weighing.isPendingSync" class="chip bg-warning-amber/15 text-warning-amber">{{ $t('reception.pendingSync') }}</span>
+              <span class="font-semibold text-fg-display tabular-nums">{{ formatKg(weighing.netKg) }}</span>
+              <span v-if="weighing.isPendingSync" class="chip bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
             </span>
           </li>
-          <li v-if="!lot.weighings.length" class="body-two rounded-2xl border border-dashed border-neutral-300 p-6 text-center">
+          <li v-if="!lot.weighings.length" class="body-two rounded-2xl border border-dashed border-strong p-6 text-center">
             {{ $t('reception.station.noWeighing') }}
           </li>
         </ol>

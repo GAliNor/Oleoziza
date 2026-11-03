@@ -2,13 +2,13 @@
   <div
     ref="track"
     class="no-scrollbar relative flex max-w-full overflow-x-auto rounded-full p-1"
-    :class="[isDark ? 'bg-white shadow-sm ring-1 ring-neutral-200' : 'bg-neutral-100', fadeClass]"
+    :class="[isDark ? 'bg-surface shadow-raised ring-1 ring-default' : 'bg-subtle', fadeClass]"
     role="tablist"
     @scroll.passive="handleScroll"
   >
     <span
       class="pointer-events-none absolute top-1 bottom-1 rounded-full transition-[left,width] duration-500 ease-(--ease-premium)"
-      :class="isDark ? 'bg-primary-olive-dark shadow-md shadow-primary-olive-dark/25' : 'bg-white shadow-sm'"
+      :class="isDark ? 'bg-action shadow-raised shadow-primary-olive-dark/25' : 'bg-surface shadow-raised'"
       :style="indicatorStyle"
       aria-hidden="true"
     />
@@ -55,8 +55,8 @@ const setButton = (key: T, element: HTMLElement | null): void => {
 };
 
 const optionClass = (key: T): string => {
-  if (key !== props.modelValue) return 'text-neutral-600 hover:text-neutral-900';
-  return props.isDark ? 'text-white' : 'text-neutral-900';
+  if (key !== props.modelValue) return 'text-fg-primary-paragraph hover:text-fg-display';
+  return props.isDark ? 'text-fg-on-action' : 'text-fg-display';
 };
 
 const placeIndicator = (): void => {

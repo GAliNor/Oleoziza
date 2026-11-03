@@ -7,39 +7,39 @@
       </div>
       <div class="flex items-center gap-2">
         <button type="button" class="icon-btn" aria-label="Période précédente" @click="offset -= periodDays">←</button>
-        <p class="min-w-32 text-center text-sm font-medium text-neutral-800 tabular-nums">{{ dayLabel(startDay) }} – {{ dayLabel(endDay) }}</p>
+        <p class="min-w-32 text-center text-sm font-medium text-fg-default tabular-nums">{{ dayLabel(startDay) }} – {{ dayLabel(endDay) }}</p>
         <button type="button" class="icon-btn" aria-label="Période suivante" @click="offset += periodDays">→</button>
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-fg-primary-paragraph">
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-primary-olive-mid" /> Huile d’un client</span>
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-accent-sand" /> Stock du moulin</span>
-      <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm border border-dashed border-neutral-400 bg-neutral-100" /> Retiré</span>
+      <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm border border-dashed border-strong bg-subtle" /> Retiré</span>
     </div>
 
     <div class="overflow-x-auto">
       <div :key="`${startDay}-${periodDays}`" class="min-w-190">
-        <div class="grid border-b border-neutral-200 pb-1" :style="gridStyle">
-          <p class="text-xs font-semibold tracking-wide text-neutral-500 uppercase">Cuve</p>
+        <div class="grid border-b border-default pb-1" :style="gridStyle">
+          <p class="text-xs font-semibold tracking-wide text-fg-secondary-paragraph uppercase">Cuve</p>
           <p
             v-for="day in days"
             :key="day"
             class="text-center text-[11px] tabular-nums"
-            :class="day === 0 ? 'font-semibold text-primary-olive-dark' : 'text-neutral-500'"
+            :class="day === 0 ? 'font-semibold text-fg-brand' : 'text-fg-secondary-paragraph'"
           >
             {{ isLabelShown(day) ? dayLabel(day) : '' }}
           </p>
         </div>
 
-        <div v-for="tank in tanks" :key="tank.id" class="grid border-b border-neutral-100 py-2" :style="gridStyle">
+        <div v-for="tank in tanks" :key="tank.id" class="grid border-b border-subtle py-2" :style="gridStyle">
           <div class="pr-2">
-            <p class="text-sm font-medium text-neutral-900">{{ tank.name }}</p>
-            <p class="truncate text-xs font-medium text-primary-olive-dark" :title="tank.variety">{{ tank.variety }}</p>
-            <p class="text-xs text-neutral-500 tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKg(tank.capacityKg) }}</p>
+            <p class="text-sm font-medium text-fg-display">{{ tank.name }}</p>
+            <p class="truncate text-xs font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
+            <p class="text-xs text-fg-secondary-paragraph tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKg(tank.capacityKg) }}</p>
           </div>
           <div class="relative" :style="{ gridColumn: `2 / span ${periodDays}`, height: `${lanesOf(tank.id).length * 30 + 4}px` }">
-            <div class="absolute inset-y-0 bg-primary-olive-light/30" :style="todayStyle" />
+            <div class="absolute inset-y-0 bg-selected/30" :style="todayStyle" />
             <template v-for="(lane, laneIndex) in lanesOf(tank.id)" :key="laneIndex">
               <div
                 v-for="(entry, entryIndex) in lane"
@@ -110,7 +110,7 @@ const barStyle = (entry: ITankStoragePrototype, laneIndex: number) => {
 };
 
 const barClass = (entry: ITankStoragePrototype): string => {
-  if (entry.endDay !== null) return 'border border-dashed border-neutral-400 bg-neutral-100 text-neutral-500';
+  if (entry.endDay !== null) return 'border border-dashed border-strong bg-subtle text-fg-secondary-paragraph';
   return entry.kind === 'mill' ? 'bg-accent-sand text-neutral-900' : 'bg-primary-olive-mid text-neutral-900';
 };
 

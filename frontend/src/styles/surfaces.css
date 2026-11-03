@@ -30,12 +30,12 @@
 
 @layer components {
   .nav-link {
-    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600
-      transition-colors hover:bg-primary-olive-light hover:text-primary-olive-dark;
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-fg-primary-paragraph
+      transition-colors hover:bg-selected hover:text-fg-brand;
   }
 
   .nav-link-active {
-    @apply bg-primary-olive-light text-primary-olive-dark;
+    @apply bg-selected text-fg-brand;
   }
 }
 

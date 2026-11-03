@@ -2,9 +2,9 @@
   <!-- PROTOTYPE: table view (ticket 0036): the app's register table with status chips; a row slides the table out for the Lot. -->
   <div v-show="!isOpen" class="rise flex flex-col gap-3">
     <div class="no-scrollbar flex gap-2 overflow-x-auto">
-      <button type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': status === 'all' }" @click="status = 'all'">Tous <span class="text-neutral-400 tabular-nums">{{ scoped.length }}</span></button>
+      <button type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': status === 'all' }" @click="status = 'all'">Tous <span class="text-fg-muted tabular-nums">{{ scoped.length }}</span></button>
       <button v-for="key in LOT_STATUSES" :key="key" type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': status === key }" @click="status = key">
-        {{ STATUS_LABELS[key] }} <span class="text-neutral-400 tabular-nums">{{ countOf(key) }}</span>
+        {{ STATUS_LABELS[key] }} <span class="text-fg-muted tabular-nums">{{ countOf(key) }}</span>
       </button>
     </div>
   </div>
@@ -13,7 +13,7 @@
     <div class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)" :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }">
       <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
         <table class="w-full text-sm">
-          <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
+          <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
             <tr>
               <th class="px-4 py-3 font-semibold">Lot</th>
               <th class="px-4 py-3 font-semibold">Client</th>
@@ -28,22 +28,22 @@
             <tr
               v-for="lot in pageRows"
               :key="lot.id"
-              class="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
-              :class="{ 'bg-primary-olive-light/40': lot.id === lastId }"
+              class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+              :class="{ 'bg-selected/40': lot.id === lastId }"
               tabindex="0"
               @click="handleOpen(lot.id)"
               @keydown.enter="handleOpen(lot.id)"
             >
               <td class="px-4 py-3 whitespace-nowrap">
-                <p class="font-medium text-neutral-900">{{ lot.code }}</p>
+                <p class="font-medium text-fg-display">{{ lot.code }}</p>
                 <p class="body-two">{{ formatDate(lot.receivedAt) }}</p>
               </td>
-              <td class="px-4 py-3 text-neutral-900">{{ lot.client }}</td>
-              <td class="hidden px-4 py-3 text-neutral-700 lg:table-cell">{{ lot.variety }}</td>
+              <td class="px-4 py-3 text-fg-display">{{ lot.client }}</td>
+              <td class="hidden px-4 py-3 text-fg-primary-paragraph lg:table-cell">{{ lot.variety }}</td>
               <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ lot.netKg.toLocaleString('fr-FR') }} kg</td>
               <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ lot.oilKg ? `${lot.oilKg.toLocaleString('fr-FR')} kg` : '—' }}</td>
               <td class="hidden px-4 py-3 text-right tabular-nums md:table-cell">{{ lot.oilKg ? `${((lot.oilKg / lot.netKg) * 100).toFixed(1).replace('.', ',')} %` : '—' }}</td>
-              <td class="hidden px-4 py-3 sm:table-cell"><span class="chip bg-neutral-100 text-neutral-700">{{ STATUS_LABELS[lot.status] }}</span></td>
+              <td class="hidden px-4 py-3 sm:table-cell"><span class="chip bg-subtle text-fg-primary-paragraph">{{ STATUS_LABELS[lot.status] }}</span></td>
             </tr>
           </tbody>
         </table>
@@ -52,7 +52,7 @@
       <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
         <p class="body-two tabular-nums">{{ firstIndex + 1 }}–{{ firstIndex + pageRows.length }} sur {{ rows.length }}</p>
         <div class="flex items-center gap-1">
-          <button v-for="number in pageCount" :key="number" type="button" class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums" :class="number === page ? 'bg-primary-olive-dark text-white' : 'text-neutral-600 hover:bg-neutral-100'" @click="page = number">
+          <button v-for="number in pageCount" :key="number" type="button" class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums" :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'" @click="page = number">
             {{ number }}
           </button>
         </div>

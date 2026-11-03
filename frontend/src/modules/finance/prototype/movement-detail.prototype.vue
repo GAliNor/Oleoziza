@@ -2,7 +2,7 @@
   <!-- PROTOTYPE: one Payment or Payout (ticket 0034): amount, method, Payment Proof, who recorded it, and confirm / reject / cancel. -->
   <div class="stagger flex flex-col gap-4">
     <header class="flex flex-wrap items-start gap-3">
-      <span class="avatar h-12 w-12" :class="movement.kind === 'payment' ? 'bg-primary-olive-light text-primary-olive-dark' : 'bg-accent-sand/40 text-accent-brown'">
+      <span class="avatar h-12 w-12" :class="movement.kind === 'payment' ? 'bg-selected text-fg-brand' : 'bg-accent-subtle text-fg-accent'">
         {{ movement.kind === 'payment' ? '↓' : '↑' }}
       </span>
       <div class="min-w-0 flex-1">
@@ -11,7 +11,7 @@
         <p class="body-two">{{ movement.label }}</p>
       </div>
       <div class="text-right">
-        <p class="text-3xl font-semibold tracking-tight tabular-nums" :class="movement.kind === 'payment' ? 'text-primary-olive-dark' : 'text-accent-rust'">
+        <p class="text-3xl font-semibold tracking-tight tabular-nums" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
           {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatDh(movement.amount) }}
         </p>
         <span class="chip" :class="STATUS_CLASSES[movement.status]">{{ STATUS_LABELS[movement.status] }}</span>
@@ -22,34 +22,34 @@
       <dl class="card grid content-start gap-3 rounded-2xl sm:grid-cols-2">
         <div>
           <dt class="label">Mode</dt>
-          <dd class="text-neutral-900">{{ METHOD_LABELS[movement.method] }}<span v-if="movement.oilKg"> · {{ movement.oilKg }} kg d’huile</span></dd>
+          <dd class="text-fg-display">{{ METHOD_LABELS[movement.method] }}<span v-if="movement.oilKg"> · {{ movement.oilKg }} kg d’huile</span></dd>
         </div>
         <div v-if="movement.reference">
           <dt class="label">Référence</dt>
-          <dd class="text-neutral-900">{{ movement.reference }}</dd>
+          <dd class="text-fg-display">{{ movement.reference }}</dd>
         </div>
         <div>
           <dt class="label">Saisi par</dt>
-          <dd class="text-neutral-900">
+          <dd class="text-fg-display">
             {{ movement.recordedBy }} · {{ formatWhen(movement.recordedAt) }}
-            <span v-if="movement.wasOffline" class="chip ml-1 bg-info-blue/10 text-info-blue">saisi hors ligne</span>
+            <span v-if="movement.wasOffline" class="chip ml-1 bg-info-subtle text-fg-info">saisi hors ligne</span>
           </dd>
         </div>
         <div>
           <dt class="label">Site</dt>
-          <dd class="text-neutral-900">{{ siteName(movement.siteId) }}</dd>
+          <dd class="text-fg-display">{{ siteName(movement.siteId) }}</dd>
         </div>
         <div v-if="movement.feeOffset" class="sm:col-span-2">
           <dt class="label">Compensation (frais déduits)</dt>
-          <dd class="text-neutral-900 tabular-nums">
+          <dd class="text-fg-display tabular-nums">
             {{ formatDh(movement.amount + movement.feeOffset) }} − {{ formatDh(movement.feeOffset) }} de frais = {{ formatDh(movement.amount) }} versés
           </dd>
         </div>
         <div v-if="movement.decidedBy" class="sm:col-span-2">
           <dt class="label">{{ STATUS_LABELS[movement.status] }} par</dt>
-          <dd class="text-neutral-900">
+          <dd class="text-fg-display">
             {{ movement.decidedBy }} · {{ formatWhen(movement.decidedAt!) }}
-            <span v-if="movement.settlement" class="chip ml-1 bg-neutral-100 text-neutral-700">{{ SETTLEMENT_LABELS[movement.settlement] }}</span>
+            <span v-if="movement.settlement" class="chip ml-1 bg-subtle text-fg-primary-paragraph">{{ SETTLEMENT_LABELS[movement.settlement] }}</span>
           </dd>
           <dd v-if="movement.note" class="body-two mt-1">« {{ movement.note }} »</dd>
         </div>
@@ -57,15 +57,15 @@
 
       <figure class="card flex flex-col gap-2 rounded-2xl">
         <figcaption class="label">Justificatif</figcaption>
-        <button v-if="movement.hasProof" type="button" class="overflow-hidden rounded-xl ring-1 ring-neutral-200 transition hover:ring-primary-olive" @click="isProofOpen = true">
+        <button v-if="movement.hasProof" type="button" class="overflow-hidden rounded-xl ring-1 ring-default transition hover:ring-brand" @click="isProofOpen = true">
           <img :src="proofImage(movement)" alt="Justificatif du paiement" class="w-full" />
         </button>
         <p v-else class="body-two">Aucune photo jointe{{ movement.method === 'cash' ? ' (espèces)' : '' }}.</p>
       </figure>
     </div>
 
-    <p v-if="isReadOnly" class="card bg-neutral-50 body-two">« Tous les sites » est en lecture seule : choisissez le Site pour confirmer ou annuler.</p>
-    <p v-else-if="!isOnline && (movement.status === 'pending' || movement.status === 'confirmed')" class="card border-warning-amber/40 bg-warning-amber/10 body-two">
+    <p v-if="isReadOnly" class="card bg-page body-two">« Tous les sites » est en lecture seule : choisissez le Site pour confirmer ou annuler.</p>
+    <p v-else-if="!isOnline && (movement.status === 'pending' || movement.status === 'confirmed')" class="card border-warning-subtle bg-warning-subtle body-two">
       Hors ligne : la confirmation et l’annulation reviennent avec le réseau.
     </p>
 
@@ -76,12 +76,12 @@
         <p v-if="movement.method === 'oil'" class="body-two">Les {{ movement.oilKg }} kg d’huile reviennent au stock du Client.</p>
         <div class="flex flex-wrap justify-end gap-2">
           <button type="button" class="btn-secondary" @click="mode = 'idle'">Retour</button>
-          <button type="button" class="btn-primary bg-danger-red hover:bg-danger-red/90" :disabled="!note.trim() || !isOnline" @click="handleReject">Rejeter</button>
+          <button type="button" class="btn-primary bg-danger hover:bg-danger/90" :disabled="!note.trim() || !isOnline" @click="handleReject">Rejeter</button>
         </div>
       </template>
       <div v-else class="flex flex-wrap gap-2">
         <button type="button" class="btn-primary flex-1" :disabled="!isOnline" @click="handleConfirm">Confirmer {{ formatDh(movement.amount) }}</button>
-        <button type="button" class="btn-secondary text-danger-red" @click="mode = 'reject'">Rejeter…</button>
+        <button type="button" class="btn-secondary text-fg-danger" @click="mode = 'reject'">Rejeter…</button>
       </div>
     </div>
 
@@ -104,14 +104,14 @@
         </div>
         <div class="flex flex-wrap justify-end gap-2">
           <button type="button" class="btn-secondary" @click="mode = 'idle'">Retour</button>
-          <button type="button" class="btn-primary bg-danger-red hover:bg-danger-red/90" :disabled="!note.trim() || !isOnline" @click="handleCancel">Annuler le paiement</button>
+          <button type="button" class="btn-primary bg-danger hover:bg-danger/90" :disabled="!note.trim() || !isOnline" @click="handleCancel">Annuler le paiement</button>
         </div>
       </template>
-      <button v-else type="button" class="btn-secondary self-start text-danger-red" @click="mode = 'cancel'">Annuler ce paiement…</button>
+      <button v-else type="button" class="btn-secondary self-start text-fg-danger" @click="mode = 'cancel'">Annuler ce paiement…</button>
     </div>
 
     <div v-if="isProofOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 p-4 backdrop-blur-sm" @click.self="isProofOpen = false">
-      <img :src="proofImage(movement)" alt="Justificatif du paiement" class="max-h-[85dvh] w-full max-w-2xl rounded-2xl bg-white" />
+      <img :src="proofImage(movement)" alt="Justificatif du paiement" class="max-h-[85dvh] w-full max-w-2xl rounded-2xl bg-surface" />
     </div>
   </div>
 </template>

@@ -2,8 +2,8 @@
   <button
     v-if="isShown"
     type="button"
-    class="flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-neutral-700 transition-colors
-      hover:bg-primary-olive-light hover:text-primary-olive-dark"
+    class="flex min-h-10 shrink-0 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-fg-primary-paragraph transition-colors
+      hover:bg-selected hover:text-fg-brand"
     :aria-label="$t('global.back')"
     @click="handleBack"
   >

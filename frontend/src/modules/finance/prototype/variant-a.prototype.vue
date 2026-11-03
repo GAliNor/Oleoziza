@@ -4,7 +4,7 @@
 
   <div v-show="!isOpen" class="rise flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between">
     <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Client, référence ou n°" />
-    <div class="inline-flex shrink-0 self-start rounded-xl bg-neutral-100 p-1 md:self-auto" role="tablist">
+    <div class="inline-flex shrink-0 self-start rounded-xl bg-subtle p-1 md:self-auto" role="tablist">
       <button
         v-for="(label, key) in TABS"
         :key="key"
@@ -12,11 +12,11 @@
         role="tab"
         :aria-selected="tab === key"
         class="min-h-10 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
-        :class="tab === key ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-800'"
+        :class="tab === key ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default'"
         @click="handleTab(key)"
       >
         {{ label }}
-        <span v-if="key === 'pending'" class="chip ml-1 bg-warning-amber/15 text-warning-amber">{{ pending.length }}</span>
+        <span v-if="key === 'pending'" class="chip ml-1 bg-warning-subtle text-fg-warning">{{ pending.length }}</span>
       </button>
     </div>
   </div>
@@ -25,7 +25,7 @@
     <div class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)" :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }">
       <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
         <table class="w-full text-sm">
-          <thead class="bg-neutral-50 text-left text-xs tracking-wide text-neutral-500 uppercase">
+          <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
             <tr>
               <th class="px-4 py-3 font-semibold">Date</th>
               <th class="px-4 py-3 font-semibold">Client</th>
@@ -40,24 +40,24 @@
             <tr
               v-for="movement in pageRows"
               :key="movement.id"
-              class="cursor-pointer border-t border-neutral-100 transition-colors hover:bg-neutral-50"
-              :class="{ 'bg-primary-olive-light/40': movement.id === lastId }"
+              class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+              :class="{ 'bg-selected/40': movement.id === lastId }"
               tabindex="0"
               @click="handleOpen(movement.id)"
               @keydown.enter="handleOpen(movement.id)"
             >
-              <td class="px-4 py-3 whitespace-nowrap text-neutral-600">{{ formatWhen(movement.recordedAt) }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-fg-primary-paragraph">{{ formatWhen(movement.recordedAt) }}</td>
               <td class="px-4 py-3">
-                <p class="font-medium text-neutral-900">{{ movement.client }}</p>
+                <p class="font-medium text-fg-display">{{ movement.client }}</p>
                 <p class="body-two">{{ movement.code }}<span class="lg:hidden"> · {{ PURPOSE_LABELS[movement.purpose] }}</span></p>
               </td>
-              <td class="hidden px-4 py-3 text-neutral-700 lg:table-cell">{{ movement.label }}</td>
+              <td class="hidden px-4 py-3 text-fg-primary-paragraph lg:table-cell">{{ movement.label }}</td>
               <td class="hidden px-4 py-3 whitespace-nowrap md:table-cell">
                 {{ METHOD_LABELS[movement.method] }}
-                <span v-if="movement.hasProof" class="chip ml-1 bg-neutral-100 text-neutral-600">photo</span>
+                <span v-if="movement.hasProof" class="chip ml-1 bg-subtle text-fg-primary-paragraph">photo</span>
               </td>
-              <td class="hidden px-4 py-3 whitespace-nowrap text-neutral-600 xl:table-cell">{{ movement.recordedBy }}</td>
-              <td class="px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums" :class="movement.kind === 'payment' ? 'text-primary-olive-dark' : 'text-accent-rust'">
+              <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph xl:table-cell">{{ movement.recordedBy }}</td>
+              <td class="px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
                 {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatDh(movement.amount) }}
               </td>
               <td class="hidden px-4 py-3 whitespace-nowrap sm:table-cell"><span class="chip" :class="STATUS_CLASSES[movement.status]">{{ STATUS_LABELS[movement.status] }}</span></td>
@@ -69,7 +69,7 @@
       <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
         <p class="body-two tabular-nums">{{ firstIndex + 1 }}–{{ firstIndex + pageRows.length }} sur {{ rows.length }}</p>
         <div class="flex items-center gap-1">
-          <button v-for="number in pageCount" :key="number" type="button" class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums" :class="number === page ? 'bg-primary-olive-dark text-white' : 'text-neutral-600 hover:bg-neutral-100'" @click="page = number">
+          <button v-for="number in pageCount" :key="number" type="button" class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums" :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'" @click="page = number">
             {{ number }}
           </button>
         </div>

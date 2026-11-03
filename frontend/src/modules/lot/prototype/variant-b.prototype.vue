@@ -8,25 +8,25 @@
         <section
           v-for="column in columns"
           :key="column.key"
-          class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-2xl bg-neutral-100/70 p-3"
+          class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-2xl bg-subtle/70 p-3"
         >
           <header class="flex items-center justify-between px-1">
-            <h2 class="text-sm font-semibold text-neutral-800">{{ column.label }}</h2>
-            <span class="chip bg-white text-neutral-600 tabular-nums">{{ column.total }}</span>
+            <h2 class="text-sm font-semibold text-fg-default">{{ column.label }}</h2>
+            <span class="chip bg-surface text-fg-primary-paragraph tabular-nums">{{ column.total }}</span>
           </header>
           <button
             v-for="lot in column.lots"
             :key="lot.id"
             type="button"
-            class="flex flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-3 text-left shadow-sm transition duration-300 ease-(--ease-premium) hover:-translate-y-0.5 hover:shadow-md"
+            class="flex flex-col gap-1 rounded-xl border border-default bg-surface p-3 text-left shadow-raised transition duration-300 ease-(--ease-premium) hover:-translate-y-0.5 hover:shadow-raised"
             @click="handleOpen(lot.id)"
           >
             <span class="flex items-center justify-between gap-2">
-              <span class="font-semibold text-neutral-900">{{ lot.code }}</span>
-              <span class="text-xs text-neutral-500">{{ formatDate(lot.receivedAt) }}</span>
+              <span class="font-semibold text-fg-display">{{ lot.code }}</span>
+              <span class="text-xs text-fg-secondary-paragraph">{{ formatDate(lot.receivedAt) }}</span>
             </span>
-            <span class="truncate text-sm text-neutral-800">{{ lot.client }}</span>
-            <span class="text-xs text-neutral-500 tabular-nums">
+            <span class="truncate text-sm text-fg-default">{{ lot.client }}</span>
+            <span class="text-xs text-fg-secondary-paragraph tabular-nums">
               {{ (lot.netKg / 100).toLocaleString('fr-FR') }} q
               <template v-if="lot.oilKg"> · {{ lot.oilKg.toLocaleString('fr-FR') }} kg huile · {{ ((lot.oilKg / lot.netKg) * 100).toFixed(1).replace('.', ',') }} %</template>
             </span>
