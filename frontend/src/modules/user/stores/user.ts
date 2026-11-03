@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 
 import UserService from 'user/services/user';
+import { withStatus } from 'global/composables/with-status';
 import type { LoginMethod, Permission } from 'auth/types/auth';
 import type { IStaffForm, IStaffUser, IUserStore, StaffStatus } from 'user/types/user';
 
@@ -21,16 +22,8 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async fetchUsers(): Promise<void> {
-      this.isLoading = true;
-      this.hasError = false;
-      try {
-        this.users = await userService.getAll();
-      } catch (error) {
-        this.hasError = true;
-        console.error(error);
-      } finally {
-        this.isLoading = false;
-      }
+      const users = await withStatus(this, 'isLoading', () => userService.getAll(), { errorFlag: 'hasError' });
+      if (users) this.users = users;
     },
     async create(form: IStaffForm): Promise<IStaffUser | null> {
       const user = await this.run(() => userService.create(form));
@@ -59,18 +52,8 @@ export const useUserStore = defineStore('user', {
       if (index !== -1) this.users.splice(index, 1, user);
       return true;
     },
-    async run<T>(request: () => Promise<T>): Promise<T | null> {
-      this.isSaving = true;
-      this.hasError = false;
-      try {
-        return await request();
-      } catch (error) {
-        this.hasError = true;
-        console.error(error);
-        return null;
-      } finally {
-        this.isSaving = false;
-      }
+    run<T>(request: () => Promise<T>): Promise<T | null> {
+      return withStatus(this, 'isSaving', request, { errorFlag: 'hasError' });
     },
   },
 });

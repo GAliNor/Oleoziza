@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import ClientService from 'global/services/client';
 import { useSyncStore } from 'global/stores/sync';
 import { createId } from 'global/composables/crypto';
+import { withStatus } from 'global/composables/with-status';
 import type { ClientKind, IClient, IClientStore } from 'global/types/client';
 
 const clientService = new ClientService();
@@ -21,18 +22,11 @@ export const useClientStore = defineStore('client', {
   actions: {
     async fetchClients(isForced = false): Promise<void> {
       if (!isForced && this.isLoaded && !this.hasError) return;
-      this.isLoading = true;
-      this.hasError = false;
-      try {
-        this.clients = await clientService.getAll();
-        this.isLoaded = true;
-        this.reportPending();
-      } catch (error) {
-        this.hasError = true;
-        console.error(error);
-      } finally {
-        this.isLoading = false;
-      }
+      const clients = await withStatus(this, 'isLoading', () => clientService.getAll(), { errorFlag: 'hasError' });
+      if (!clients) return;
+      this.clients = clients;
+      this.isLoaded = true;
+      this.reportPending();
     },
     searchClients(query: string, limit = 6): IClient[] {
       const text = query.trim().toLowerCase();
@@ -43,18 +37,11 @@ export const useClientStore = defineStore('client', {
         .slice(0, limit);
     },
     async createClient(kind: ClientKind, name: string, phone: string, siteId: string): Promise<IClient | null> {
-      this.isSaving = true;
-      try {
-        const client = await clientService.create({ id: createId(), kind, name, phone, siteId });
-        this.clients.unshift(client);
-        this.reportPending();
-        return client;
-      } catch (error) {
-        console.error(error);
-        return null;
-      } finally {
-        this.isSaving = false;
-      }
+      const client = await withStatus(this, 'isSaving', () => clientService.create({ id: createId(), kind, name, phone, siteId }));
+      if (!client) return null;
+      this.clients.unshift(client);
+      this.reportPending();
+      return client;
     },
     reportPending(): void {
       useSyncStore().setPending('clients', this.clients.filter((client) => client.isPendingSync).length);

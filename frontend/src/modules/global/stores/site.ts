@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 
 import SiteService from 'global/services/site';
+import { withStatus } from 'global/composables/with-status';
 import { useAuthStore } from 'auth/stores/auth';
 import { ALL_SITES } from 'global/constants/site';
 import { STORAGE_KEYS } from 'auth/constants/auth';
@@ -44,18 +45,11 @@ export const useSiteStore = defineStore('site', {
     async fetchSites(isForced = false): Promise<void> {
       const userId = useAuthStore().session?.userId ?? null;
       if (!userId || (!isForced && this.loadedForUserId === userId && !this.hasError)) return;
-      this.isLoading = true;
-      this.hasError = false;
-      try {
-        this.sites = await siteService.getAll();
-        if (this.loadedForUserId !== userId) this.pickInitialSite(userId);
-        this.loadedForUserId = userId;
-      } catch (error) {
-        this.hasError = true;
-        console.error(error);
-      } finally {
-        this.isLoading = false;
-      }
+      const sites = await withStatus(this, 'isLoading', () => siteService.getAll(), { errorFlag: 'hasError' });
+      if (!sites) return;
+      this.sites = sites;
+      if (this.loadedForUserId !== userId) this.pickInitialSite(userId);
+      this.loadedForUserId = userId;
     },
     pickInitialSite(userId: string): void {
       const lastSite = readLastSite(userId);

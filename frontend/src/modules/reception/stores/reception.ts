@@ -6,6 +6,7 @@ import { useSyncStore } from 'global/stores/sync';
 import { useClientStore } from 'global/stores/client';
 import { draftNetKg } from 'reception/composables/weighing';
 import { createId } from 'global/composables/crypto';
+import { logDevError, withStatus } from 'global/composables/with-status';
 import type { ILot, IOpenReceptionPayload, IReceptionStore, IWeighingDraft } from 'reception/types/reception';
 
 const receptionService = new ReceptionService();
@@ -27,27 +28,19 @@ export const useReceptionStore = defineStore('reception', {
   actions: {
     async fetchSite(siteId: string, isForced = false): Promise<void> {
       if (!isForced && this.loadedSiteId === siteId && !this.hasError) return;
-      this.isLoading = true;
-      this.hasError = false;
-      try {
-        const [lots, settings] = await Promise.all([
-          receptionService.getLots(siteId),
-          receptionService.getSettings(siteId),
-          useClientStore().fetchClients(),
-        ]);
-        this.lots = lots;
-        this.settings = settings;
-        this.reportPending();
-        this.loadedSiteId = siteId;
-      } catch (error) {
-        this.hasError = true;
-        console.error(error);
-      } finally {
-        this.isLoading = false;
-      }
+      const loaded = await withStatus(
+        this,
+        'isLoading',
+        () => Promise.all([receptionService.getLots(siteId), receptionService.getSettings(siteId), useClientStore().fetchClients()]),
+        { errorFlag: 'hasError' },
+      );
+      if (!loaded) return;
+      [this.lots, this.settings] = loaded;
+      this.reportPending();
+      this.loadedSiteId = siteId;
     },
     async openReception(payload: Omit<IOpenReceptionPayload, 'id' | 'receivedBy'>): Promise<ILot | null> {
-      return this.save(async () => {
+      return withStatus(this, 'isSaving', async () => {
         const lot = await receptionService.openReception({
           ...payload,
           quality: [...payload.quality],
@@ -59,7 +52,7 @@ export const useReceptionStore = defineStore('reception', {
       });
     },
     async addWeighing(lot: ILot, draft: IWeighingDraft): Promise<ILot | null> {
-      return this.save(async () => {
+      return withStatus(this, 'isSaving', async () => {
         const updated = await receptionService.addWeighing(lot.id, {
           id: createId(),
           kind: draft.kind,
@@ -74,7 +67,7 @@ export const useReceptionStore = defineStore('reception', {
       });
     },
     async finishReception(lot: ILot): Promise<ILot | null> {
-      return this.save(async () => {
+      return withStatus(this, 'isSaving', async () => {
         const updated = await receptionService.finishReception(lot.id);
         this.upsertLot(updated);
         return updated;
@@ -84,19 +77,8 @@ export const useReceptionStore = defineStore('reception', {
       try {
         return await receptionService.readScale(siteId);
       } catch (error) {
-        console.error(error);
+        logDevError(error);
         return null;
-      }
-    },
-    async save<T>(request: () => Promise<T>): Promise<T | null> {
-      this.isSaving = true;
-      try {
-        return await request();
-      } catch (error) {
-        console.error(error);
-        return null;
-      } finally {
-        this.isSaving = false;
       }
     },
     upsertLot(lot: ILot): void {

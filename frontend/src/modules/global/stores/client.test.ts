@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import ClientMockService from 'global/services/client.mock';
 import { useClientStore } from 'global/stores/client';
 import type { IClient } from 'global/types/client';
 
@@ -30,5 +31,30 @@ describe('client store searchClients', () => {
 
   it('ignores fewer than three digits', () => {
     expect(useClientStore().searchClients('66')).toEqual([]);
+  });
+});
+
+describe('client store fetchClients', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('loads the Clients once and clears the flags', async () => {
+    const getAll = vi.spyOn(ClientMockService.prototype, 'getAll').mockResolvedValue([client('Said Tahiri', '+212661921827')]);
+    const clientStore = useClientStore();
+    await clientStore.fetchClients();
+    await clientStore.fetchClients();
+    expect([clientStore.clients.length, clientStore.isLoaded, clientStore.isLoading, clientStore.hasError, getAll.mock.calls.length]).toEqual([1, true, false, false, 1]);
+  });
+
+  it('keeps the list and raises hasError when loading fails', async () => {
+    vi.spyOn(ClientMockService.prototype, 'getAll').mockRejectedValue(new Error('offline'));
+    const clientStore = useClientStore();
+    await clientStore.fetchClients();
+    expect([clientStore.clients, clientStore.isLoaded, clientStore.isLoading, clientStore.hasError]).toEqual([[], false, false, true]);
   });
 });

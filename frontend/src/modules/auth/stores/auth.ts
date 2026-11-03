@@ -7,6 +7,7 @@ import { setAccessToken } from 'global/services/access-token';
 import { readStorage, writeStorage } from 'global/composables/storage';
 import { createSalt, hashPin, verifyPin } from 'auth/composables/hash-pin';
 import { hasWebCrypto } from 'global/composables/crypto';
+import { logDevError } from 'global/composables/with-status';
 import { ALL_SITES } from 'global/constants/site';
 import { REFRESH_MARGIN_MS, STORAGE_KEYS } from 'auth/constants/auth';
 import type {
@@ -94,7 +95,7 @@ export const useAuthStore = defineStore('auth', {
           Object.assign(this, credentialChange ?? {});
           if (this.isExpired() && navigator.onLine) await this.refresh();
         } catch (error) {
-          console.error(error);
+          logDevError(error);
           if (!isAuthError(error) || error.code !== 'network') this.clearSession();
         }
       }
@@ -123,7 +124,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         await this.refresh();
       } catch (error) {
-        console.error(error);
+        logDevError(error);
       }
     },
     async refresh(): Promise<void> {
@@ -229,7 +230,7 @@ export const useAuthStore = defineStore('auth', {
         try {
           await authService.logout(sid);
         } catch (error) {
-          console.error(error);
+          logDevError(error);
         }
       }
       if (this.session) this.forgetDeviceProfile(this.session.userId);

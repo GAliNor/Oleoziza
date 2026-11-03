@@ -2,6 +2,7 @@ import { ref, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { isAuthError } from 'auth/stores/auth';
+import { logDevError } from 'global/composables/with-status';
 
 export const useAuthError = (): {
   errorMessage: Ref<string>;
@@ -13,7 +14,7 @@ export const useAuthError = (): {
 
   const setError = (error: unknown): void => {
     if (!isAuthError(error)) {
-      console.error(error);
+      logDevError(error);
       errorMessage.value = t('auth.errors.network');
       return;
     }

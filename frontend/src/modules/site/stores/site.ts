@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import SiteAdminService from 'site/services/site';
 import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
+import { withStatus } from 'global/composables/with-status';
 import type { ISite } from 'global/types/site';
 import type { ISiteAdminStore, ISiteForm } from 'site/types/site';
 
@@ -15,37 +16,32 @@ export const useSiteAdminStore = defineStore('site-admin', {
   }),
   actions: {
     async save(form: ISiteForm, id?: string): Promise<ISite | null> {
-      this.isSaving = true;
-      this.hasError = false;
-      try {
-        const site = id ? await siteAdminService.update(id, form) : await siteAdminService.create(form);
-        await useSiteStore().fetchSites(true);
-        return site;
-      } catch (error) {
-        this.hasError = true;
-        console.error(error);
-        return null;
-      } finally {
-        this.isSaving = false;
-      }
+      return withStatus(
+        this,
+        'isSaving',
+        async () => {
+          const site = id ? await siteAdminService.update(id, form) : await siteAdminService.create(form);
+          await useSiteStore().fetchSites(true);
+          return site;
+        },
+        { errorFlag: 'hasError' },
+      );
     },
     async remove(id: string): Promise<boolean> {
       const siteStore = useSiteStore();
-      this.isSaving = true;
-      this.hasError = false;
-      try {
-        await siteAdminService.delete(id);
-        await siteStore.fetchSites(true);
-        const userId = useAuthStore().session?.userId;
-        if (siteStore.currentSiteId === id && userId) siteStore.pickInitialSite(userId);
-        return true;
-      } catch (error) {
-        this.hasError = true;
-        console.error(error);
-        return false;
-      } finally {
-        this.isSaving = false;
-      }
+      const isRemoved = await withStatus(
+        this,
+        'isSaving',
+        async () => {
+          await siteAdminService.delete(id);
+          await siteStore.fetchSites(true);
+          const userId = useAuthStore().session?.userId;
+          if (siteStore.currentSiteId === id && userId) siteStore.pickInitialSite(userId);
+          return true;
+        },
+        { errorFlag: 'hasError' },
+      );
+      return isRemoved ?? false;
     },
     clearError(): void {
       this.hasError = false;
