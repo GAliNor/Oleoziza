@@ -5,7 +5,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
       <sales-bars :title="chart.title" :bars="chart.bars" class="lg:col-span-3" />
       <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5 lg:col-span-2">
-        <h2 class="heading-two">Encaissé par mode</h2>
+        <h2 class="heading-four">Encaissé par mode</h2>
         <div class="flex flex-col items-center gap-5 sm:flex-row lg:flex-col xl:flex-row">
           <div class="relative h-40 w-40 shrink-0">
             <svg viewBox="0 0 42 42" class="h-full w-full -rotate-90">
@@ -28,8 +28,8 @@
               />
             </svg>
             <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p class="text-xs text-fg-secondary-paragraph">{{ hovered ? hovered.label : 'Encaissé' }}</p>
-              <p class="text-lg font-semibold tabular-nums">{{ formatDh(hovered ? hovered.amount : sales.collected) }}</p>
+              <p class="body-three">{{ hovered ? hovered.label : 'Encaissé' }}</p>
+              <p class="text-lg figure">{{ formatDh(hovered ? hovered.amount : sales.collected) }}</p>
             </div>
           </div>
           <ul class="flex w-full flex-col gap-2 text-sm">

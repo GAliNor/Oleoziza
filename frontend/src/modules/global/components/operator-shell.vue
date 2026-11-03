@@ -21,7 +21,7 @@
       </span>
       <button
         type="button"
-        class="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-default bg-surface pr-3 pl-1 text-sm font-medium text-fg-default"
+        class="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-default bg-surface pr-3 pl-1 label"
         :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
         @click="handleSwitchOperator"
       >

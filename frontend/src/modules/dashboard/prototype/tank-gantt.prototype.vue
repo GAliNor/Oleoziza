@@ -2,17 +2,17 @@
   <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 class="heading-two">Planning des cuves</h2>
+        <h2 class="heading-four">Planning des cuves</h2>
         <p class="body-two">Huile stockée par lot, du pressage au retrait</p>
       </div>
       <div class="flex items-center gap-2">
         <button type="button" class="icon-btn" aria-label="Période précédente" @click="offset -= periodDays">←</button>
-        <p class="min-w-32 text-center text-sm font-medium text-fg-default tabular-nums">{{ dayLabel(startDay) }} – {{ dayLabel(endDay) }}</p>
+        <p class="min-w-32 text-center label tabular-nums">{{ dayLabel(startDay) }} – {{ dayLabel(endDay) }}</p>
         <button type="button" class="icon-btn" aria-label="Période suivante" @click="offset += periodDays">→</button>
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-fg-primary-paragraph">
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 body-three text-fg-primary-paragraph">
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-primary-olive-mid" /> Huile d’un client</span>
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-accent-sand" /> Stock du moulin</span>
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm border border-dashed border-strong bg-subtle" /> Retiré</span>
@@ -21,11 +21,11 @@
     <div class="overflow-x-auto">
       <div :key="`${startDay}-${periodDays}`" class="min-w-190">
         <div class="grid border-b border-default pb-1" :style="gridStyle">
-          <p class="text-xs font-semibold tracking-wide text-fg-secondary-paragraph uppercase">Cuve</p>
+          <p class="eyebrow">Cuve</p>
           <p
             v-for="day in days"
             :key="day"
-            class="text-center text-[11px] tabular-nums"
+            class="text-center text-xs tabular-nums"
             :class="day === 0 ? 'font-semibold text-fg-brand' : 'text-fg-secondary-paragraph'"
           >
             {{ isLabelShown(day) ? dayLabel(day) : '' }}
@@ -34,9 +34,9 @@
 
         <div v-for="tank in tanks" :key="tank.id" class="grid border-b border-subtle py-2" :style="gridStyle">
           <div class="pr-2">
-            <p class="text-sm font-medium text-fg-display">{{ tank.name }}</p>
-            <p class="truncate text-xs font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
-            <p class="text-xs text-fg-secondary-paragraph tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKg(tank.capacityKg) }}</p>
+            <p class="label text-fg-display">{{ tank.name }}</p>
+            <p class="truncate body-three font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
+            <p class="body-three tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKg(tank.capacityKg) }}</p>
           </div>
           <div class="relative" :style="{ gridColumn: `2 / span ${periodDays}`, height: `${lanesOf(tank.id).length * 30 + 4}px` }">
             <div class="absolute inset-y-0 bg-selected/30" :style="todayStyle" />

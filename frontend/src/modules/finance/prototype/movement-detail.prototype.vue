@@ -7,11 +7,11 @@
       </span>
       <div class="min-w-0 flex-1">
         <p class="eyebrow">{{ movement.code }} · {{ movement.kind === 'payment' ? 'Paiement reçu' : 'Versement payé' }} · {{ PURPOSE_LABELS[movement.purpose] }}</p>
-        <h2 class="heading-two truncate">{{ movement.client }}</h2>
+        <h2 class="heading-four truncate">{{ movement.client }}</h2>
         <p class="body-two">{{ movement.label }}</p>
       </div>
       <div class="text-right">
-        <p class="text-3xl font-semibold tracking-tight tabular-nums" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
+        <p class="text-display-sm figure" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
           {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatDh(movement.amount) }}
         </p>
         <span class="chip" :class="STATUS_CLASSES[movement.status]">{{ STATUS_LABELS[movement.status] }}</span>

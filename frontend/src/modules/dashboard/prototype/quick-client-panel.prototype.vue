@@ -2,7 +2,7 @@
   <section class="flex flex-col gap-4">
     <template v-if="!created">
       <header class="flex items-center justify-between">
-        <h2 class="heading-two text-xl">Nouveau client</h2>
+        <h2 class="heading-three">Nouveau client</h2>
         <button type="button" class="link" @click="handleClose">{{ closeLabel }}</button>
       </header>
       <div class="flex items-center gap-3">
@@ -14,16 +14,16 @@
       </div>
       <input v-model="name" class="input" :placeholder="kind === 'company' ? 'Nom de la société' : 'Prénom et nom'" />
       <input v-model="phone" class="input" type="tel" inputmode="tel" placeholder="Téléphone (06…)" />
-      <button type="button" class="btn-primary min-h-14 text-base" :disabled="!canSave" @click="handleSave">Créer le client</button>
+      <button type="button" class="btn-primary min-h-14 text-md" :disabled="!canSave" @click="handleSave">Créer le client</button>
     </template>
 
     <template v-else>
       <div class="flex flex-col items-center gap-2 py-2 text-center">
         <avatar-tag class="h-20 w-20" :name="created.name" :kind="created.kind === 'company' ? 'company' : 'client'" />
-        <p class="heading-two text-xl">{{ created.name }}</p>
+        <p class="heading-three">{{ created.name }}</p>
         <p class="body-two">Client créé · sera synchronisé</p>
       </div>
-      <button type="button" class="btn-primary min-h-14 text-base" @click="handleReceive">Réceptionner maintenant</button>
+      <button type="button" class="btn-primary min-h-14 text-md" @click="handleReceive">Réceptionner maintenant</button>
       <button type="button" class="btn-secondary min-h-12" @click="handleClose">Plus tard</button>
     </template>
   </section>

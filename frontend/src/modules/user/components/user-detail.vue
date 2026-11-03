@@ -3,7 +3,7 @@
     <header class="flex items-center gap-3">
       <user-avatar :user="user" class="h-12 w-12" />
       <div class="min-w-0 flex-1">
-        <h2 class="heading-two truncate">{{ user.title ? `${user.title} ` : '' }}{{ formatFullName(user) }}</h2>
+        <h2 class="heading-four truncate">{{ user.title ? `${user.title} ` : '' }}{{ formatFullName(user) }}</h2>
         <p class="flex flex-wrap items-center gap-2 body-two">
           <span>{{ $t(`user.roles.${user.role}`) }}</span>
           <span v-if="user.isOwner" class="chip bg-highlight/30 text-fg-accent">{{ $t('user.owner') }}</span>
@@ -76,7 +76,7 @@
     </div>
 
     <div>
-      <h3 class="heading-two">{{ $t('user.detail.rights') }}</h3>
+      <h3 class="heading-four">{{ $t('user.detail.rights') }}</h3>
       <p class="body-two">{{ $t('user.detail.rightsHint') }}</p>
     </div>
 

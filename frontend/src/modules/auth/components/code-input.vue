@@ -2,7 +2,7 @@
   <input
     :id="id"
     :value="modelValue"
-    class="input text-center font-mono text-2xl tracking-[0.6em]"
+    class="input text-center font-mono text-display-xs tracking-[0.6em]"
     type="text"
     inputmode="numeric"
     autocomplete="one-time-code"

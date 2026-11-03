@@ -1,7 +1,7 @@
 <template>
   <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <h2 class="heading-two">Cuves</h2>
+      <h2 class="heading-four">Cuves</h2>
       <p class="body-two tabular-nums">{{ formatKg(totalFill) }} / {{ formatKg(totalCapacity) }}</p>
     </div>
     <div class="grid flex-1 auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3" :class="{ 'xl:grid-cols-5': tanks.length > 3 }">
@@ -14,17 +14,17 @@
           >
             <div class="absolute inset-x-0 top-0 h-px bg-surface/60" />
           </div>
-          <p class="absolute inset-0 flex items-center justify-center text-lg font-semibold text-fg-display tabular-nums">
+          <p class="absolute inset-0 flex items-center justify-center text-lg figure text-fg-display">
             {{ Math.round(fillRatio(tank) * 100) }} %
           </p>
         </div>
         <div class="flex flex-col gap-0.5 bg-surface px-2 py-1.5">
           <div class="flex items-center justify-between gap-1">
             <p class="truncate text-xs font-semibold text-fg-primary-paragraph">{{ tank.name }}</p>
-            <span v-if="tank.isBio" class="chip bg-success-subtle px-1.5 text-[10px] text-fg-success">Bio</span>
+            <span v-if="tank.isBio" class="chip bg-success-subtle px-1.5 text-fg-success">Bio</span>
           </div>
-          <p class="truncate text-xs font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
-          <p class="text-[11px] text-fg-secondary-paragraph tabular-nums">{{ formatKg(tank.fillKg) }}</p>
+          <p class="truncate body-three font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
+          <p class="body-three tabular-nums">{{ formatKg(tank.fillKg) }}</p>
         </div>
       </div>
     </div>

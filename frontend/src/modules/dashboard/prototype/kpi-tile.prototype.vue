@@ -1,8 +1,8 @@
 <template>
   <div class="card lift flex min-w-0 flex-col gap-1.5 rounded-2xl p-5">
     <p class="eyebrow text-fg-secondary-paragraph">{{ label }}</p>
-    <p class="text-3xl font-semibold tracking-tight text-fg-display tabular-nums">
-      {{ formatted }}<span v-if="unit" class="ml-1 text-base font-medium text-fg-secondary-paragraph">{{ unit }}</span>
+    <p class="text-display-sm figure text-fg-display">
+      {{ formatted }}<span v-if="unit" class="ml-1 text-md font-medium text-fg-secondary-paragraph">{{ unit }}</span>
     </p>
     <p v-if="sub" class="body-two">{{ sub }}</p>
     <p v-if="delta" class="flex items-center gap-1 text-xs font-medium" :class="isDeltaGood ? 'text-fg-success' : 'text-fg-danger'">

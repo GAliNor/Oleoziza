@@ -44,7 +44,7 @@
           <span class="flex-1" :class="granted.includes(permission) ? 'text-fg-display' : 'text-fg-secondary-paragraph'">
             {{ $t(`user.permissions.${permission}`) }}
           </span>
-          <span v-if="isDefault(user, permission)" class="text-xs text-fg-muted">{{ $t('user.detail.default') }}</span>
+          <span v-if="isDefault(user, permission)" class="caption">{{ $t('user.detail.default') }}</span>
           <lock-line-icon v-if="canEdit(user) && !canGrant(user, siteId, permission)" class="h-4 w-4 shrink-0 text-fg-muted" />
         </button>
       </section>

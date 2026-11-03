@@ -1,6 +1,6 @@
 <template>
   <form class="card flex flex-col gap-4 rounded-2xl" @submit.prevent="handleSubmit">
-    <h2 class="heading-two">{{ site ? $t('site.form.editTitle') : $t('site.form.createTitle') }}</h2>
+    <h2 class="heading-four">{{ site ? $t('site.form.editTitle') : $t('site.form.createTitle') }}</h2>
     <div class="flex flex-col gap-1.5">
       <label class="label" for="site-name">{{ $t('site.form.name') }}</label>
       <input id="site-name" v-model="form.name" class="input" type="text" required />

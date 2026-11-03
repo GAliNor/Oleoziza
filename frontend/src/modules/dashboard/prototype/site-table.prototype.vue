@@ -1,7 +1,7 @@
 <template>
   <div class="card overflow-x-auto rounded-2xl p-0">
     <table class="w-full min-w-160 text-sm">
-      <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
+      <thead class="bg-page text-left eyebrow">
         <tr>
           <th class="px-4 py-3 font-semibold">Site</th>
           <th class="px-4 py-3 text-right font-semibold">Olives auj.</th>

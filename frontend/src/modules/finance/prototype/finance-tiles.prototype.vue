@@ -20,7 +20,7 @@
       </div>
       <p
         class="font-semibold tracking-tight whitespace-nowrap tabular-nums"
-        :class="[tile.tone, layout === 'grid' ? 'mt-1 text-2xl sm:text-3xl' : layout === 'strip' ? 'text-xl' : 'text-2xl']"
+        :class="[tile.tone, layout === 'grid' ? 'mt-1 text-display-xs sm:text-display-sm' : layout === 'strip' ? 'text-xl' : 'text-display-xs']"
         v-count-up="{ value: tile.value, format: formatDh }"
       />
     </component>

@@ -22,7 +22,7 @@
             <user-avatar :user="user" class="h-10 w-10" />
             <span class="min-w-0 flex-1">
               <span class="block truncate font-medium text-fg-display">{{ formatFullName(user) }}</span>
-              <span class="block truncate text-xs text-fg-secondary-paragraph">{{ $t('user.teams.rights', user.sites[site.id]?.length ?? 0) }}</span>
+              <span class="block truncate body-three">{{ $t('user.teams.rights', user.sites[site.id]?.length ?? 0) }}</span>
             </span>
             <span v-if="user.isOwner" class="chip shrink-0 bg-highlight/30 text-fg-accent">{{ $t('user.owner') }}</span>
             <user-status-chip v-else-if="user.status !== 'active'" :status="user.status" class="shrink-0" />

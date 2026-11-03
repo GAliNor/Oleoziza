@@ -3,7 +3,7 @@
     <div class="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-10 sm:px-8">
       <header class="flex flex-col gap-3">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <h1 class="text-3xl font-semibold tracking-tight text-fg-display">{{ $t('kit.title') }}</h1>
+          <h1 class="display-md">{{ $t('kit.title') }}</h1>
           <button type="button" class="btn-secondary min-h-10" :aria-pressed="isDark" @click="handleToggleDark">
             {{ isDark ? $t('kit.lightMode') : $t('kit.darkMode') }}
           </button>

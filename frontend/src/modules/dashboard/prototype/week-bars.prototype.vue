@@ -1,7 +1,7 @@
 <template>
   <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex items-baseline justify-between gap-2">
-      <h2 class="heading-two">{{ title }}</h2>
+      <h2 class="heading-four">{{ title }}</h2>
       <p class="body-two">{{ unit }}</p>
     </div>
     <div class="relative min-h-44 flex-1" @mouseleave="hoveredIndex = null">
@@ -24,7 +24,7 @@
       <Transition name="fade-step">
         <div
           v-if="hoveredIndex !== null"
-          class="pointer-events-none absolute -top-2 rounded-lg bg-neutral-900 px-3 py-2 text-xs whitespace-nowrap text-white shadow-overlay transition-[left] duration-300 ease-(--ease-premium)"
+          class="pointer-events-none absolute -top-2 rounded-lg bg-neutral-900 px-3 py-2 body-three whitespace-nowrap text-white shadow-overlay transition-[left] duration-300 ease-(--ease-premium)"
           :style="{ left: `clamp(0px, calc(${(hoveredIndex + 0.5) * (100 / bars.length)}% - 60px), calc(100% - 130px))` }"
         >
           <p class="font-semibold">{{ bars[hoveredIndex].label }}</p>
@@ -33,7 +33,7 @@
       </Transition>
     </div>
     <div class="flex gap-2 border-t border-default pt-2">
-      <p v-for="bar in bars" :key="bar.label" class="flex-1 text-center text-xs text-fg-secondary-paragraph">{{ bar.label }}</p>
+      <p v-for="bar in bars" :key="bar.label" class="flex-1 text-center body-three">{{ bar.label }}</p>
     </div>
   </div>
 </template>

@@ -1,8 +1,8 @@
 <template>
   <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
-      <h2 class="heading-two">{{ title }} (cumulés)</h2>
-      <div class="flex items-center gap-3 text-xs text-fg-primary-paragraph">
+      <h2 class="heading-four">{{ title }} (cumulés)</h2>
+      <div class="flex items-center gap-3 body-three text-fg-primary-paragraph">
         <span class="flex items-center gap-1.5"><span class="h-0.5 w-4 bg-primary-olive-mid" /> CA</span>
         <span class="flex items-center gap-1.5"><span class="h-0.5 w-4 bg-primary-olive-dark" /> Encaissé</span>
         <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-accent-rust/15" /> Écart</span>
@@ -22,7 +22,7 @@
       <Transition name="fade-step">
         <div
           v-if="hoveredIndex !== null"
-          class="pointer-events-none absolute -top-2 rounded-lg bg-neutral-900 px-3 py-2 text-xs whitespace-nowrap text-white shadow-overlay"
+          class="pointer-events-none absolute -top-2 rounded-lg bg-neutral-900 px-3 py-2 body-three whitespace-nowrap text-white shadow-overlay"
           :style="{ left: `clamp(0px, calc(${(xOf(hoveredIndex) / 300) * 100}% - 75px), calc(100% - 160px))` }"
         >
           <p class="font-semibold">{{ series[hoveredIndex].label }}</p>

@@ -1,6 +1,6 @@
 <template>
   <details class="rounded-2xl border border-dashed border-accent bg-accent-subtle p-4">
-    <summary class="cursor-pointer text-sm font-medium text-fg-accent">{{ $t('auth.demo.title') }}</summary>
+    <summary class="cursor-pointer label text-fg-accent">{{ $t('auth.demo.title') }}</summary>
     <ul class="mt-3 flex flex-col gap-1">
       <li v-for="user in DEMO_USERS" :key="user.id">
         <button
@@ -8,7 +8,7 @@
           class="flex w-full flex-col rounded-lg px-2 py-1.5 text-left hover:bg-surface"
           @click="handleSelect(user)"
         >
-          <span class="text-sm font-medium text-fg-default">
+          <span class="label">
             {{ user.firstName }} {{ user.lastName }} · {{ $t(`auth.roles.${user.role}`) }}
           </span>
           <span class="body-two">{{ user.email ?? formatPhone(user.phone ?? '') }} · {{ user.hint }}</span>

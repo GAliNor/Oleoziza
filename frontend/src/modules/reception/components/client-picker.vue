@@ -8,7 +8,7 @@
           {{ formatPhone(modelValue.phone) }} · {{ $t(`reception.clientKinds.${modelValue.kind}`) }}
           <span v-if="modelValue.isPendingSync" class="chip ml-1 bg-info-subtle text-fg-info">{{ $t('reception.clientPicker.new') }}</span>
         </p>
-        <p v-if="otherSites.length" class="text-xs text-fg-accent">
+        <p v-if="otherSites.length" class="body-two text-fg-accent">
           {{ $t('reception.clientPicker.otherSites', { sites: otherSites.join(', ') }) }}
         </p>
       </div>

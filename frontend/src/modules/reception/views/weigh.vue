@@ -23,7 +23,7 @@
               <span v-if="lot.isPendingSync" class="chip mt-1 bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
             </span>
             <span class="text-right">
-              <span class="block text-lg font-semibold text-fg-display tabular-nums">{{ formatKg(lot.netKg) }}</span>
+              <span class="block text-lg figure text-fg-display">{{ formatKg(lot.netKg) }}</span>
               <span class="body-two block">{{ $t('reception.station.weighings', lot.weighings.length) }}</span>
             </span>
           </router-link>

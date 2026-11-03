@@ -4,7 +4,7 @@
     <header class="flex flex-wrap items-start gap-3">
       <div class="min-w-0 flex-1">
         <p class="eyebrow">{{ lot.code }} · {{ siteName(lot.siteId) }} · reçu le {{ formatDate(lot.receivedAt) }}</p>
-        <h2 class="heading-two">{{ lot.client }}</h2>
+        <h2 class="heading-four">{{ lot.client }}</h2>
         <p class="body-two">{{ lot.variety }} · saisi par {{ lot.operator }}</p>
       </div>
       <span class="chip" :class="LOT_STATUS_CLASSES[lot.status]">{{ STATUS_LABELS[lot.status] }}</span>
@@ -13,22 +13,22 @@
     <dl class="grid grid-cols-2 gap-3 md:grid-cols-4">
       <div class="card rounded-2xl">
         <dt class="eyebrow text-fg-secondary-paragraph">Olives</dt>
-        <dd class="text-2xl font-semibold tabular-nums">{{ lot.netKg.toLocaleString('fr-FR') }} <span class="text-sm text-fg-secondary-paragraph">kg</span></dd>
+        <dd class="text-display-xs figure">{{ lot.netKg.toLocaleString('fr-FR') }} <span class="body-two">kg</span></dd>
         <dd class="body-two">{{ (lot.netKg / 100).toLocaleString('fr-FR') }} quintaux</dd>
       </div>
       <div class="card rounded-2xl">
         <dt class="eyebrow text-fg-secondary-paragraph">Huile</dt>
-        <dd class="text-2xl font-semibold tabular-nums">{{ lot.oilKg?.toLocaleString('fr-FR') ?? '—' }} <span v-if="lot.oilKg" class="text-sm text-fg-secondary-paragraph">kg</span></dd>
+        <dd class="text-display-xs figure">{{ lot.oilKg?.toLocaleString('fr-FR') ?? '—' }} <span v-if="lot.oilKg" class="body-two">kg</span></dd>
         <dd class="body-two">{{ lot.oilKg ? `${formatLitres(lot.oilKg)} · ${lot.tank ?? 'bidons du Client'}` : 'pas encore pressé' }}</dd>
       </div>
       <div class="card rounded-2xl">
         <dt class="eyebrow text-fg-secondary-paragraph">Rendement</dt>
-        <dd class="text-2xl font-semibold tabular-nums" :class="isYieldOdd ? 'text-fg-warning' : 'text-fg-brand'">{{ yieldText }}</dd>
+        <dd class="text-display-xs figure" :class="isYieldOdd ? 'text-fg-warning' : 'text-fg-brand'">{{ yieldText }}</dd>
         <dd class="body-two">{{ lot.oilKg ? `${Math.round((lot.oilKg / lot.netKg) * 100)} kg par quintal` : 'attendu 12–24 %' }}</dd>
       </div>
       <div class="card rounded-2xl">
         <dt class="eyebrow text-fg-secondary-paragraph">Frais</dt>
-        <dd class="text-2xl font-semibold tabular-nums">{{ formatDh(moneyOf(lot).amount) }}</dd>
+        <dd class="text-display-xs figure">{{ formatDh(moneyOf(lot).amount) }}</dd>
         <dd class="body-two truncate">{{ moneyOf(lot).label }}</dd>
       </div>
     </dl>
@@ -43,7 +43,7 @@
             <p class="body-two tabular-nums">{{ formatTime(step.at) }}</p>
           </div>
           <p class="body-two">{{ step.detail }}</p>
-          <p class="text-xs text-fg-muted">par {{ step.by }}</p>
+          <p class="caption">par {{ step.by }}</p>
         </li>
       </ol>
     </section>

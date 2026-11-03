@@ -11,7 +11,7 @@
           class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-2xl bg-subtle/70 p-3"
         >
           <header class="flex items-center justify-between px-1">
-            <h2 class="text-sm font-semibold text-fg-default">{{ column.label }}</h2>
+            <h2 class="heading-six">{{ column.label }}</h2>
             <span class="chip bg-surface text-fg-primary-paragraph tabular-nums">{{ column.total }}</span>
           </header>
           <button
@@ -23,10 +23,10 @@
           >
             <span class="flex items-center justify-between gap-2">
               <span class="font-semibold text-fg-display">{{ lot.code }}</span>
-              <span class="text-xs text-fg-secondary-paragraph">{{ formatDate(lot.receivedAt) }}</span>
+              <span class="body-three">{{ formatDate(lot.receivedAt) }}</span>
             </span>
-            <span class="truncate text-sm text-fg-default">{{ lot.client }}</span>
-            <span class="text-xs text-fg-secondary-paragraph tabular-nums">
+            <span class="truncate body-two text-fg-default">{{ lot.client }}</span>
+            <span class="body-three tabular-nums">
               {{ (lot.netKg / 100).toLocaleString('fr-FR') }} q
               <template v-if="lot.oilKg"> · {{ lot.oilKg.toLocaleString('fr-FR') }} kg huile · {{ ((lot.oilKg / lot.netKg) * 100).toFixed(1).replace('.', ',') }} %</template>
             </span>

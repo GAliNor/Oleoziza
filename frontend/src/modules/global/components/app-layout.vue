@@ -9,7 +9,7 @@
     >
       <div class="flex items-center gap-2 px-3">
         <olive-fill-icon class="h-8 w-8 text-fg-brand" />
-        <span class="text-xl font-semibold text-fg-accent">{{ $t('global.appName') }}</span>
+        <span class="heading-three text-fg-accent">{{ $t('global.appName') }}</span>
       </div>
       <nav class="flex flex-col gap-1">
         <router-link
@@ -24,7 +24,7 @@
         </router-link>
       </nav>
       <div class="mt-auto flex flex-col gap-1 border-t border-default pt-4">
-        <p class="truncate px-3 text-sm font-medium text-fg-default">{{ authStore.fullName }}</p>
+        <p class="truncate px-3 label">{{ authStore.fullName }}</p>
         <p v-if="authStore.session" class="px-3 body-two">{{ $t(`auth.roles.${authStore.session.role}`) }}</p>
         <button v-if="canSwitchOperator" type="button" class="nav-link mt-2" @click="handleSwitchOperator">
           <user-switch-line-icon class="h-5 w-5" />
@@ -75,7 +75,7 @@
         v-for="item in visibleNavItems"
         :key="item.name"
         :to="{ name: item.name }"
-        class="flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 text-xs text-fg-secondary-paragraph"
+        class="flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-1 body-three"
         active-class="text-fg-brand"
       >
         <component :is="item.icon" class="h-6 w-6" />

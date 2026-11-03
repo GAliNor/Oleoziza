@@ -1,15 +1,15 @@
 <template>
   <div v-if="siteStore.accessibleSites.length" class="flex min-w-0 items-center gap-2">
     <map-pin-line-icon class="h-5 w-5 shrink-0 text-fg-place" />
-    <span v-if="!hasChoice" class="truncate text-sm font-medium text-fg-default">
+    <span v-if="!hasChoice" class="truncate label">
       {{ siteStore.currentSite?.name }}
     </span>
     <div v-else class="relative min-w-0">
       <label class="sr-only" for="site-switcher">{{ $t('global.site.label') }}</label>
       <select
         id="site-switcher"
-        class="w-full appearance-none truncate rounded-lg border border-default bg-surface py-1.5 pr-8 pl-3 text-sm
-          font-medium text-fg-default focus-visible:outline-2 focus-visible:outline-focus"
+        class="w-full appearance-none truncate rounded-lg border border-default bg-surface py-1.5 pr-8 pl-3 label
+          focus-visible:outline-2 focus-visible:outline-focus"
         :value="siteStore.currentSiteId ?? ''"
         @change="handleChange"
       >

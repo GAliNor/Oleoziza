@@ -14,12 +14,11 @@
               @click="handleSelect(profile)"
             >
               <span
-                class="flex h-14 w-14 items-center justify-center rounded-full bg-selected text-lg
-                  font-semibold text-fg-brand"
+                class="flex h-14 w-14 items-center justify-center rounded-full bg-selected heading-four text-fg-brand"
               >
                 {{ initials(profile) }}
               </span>
-              <span class="text-center text-sm font-medium text-fg-default">{{ profile.firstName }} {{ profile.lastName }}</span>
+              <span class="text-center label">{{ profile.firstName }} {{ profile.lastName }}</span>
             </button>
             <button
               type="button"

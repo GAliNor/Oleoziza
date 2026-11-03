@@ -19,9 +19,9 @@
 
       <div class="absolute inset-0 hidden md:block">
         <div class="glass-card float-card absolute top-[9%] left-[8%] w-[min(21rem,52%)]" style="--rise-delay: 250ms">
-          <p class="text-xs font-medium tracking-wide text-fg-secondary-paragraph uppercase">{{ $t('auth.showcase.oilTitle') }}</p>
+          <p class="eyebrow">{{ $t('auth.showcase.oilTitle') }}</p>
           <div class="mt-2 flex items-baseline gap-3">
-            <p class="text-3xl font-semibold tracking-tight text-fg-display tabular-nums">
+            <p class="text-display-sm figure text-fg-display">
               {{ $n(SHOWCASE_OIL_KG) }} <span class="text-lg font-medium text-fg-secondary-paragraph">kg</span>
             </p>
             <span class="chip bg-success-subtle text-fg-success">
@@ -33,13 +33,13 @@
 
           <div class="mt-5 flex h-28 items-end gap-3">
             <div v-for="month in SHOWCASE_MONTHLY_OIL" :key="month.monthKey" class="flex flex-1 flex-col items-center gap-1.5">
-              <span v-if="month.kg === peakKg" class="text-[11px] font-medium text-fg-primary-paragraph tabular-nums">{{ $n(month.kg) }}</span>
+              <span v-if="month.kg === peakKg" class="body-three font-medium text-fg-primary-paragraph tabular-nums">{{ $n(month.kg) }}</span>
               <div
                 class="bar w-full rounded-t-[4px]"
                 :class="month.kg === peakKg ? 'bg-primary-olive-dark' : 'bg-primary-olive-mid'"
                 :style="{ height: `${(month.kg / peakKg) * 64}px` }"
               />
-              <span class="text-[11px] text-fg-secondary-paragraph">{{ $t(`auth.showcase.months.${month.monthKey}`) }}</span>
+              <span class="body-three">{{ $t(`auth.showcase.months.${month.monthKey}`) }}</span>
             </div>
           </div>
         </div>
@@ -52,19 +52,19 @@
             :style="{ '--rise-delay': `${450 + index * 150}ms`, '--float-delay': `${index * 1.2}s` }"
           >
             <span
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-selected text-sm
-                font-semibold text-fg-brand"
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-selected heading-six
+                text-fg-brand"
             >
               {{ item.initials }}
             </span>
             <div class="min-w-0 flex-1">
               <div class="flex items-baseline justify-between gap-2">
-                <p class="truncate text-sm font-semibold text-fg-display">{{ $t(`auth.showcase.${item.titleKey}`) }}</p>
-                <p class="hidden shrink-0 text-[11px] text-fg-muted xl:block">
+                <p class="truncate heading-six">{{ $t(`auth.showcase.${item.titleKey}`) }}</p>
+                <p class="hidden shrink-0 caption xl:block">
                   {{ $t(`auth.showcase.${item.timeKey}`, { minutes: item.minutes }) }}
                 </p>
               </div>
-              <p class="truncate text-xs text-fg-secondary-paragraph">{{ $t(`auth.showcase.${item.detailKey}`) }}</p>
+              <p class="truncate body-three">{{ $t(`auth.showcase.${item.detailKey}`) }}</p>
             </div>
           </div>
         </div>
@@ -77,8 +77,8 @@
             <olive-fill-icon class="h-5 w-5" />
           </span>
           <div>
-            <p class="text-xs text-fg-secondary-paragraph">{{ $t('auth.showcase.yieldTitle') }}</p>
-            <p class="text-lg font-semibold tracking-tight text-fg-display tabular-nums">
+            <p class="body-three">{{ $t('auth.showcase.yieldTitle') }}</p>
+            <p class="text-lg figure text-fg-display">
               {{ $n(SHOWCASE_YIELD_PERCENT) }} %
             </p>
           </div>

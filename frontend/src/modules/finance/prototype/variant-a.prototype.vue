@@ -25,7 +25,7 @@
     <div class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)" :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }">
       <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
         <table class="w-full text-sm">
-          <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
+          <thead class="bg-page text-left eyebrow">
             <tr>
               <th class="px-4 py-3 font-semibold">Date</th>
               <th class="px-4 py-3 font-semibold">Client</th>

@@ -18,7 +18,7 @@
       >
         <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
           <table class="w-full text-sm">
-            <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
+            <thead class="bg-page text-left eyebrow">
               <tr>
                 <th class="px-4 py-3 font-semibold">Client</th>
                 <th class="hidden px-4 py-3 font-semibold sm:table-cell">Identifiant</th>
@@ -49,7 +49,7 @@
                 </td>
                 <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph tabular-nums sm:table-cell">
                   {{ client.identifier }}
-                  <span class="block text-xs text-fg-muted">{{ client.kind === 'company' ? 'ICE' : 'CIN' }}</span>
+                  <span class="block caption">{{ client.kind === 'company' ? 'ICE' : 'CIN' }}</span>
                 </td>
                 <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph lg:table-cell">{{ client.region }}</td>
                 <td class="hidden px-4 py-3 md:table-cell">
@@ -99,18 +99,18 @@
           <client-header :client="activeClient" />
           <div class="grid grid-cols-3 gap-2 lg:gap-3">
             <div class="card p-3">
-              <p class="body-two text-xs">Huile en stock</p>
-              <p class="text-xl font-semibold tabular-nums">{{ formatKg(activeClient.oilStockKg) }}</p>
+              <p class="body-three">Huile en stock</p>
+              <p class="text-xl figure">{{ formatKg(activeClient.oilStockKg) }}</p>
             </div>
             <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': isFinanceShown && activeClient.balance }">
-              <p class="body-two text-xs">Doit au moulin</p>
-              <p class="text-xl font-semibold tabular-nums" :class="{ 'text-fg-warning': isFinanceShown && activeClient.balance }">
+              <p class="body-three">Doit au moulin</p>
+              <p class="text-xl figure" :class="{ 'text-fg-warning': isFinanceShown && activeClient.balance }">
                 {{ isFinanceShown ? formatDh(activeClient.balance) : '—' }}
               </p>
             </div>
             <div class="card p-3">
-              <p class="body-two text-xs">Lots cette saison</p>
-              <p class="text-xl font-semibold tabular-nums">{{ activeClient.lots }}</p>
+              <p class="body-three">Lots cette saison</p>
+              <p class="text-xl figure">{{ activeClient.lots }}</p>
             </div>
           </div>
           <management-client-detail :client="activeClient" :is-finance-shown="isFinanceShown" />

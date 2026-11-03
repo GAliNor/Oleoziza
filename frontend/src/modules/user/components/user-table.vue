@@ -1,7 +1,7 @@
 <template>
   <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
     <table class="w-full text-sm">
-      <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
+      <thead class="bg-page text-left eyebrow">
         <tr>
           <th class="px-4 py-3 font-semibold">{{ $t('user.table.user') }}</th>
           <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('user.table.role') }}</th>

@@ -22,8 +22,8 @@
           class="flex shrink-0 flex-col rounded-2xl border px-3 py-2 transition-colors"
           :class="item.id === lot.id ? 'border-brand bg-selected/50' : 'border-default bg-surface'"
         >
-          <span class="text-sm font-semibold text-fg-display">{{ item.clientName }}</span>
-          <span class="text-xs text-fg-secondary-paragraph tabular-nums">{{ item.code }} · {{ formatKg(item.netKg) }}</span>
+          <span class="heading-six">{{ item.clientName }}</span>
+          <span class="body-two tabular-nums">{{ item.code }} · {{ formatKg(item.netKg) }}</span>
         </router-link>
       </nav>
 
@@ -31,19 +31,19 @@
         <div class="rounded-3xl bg-action p-5 text-fg-on-action md:col-start-1 md:row-start-1">
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-xs tracking-widest text-fg-on-action-muted uppercase">{{ $t('reception.station.eyebrow', { code: lot.code }) }}</p>
+              <p class="eyebrow text-sm text-fg-on-action-muted">{{ $t('reception.station.eyebrow', { code: lot.code }) }}</p>
               <p class="truncate text-lg font-semibold">{{ lot.clientName }}</p>
-              <p class="text-sm text-fg-on-action-muted">{{ $t(`reception.modes.${lot.mode}`) }} · {{ lot.variety }}</p>
+              <p class="body-two text-fg-on-action-muted">{{ $t(`reception.modes.${lot.mode}`) }} · {{ lot.variety }}</p>
             </div>
             <span v-if="lot.isPendingSync" class="chip shrink-0 bg-surface/15 text-fg-on-action">{{ $t('reception.pendingSync') }}</span>
           </div>
-          <p class="mt-4 text-5xl font-semibold tabular-nums">{{ formatKg(lot.netKg) }}</p>
-          <p class="text-sm text-fg-on-action-muted tabular-nums">
+          <p class="mt-4 text-display-lg figure">{{ formatKg(lot.netKg) }}</p>
+          <p class="body-two text-fg-on-action-muted tabular-nums">
             {{ formatQuintals(lot.netKg) }} · {{ $t('reception.station.weighings', lot.weighings.length) }}
             <template v-if="lot.dailyPricePerKg !== null"> · {{ formatDh(lot.netKg * lot.dailyPricePerKg) }}</template>
           </p>
           <div v-if="lot.announcedContainers" class="mt-4">
-            <div class="flex justify-between text-xs text-fg-on-action-muted">
+            <div class="flex justify-between body-two text-fg-on-action-muted">
               <span>{{ $t('reception.station.containersWeighed') }}</span>
               <span class="tabular-nums">{{ containersWeighed }} / {{ lot.announcedContainers }}</span>
             </div>
@@ -68,20 +68,20 @@
           </div>
 
           <div class="rounded-3xl bg-neutral-900 p-5 text-white">
-            <p class="text-xs tracking-widest text-neutral-400 uppercase">
+            <p class="eyebrow text-sm text-neutral-400">
               {{ $t(`reception.station.${draft.kind}`) }}
               <span v-if="draft.source === 'scale'" class="ml-1 rounded-full bg-info-blue px-2 py-0.5 normal-case">{{ $t('reception.station.scale') }}</span>
             </p>
-            <p class="mt-1 text-5xl font-semibold tabular-nums">
-              {{ (typedValue ?? 0).toLocaleString('fr-FR') }}<span class="ml-1 text-2xl text-neutral-400">kg</span>
+            <p class="mt-1 text-display-lg figure">
+              {{ (typedValue ?? 0).toLocaleString('fr-FR') }}<span class="ml-1 text-display-xs text-neutral-400">kg</span>
             </p>
-            <p class="mt-2 text-sm text-neutral-300 tabular-nums">
+            <p class="mt-2 body-two text-neutral-300 tabular-nums">
               <template v-if="draft.kind === 'gross'">{{ $t('reception.station.tareLine', { tare: formatKg(draftTare) }) }} </template>
               <span class="font-semibold text-white">{{ formatKg(draftNet) }} · {{ formatQuintals(draftNet) }}</span>
             </p>
           </div>
 
-          <button v-if="draft.kind === 'gross'" type="button" class="btn-secondary min-h-14 text-base" :disabled="isReading" @click="handleReadScale">
+          <button v-if="draft.kind === 'gross'" type="button" class="btn-secondary min-h-14 text-md" :disabled="isReading" @click="handleReadScale">
             {{ isReading ? $t('reception.station.reading') : $t('reception.station.readScale') }}
           </button>
 
@@ -98,7 +98,7 @@
           </div>
           <p v-if="isTareOverGross(draft, receptionStore.settings)" class="form-error">{{ $t('reception.station.tareOverGross') }}</p>
 
-          <button type="button" class="btn-primary min-h-16 text-base" :disabled="!canAdd" @click="handleAddWeighing">
+          <button type="button" class="btn-primary min-h-16 text-md" :disabled="!canAdd" @click="handleAddWeighing">
             {{ $t('reception.station.add') }}
           </button>
           <div class="grid grid-cols-2 gap-2 border-t border-subtle pt-3">
@@ -124,12 +124,12 @@
             :class="{ rise: index === 0 }"
           >
             <span class="avatar h-9 w-9 bg-subtle text-fg-primary-paragraph">{{ lot.weighings.length - index }}</span>
-            <span class="min-w-0 flex-1 text-sm text-fg-secondary-paragraph">
+            <span class="min-w-0 flex-1 body-two">
               {{ formatTime(weighing.recordedAt) }} · {{ weighing.source === 'scale' ? $t('reception.station.scale') : $t('reception.station.manual') }}
               <template v-if="weighing.kind === 'gross' && weighing.grossKg !== null">
                 · {{ $t('reception.station.grossHint', { gross: formatKg(weighing.grossKg), tare: formatKg(weighing.grossKg - weighing.netKg) }) }}
               </template>
-              <span class="block text-xs text-fg-muted">{{ weighing.recordedBy }}</span>
+              <span class="block caption">{{ weighing.recordedBy }}</span>
             </span>
             <span class="flex flex-col items-end gap-1">
               <span class="font-semibold text-fg-display tabular-nums">{{ formatKg(weighing.netKg) }}</span>

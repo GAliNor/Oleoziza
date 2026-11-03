@@ -9,7 +9,7 @@
       </div>
 
       <div v-if="authStore.isStaff" class="flex flex-col gap-3">
-        <h2 class="heading-two">{{ $t('dashboard.sites') }}</h2>
+        <h2 class="heading-four">{{ $t('dashboard.sites') }}</h2>
         <p v-if="siteStore.hasError" class="body-one text-fg-danger">{{ $t('dashboard.loadError') }}</p>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <template v-if="siteStore.isLoading">

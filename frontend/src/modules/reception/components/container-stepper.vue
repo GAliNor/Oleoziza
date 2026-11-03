@@ -2,8 +2,8 @@
   <div class="flex items-center justify-between rounded-2xl bg-subtle p-1.5">
     <button type="button" class="weight-key h-12 w-12 bg-surface text-xl" :disabled="!modelValue" :aria-label="`− ${label}`" @click="handleStep(-1)">−</button>
     <span class="text-center">
-      <span class="block text-xl font-semibold text-fg-display tabular-nums">{{ modelValue }}</span>
-      <span class="block text-xs text-fg-secondary-paragraph">{{ label }} · {{ $t('reception.station.containerTare', { kg: tareKg.toLocaleString('fr-FR') }) }}</span>
+      <span class="block text-xl figure text-fg-display">{{ modelValue }}</span>
+      <span class="block body-two">{{ label }} · {{ $t('reception.station.containerTare', { kg: tareKg.toLocaleString('fr-FR') }) }}</span>
     </span>
     <button type="button" class="weight-key h-12 w-12 bg-surface text-xl" :aria-label="`+ ${label}`" @click="handleStep(1)">+</button>
   </div>

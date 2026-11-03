@@ -23,7 +23,7 @@
         >
           <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
             <table class="w-full text-sm">
-              <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
+              <thead class="bg-page text-left eyebrow">
                 <tr>
                   <th class="px-4 py-3 font-semibold">{{ $t('site.table.site') }}</th>
                   <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('site.table.city') }}</th>
@@ -93,7 +93,7 @@
             <header v-if="activeSite" class="flex items-center gap-3">
               <span class="avatar h-12 w-12 bg-action text-fg-on-action"><map-pin-line-icon class="h-6 w-6" /></span>
               <div class="min-w-0 flex-1">
-                <h2 class="heading-two truncate">{{ activeSite.name }}</h2>
+                <h2 class="heading-four truncate">{{ activeSite.name }}</h2>
                 <p class="body-two">{{ activeSite.city }}</p>
               </div>
             </header>

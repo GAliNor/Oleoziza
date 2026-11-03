@@ -3,7 +3,7 @@
     <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
       <p class="eyebrow px-4 pt-4 text-fg-secondary-paragraph">Par site · saison</p>
       <table class="w-full text-sm">
-        <thead class="text-left text-xs text-fg-secondary-paragraph">
+        <thead class="text-left body-three">
           <tr>
             <th class="px-4 py-2 font-medium">Site</th>
             <th class="px-4 py-2 text-right font-medium">Olives</th>
@@ -32,7 +32,7 @@
           </span>
           <span class="shrink-0 text-right">
             <span class="chip bg-subtle text-fg-primary-paragraph">{{ lot.step }}</span>
-            <span class="block text-xs text-fg-secondary-paragraph">{{ lot.at }}</span>
+            <span class="block body-three">{{ lot.at }}</span>
           </span>
         </li>
       </ul>

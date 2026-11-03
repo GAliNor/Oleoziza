@@ -51,7 +51,7 @@
         <auth-heading :eyebrow="$t('auth.login.eyebrow')" :title="$t(`auth.login.methodTitle.${step}`)" />
 
         <div class="flex items-center justify-between gap-3 rounded-2xl bg-subtle/80 py-2 pr-2 pl-4">
-          <span class="truncate text-sm font-medium text-fg-default">{{ displayIdentifier }}</span>
+          <span class="truncate label">{{ displayIdentifier }}</span>
           <button type="button" class="btn-secondary min-h-9 shrink-0 px-4" @click="handleChangeIdentifier">
             {{ $t('auth.login.changeIdentifier') }}
           </button>

@@ -1,25 +1,59 @@
 @layer components {
-  .heading-one {
-    @apply text-2xl font-semibold text-fg-accent md:text-3xl;
+  /* Page titles. Only display and heading-one step up a size at md. */
+  .display-md {
+    @apply text-display-sm font-semibold tracking-tight text-fg-display md:text-display-md;
   }
 
-  .display-one {
-    @apply text-3xl font-semibold tracking-tight text-fg-display md:text-4xl;
+  .heading-one {
+    @apply text-display-xs font-semibold text-fg-accent md:text-display-sm;
   }
 
   .heading-two {
-    @apply text-lg font-semibold text-fg-default;
+    @apply text-display-xs font-semibold text-fg-display;
+  }
+
+  .heading-three {
+    @apply text-xl font-semibold text-fg-display;
+  }
+
+  .heading-four {
+    @apply text-lg font-semibold text-fg-display;
+  }
+
+  .heading-five {
+    @apply text-md font-semibold text-fg-display;
+  }
+
+  .heading-six {
+    @apply text-sm font-semibold text-fg-display;
   }
 
   .body-one {
-    @apply text-base text-fg-primary-paragraph;
+    @apply text-md text-fg-primary-paragraph;
   }
 
   .body-two {
     @apply text-sm text-fg-secondary-paragraph;
   }
 
+  .body-three {
+    @apply text-xs text-fg-secondary-paragraph;
+  }
+
+  .label {
+    @apply text-sm font-medium text-fg-default;
+  }
+
   .eyebrow {
-    @apply text-xs font-semibold tracking-widest text-fg-brand uppercase;
+    @apply text-xs font-semibold tracking-wide text-fg-secondary-paragraph uppercase;
+  }
+
+  .caption {
+    @apply text-xs text-fg-muted;
+  }
+
+  /* Numbers: tight tracking and tabular digits, at the caller's size and colour. */
+  .figure {
+    @apply font-semibold tracking-tight tabular-nums;
   }
 }

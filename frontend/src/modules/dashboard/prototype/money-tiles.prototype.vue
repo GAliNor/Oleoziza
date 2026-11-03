@@ -5,7 +5,7 @@
         <p class="eyebrow text-fg-secondary-paragraph">{{ tile.label }}</p>
         <p class="body-two truncate">{{ tile.sub }}</p>
       </div>
-      <p class="text-2xl font-semibold tracking-tight whitespace-nowrap tabular-nums" :class="tile.tone">{{ formatDh(tile.value) }}</p>
+      <p class="text-display-xs figure whitespace-nowrap" :class="tile.tone">{{ formatDh(tile.value) }}</p>
     </div>
   </div>
   <div v-else class="grid grid-cols-2 gap-3 lg:grid-cols-4">

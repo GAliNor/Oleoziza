@@ -26,7 +26,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
       <week-bars :title="chart.title" unit="kg" :bars="chart.bars" class="lg:col-span-3" />
       <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5 lg:col-span-2">
-        <h2 class="heading-two">Origine des olives</h2>
+        <h2 class="heading-four">Origine des olives</h2>
         <div class="flex h-3 gap-0.5 overflow-hidden rounded-full">
           <div class="grow-x bg-primary-olive" :style="{ flex: MODE_SPLIT.serviceKg }" />
           <div class="grow-x bg-accent-sand" :style="{ flex: MODE_SPLIT.purchaseKg, animationDelay: '120ms' }" />
@@ -47,7 +47,7 @@
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
       <div class="card min-w-0 overflow-x-auto rounded-2xl p-0 lg:col-span-3">
         <table class="w-full min-w-130 text-sm">
-          <thead class="bg-page text-left text-xs tracking-wide text-fg-secondary-paragraph uppercase">
+          <thead class="bg-page text-left eyebrow">
             <tr>
               <th class="px-4 py-3 font-semibold">Variété</th>
               <th class="px-4 py-3 text-right font-semibold">Lots</th>

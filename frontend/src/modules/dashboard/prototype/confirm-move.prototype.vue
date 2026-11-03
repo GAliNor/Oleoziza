@@ -5,7 +5,7 @@
     <div class="flex flex-col items-center gap-2 text-center">
       <avatar-tag class="h-24 w-24" :name="lot.client" :kind="kind" />
       <p class="body-two">Vous allez</p>
-      <h2 class="heading-two text-2xl">{{ MOVE_LABELS[lot.status] }}</h2>
+      <h2 class="heading-two">{{ MOVE_LABELS[lot.status] }}</h2>
       <p class="text-lg text-fg-default">pour <strong>{{ lot.client }}</strong></p>
       <p class="body-two">{{ lot.variety }} · {{ formatKg(lot.netKg) }} · {{ lot.code }}</p>
     </div>
@@ -18,12 +18,12 @@
 
     <label v-if="lot.status === 'pressing'" class="flex flex-col gap-1">
       <span class="label">Huile obtenue (kg)</span>
-      <input v-model.number="oilKg" class="input text-2xl font-semibold" type="number" inputmode="decimal" min="0" />
+      <input v-model.number="oilKg" class="input text-display-xs font-semibold" type="number" inputmode="decimal" min="0" />
     </label>
 
     <div class="grid grid-cols-2 gap-2">
-      <button type="button" class="btn-secondary min-h-16 text-base" @click="emit('close')">Non</button>
-      <button type="button" class="btn-primary min-h-16 text-base" :disabled="lot.status === 'pressing' && !oilKg" @click="handleConfirm">Oui, c’est ça</button>
+      <button type="button" class="btn-secondary min-h-16 text-md" @click="emit('close')">Non</button>
+      <button type="button" class="btn-primary min-h-16 text-md" :disabled="lot.status === 'pressing' && !oilKg" @click="handleConfirm">Oui, c’est ça</button>
     </div>
   </section>
 </template>

@@ -26,13 +26,13 @@
   }
 
   .pin-key {
-    @apply flex h-16 items-center justify-center rounded-full bg-subtle text-2xl font-light text-fg-display
+    @apply flex h-16 items-center justify-center rounded-full bg-subtle text-display-xs font-light text-fg-display
       transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none
       hover:bg-emphasis/70 active:scale-90 active:bg-selected disabled:opacity-40;
   }
 
   .weight-key {
-    @apply flex h-16 items-center justify-center rounded-2xl bg-subtle text-2xl font-medium text-fg-display
+    @apply flex h-16 items-center justify-center rounded-2xl bg-subtle text-display-xs font-medium text-fg-display
       transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none hover:bg-emphasis/70
       active:scale-95 active:bg-selected disabled:opacity-40 disabled:active:scale-100;
   }

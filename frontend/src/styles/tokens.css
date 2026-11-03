@@ -28,6 +28,27 @@
   --color-danger-red: #c53030;
   --color-info-blue: #2b6cb0;
 
+  /* Type scale: each size carries its line height. Tailwind's default sizes are cleared, so only these exist. */
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-md: 1rem;
+  --text-md--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-display-xs: 1.5rem;
+  --text-display-xs--line-height: 2rem;
+  --text-display-sm: 1.875rem;
+  --text-display-sm--line-height: 2.25rem;
+  --text-display-md: 2.25rem;
+  --text-display-md--line-height: 2.5rem;
+  --text-display-lg: 3rem;
+  --text-display-lg--line-height: 1;
+
   /* Radius scale: generous rounding carried over unchanged; 2xl is every card, input and sheet. Pills use rounded-full. */
   --radius-*: initial;
   --radius-xs: 0.125rem;

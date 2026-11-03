@@ -12,18 +12,18 @@
 
       <div class="stagger grid grid-cols-3 gap-2">
         <div class="card p-3">
-          <p class="body-two text-xs">Huile en stock</p>
-          <p class="text-xl font-semibold tabular-nums">{{ account.oilStockKg }} kg</p>
-          <p class="body-two text-xs">{{ Math.round(account.oilStockKg / 0.916) }} L</p>
+          <p class="body-two">Huile en stock</p>
+          <p class="text-xl figure">{{ account.oilStockKg }} kg</p>
+          <p class="body-two">{{ Math.round(account.oilStockKg / 0.916) }} L</p>
         </div>
         <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': account.dueDh }">
-          <p class="body-two text-xs">Doit au moulin</p>
-          <p class="text-xl font-semibold tabular-nums" :class="{ 'text-fg-warning': account.dueDh }">{{ account.dueDh.toLocaleString('fr-FR') }} DH</p>
-          <p v-if="account.pendingDh" class="text-xs text-fg-warning">{{ account.pendingDh }} DH en attente</p>
+          <p class="body-two">Doit au moulin</p>
+          <p class="text-xl figure" :class="{ 'text-fg-warning': account.dueDh }">{{ account.dueDh.toLocaleString('fr-FR') }} DH</p>
+          <p v-if="account.pendingDh" class="body-two text-fg-warning">{{ account.pendingDh }} DH en attente</p>
         </div>
         <div class="card p-3">
-          <p class="body-two text-xs">Le moulin lui doit</p>
-          <p class="text-xl font-semibold tabular-nums">{{ account.payoutDh.toLocaleString('fr-FR') }} DH</p>
+          <p class="body-two">Le moulin lui doit</p>
+          <p class="text-xl figure">{{ account.payoutDh.toLocaleString('fr-FR') }} DH</p>
         </div>
       </div>
 
@@ -37,11 +37,11 @@
           @click="handleAction(action.key)"
         >
           {{ action.label }}
-          <span class="text-xs font-normal opacity-80">{{ action.hint(account) }}</span>
+          <span class="text-sm font-normal opacity-80">{{ action.hint(account) }}</span>
         </button>
       </div>
 
-      <h2 class="heading-two mt-2">Lots sur ce site</h2>
+      <h2 class="heading-four mt-2">Lots sur ce site</h2>
       <ul class="flex flex-col gap-2">
         <li v-for="lot in lots" :key="lot.code" class="card flex items-center justify-between gap-3 p-3">
           <span>
@@ -54,7 +54,7 @@
       </ul>
 
       <template v-if="managementClient">
-        <h2 class="heading-two mt-2">Direction</h2>
+        <h2 class="heading-four mt-2">Direction</h2>
         <management-client-detail :client="managementClient" :is-finance-shown="authStore.can('finance.view')" />
       </template>
     </section>

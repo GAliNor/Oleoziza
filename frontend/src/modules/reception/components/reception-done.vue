@@ -4,8 +4,8 @@
       <animated-check-icon class="h-10 w-10 text-fg-brand" />
     </span>
     <div>
-      <p class="eyebrow">{{ lot.code }} · {{ $t('reception.done.waiting') }}</p>
-      <h2 class="display-one mt-1 tabular-nums">{{ formatKg(lot.netKg) }}</h2>
+      <p class="eyebrow text-sm">{{ lot.code }} · {{ $t('reception.done.waiting') }}</p>
+      <h2 class="display-md mt-1 tabular-nums">{{ formatKg(lot.netKg) }}</h2>
       <p class="body-one">{{ formatQuintals(lot.netKg) }} · {{ lot.clientName }}</p>
       <p v-if="lot.dailyPricePerKg !== null" class="body-two mt-1">
         {{ $t('reception.done.purchase', { price: formatDh(lot.dailyPricePerKg), amount: formatDh(lot.netKg * lot.dailyPricePerKg) }) }}

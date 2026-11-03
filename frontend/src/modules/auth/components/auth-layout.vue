@@ -6,7 +6,7 @@
       <header class="rise flex items-center justify-between gap-4">
         <div class="flex items-center gap-2.5">
           <olive-fill-icon class="h-8 w-8 text-fg-brand" />
-          <span class="text-lg font-semibold tracking-tight text-fg-accent">{{ $t('global.appName') }}</span>
+          <span class="heading-four tracking-tight text-fg-accent">{{ $t('global.appName') }}</span>
         </div>
       </header>
 

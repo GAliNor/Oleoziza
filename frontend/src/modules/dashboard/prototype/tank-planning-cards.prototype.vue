@@ -2,7 +2,7 @@
   <div class="flex min-w-0 flex-col gap-4">
     <div class="flex items-center justify-between gap-2">
       <div>
-        <h2 class="heading-two">Planning des cuves</h2>
+        <h2 class="heading-four">Planning des cuves</h2>
         <p class="body-two">{{ dayLabel(startDay) }} – {{ dayLabel(endDay) }}</p>
       </div>
       <div class="flex items-center">
@@ -10,7 +10,7 @@
         <button type="button" class="icon-btn" aria-label="Période suivante" @click="offset += periodDays">→</button>
       </div>
     </div>
-    <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-primary-paragraph">
+    <div class="flex flex-wrap gap-x-4 gap-y-1 body-three text-fg-primary-paragraph">
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-primary-olive-mid" /> Client</span>
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm bg-accent-sand" /> Stock du moulin</span>
       <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm border border-dashed border-strong bg-subtle" /> Retiré</span>
@@ -21,11 +21,11 @@
         <div class="flex items-baseline justify-between gap-2">
           <div class="min-w-0">
             <p class="font-semibold text-fg-display">
-              {{ tank.name }} <span v-if="tank.isBio" class="chip ml-1 bg-success-subtle text-[10px] text-fg-success">Bio</span>
+              {{ tank.name }} <span v-if="tank.isBio" class="chip ml-1 bg-success-subtle text-fg-success">Bio</span>
             </p>
-            <p class="truncate text-sm font-medium text-fg-brand">{{ tank.variety }}</p>
+            <p class="truncate label text-fg-brand">{{ tank.variety }}</p>
           </div>
-          <p class="text-sm whitespace-nowrap text-fg-secondary-paragraph tabular-nums">{{ formatKg(tank.fillKg) }} / {{ formatKg(tank.capacityKg) }}</p>
+          <p class="body-two whitespace-nowrap tabular-nums">{{ formatKg(tank.fillKg) }} / {{ formatKg(tank.capacityKg) }}</p>
         </div>
         <div class="flex h-2.5 overflow-hidden rounded-full bg-subtle">
           <div
@@ -39,13 +39,13 @@
         <ul class="flex flex-col divide-y divide-subtle">
           <li v-for="entry in entriesOf(tank.id)" :key="entry.lotCode" class="flex flex-col gap-1.5 py-2" :class="{ 'opacity-60': entry.endDay !== null }">
             <div class="flex items-baseline justify-between gap-2">
-              <p class="min-w-0 truncate text-sm font-medium text-fg-display">{{ entry.client }}</p>
+              <p class="min-w-0 truncate label text-fg-display">{{ entry.client }}</p>
               <p class="text-sm whitespace-nowrap tabular-nums">{{ formatKg(entry.kg) }}</p>
             </div>
             <div class="relative h-1.5 rounded-full bg-subtle">
               <div class="absolute inset-y-0 rounded-full" :class="barClass(entry)" :style="rangeStyle(entry)" />
             </div>
-            <p class="text-xs text-fg-secondary-paragraph">{{ entry.lotCode }} · {{ rangeLabel(entry) }}</p>
+            <p class="body-three">{{ entry.lotCode }} · {{ rangeLabel(entry) }}</p>
           </li>
           <li v-if="!entriesOf(tank.id).length" class="body-two py-2">Vide sur la période</li>
         </ul>
