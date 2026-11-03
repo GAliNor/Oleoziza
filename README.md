@@ -7,7 +7,7 @@ Management of one owner's olive oil mills: Receptions, Weighings, Pressings, Cli
 | Folder | What it holds |
 | --- | --- |
 | [frontend/](frontend/) | Vue 3 PWA (front MVP, mock services for now). See its [README](frontend/README.md). |
-| `backend/` | To come. |
+| [backend/](backend/) | FastAPI API (health check for now). See its [README](backend/README.md). |
 | [docker/](docker/), [env_files/](env_files/), [config/](config/) | Dockerfiles, per-environment variables, nginx config. |
 | [docs/](docs/) | Inspiration and reference material. |
 | [.wayfinder/](.wayfinder/map.md) | Planning map and decision tickets. |

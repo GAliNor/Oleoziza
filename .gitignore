@@ -9,3 +9,6 @@ dev-dist/
 docs/
 GLOSSARY.md
 !/.env
+__pycache__/
+.venv/
+.pytest_cache/
