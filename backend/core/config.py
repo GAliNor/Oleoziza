@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     MAIL_PORT: int = 1025
     MAIL_SERVER: str = "oleoziza_mailhog"
 
+    RUSTFS_INTERNAL_ENDPOINT_URL: str = "http://oleoziza-rustfs:9000"
+    RUSTFS_PUBLIC_ENDPOINT_URL: str = "http://localhost:32590"
+    RUSTFS_ACCESS_KEY: str
+    RUSTFS_SECRET_KEY: str
+    RUSTFS_REGION: str = "us-east-1"
+    RUSTFS_PRIVATE_BUCKET: str = "oleoziza-private"
+    RUSTFS_PUBLIC_BUCKET: str = "oleoziza-public"
+    RUSTFS_SIGNED_URL_EXPIRY_IN_SECONDS: int = 900
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

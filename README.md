@@ -37,4 +37,16 @@ docker build -f docker/backend/Dockerfile-deploy -t oleoziza-backend .
 
 Backend deps are managed with uv (`uv add --bounds exact <pkg>`, then rebuild). Run Alembic and the tests inside the container: `docker compose exec oleoziza_backend alembic revision --autogenerate -m "..."`, `docker compose exec oleoziza_backend pytest`.
 
+### RustFS
+
+`rustfs/.env` links to `env_files/development/rustfs.env`. It joins the main stack's network, so start the main stack first:
+
+```bash
+cd rustfs && docker compose up -d
+```
+
+S3 API on http://localhost:32590 (`http://oleoziza-rustfs:9000` from the backend), console on http://localhost:32591/rustfs/console/ (login with `RUSTFS_ACCESS_KEY` / `RUSTFS_SECRET_KEY`).
+
+The backend uses it through `core/integrations/rustfs/rustfs_client.py`. It needs two buckets, created from the console: `RUSTFS_PRIVATE_BUCKET` (`oleoziza-private`: Payment Proofs, served through signed URLs) and `RUSTFS_PUBLIC_BUCKET` (`oleoziza-public`: future images, set to public read). `RUSTFS_PUBLIC_ENDPOINT_URL` is the address browsers use to open files.
+
 `docker-compose-deploy.yml` runs the registry image (`<REGISTRY>` and `<APP_VERSION>` are filled in at deploy).

@@ -9,6 +9,7 @@ dev-dist/
 docs/
 GLOSSARY.md
 !/.env
+!/rustfs/.env
 __pycache__/
 .venv/
 .pytest_cache/
