@@ -5,7 +5,6 @@ import { useAuthStore } from 'auth/stores/auth';
 import { useSyncStore } from 'global/stores/sync';
 import { useClientStore } from 'global/stores/client';
 import { draftNetKg } from 'reception/composables/weighing';
-import { createId } from 'global/composables/crypto';
 import { logDevError, withStatus } from 'global/composables/with-status';
 import type { ILot, IOpenReceptionPayload, IReceptionStore, IWeighingDraft } from 'reception/types/reception';
 
@@ -39,12 +38,11 @@ export const useReceptionStore = defineStore('reception', {
       this.reportPending();
       this.loadedSiteId = siteId;
     },
-    async openReception(payload: Omit<IOpenReceptionPayload, 'id' | 'receivedBy'>): Promise<ILot | null> {
+    async openReception(payload: Omit<IOpenReceptionPayload, 'receivedBy'>): Promise<ILot | null> {
       return withStatus(this, 'isSaving', async () => {
         const lot = await receptionService.openReception({
           ...payload,
           quality: [...payload.quality],
-          id: createId(),
           receivedBy: this.operatorName,
         });
         this.upsertLot(lot);
@@ -54,7 +52,7 @@ export const useReceptionStore = defineStore('reception', {
     async addWeighing(lot: ILot, draft: IWeighingDraft): Promise<ILot | null> {
       return withStatus(this, 'isSaving', async () => {
         const updated = await receptionService.addWeighing(lot.id, {
-          id: createId(),
+          id: draft.id,
           kind: draft.kind,
           grossKg: draft.kind === 'gross' ? draft.grossKg : null,
           containers: { ...draft.containers },

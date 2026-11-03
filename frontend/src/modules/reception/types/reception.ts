@@ -59,6 +59,7 @@ export interface IOpenReceptionPayload {
 }
 
 export interface IWeighingDraft {
+  id: string;
   kind: WeighingKind;
   grossKg: number | null;
   netKgTyped: number | null;

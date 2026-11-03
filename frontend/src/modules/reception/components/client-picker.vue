@@ -79,6 +79,7 @@ import { useSiteStore } from 'global/stores/site';
 import { useClientStore } from 'global/stores/client';
 import { useOnlineStatus } from 'global/composables/use-online-status';
 import { formatPhone, normalizePhone } from 'global/composables/phone';
+import { createId } from 'global/composables/crypto';
 import type { ClientKind, IClient } from 'global/types/client';
 
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
@@ -103,6 +104,7 @@ const isCreating = ref(false);
 const newKind = ref<ClientKind>('individual');
 const newName = ref('');
 const newPhone = ref('');
+const newClientId = ref(createId());
 
 // computed
 const results = computed((): IClient[] => clientStore.searchClients(query.value));
@@ -139,13 +141,14 @@ const handleStartCreate = (): void => {
   const isPhone = /\d{3,}/.test(query.value);
   newName.value = isPhone ? '' : query.value.trim();
   newPhone.value = isPhone ? query.value.trim() : '';
+  newClientId.value = createId();
   isCreating.value = true;
 };
 
 const handleCreate = async (): Promise<void> => {
   const phone = normalizePhone(newPhone.value);
   if (!phone) return;
-  const client = await clientStore.createClient(newKind.value, newName.value.trim(), phone, props.siteId);
+  const client = await clientStore.createClient({ id: newClientId.value, kind: newKind.value, name: newName.value.trim(), phone, siteId: props.siteId });
   if (!client) return;
   pickClient(client);
   isCreating.value = false;

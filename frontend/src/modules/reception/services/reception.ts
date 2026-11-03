@@ -38,7 +38,11 @@ class ReceptionApiService extends BaseService implements IReceptionService {
   }
 
   finishReception(lotId: string): Promise<ILot> {
-    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/lots/${lotId}/finish-reception` });
+    return this.request<ILot>({
+      method: 'POST',
+      url: `${this._BASE_API_URL}/lots/${lotId}/finish-reception`,
+      headers: { 'Idempotency-Key': `finish-reception:${lotId}` },
+    });
   }
 
   async readScale(siteId: string): Promise<number> {

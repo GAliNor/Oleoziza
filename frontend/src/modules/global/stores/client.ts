@@ -2,9 +2,8 @@ import { defineStore } from 'pinia';
 
 import ClientService from 'global/services/client';
 import { useSyncStore } from 'global/stores/sync';
-import { createId } from 'global/composables/crypto';
 import { withStatus } from 'global/composables/with-status';
-import type { ClientKind, IClient, IClientStore } from 'global/types/client';
+import type { IClient, IClientStore, ICreateClientPayload } from 'global/types/client';
 
 const clientService = new ClientService();
 
@@ -36,8 +35,8 @@ export const useClientStore = defineStore('client', {
         .filter((client) => client.name.toLowerCase().includes(text) || (digits.length >= 3 && client.phone.includes(digits)))
         .slice(0, limit);
     },
-    async createClient(kind: ClientKind, name: string, phone: string, siteId: string): Promise<IClient | null> {
-      const client = await withStatus(this, 'isSaving', () => clientService.create({ id: createId(), kind, name, phone, siteId }));
+    async createClient(payload: ICreateClientPayload): Promise<IClient | null> {
+      const client = await withStatus(this, 'isSaving', () => clientService.create(payload));
       if (!client) return null;
       this.clients.unshift(client);
       this.reportPending();

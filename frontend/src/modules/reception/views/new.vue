@@ -126,6 +126,7 @@ import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useClientStore } from 'global/stores/client';
 import { formatDh } from 'reception/composables/format';
+import { createId } from 'global/composables/crypto';
 import { ORIGIN_SUGGESTIONS, QUALITY_TAGS, RECEPTION_MODES, VARIETIES } from 'reception/constants/reception';
 import type { IClient } from 'global/types/client';
 import type { ReceptionMode } from 'reception/types/reception';
@@ -145,6 +146,7 @@ const receptionStore = useReceptionStore();
 const clientStore = useClientStore();
 
 // variables
+const receptionId = createId();
 const client = ref<IClient | null>(null);
 const mode = ref<ReceptionMode>('service');
 const variety = ref(VARIETIES[0]);
@@ -192,6 +194,7 @@ const handleToggleQuality = (tag: string): void => {
 const handleOpen = async (isWeighingNow: boolean): Promise<void> => {
   if (!client.value) return;
   const lot = await receptionStore.openReception({
+    id: receptionId,
     siteId: siteId.value,
     clientId: client.value.id,
     mode: mode.value,

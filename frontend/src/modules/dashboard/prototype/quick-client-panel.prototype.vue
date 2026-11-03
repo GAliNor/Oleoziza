@@ -36,6 +36,7 @@ import { computed, ref } from 'vue';
 
 import { useClientStore } from 'global/stores/client';
 import { useSiteStore } from 'global/stores/site';
+import { createId } from 'global/composables/crypto';
 import type { ClientKind, IClient } from 'global/types/client';
 
 import AvatarTag from 'global/components/avatar-tag.vue';
@@ -53,6 +54,7 @@ const kind = ref<ClientKind>('individual');
 const name = ref('');
 const phone = ref('');
 const created = ref<IClient | null>(null);
+const clientId = ref(createId());
 
 // computed
 const canSave = computed((): boolean => name.value.trim().length > 2 && phone.value.replace(/\D/g, '').length >= 9 && !clientStore.isSaving);
@@ -60,7 +62,7 @@ const canSave = computed((): boolean => name.value.trim().length > 2 && phone.va
 // event handlers
 const handleSave = async (): Promise<void> => {
   const digits = phone.value.replace(/\D/g, '').replace(/^0/, '');
-  created.value = await clientStore.createClient(kind.value, name.value.trim(), digits, siteStore.currentSite?.id ?? '');
+  created.value = await clientStore.createClient({ id: clientId.value, kind: kind.value, name: name.value.trim(), phone: digits, siteId: siteStore.currentSite?.id ?? '' });
 };
 
 const handleReceive = (): void => {
@@ -72,6 +74,7 @@ const handleClose = (): void => {
   name.value = '';
   phone.value = '';
   created.value = null;
+  clientId.value = createId();
   emit('close');
 };
 </script>
