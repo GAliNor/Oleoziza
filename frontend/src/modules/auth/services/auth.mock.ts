@@ -2,6 +2,7 @@ import { importJwtKey, readUnverifiedJwt, signJwt } from '~/plugins/jose';
 
 import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
+import { readStorage, writeStorage } from 'global/composables/storage';
 import { createId, hasWebCrypto } from 'global/composables/crypto';
 import { isEmail } from 'auth/composables/normalize-identifier';
 import {
@@ -46,17 +47,9 @@ const findUser = (identifier: string): IMockUser | undefined =>
 const fitsIdentifier = (method: LoginMethod, identifier: string): boolean =>
   isEmail(identifier) ? method === 'email_password' : method !== 'email_password';
 
-const readRefreshSessions = (): Record<string, { userId: string; expiresAt: number }> => {
-  try {
-    return JSON.parse(localStorage.getItem(REFRESH_STORAGE_KEY) ?? '{}');
-  } catch {
-    return {};
-  }
-};
+const readRefreshSessions = (): Record<string, { userId: string; expiresAt: number }> => readStorage(REFRESH_STORAGE_KEY, {});
 
-const writeRefreshSessions = (sessions: Record<string, { userId: string; expiresAt: number }>): void => {
-  localStorage.setItem(REFRESH_STORAGE_KEY, JSON.stringify(sessions));
-};
+const writeRefreshSessions = (sessions: Record<string, { userId: string; expiresAt: number }>): void => writeStorage(REFRESH_STORAGE_KEY, sessions);
 
 const signAccessToken = async (user: IMockUser, sid: string): Promise<string> => {
   const claims = {

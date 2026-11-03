@@ -1,7 +1,8 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useAuthStore } from 'auth/stores/auth';
+import SiteMockService from 'global/services/site.mock';
 import { useSiteStore } from 'global/stores/site';
 import { ALL_SITES } from 'global/constants/site';
 import type { ISession, Permission } from 'auth/types/auth';
@@ -48,6 +49,38 @@ describe('site store', () => {
     siteStore.selectSite(BERKANE);
     siteStore.selectSite(TAOURIRT);
     siteStore.selectSite(ALL_SITES);
+    expect(siteStore.currentSiteId).toBe(BERKANE);
+  });
+});
+
+describe('site store remembered Site', () => {
+  beforeEach(() => {
+    const memory = new Map<string, string>();
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string): string | null => memory.get(key) ?? null,
+      setItem: (key: string, value: string): void => void memory.set(key, value),
+      removeItem: (key: string): void => void memory.delete(key),
+    });
+    vi.spyOn(SiteMockService.prototype, 'getAll').mockResolvedValue([
+      { id: OUJDA, name: 'Oujda', city: 'Oujda' },
+      { id: BERKANE, name: 'Berkane', city: 'Berkane' },
+    ]);
+    setActivePinia(createPinia());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('opens on the first held Site, then on the one the User last picked', async () => {
+    signIn({ [OUJDA]: [], [BERKANE]: [] });
+    const siteStore = useSiteStore();
+    await siteStore.fetchSites();
+    expect(siteStore.currentSiteId).toBe(OUJDA);
+    siteStore.selectSite(BERKANE);
+    siteStore.reset();
+    await siteStore.fetchSites();
     expect(siteStore.currentSiteId).toBe(BERKANE);
   });
 });

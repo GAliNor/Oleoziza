@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 import SiteService from 'global/services/site';
 import { withStatus } from 'global/composables/with-status';
+import { readStorage, writeStorage } from 'global/composables/storage';
 import { useAuthStore } from 'auth/stores/auth';
 import { ALL_SITES } from 'global/constants/site';
 import { STORAGE_KEYS } from 'auth/constants/auth';
@@ -9,13 +10,6 @@ import type { ISite, ISiteStore } from 'global/types/site';
 
 const siteService = new SiteService();
 
-const readLastSite = (userId: string): string | null => {
-  try {
-    return localStorage.getItem(STORAGE_KEYS.lastSite + userId);
-  } catch {
-    return null;
-  }
-};
 
 export const useSiteStore = defineStore('site', {
   state: (): ISiteStore => ({
@@ -52,7 +46,7 @@ export const useSiteStore = defineStore('site', {
       this.loadedForUserId = userId;
     },
     pickInitialSite(userId: string): void {
-      const lastSite = readLastSite(userId);
+      const lastSite = readStorage<string | null>(STORAGE_KEYS.lastSite + userId, null);
       const isLastSiteValid =
         (lastSite === ALL_SITES && this.canSelectAll) || this.accessibleSites.some((site) => site.id === lastSite);
       this.currentSiteId = isLastSiteValid ? lastSite : (this.accessibleSites[0]?.id ?? null);
@@ -61,11 +55,7 @@ export const useSiteStore = defineStore('site', {
       const userId = useAuthStore().session?.userId;
       if (siteId === ALL_SITES ? !this.canSelectAll : !this.accessibleSites.some((site) => site.id === siteId)) return;
       this.currentSiteId = siteId;
-      try {
-        if (userId) localStorage.setItem(STORAGE_KEYS.lastSite + userId, siteId);
-      } catch {
-        return;
-      }
+      if (userId) writeStorage(STORAGE_KEYS.lastSite + userId, siteId);
     },
     reset(): void {
       this.sites = [];
