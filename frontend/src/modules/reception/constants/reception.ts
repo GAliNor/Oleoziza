@@ -23,3 +23,5 @@ export const ORIGIN_SUGGESTIONS: readonly string[] = [
 export const WEIGHT_MAX_DIGITS = 6;
 
 export const SCALE_READ_DELAY_MS = 900;
+
+export const LOT_CODE_PARAM_PATTERN = /^[A-Z0-9]+(-[A-Z0-9]+)*$/;

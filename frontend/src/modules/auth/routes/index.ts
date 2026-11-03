@@ -1,5 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+import { checkParam } from 'global/composables/route-guards';
+import { TOKEN_PARAM_PATTERN } from 'global/constants/route-params';
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/auth',
@@ -16,12 +19,14 @@ const routes: RouteRecordRaw[] = [
         path: '/invitation/:token',
         name: 'auth-invitation',
         component: () => import('auth/views/invitation.vue'),
+        beforeEnter: checkParam('token', { pattern: TOKEN_PARAM_PATTERN, fallback: { name: 'auth-login' } }),
         meta: { public: true, guestOnly: true },
       },
       {
         path: '/reset/:token?',
         name: 'auth-reset',
         component: () => import('auth/views/reset.vue'),
+        beforeEnter: checkParam('token', { pattern: TOKEN_PARAM_PATTERN, fallback: { name: 'auth-reset' }, isOptional: true }),
         meta: { public: true, guestOnly: true },
       },
       {

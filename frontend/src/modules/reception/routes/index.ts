@@ -1,5 +1,8 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+import { checkParam } from 'global/composables/route-guards';
+import { LOT_CODE_PARAM_PATTERN } from 'reception/constants/reception';
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/reception/new',
@@ -17,6 +20,7 @@ const routes: RouteRecordRaw[] = [
     path: '/reception/:code/weigh',
     name: 'reception-station',
     component: () => import('reception/views/station.vue'),
+    beforeEnter: checkParam('code', { pattern: LOT_CODE_PARAM_PATTERN, fallback: { name: 'reception-weigh' } }),
     meta: { roles: ['operator', 'management'], permission: 'weighing.create' },
   },
 ];
