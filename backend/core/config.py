@@ -15,6 +15,12 @@ class Settings(BaseSettings):
 
     CORS_ALLOWED_ORIGINS: str = "*"
 
+    MAIL_USERNAME: str = ""
+    MAIL_PASSWORD: str = ""
+    MAIL_FROM: str = ""
+    MAIL_PORT: int = 1025
+    MAIL_SERVER: str = "oleoziza_mailhog"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

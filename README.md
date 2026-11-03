@@ -19,11 +19,22 @@ Domain vocabulary is in [GLOSSARY.md](GLOSSARY.md).
 `.env` links to `env_files/development/docker.env`.
 
 ```bash
-# dev: Vite with hot reload on http://localhost:32501
+# dev: frontend, backend, postgres, pgadmin and mailhog on one network, with hot reload
 docker compose up -d --build
 
-# production image: nginx serving the build, VITE_* baked in from env_files/<env>/frontend.env
+# production images: nginx serving the front build (VITE_* baked in from env_files/<env>/frontend.env), and the API
 docker build --build-arg CURRENT_ENV=production -f docker/frontend/Dockerfile-deploy -t oleoziza-frontend .
+docker build -f docker/backend/Dockerfile-deploy -t oleoziza-backend .
 ```
+
+| Service | URL | Notes |
+| --- | --- | --- |
+| Frontend (Vite) | http://localhost:32501 | |
+| Backend (FastAPI) | http://localhost:32551 | docs at `/docs`, health at `/api/health`; runs `alembic upgrade head` on start |
+| Postgres 16.2 | `localhost:32509` | db `oleoziza`, user/password `root`/`root`; host `oleoziza_db_backend` inside the network |
+| pgAdmin | http://localhost:32520 | desktop mode, no login |
+| MailHog | http://localhost:32586 | backend sends to `oleoziza_mailhog:1025` |
+
+Backend deps are managed with uv (`uv add --bounds exact <pkg>`, then rebuild). Run Alembic and the tests inside the container: `docker compose exec oleoziza_backend alembic revision --autogenerate -m "..."`, `docker compose exec oleoziza_backend pytest`.
 
 `docker-compose-deploy.yml` runs the registry image (`<REGISTRY>` and `<APP_VERSION>` are filled in at deploy).
