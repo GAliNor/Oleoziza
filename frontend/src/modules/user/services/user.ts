@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import UserMockService from 'user/services/user.mock';
 import type { LoginMethod, Permission } from 'auth/types/auth';
@@ -8,46 +6,35 @@ import type { IStaffForm, IStaffUser, IUserService, StaffStatus } from 'user/typ
 class UserApiService extends BaseService implements IUserService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/users';
 
-  async getAll(): Promise<IStaffUser[]> {
-    const config = this.getConfig({ method: 'GET', url: this._BASE_API_URL });
-    const response = await axios<IStaffUser[]>(config);
-    return response.data;
+  getAll(): Promise<IStaffUser[]> {
+    return this.request<IStaffUser[]>({ method: 'GET', url: this._BASE_API_URL });
   }
 
-  async create(form: IStaffForm): Promise<IStaffUser> {
-    const config = this.getConfig({ method: 'POST', url: this._BASE_API_URL, data: form });
-    const response = await axios<IStaffUser>(config);
-    return response.data;
+  create(form: IStaffForm): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'POST', url: this._BASE_API_URL, data: form });
   }
 
-  async updateSitePermissions(id: string, siteId: string, permissions: Permission[] | null): Promise<IStaffUser> {
+  updateSitePermissions(id: string, siteId: string, permissions: Permission[] | null): Promise<IStaffUser> {
     const url = `${this._BASE_API_URL}/${id}/sites/${siteId}`;
-    const config = permissions === null ? this.getConfig({ method: 'DELETE', url }) : this.getConfig({ method: 'PUT', url, data: { permissions } });
-    const response = await axios<IStaffUser>(config);
-    return response.data;
+    return permissions === null
+      ? this.request<IStaffUser>({ method: 'DELETE', url })
+      : this.request<IStaffUser>({ method: 'PUT', url, data: { permissions } });
   }
 
-  async updateLoginMethods(id: string, loginMethods: LoginMethod[]): Promise<IStaffUser> {
-    const config = this.getConfig({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/login-methods`, data: { loginMethods } });
-    const response = await axios<IStaffUser>(config);
-    return response.data;
+  updateLoginMethods(id: string, loginMethods: LoginMethod[]): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/login-methods`, data: { loginMethods } });
   }
 
-  async updateStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<IStaffUser> {
-    const config = this.getConfig({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/status`, data: { status } });
-    const response = await axios<IStaffUser>(config);
-    return response.data;
+  updateStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/status`, data: { status } });
   }
 
-  async sendInvitation(id: string): Promise<IStaffUser> {
-    const config = this.getConfig({ method: 'POST', url: `${this._BASE_API_URL}/${id}/invitation` });
-    const response = await axios<IStaffUser>(config);
-    return response.data;
+  sendInvitation(id: string): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'POST', url: `${this._BASE_API_URL}/${id}/invitation` });
   }
 
-  async resetCredential(id: string): Promise<void> {
-    const config = this.getConfig({ method: 'POST', url: `${this._BASE_API_URL}/${id}/reset` });
-    await axios(config);
+  resetCredential(id: string): Promise<void> {
+    return this.request<void>({ method: 'POST', url: `${this._BASE_API_URL}/${id}/reset` });
   }
 }
 

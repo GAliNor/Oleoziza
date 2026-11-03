@@ -1,4 +1,4 @@
-import { decodeJwt } from 'jose';
+import { readUnverifiedJwt } from '~/plugins/jose';
 
 import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
@@ -34,7 +34,7 @@ const findEditable = (id: string): IMockUser | Error => {
 const inviterName = (): string => {
   const token = getAccessToken();
   if (!token) return '';
-  const claims = decodeJwt(token) as { firstName?: string; lastName?: string };
+  const claims = readUnverifiedJwt(token) as { firstName?: string; lastName?: string };
   return `${claims.firstName ?? ''} ${claims.lastName ?? ''}`.trim();
 };
 

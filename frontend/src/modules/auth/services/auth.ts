@@ -1,4 +1,4 @@
-import axios, { isAxiosError } from 'axios';
+import { isHttpError } from '~/plugins/axios';
 
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import AuthMockService from 'auth/services/auth.mock';
@@ -20,10 +20,9 @@ class AuthApiService extends BaseService implements IAuthService {
 
   private async call<T>(config: Omit<IAPICallConfig, 'url'> & { path: string }): Promise<T> {
     try {
-      const response = await axios<T>(this.getConfig({ ...config, url: this._BASE_API_URL + config.path }));
-      return response.data;
+      return await this.request<T>({ ...config, url: this._BASE_API_URL + config.path });
     } catch (error) {
-      const data = isAxiosError(error) ? error.response?.data : undefined;
+      const data = isHttpError(error) ? error.response?.data : undefined;
       throw (data?.code ? data : { code: 'network' }) as IAuthError;
     }
   }

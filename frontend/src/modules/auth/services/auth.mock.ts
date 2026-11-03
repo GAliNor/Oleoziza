@@ -1,4 +1,4 @@
-import { SignJWT, UnsecuredJWT, decodeJwt, importJWK } from 'jose';
+import { importJwtKey, readUnverifiedJwt, signJwt } from '~/plugins/jose';
 
 import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
@@ -69,16 +69,8 @@ const signAccessToken = async (user: IMockUser, sid: string): Promise<string> =>
     lastName: user.lastName,
   };
   const expiresAt = Math.floor(Date.now() / 1000) + MOCK_ACCESS_TOKEN_TTL_S;
-  if (!hasWebCrypto()) {
-    return new UnsecuredJWT(claims).setSubject(user.id).setIssuedAt().setExpirationTime(expiresAt).encode();
-  }
-  const key = await importJWK(MOCK_SIGNING_JWK, 'ES256');
-  return new SignJWT(claims)
-    .setProtectedHeader({ alg: 'ES256' })
-    .setSubject(user.id)
-    .setIssuedAt()
-    .setExpirationTime(expiresAt)
-    .sign(key);
+  const key = hasWebCrypto() ? await importJwtKey(MOCK_SIGNING_JWK) : null;
+  return signJwt(claims, user.id, expiresAt, key);
 };
 
 const openSession = async (user: IMockUser, method: LoginMethod | null): Promise<ILoginResult> => {
@@ -100,7 +92,7 @@ const openSession = async (user: IMockUser, method: LoginMethod | null): Promise
 
 const currentUser = (): IMockUser | undefined => {
   const token = getAccessToken();
-  return token ? users.find((user) => user.id === decodeJwt(token).sub) : undefined;
+  return token ? users.find((user) => user.id === (readUnverifiedJwt(token) as { sub?: string }).sub) : undefined;
 };
 
 const recordFailure = (user: IMockUser, code: AuthErrorCode): Promise<never> => {

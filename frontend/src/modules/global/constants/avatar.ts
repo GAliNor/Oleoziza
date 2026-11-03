@@ -1,3 +1,5 @@
+import type { AvatarStyleName } from '~/plugins/dicebear';
+
 import type { AvatarKind } from 'global/types/avatar';
 
 const MALE_HAIR = [
@@ -18,13 +20,13 @@ const PALETTE = {
   neutral50: '#FAFAF9',
 };
 
-export const AVATAR_STYLES: Record<AvatarKind, { load: () => Promise<{ default: object }>; options: Record<string, unknown> }> = {
+export const AVATAR_STYLES: Record<AvatarKind, { style: AvatarStyleName; options: Record<string, unknown> }> = {
   client: {
-    load: () => import('@dicebear/styles/notionists.json'),
+    style: 'notionists',
     options: { hairVariant: MALE_HAIR, beardProbability: 35, gestureProbability: 0, glassesProbability: 15, scale: 1.4, translateY: 8 },
   },
   company: {
-    load: () => import('@dicebear/styles/patchwork.json'),
+    style: 'patchwork',
     options: {
       backgroundColor: PALETTE.neutral50,
       fabricAColor: [PALETTE.accentRust, PALETTE.accentBrown],
@@ -33,7 +35,7 @@ export const AVATAR_STYLES: Record<AvatarKind, { load: () => Promise<{ default: 
     },
   },
   user: {
-    load: () => import('@dicebear/styles/line-face.json'),
+    style: 'line-face',
     options: {
       mouthVariant: ['smile', 'pleased', 'soft'],
       eyesVariant: ['happy', 'dots', 'closed', 'wink'],

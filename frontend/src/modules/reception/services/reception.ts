@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import ReceptionMockService from 'reception/services/reception.mock';
 import type {
@@ -13,50 +11,39 @@ import type {
 class ReceptionApiService extends BaseService implements IReceptionService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
-  async getLots(siteId: string): Promise<ILot[]> {
-    const config = this.getConfig({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/lots`, params: { status: 'received' } });
-    const response = await axios<ILot[]>(config);
-    return response.data;
+  getLots(siteId: string): Promise<ILot[]> {
+    return this.request<ILot[]>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/lots`, params: { status: 'received' } });
   }
 
-  async getSettings(siteId: string): Promise<ISiteReceptionSettings> {
-    const config = this.getConfig({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/reception-settings` });
-    const response = await axios<ISiteReceptionSettings>(config);
-    return response.data;
+  getSettings(siteId: string): Promise<ISiteReceptionSettings> {
+    return this.request<ISiteReceptionSettings>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/reception-settings` });
   }
 
-  async openReception(payload: IOpenReceptionPayload): Promise<ILot> {
-    const config = this.getConfig({
+  openReception(payload: IOpenReceptionPayload): Promise<ILot> {
+    return this.request<ILot>({
       method: 'POST',
       url: `${this._BASE_API_URL}/sites/${payload.siteId}/lots`,
       data: payload,
       headers: { 'Idempotency-Key': payload.id },
     });
-    const response = await axios<ILot>(config);
-    return response.data;
   }
 
-  async addWeighing(lotId: string, payload: IAddWeighingPayload): Promise<ILot> {
-    const config = this.getConfig({
+  addWeighing(lotId: string, payload: IAddWeighingPayload): Promise<ILot> {
+    return this.request<ILot>({
       method: 'POST',
       url: `${this._BASE_API_URL}/lots/${lotId}/weighings`,
       data: payload,
       headers: { 'Idempotency-Key': payload.id },
     });
-    const response = await axios<ILot>(config);
-    return response.data;
   }
 
-  async finishReception(lotId: string): Promise<ILot> {
-    const config = this.getConfig({ method: 'POST', url: `${this._BASE_API_URL}/lots/${lotId}/finish-reception` });
-    const response = await axios<ILot>(config);
-    return response.data;
+  finishReception(lotId: string): Promise<ILot> {
+    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/lots/${lotId}/finish-reception` });
   }
 
   async readScale(siteId: string): Promise<number> {
-    const config = this.getConfig({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/scale/reading` });
-    const response = await axios<{ grossKg: number }>(config);
-    return response.data.grossKg;
+    const reading = await this.request<{ grossKg: number }>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/scale/reading` });
+    return reading.grossKg;
   }
 }
 
