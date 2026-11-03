@@ -38,6 +38,9 @@ export default defineConfig({
       },
     }),
   ],
+  test: {
+    env: { TZ: 'Africa/Casablanca' },
+  },
   resolve: {
     alias: {
       '~': fromSrc(''),

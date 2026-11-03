@@ -1,0 +1,6 @@
+{
+  "format": ["typescript", "vue"],
+  "ignore": ["**/*.icon.vue", "**/*.test.ts"],
+  "reporters": ["console"],
+  "gitignore": true
+}
