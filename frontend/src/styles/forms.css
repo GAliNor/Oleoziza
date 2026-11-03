@@ -1,0 +1,25 @@
+@layer components {
+  .label {
+    @apply text-sm font-medium text-neutral-800;
+  }
+
+  .input {
+    @apply min-h-13 w-full rounded-2xl border border-neutral-200 bg-neutral-50/60 px-4 text-base text-neutral-800
+      transition-[border-color,box-shadow,background-color] duration-300 ease-(--ease-premium)
+      placeholder:text-neutral-400 hover:border-neutral-300 focus:border-primary-olive focus:bg-white
+      focus:shadow-[0_0_0_4px] focus:shadow-primary-olive-light/70 focus:outline-none disabled:opacity-60;
+  }
+
+  .form-error {
+    @apply text-sm text-danger-red;
+  }
+
+  .toggle-tile {
+    @apply min-h-12 rounded-xl border border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-700
+      transition-colors duration-300 ease-(--ease-premium) hover:border-neutral-300;
+  }
+
+  .toggle-tile-active {
+    @apply border-primary-olive-dark bg-primary-olive-dark text-white hover:border-primary-olive-dark;
+  }
+}

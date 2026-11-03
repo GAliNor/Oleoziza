@@ -1,0 +1,112 @@
+/** Oleoziza palette: olive carries the identity, the owner's earth tones are a ~10% accent, neutrals are warm stone.
+    Values are provisional; the Design tokens page ticket changes them here only. */
+@theme static {
+  --color-*: initial;
+  --color-white: #fff;
+
+  --color-primary-olive-light: #d2d6bd;
+  --color-primary-olive-mid: #96a586;
+  --color-primary-olive: #73835a;
+  --color-primary-olive-dark: #5c6a47;
+  --color-accent-rust: #a66127;
+  --color-accent-brown: #8b5a2b;
+  --color-accent-sand: #d4a373;
+  --color-accent-gold: #e9c46a;
+  --color-neutral-50: #fafaf9;
+  --color-neutral-100: #f5f5f4;
+  --color-neutral-200: #e7e5e4;
+  --color-neutral-300: #d6d3d1;
+  --color-neutral-400: #a8a29e;
+  --color-neutral-500: #78716c;
+  --color-neutral-600: #57534e;
+  --color-neutral-700: #44403c;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1c1917;
+  --color-success-green: #2f855a;
+  --color-warning-amber: #b7791f;
+  --color-danger-red: #c53030;
+  --color-info-blue: #2b6cb0;
+
+  /* Radius scale: generous rounding carried over unchanged; 2xl is every card, input and sheet. Pills use rounded-full. */
+  --radius-*: initial;
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  /* Elevation: a hairline outline, a resting lift (cards), and floating layers (glass cards, menus, toasts). */
+  --shadow-hairline: 0 0 0 1px --alpha(var(--color-neutral-800) / 6%);
+  --shadow-raised: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-overlay: 0 1px 2px rgb(41 37 36 / 0.04), 0 8px 16px -6px rgb(41 37 36 / 0.08), 0 24px 48px -16px rgb(41 37 36 / 0.18),
+    inset 0 1px 0 rgb(255 255 255 / 0.9);
+
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Semantic tokens: components paint with these, and the .dark class below redefines only these. */
+  --text-color-fg-display: var(--color-neutral-900);
+  --text-color-fg-default: var(--color-neutral-800);
+  --text-color-fg-primary-paragraph: var(--color-neutral-700);
+  --text-color-fg-secondary-paragraph: var(--color-neutral-500);
+  --text-color-fg-muted: var(--color-neutral-400);
+  --text-color-fg-on-action: var(--color-white);
+  --text-color-fg-brand: var(--color-primary-olive-dark);
+  --text-color-fg-accent: var(--color-accent-brown);
+  --text-color-fg-highlight: var(--color-accent-gold);
+  --text-color-fg-place: var(--color-accent-rust);
+  --text-color-fg-success: var(--color-success-green);
+  --text-color-fg-warning: var(--color-warning-amber);
+  --text-color-fg-danger: var(--color-danger-red);
+  --text-color-fg-info: var(--color-info-blue);
+
+  --background-color-page: var(--color-neutral-50);
+  --background-color-surface: var(--color-white);
+  --background-color-subtle: var(--color-neutral-100);
+  --background-color-action: var(--color-primary-olive-dark);
+  --background-color-action-hover: var(--color-primary-olive);
+  --background-color-selected: var(--color-primary-olive-light);
+  --background-color-accent-subtle: --alpha(var(--color-accent-sand) / 30%);
+  --background-color-highlight: var(--color-accent-gold);
+  --background-color-success-subtle: --alpha(var(--color-success-green) / 12%);
+  --background-color-warning-subtle: --alpha(var(--color-warning-amber) / 12%);
+  --background-color-danger-subtle: --alpha(var(--color-danger-red) / 12%);
+  --background-color-info-subtle: --alpha(var(--color-info-blue) / 12%);
+
+  --border-color-subtle: var(--color-neutral-100);
+  --border-color-default: var(--color-neutral-200);
+  --border-color-strong: var(--color-neutral-300);
+  --border-color-brand: var(--color-primary-olive-dark);
+  --border-color-accent: var(--color-accent-brown);
+  --border-color-success-subtle: --alpha(var(--color-success-green) / 40%);
+  --border-color-warning-subtle: --alpha(var(--color-warning-amber) / 40%);
+  --border-color-danger-subtle: --alpha(var(--color-danger-red) / 40%);
+  --border-color-info-subtle: --alpha(var(--color-info-blue) / 40%);
+}
+
+/* Provisional dark mapping, switchable from /kit only, to prove the mechanism; the Design tokens page ticket sets the real values. */
+.dark {
+  --text-color-fg-display: var(--color-neutral-50);
+  --text-color-fg-default: var(--color-neutral-100);
+  --text-color-fg-primary-paragraph: var(--color-neutral-300);
+  --text-color-fg-secondary-paragraph: var(--color-neutral-400);
+  --text-color-fg-muted: var(--color-neutral-500);
+  --text-color-fg-on-action: var(--color-neutral-900);
+  --text-color-fg-brand: var(--color-primary-olive-light);
+  --text-color-fg-accent: var(--color-accent-sand);
+  --text-color-fg-place: var(--color-accent-sand);
+
+  --background-color-page: var(--color-neutral-900);
+  --background-color-surface: var(--color-neutral-800);
+  --background-color-subtle: var(--color-neutral-700);
+  --background-color-action: var(--color-primary-olive-mid);
+  --background-color-action-hover: var(--color-primary-olive-light);
+  --background-color-selected: var(--color-primary-olive-dark);
+
+  --border-color-subtle: var(--color-neutral-800);
+  --border-color-default: var(--color-neutral-700);
+  --border-color-strong: var(--color-neutral-600);
+  --border-color-brand: var(--color-primary-olive-mid);
+  --border-color-accent: var(--color-accent-sand);
+}

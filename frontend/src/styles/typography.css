@@ -1,0 +1,25 @@
+@layer components {
+  .heading-one {
+    @apply text-2xl font-semibold text-accent-brown md:text-3xl;
+  }
+
+  .display-one {
+    @apply text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl;
+  }
+
+  .heading-two {
+    @apply text-lg font-semibold text-neutral-800;
+  }
+
+  .body-one {
+    @apply text-base text-neutral-700;
+  }
+
+  .body-two {
+    @apply text-sm text-neutral-500;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold tracking-widest text-primary-olive uppercase;
+  }
+}

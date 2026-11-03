@@ -1,0 +1,54 @@
+{
+  "title": "Kit",
+  "subtitle": "Chaque couche de style telle qu'elle existe dans le code. Page de développement : absente du build de production.",
+  "darkMode": "Mode sombre (provisoire)",
+  "lightMode": "Mode clair",
+  "sample": "Réception de 1 840 kg d'olives",
+  "sections": {
+    "palette": {
+      "title": "Palette",
+      "description": "Les couleurs de styles/tokens.css. Les classes Tailwind par défaut sont désactivées : seules ces couleurs existent."
+    },
+    "tokens": {
+      "title": "Tokens sémantiques",
+      "description": "Ce que les écrans utilisent pour peindre : texte (fg-*), fonds et bordures. Le mode sombre ne redéfinit que ceux-ci."
+    },
+    "shadows": {
+      "title": "Ombres",
+      "description": "Les niveaux d'élévation de styles/tokens.css."
+    },
+    "radius": {
+      "title": "Arrondis",
+      "description": "L'échelle d'arrondis de styles/tokens.css."
+    },
+    "typography": {
+      "title": "Typographie",
+      "description": "Les classes de styles/typography.css."
+    },
+    "components": {
+      "title": "Classes partagées",
+      "description": "Boutons, étiquettes, champs et cartes de styles/*.css."
+    }
+  },
+  "tones": {
+    "success": "Confirmé",
+    "warning": "À confirmer",
+    "danger": "Refusé",
+    "info": "Nouveau",
+    "accent": "Société",
+    "highlight": "Hors ligne"
+  },
+  "components": {
+    "primary": "Ouvrir la réception",
+    "secondary": "Annuler",
+    "disabled": "Indisponible",
+    "link": "Voir le lot",
+    "choice": "Picholine",
+    "choiceActive": "Haouzia",
+    "label": "Nom du client",
+    "placeholder": "Prénom et nom",
+    "error": "Ce champ est obligatoire.",
+    "tile": "Brut",
+    "tileActive": "Net"
+  }
+}

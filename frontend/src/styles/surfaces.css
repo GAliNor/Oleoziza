@@ -1,0 +1,66 @@
+@layer base {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-2 border-transparent bg-primary-olive-mid bg-clip-padding;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-olive;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-color: var(--color-primary-olive-mid) transparent;
+      scrollbar-width: thin;
+    }
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600
+      transition-colors hover:bg-primary-olive-light hover:text-primary-olive-dark;
+  }
+
+  .nav-link-active {
+    @apply bg-primary-olive-light text-primary-olive-dark;
+  }
+}
+
+.lift {
+  transition:
+    transform 0.35s var(--ease-premium),
+    box-shadow 0.35s var(--ease-premium),
+    border-color 0.35s var(--ease-premium);
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -14px rgb(41 37 36 / 0.25);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lift:hover {
+    transform: none;
+  }
+}
