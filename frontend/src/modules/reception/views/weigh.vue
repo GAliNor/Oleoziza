@@ -4,15 +4,15 @@
       <header class="rise">
         <p class="eyebrow">{{ siteName }}</p>
         <h1 class="heading-one">{{ $t('reception.weigh.title') }}</h1>
-        <p class="body-two">{{ $t('reception.weigh.subtitle', receptionStore.receivedLots.length) }}</p>
+        <p class="body-two">{{ $t('reception.weigh.subtitle', lotStore.receivedLots.length) }}</p>
       </header>
 
-      <div v-if="receptionStore.isLoading && !receptionStore.receivedLots.length" class="flex flex-col gap-2">
+      <div v-if="receptionStore.isLoading && !lotStore.receivedLots.length" class="flex flex-col gap-2">
         <div v-for="index in 3" :key="index" class="skeleton h-20 rounded-2xl" />
       </div>
 
       <ul v-else class="stagger grid gap-2 md:grid-cols-2">
-        <li v-for="lot in receptionStore.receivedLots" :key="lot.id">
+        <li v-for="lot in lotStore.receivedLots" :key="lot.id">
           <router-link
             :to="{ name: 'reception-station', params: { code: lot.code } }"
             class="card lift flex min-h-20 items-center gap-3 hover:border-brand"
@@ -30,7 +30,7 @@
         </li>
       </ul>
 
-      <div v-if="!receptionStore.isLoading && !receptionStore.receivedLots.length" class="flex flex-col items-center gap-4 py-12 text-center">
+      <div v-if="!receptionStore.isLoading && !lotStore.receivedLots.length" class="flex flex-col items-center gap-4 py-12 text-center">
         <p class="body-one">{{ $t('reception.weigh.empty') }}</p>
         <router-link v-can="'reception.create'" :to="{ name: 'reception-new' }" class="btn-primary">{{ $t('reception.done.again') }}</router-link>
       </div>
@@ -44,6 +44,7 @@ import { computed, watch } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
 import { useReceptionStore } from 'reception/stores/reception';
+import { useLotStore } from 'lot/stores/lot';
 import { formatKg, formatTime } from 'reception/composables/format';
 
 import AppLayout from 'global/components/app-layout.vue';
@@ -51,6 +52,7 @@ import AppLayout from 'global/components/app-layout.vue';
 // stores
 const siteStore = useSiteStore();
 const receptionStore = useReceptionStore();
+const lotStore = useLotStore();
 
 // computed
 const siteName = computed((): string => siteStore.currentSite?.city ?? '');

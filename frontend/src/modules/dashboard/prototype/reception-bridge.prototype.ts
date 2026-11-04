@@ -1,6 +1,6 @@
 // PROTOTYPE — maps the real reception store's Lots onto the Home prototype's Lot cards until the Home is rebuilt for real.
 import { formatTime } from 'reception/composables/format';
-import type { ILot } from 'reception/types/reception';
+import type { ILot } from 'lot/types/lot';
 import type { ILotPrototype, ITimelineStep } from 'dashboard/prototype/mock-home.prototype';
 
 const MODE_LABELS = { service: 'Trituration à façon', purchase: 'Achat' };

@@ -128,7 +128,7 @@ import { formatDh } from 'reception/composables/format';
 import { createId } from 'global/composables/crypto';
 import { ORIGIN_SUGGESTIONS, QUALITY_TAGS, RECEPTION_MODES, VARIETIES } from 'reception/constants/reception';
 import type { IClient } from 'client/types/client';
-import type { ReceptionMode } from 'reception/types/reception';
+import type { ReceptionMode } from 'lot/types/lot';
 
 import AppLayout from 'global/components/app-layout.vue';
 import ChevronDownLineIcon from 'global/icons/chevron-down-line.icon.vue';

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { createWeighingDraft, draftNetKg, isDraftValid, isTareOverGross, tareKg, weighedContainers } from 'reception/composables/weighing';
-import type { ILot, ISiteReceptionSettings, IWeighing, IWeighingDraft } from 'reception/types/reception';
+import type { ILot, IWeighing } from 'lot/types/lot';
+import type { ISiteReceptionSettings, IWeighingDraft } from 'reception/types/reception';
 
 const SETTINGS: ISiteReceptionSettings = { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null };
 

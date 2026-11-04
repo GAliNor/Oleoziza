@@ -1,18 +1,18 @@
 import { defineStore } from 'pinia';
 
 import ReceptionService from 'reception/services/reception';
+import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
-import { useSyncStore } from 'global/stores/sync';
 import { useClientStore } from 'client/stores/client';
 import { draftNetKg } from 'reception/composables/weighing';
 import { logDevError, withStatus } from 'global/composables/with-status';
-import type { ILot, IOpenReceptionPayload, IReceptionStore, IWeighingDraft } from 'reception/types/reception';
+import type { ILot } from 'lot/types/lot';
+import type { IOpenReceptionPayload, IReceptionStore, IWeighingDraft } from 'reception/types/reception';
 
 const receptionService = new ReceptionService();
 
 export const useReceptionStore = defineStore('reception', {
   state: (): IReceptionStore => ({
-    lots: [],
     settings: null,
     loadedSiteId: null,
     isLoading: false,
@@ -20,8 +20,6 @@ export const useReceptionStore = defineStore('reception', {
     hasError: false,
   }),
   getters: {
-    receivedLots: (state): ILot[] => state.lots.filter((lot) => lot.status === 'received'),
-    lotByCode: (state) => (code: string): ILot | undefined => state.lots.find((lot) => lot.code === code),
     operatorName: (): string => useSessionStore().session?.firstName ?? '',
   },
   actions: {
@@ -30,12 +28,11 @@ export const useReceptionStore = defineStore('reception', {
       const loaded = await withStatus(
         this,
         'isLoading',
-        () => Promise.all([receptionService.getLots(siteId), receptionService.getSettings(siteId), useClientStore().fetchClients()]),
+        () => Promise.all([receptionService.getSettings(siteId), useLotStore().loadLots(siteId), useClientStore().fetchClients()]),
         { errorFlag: 'hasError' },
       );
       if (!loaded) return;
-      [this.lots, this.settings] = loaded;
-      this.reportPending();
+      [this.settings] = loaded;
       this.loadedSiteId = siteId;
     },
     async openReception(payload: Omit<IOpenReceptionPayload, 'receivedBy'>): Promise<ILot | null> {
@@ -45,7 +42,7 @@ export const useReceptionStore = defineStore('reception', {
           quality: [...payload.quality],
           receivedBy: this.operatorName,
         });
-        this.upsertLot(lot);
+        useLotStore().upsertLot(lot);
         return lot;
       });
     },
@@ -60,14 +57,14 @@ export const useReceptionStore = defineStore('reception', {
           source: draft.source,
           recordedBy: this.operatorName,
         });
-        this.upsertLot(updated);
+        useLotStore().upsertLot(updated);
         return updated;
       });
     },
     async finishReception(lot: ILot): Promise<ILot | null> {
       return withStatus(this, 'isSaving', async () => {
         const updated = await receptionService.finishReception(lot.id);
-        this.upsertLot(updated);
+        useLotStore().upsertLot(updated);
         return updated;
       });
     },
@@ -78,15 +75,6 @@ export const useReceptionStore = defineStore('reception', {
         logDevError(error);
         return null;
       }
-    },
-    upsertLot(lot: ILot): void {
-      const index = this.lots.findIndex((item) => item.id === lot.id);
-      if (index === -1) this.lots.unshift(lot);
-      else this.lots.splice(index, 1, lot);
-      this.reportPending();
-    },
-    reportPending(): void {
-      useSyncStore().setPending('reception', this.lots.filter((lot) => lot.isPendingSync).length);
     },
   },
 });

@@ -1,16 +1,11 @@
 import { mockReject, mockResolve } from 'global/services/mock';
 import { CLIENTS_MOCK_DB } from 'client/services/client.mock';
-import { LAST_LOT_NUMBER_MOCK, LOTS_MOCK, SETTINGS_MOCK } from 'reception/constants/mock-reception';
+import { LOTS_MOCK_DB } from 'lot/services/lot.mock';
+import { LAST_LOT_NUMBER_MOCK, SETTINGS_MOCK } from 'reception/constants/mock-reception';
 import { SCALE_READ_DELAY_MS } from 'reception/constants/reception';
-import type {
-  IAddWeighingPayload,
-  ILot,
-  IOpenReceptionPayload,
-  IReceptionService,
-  ISiteReceptionSettings,
-} from 'reception/types/reception';
+import type { ILot } from 'lot/types/lot';
+import type { IAddWeighingPayload, IOpenReceptionPayload, IReceptionService, ISiteReceptionSettings } from 'reception/types/reception';
 
-const lots: ILot[] = structuredClone(LOTS_MOCK);
 const lastLotNumbers = structuredClone(LAST_LOT_NUMBER_MOCK);
 
 const isPendingSync = (): boolean => !navigator.onLine;
@@ -21,13 +16,9 @@ const nextLotCode = (siteId: string): string => {
   return `${counter.prefix}-${String(counter.number).padStart(4, '0')}`;
 };
 
-const findLot = (lotId: string): ILot | undefined => lots.find((lot) => lot.id === lotId);
+const findLot = (lotId: string): ILot | undefined => LOTS_MOCK_DB.find((lot) => lot.id === lotId);
 
 export default class ReceptionMockService implements IReceptionService {
-  getLots(siteId: string): Promise<ILot[]> {
-    return mockResolve(lots.filter((lot) => lot.siteId === siteId));
-  }
-
   getSettings(siteId: string): Promise<ISiteReceptionSettings> {
     return mockResolve(SETTINGS_MOCK[siteId] ?? { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null });
   }
@@ -50,7 +41,7 @@ export default class ReceptionMockService implements IReceptionService {
       isPendingSync: isPendingSync(),
     };
     if (!client.siteIds.includes(payload.siteId)) client.siteIds.push(payload.siteId);
-    lots.unshift(lot);
+    LOTS_MOCK_DB.unshift(lot);
     return mockResolve(lot);
   }
 

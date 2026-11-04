@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ReceptionMockService from 'reception/services/reception.mock';
 import ClientMockService from 'client/services/client.mock';
 import { useReceptionStore } from 'reception/stores/reception';
+import { useLotStore } from 'lot/stores/lot';
 import { useClientStore } from 'client/stores/client';
 import { createWeighingDraft } from 'reception/composables/weighing';
 import { createId } from 'global/composables/crypto';
@@ -34,7 +35,8 @@ describe('reception store retries', () => {
 
   it('records one Weighing when the same draft is retried after a lost response', async () => {
     const receptionStore = useReceptionStore();
-    const lot = receptionStore.lotByCode(RECEIVED_LOT_CODE)!;
+    const lotStore = useLotStore();
+    const lot = lotStore.lotByCode(RECEIVED_LOT_CODE)!;
     const weighingsBefore = lot.weighings.length;
     const draft = { ...createWeighingDraft('net'), netKgTyped: 250 };
     loseFirstResponse('addWeighing');
@@ -64,7 +66,7 @@ describe('reception store retries', () => {
     expect(await receptionStore.openReception(payload)).toBeNull();
     const retried = await receptionStore.openReception(payload);
 
-    expect(receptionStore.lots.filter((lot) => lot.id === payload.id)).toHaveLength(1);
+    expect(useLotStore().lots.filter((lot) => lot.id === payload.id)).toHaveLength(1);
     expect(retried?.id).toBe(payload.id);
   });
 

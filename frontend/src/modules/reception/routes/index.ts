@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router';
 
 import { checkParam } from 'global/composables/route-guards';
-import { LOT_CODE_PARAM_PATTERN } from 'reception/constants/reception';
+import { LOT_CODE_PARAM_PATTERN } from 'lot/constants/lot';
 
 const routes: RouteRecordRaw[] = [
   {

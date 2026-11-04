@@ -72,6 +72,7 @@ import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
+import { useLotStore } from 'lot/stores/lot';
 import { formatPhone } from 'global/composables/phone';
 import { useClientStore } from 'client/stores/client';
 import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
@@ -87,6 +88,7 @@ const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
 const toastStore = useToastStore();
 const receptionStore = useReceptionStore();
+const lotStore = useLotStore();
 const clientStore = useClientStore();
 
 // variables
@@ -102,10 +104,10 @@ const managementClient = computed(() => (sessionStore.session?.role === 'managem
 const client = computed(() => clientStore.clientById(String(route.params.id)));
 const account = computed((): IAccountPrototype => (client.value ? (CLIENT_ACCOUNTS_PROTOTYPE[client.value.name] ?? EMPTY_ACCOUNT) : EMPTY_ACCOUNT));
 const lots = computed(() => [
-  ...receptionStore.lots
+  ...lotStore.lots
     .filter((lot) => lot.clientId === client.value?.id)
     .map((lot) => ({ code: lot.code, status: lot.status === 'received' ? 'Reçu' : 'En attente', kg: lot.netKg })),
-  ...account.value.history.filter((item) => !receptionStore.lots.some((lot) => lot.code === item.code)),
+  ...account.value.history.filter((item) => !lotStore.lots.some((lot) => lot.code === item.code)),
 ]);
 
 // watchers

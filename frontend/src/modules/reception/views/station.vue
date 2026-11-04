@@ -13,9 +13,9 @@
     </div>
 
     <section v-else class="mx-auto flex w-full max-w-5xl flex-col gap-4">
-      <nav v-if="receptionStore.receivedLots.length > 1" class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" :aria-label="$t('reception.station.otherLots')">
+      <nav v-if="lotStore.receivedLots.length > 1" class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" :aria-label="$t('reception.station.otherLots')">
         <router-link
-          v-for="item in receptionStore.receivedLots"
+          v-for="item in lotStore.receivedLots"
           :key="item.id"
           :to="{ name: 'reception-station', params: { code: item.code } }"
           replace
@@ -154,10 +154,12 @@ import { useRoute } from 'vue-router';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
+import { useLotStore } from 'lot/stores/lot';
 import { formatDh, formatKg, formatQuintals, formatTime } from 'reception/composables/format';
 import { createWeighingDraft, draftNetKg, isDraftValid, isTareOverGross, tareKg, weighedContainers } from 'reception/composables/weighing';
 import { CONTAINER_KINDS } from 'reception/constants/reception';
-import type { ILot, IWeighingDraft, WeighingKind } from 'reception/types/reception';
+import type { ILot, WeighingKind } from 'lot/types/lot';
+import type { IWeighingDraft } from 'reception/types/reception';
 
 import AppLayout from 'global/components/app-layout.vue';
 import ContainerStepper from 'reception/components/container-stepper.vue';
@@ -170,6 +172,7 @@ const route = useRoute();
 const siteStore = useSiteStore();
 const toastStore = useToastStore();
 const receptionStore = useReceptionStore();
+const lotStore = useLotStore();
 
 // variables
 const WEIGHING_KINDS: WeighingKind[] = ['gross', 'net'];
@@ -180,7 +183,7 @@ const finishedLot = ref<ILot | null>(null);
 // computed
 const siteId = computed((): string => siteStore.currentSite?.id ?? '');
 const lot = computed((): ILot | undefined => {
-  const found = receptionStore.lotByCode(String(route.params.code));
+  const found = lotStore.lotByCode(String(route.params.code));
   return found?.status === 'received' ? found : undefined;
 });
 const reversedWeighings = computed(() => [...(lot.value?.weighings ?? [])].reverse());

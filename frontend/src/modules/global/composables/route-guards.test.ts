@@ -3,7 +3,7 @@ import type { RouteLocationNormalized } from 'vue-router';
 
 import { checkParam } from 'global/composables/route-guards';
 import { ID_PARAM_PATTERN, TOKEN_PARAM_PATTERN } from 'global/constants/route-params';
-import { LOT_CODE_PARAM_PATTERN } from 'reception/constants/reception';
+import { LOT_CODE_PARAM_PATTERN } from 'lot/constants/lot';
 
 const FALLBACK = { name: 'home' };
 

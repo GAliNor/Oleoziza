@@ -7,6 +7,7 @@ import { useClientStore } from 'client/stores/client';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
+import { useLotStore } from 'lot/stores/lot';
 import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
 import { toPrototypeLot } from 'dashboard/prototype/reception-bridge.prototype';
 import { advanceLot, createLots, formatDh, formatKg, LOT_STATUSES, STATUS_LABELS, type ILotPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
@@ -81,6 +82,7 @@ export const useOperatorDesk = () => {
   const siteStore = useSiteStore();
   const toastStore = useToastStore();
   const receptionStore = useReceptionStore();
+  const lotStore = useLotStore();
 
   // computed
   const siteLots = computed((): ILotPrototype[] =>
@@ -103,7 +105,7 @@ export const useOperatorDesk = () => {
   );
 
   watch(
-    () => receptionStore.lots,
+    () => lotStore.lots,
     (receptionLots) => {
       receptionLots.forEach((receptionLot) => {
         const mapped = toPrototypeLot(receptionLot, sessionStore.session?.firstName ?? '');

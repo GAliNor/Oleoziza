@@ -1,5 +1,6 @@
 import { createId } from 'global/composables/crypto';
-import type { ContainerKind, ILot, ISiteReceptionSettings, IWeighingDraft } from 'reception/types/reception';
+import type { ContainerKind, ILot } from 'lot/types/lot';
+import type { ISiteReceptionSettings, IWeighingDraft } from 'reception/types/reception';
 
 export const createWeighingDraft = (kind: IWeighingDraft['kind'] = 'gross'): IWeighingDraft => ({
   id: createId(),

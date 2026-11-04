@@ -28,7 +28,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useToastStore } from 'global/stores/toast';
 import { formatDh, formatKg, formatQuintals } from 'reception/composables/format';
-import type { ILot } from 'reception/types/reception';
+import type { ILot } from 'lot/types/lot';
 
 import AnimatedCheckIcon from 'global/icons/animated-check.icon.vue';
 
