@@ -1,6 +1,8 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import LotMockService from 'lot/services/lot.mock';
+import { LOTS_MOCK } from 'lot/constants/mock-lots';
 import { useLotStore } from 'lot/stores/lot';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useSyncStore } from 'global/stores/sync';
@@ -74,5 +76,71 @@ describe('a Reception seen through the lot store', () => {
     await receptionStore.finishReception(opened as ILot);
     expect(lotStore.lotByCode(opened?.code ?? '')?.status).toBe('waiting');
     expect(lotStore.receivedLots.map((item) => item.id)).not.toContain(opened?.id);
+  });
+});
+
+describe('moving a Lot', () => {
+  beforeEach(async () => {
+    setActivePinia(createPinia());
+    vi.stubGlobal('navigator', { onLine: true });
+    await useLotStore().fetchLots(SITE_OUJDA_ID, true);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  const lotAt = (status: ILot['status']): ILot => {
+    const found = useLotStore().lots.find((item) => item.status === status);
+    if (!found) throw new Error(`no ${status} Lot in the mock`);
+    return found;
+  };
+
+  it('moves a waiting Lot into pressing', async () => {
+    const lotStore = useLotStore();
+    const updated = await lotStore.moveLot(lotAt('waiting'), { id: createId() });
+    expect(updated?.status).toBe('pressing');
+    expect(lotStore.lotByCode(updated?.code ?? '')?.status).toBe('pressing');
+  });
+
+  it('records the oil when pressing ends', async () => {
+    const updated = await useLotStore().moveLot(lotAt('pressing'), { id: createId(), oilKg: 300 });
+    expect([updated?.status, updated?.oilKg]).toEqual(['pressed', 300]);
+  });
+
+  it('records what left when the oil is withdrawn', async () => {
+    const pressed = lotAt('pressed');
+    const updated = await useLotStore().moveLot(pressed, { id: createId() });
+    expect([updated?.status, updated?.withdrawnKg]).toEqual(['withdrawn', pressed.oilKg]);
+  });
+
+  it('moves once when the same intent is retried after a lost response', async () => {
+    const original = LotMockService.prototype.moveLot;
+    vi.spyOn(LotMockService.prototype, 'moveLot').mockImplementationOnce(async function (this: LotMockService, lotId, move) {
+      await original.call(this, lotId, move);
+      throw new Error('timeout');
+    });
+    const lotStore = useLotStore();
+    const lot = lotAt('waiting');
+    const move = { id: createId() };
+    expect(await lotStore.moveLot(lot, move)).toBeNull();
+    const retried = await lotStore.moveLot(lot, move);
+    expect(retried?.status).toBe('pressing');
+  });
+
+  it('refuses to move a Lot past withdrawn', async () => {
+    expect(await useLotStore().moveLot(lotAt('withdrawn'), { id: createId() })).toBeNull();
+  });
+});
+
+describe('the mock Lots', () => {
+  it('all belong to a known Client', () => {
+    expect(LOTS_MOCK.filter((item) => !item.clientId).map((item) => item.clientName)).toEqual([]);
+  });
+
+  it('never repeat a code', () => {
+    const codes = LOTS_MOCK.map((item) => item.code);
+    expect(new Set(codes).size).toBe(codes.length);
   });
 });

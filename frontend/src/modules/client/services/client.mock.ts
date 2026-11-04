@@ -1,12 +1,17 @@
 import { mockResolve } from 'global/services/mock';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
-import type { IClient, IClientService, ICreateClientPayload } from 'client/types/client';
+import { ACCOUNTS_MOCK, EMPTY_ACCOUNT } from 'client/constants/mock-accounts';
+import type { IClient, IClientAccount, IClientService, ICreateClientPayload } from 'client/types/client';
 
 export const CLIENTS_MOCK_DB: IClient[] = structuredClone(CLIENTS_MOCK);
 
 export default class ClientMockService implements IClientService {
   getAll(): Promise<IClient[]> {
     return mockResolve(CLIENTS_MOCK_DB);
+  }
+
+  getAccount(clientId: string): Promise<IClientAccount> {
+    return mockResolve(ACCOUNTS_MOCK[clientId] ?? EMPTY_ACCOUNT);
   }
 
   create(payload: ICreateClientPayload): Promise<IClient> {

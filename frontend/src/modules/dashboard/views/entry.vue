@@ -1,7 +1,7 @@
 <template>
   <app-layout>
     <management-home-prototype v-if="sessionStore.session?.role === 'management'" />
-    <operator-simple-home-prototype v-else-if="sessionStore.session?.role === 'operator'" />
+    <operator-home v-else-if="sessionStore.session?.role === 'operator'" />
     <section v-else class="flex flex-col gap-6">
       <div>
         <h1 class="heading-one">{{ $t('dashboard.welcome', { name: sessionStore.salutation }) }}</h1>
@@ -55,7 +55,7 @@ import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 import ManagementHomePrototype from 'dashboard/prototype/management-home.prototype.vue';
-import OperatorSimpleHomePrototype from 'dashboard/prototype/operator-simple-home.prototype.vue';
+import OperatorHome from 'dashboard/components/operator-home.vue';
 
 // stores
 const sessionStore = useSessionStore();

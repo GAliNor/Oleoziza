@@ -26,6 +26,9 @@ export interface ILot {
   variety: string;
   status: LotStatus;
   netKg: number;
+  oilKg: number | null;
+  tankName: string | null;
+  withdrawnKg: number;
   announcedContainers: number | null;
   plate: string;
   origin: string;
@@ -39,10 +42,21 @@ export interface ILot {
   isPendingSync: boolean;
 }
 
+/** One step of a Lot along its statuses; `id` is minted once per user intent, so a retry never moves it twice. */
+export interface ILotMove {
+  id: string;
+  oilKg?: number;
+}
+
 export interface ILotService {
   getLots(siteId: string): Promise<ILot[]>;
+  moveLot(lotId: string, move: ILotMove): Promise<ILot>;
 }
 
 export interface ILotStore {
   lots: ILot[];
+  loadedSiteId: string | null;
+  isLoading: boolean;
+  isSaving: boolean;
+  hasError: boolean;
 }

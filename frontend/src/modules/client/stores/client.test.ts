@@ -58,3 +58,22 @@ describe('client store fetchClients', () => {
     expect([clientStore.clients, clientStore.isLoaded, clientStore.isLoading, clientStore.hasError]).toEqual([[], false, false, true]);
   });
 });
+
+describe('client store accounts', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('starts empty, then holds the fetched account, fetched once', async () => {
+    const getAccount = vi.spyOn(ClientMockService.prototype, 'getAccount').mockResolvedValue({ oilStockKg: 389, dueDh: 1025, pendingDh: 500, payoutDh: 0, history: [] });
+    const clientStore = useClientStore();
+    expect(clientStore.accountOf('c1').dueDh).toBe(0);
+    await clientStore.fetchAccount('c1');
+    await clientStore.fetchAccount('c1');
+    expect([clientStore.accountOf('c1').dueDh, getAccount.mock.calls.length]).toEqual([1025, 1]);
+  });
+});

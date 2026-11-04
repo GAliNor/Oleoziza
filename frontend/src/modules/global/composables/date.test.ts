@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { formatDateTime, formatDayDate, formatShortDate, formatTime, shiftDate, todayIso, toIsoDate } from 'global/composables/date';
+import { daysSince, formatDateTime, formatDayDate, formatShortDate, formatTime, shiftDate, todayIso, toIsoDate } from 'global/composables/date';
 
 const clean = (text: string): string => text.replace(/\s/g, ' ');
 
@@ -16,6 +16,11 @@ describe('dates in Morocco time', () => {
   it('knows today from Morocco time', () => {
     vi.useFakeTimers({ now: new Date('2026-11-03T23:30:00Z') });
     expect(todayIso()).toBe('2026-11-04');
+  });
+
+  it('counts calendar days since a timestamp, not 24-hour spans', () => {
+    vi.useFakeTimers({ now: new Date('2026-11-04T08:00:00Z') });
+    expect([daysSince('2026-11-04T01:00:00Z'), daysSince('2026-11-03T22:30:00Z'), daysSince('2026-11-01T12:00:00Z')]).toEqual([0, 1, 3]);
   });
 
   it('shows the same time on any device', () => {

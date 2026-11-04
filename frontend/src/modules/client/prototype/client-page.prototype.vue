@@ -75,7 +75,7 @@ import { useReceptionStore } from 'reception/stores/reception';
 import { useLotStore } from 'lot/stores/lot';
 import { formatPhone } from 'global/composables/phone';
 import { useClientStore } from 'client/stores/client';
-import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
+import type { IClientAccount } from 'client/types/client';
 import { findManagementClient } from 'client/prototype/mock-management-clients.prototype';
 import { formatMoney } from 'global/composables/money';
 import { formatKg, formatLitres } from 'lot/composables/quantity';
@@ -96,7 +96,7 @@ const lotStore = useLotStore();
 const clientStore = useClientStore();
 
 // variables
-const ACTIONS: { key: string; label: string; tone: string; hint: (account: IAccountPrototype) => string }[] = [
+const ACTIONS: { key: string; label: string; tone: string; hint: (account: IClientAccount) => string }[] = [
   { key: 'withdrawal', label: 'Retrait', tone: 'bg-accent-subtle text-fg-accent', hint: (account) => `${account.oilStockKg} kg disponibles` },
   { key: 'payment', label: 'Encaisser', tone: 'bg-action text-fg-on-action', hint: (account) => (account.dueDh ? `${account.dueDh} DH dus` : 'Rien à régler') },
   { key: 'payout', label: 'Payer', tone: 'bg-subtle text-fg-display', hint: (account) => (account.payoutDh ? `${account.payoutDh} DH à payer` : 'Aucun achat') },
@@ -106,7 +106,7 @@ const ACTIONS: { key: string; label: string; tone: string; hint: (account: IAcco
 // computed
 const managementClient = computed(() => (sessionStore.session?.role === 'management' ? findManagementClient(String(route.params.id)) : undefined));
 const client = computed(() => clientStore.clientById(String(route.params.id)));
-const account = computed((): IAccountPrototype => (client.value ? (CLIENT_ACCOUNTS_PROTOTYPE[client.value.name] ?? EMPTY_ACCOUNT) : EMPTY_ACCOUNT));
+const account = computed((): IClientAccount => clientStore.accountOf(client.value?.id ?? ''));
 const lots = computed(() => [
   ...lotStore.lots
     .filter((lot) => lot.clientId === client.value?.id)
@@ -119,6 +119,14 @@ watch(
   () => siteStore.currentSite?.id,
   (siteId) => {
     if (siteId) receptionStore.fetchSite(siteId);
+  },
+  { immediate: true },
+);
+
+watch(
+  () => client.value?.id,
+  (id) => {
+    if (id) clientStore.fetchAccount(id);
   },
   { immediate: true },
 );

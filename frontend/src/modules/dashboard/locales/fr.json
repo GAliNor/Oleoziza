@@ -6,5 +6,59 @@
   "permissionCount": "Aucune autorisation sur ce site | 1 autorisation sur ce site | {n} autorisations sur ce site",
   "financeVisible": "finances visibles",
   "dataSource": "Source des données : {source}",
-  "loadError": "Impossible de charger les sites."
+  "loadError": "Impossible de charger les sites.",
+  "operator": {
+    "greeting": "Bonjour {name}",
+    "receive": "Réceptionner",
+    "newClient": "Nouveau client",
+    "search": "Chercher un client",
+    "noMatch": "Personne ne s’appelle « {query} ».",
+    "createThisClient": "Créer ce client",
+    "noLotInProgress": "Aucun lot en cours",
+    "found": "Lots trouvés · {count}",
+    "inProgress": "En cours · {count}",
+    "noLot": "Aucun lot",
+    "backToList": "← Retour à la liste",
+    "moveError": "Le lot n’a pas pu avancer. Réessayez.",
+    "moved": "{client} : {from} → {to}",
+    "account": {
+      "oilStock": "Huile en stock : {quantity}",
+      "due": "Reste à payer : {amount}",
+      "payout": "Le moulin lui doit : {amount}",
+      "none": "Rien à payer, rien en stock"
+    },
+    "age": {
+      "today": "Aujourd’hui {time}",
+      "yesterday": "Hier {time}",
+      "days": "Il y a {count} jours"
+    },
+    "stage": {
+      "received": "Arrivé, à peser",
+      "waitingAhead": "Attend le pressage · {count} avant",
+      "waitingNext": "Attend le pressage · le prochain",
+      "pressing": "En train d’être pressé",
+      "pressed": "Huile prête · {quantity}",
+      "withdrawn": "Huile retirée"
+    },
+    "confirm": {
+      "youWill": "Vous allez",
+      "forClient": "pour",
+      "oil": "Huile obtenue (kg)",
+      "no": "Non",
+      "yes": "Oui, c’est ça"
+    },
+    "quickClient": {
+      "title": "Nouveau client",
+      "placeholderAvatar": "Nouveau client",
+      "individual": "Personne",
+      "company": "Société",
+      "companyName": "Nom de la société",
+      "fullName": "Prénom et nom",
+      "phone": "Téléphone (06…)",
+      "create": "Créer le client",
+      "created": "Client créé · sera synchronisé",
+      "receiveNow": "Réceptionner maintenant",
+      "later": "Plus tard"
+    }
+  }
 }

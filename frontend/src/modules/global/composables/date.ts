@@ -15,6 +15,9 @@ export const shiftDate = (isoDate: string, days: number): string => {
   return date.toISOString().slice(0, 10);
 };
 
+/** Whole calendar days between a timestamp and today, in Morocco time. */
+export const daysSince = (at: string): number => Math.round((new Date(todayIso()).getTime() - new Date(toIsoDate(at)).getTime()) / 86_400_000);
+
 export const formatTime = (at: string): string => format(at, { hour: '2-digit', minute: '2-digit' });
 
 export const formatShortDate = (at: string): string => format(at, { day: 'numeric', month: 'short' });

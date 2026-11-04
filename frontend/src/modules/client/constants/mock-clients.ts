@@ -1,7 +1,7 @@
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { IClient } from 'client/types/client';
 
-export const CLIENTS_MOCK: IClient[] = [
+const LISTED_CLIENTS: IClient[] = [
   { id: 'c0a1b2c3-0001-4000-8000-000000000001', kind: 'individual', name: 'Mohammed Benali', phone: '+212661234518', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
   { id: 'c0a1b2c3-0001-4000-8000-000000000002', kind: 'individual', name: 'Fatima Zahra El Idrissi', phone: '+212670881240', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
   { id: 'c0a1b2c3-0001-4000-8000-000000000003', kind: 'company', name: 'Coopérative Angad', phone: '+212536682109', siteIds: [SITE_OUJDA_ID, SITE_BERKANE_ID], isPendingSync: false },
@@ -28,3 +28,22 @@ export const CLIENTS_MOCK: IClient[] = [
   { id: 'c0a1b2c3-0001-4000-8000-000000000024', kind: 'company', name: 'Domaine Beni Snassen', phone: '+212536618932', siteIds: [SITE_BERKANE_ID], isPendingSync: false },
   { id: 'c0a1b2c3-0001-4000-8000-000000000025', kind: 'individual', name: 'Zakaria Bensaid', phone: '+212669741205', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
 ];
+
+const EXTRA_CLIENT_NAMES = [
+  'Driss Amrani', 'Naima Lahlou', 'Hassan Ziani', 'Abdellah Mansouri', 'Fatima Zahra Elidrissi', 'Coopérative Zegzel', 'Mustapha Kaddouri', 'Naima Belhaj',
+  'Yassine Amrani', 'Domaine Sidi Yahya', 'Rachid Ouali', 'Aicha Bennani', 'Driss Lahlou', 'Karima Tazi', 'Omar Benjelloun', 'Huilerie Taourirt', 'Brahim Saidi',
+  'Zineb Chraibi', 'Mehdi Alaoui', 'Hafida Bouchta', 'Youssef Ghali', 'Latifa Hamdouchi', 'Coopérative Ahfir', 'Malika Tazi',
+];
+
+const COMPANY_NAME_PATTERN = /coop|domaine|sarl|huilerie/i;
+
+const EXTRA_CLIENTS: IClient[] = EXTRA_CLIENT_NAMES.filter((name) => !LISTED_CLIENTS.some((client) => client.name === name)).map((name, index) => ({
+  id: `c0a1b2c3-0002-4000-8000-${String(index + 1).padStart(12, '0')}`,
+  kind: COMPANY_NAME_PATTERN.test(name) ? 'company' : 'individual',
+  name,
+  phone: `+21266${String(1100000 + index * 7919).padStart(7, '0')}`,
+  siteIds: index % 3 === 2 ? [SITE_BERKANE_ID] : [SITE_OUJDA_ID],
+  isPendingSync: false,
+}));
+
+export const CLIENTS_MOCK: IClient[] = [...LISTED_CLIENTS, ...EXTRA_CLIENTS];

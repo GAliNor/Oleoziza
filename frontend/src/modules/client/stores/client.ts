@@ -3,13 +3,15 @@ import { defineStore } from 'pinia';
 import ClientService from 'client/services/client';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
-import type { IClient, IClientStore, ICreateClientPayload } from 'client/types/client';
+import { EMPTY_ACCOUNT } from 'client/constants/mock-accounts';
+import type { IClient, IClientAccount, IClientStore, ICreateClientPayload } from 'client/types/client';
 
 const clientService = new ClientService();
 
 export const useClientStore = defineStore('client', {
   state: (): IClientStore => ({
     clients: [],
+    accounts: {},
     isLoaded: false,
     isLoading: false,
     isSaving: false,
@@ -17,6 +19,7 @@ export const useClientStore = defineStore('client', {
   }),
   getters: {
     clientById: (state) => (id: string): IClient | undefined => state.clients.find((client) => client.id === id),
+    accountOf: (state) => (clientId: string): IClientAccount => state.accounts[clientId] ?? EMPTY_ACCOUNT,
   },
   actions: {
     async fetchClients(isForced = false): Promise<void> {
@@ -26,6 +29,10 @@ export const useClientStore = defineStore('client', {
       this.clients = clients;
       this.isLoaded = true;
       this.reportPending();
+    },
+    async fetchAccount(clientId: string): Promise<void> {
+      if (this.accounts[clientId]) return;
+      this.accounts[clientId] = await clientService.getAccount(clientId);
     },
     searchClients(query: string, limit = 6): IClient[] {
       const text = query.trim().toLowerCase();
