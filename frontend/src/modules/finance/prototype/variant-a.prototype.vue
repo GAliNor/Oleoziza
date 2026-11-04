@@ -1,6 +1,6 @@
 <template>
   <!-- PROTOTYPE: Finances view (ticket 0034): the four tiles, then the app's table with « À confirmer » / « Tous les mouvements » tabs; a row slides the table out for the detail. -->
-  <finance-tiles v-show="!isOpen" class="rise" :figures="figures" :period="period" layout="grid" :is-active="tab === 'pending'" @pending="handleTab('pending')" />
+  <sales-tiles v-show="!isOpen" class="rise" :figures="figures" :period-label="period.label" can-open-pending :is-active="tab === 'pending'" @pending="handleTab('pending')" />
 
   <div v-show="!isOpen" class="rise flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between">
     <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Client, référence ou n°" />
@@ -85,7 +85,7 @@ import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
-import FinanceTiles from 'finance/prototype/finance-tiles.prototype.vue';
+import SalesTiles from 'finance/components/sales-tiles.vue';
 import MovementDetail from 'finance/prototype/movement-detail.prototype.vue';
 
 // stores

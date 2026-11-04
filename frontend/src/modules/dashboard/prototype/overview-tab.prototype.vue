@@ -3,16 +3,20 @@
     <div class="stagger flex min-w-0 flex-col gap-5" :class="isFinanceShown ? 'lg:col-span-2' : 'lg:col-span-3'">
       <p class="eyebrow text-fg-secondary-paragraph">Production</p>
       <div class="-mt-3 grid grid-cols-2 gap-3">
-        <kpi-tile v-for="tile in productionTiles" :key="tile.label" v-bind="tile" />
+        <ui-stat-tile v-for="tile in productionTiles" :key="tile.label" v-bind="tile" />
       </div>
       <lot-queue-strip :queue="queue" />
       <site-table v-if="siteStore.isAllSites" :is-finance-shown="isFinanceShown" />
-      <week-bars :title="olivesChart.title" unit="kg" :bars="olivesChart.bars" />
+      <ui-bar-chart :title="olivesChart.title" unit="kg" :series="OLIVE_SERIES" :bars="olivesChart.bars">
+        <template #tooltip="{ bar }">
+          <p v-for="line in bar.lines" :key="line">{{ line }}</p>
+        </template>
+      </ui-bar-chart>
       <tank-cards :tanks="tanks" />
     </div>
     <div v-if="isFinanceShown" class="stagger flex min-w-0 flex-col gap-5">
       <p class="eyebrow text-fg-secondary-paragraph">Ventes</p>
-      <money-tiles :figures="sales" :period="period" is-stacked class="-mt-3" />
+      <sales-tiles :figures="sales" :period-label="period.label" layout="stacked" class="-mt-3" />
       <sales-lines :title="salesChart.title" :bars="salesChart.bars" />
     </div>
   </div>
@@ -24,17 +28,18 @@
 import { computed } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
-import { createLots, formatDelta, LOT_STATUSES, olivesBars, salesBars, salesFigures, SEASON, SITE_FIGURES, type ITankPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
+import { createLots, formatDelta, LOT_STATUSES, olivesBars,
+  OLIVE_SERIES, salesBars, salesFigures, SEASON, SITE_FIGURES, type ITankPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
 import { formatLitres } from 'lot/composables/quantity';
 
-import KpiTile from 'dashboard/prototype/kpi-tile.prototype.vue';
+import UiStatTile from 'global/components/ui-stat-tile.vue';
 import LotQueueStrip from 'dashboard/prototype/lot-queue-strip.prototype.vue';
-import MoneyTiles from 'dashboard/prototype/money-tiles.prototype.vue';
+import SalesTiles from 'finance/components/sales-tiles.vue';
 import SalesLines from 'dashboard/prototype/sales-lines.prototype.vue';
 import SiteTable from 'dashboard/prototype/site-table.prototype.vue';
 import TankCards from 'dashboard/prototype/tank-cards.prototype.vue';
-import WeekBars from 'dashboard/prototype/week-bars.prototype.vue';
+import UiBarChart from 'global/components/ui-bar-chart.vue';
 
 // props
 const props = defineProps<{ period: IPeriodPrototype; scale: number; tanks: ITankPrototype[]; isFinanceShown: boolean }>();
@@ -78,6 +83,7 @@ const productionTiles = computed(() => [
     decimals: 1,
     unit: '%',
     delta: formatDelta(SEASON.yieldPct, SEASON.previousYieldPct),
+    deltaLabel: 'vs saison préc.',
     isDeltaGood: SEASON.yieldPct >= SEASON.previousYieldPct,
   },
   { label: 'Remplissage cuves', value: Math.round(tankFill.value * 100), unit: '%', progress: tankFill.value * 100 },

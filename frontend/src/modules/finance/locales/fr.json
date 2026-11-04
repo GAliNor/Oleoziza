@@ -1,0 +1,11 @@
+{
+  "salesTiles": {
+    "revenue": "CA · {period}",
+    "revenueSub": "ventes d’huile et produits",
+    "collected": "Encaissé",
+    "pending": "À confirmer",
+    "pendingSub": "{count} paiement · voir → | {count} paiements · voir →",
+    "outstanding": "Reste à encaisser",
+    "share": "{percent} % du CA"
+  }
+}

@@ -1,9 +1,14 @@
 <template>
   <div class="stagger flex min-w-0 flex-col gap-5">
-    <money-tiles :figures="sales" :period="period" />
+    <sales-tiles :figures="sales" :period-label="period.label" />
 
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
-      <sales-bars :title="chart.title" :bars="chart.bars" class="lg:col-span-3" />
+      <ui-bar-chart :title="chart.title" :series="SALES_SERIES" :bars="chartBars" class="lg:col-span-3">
+        <template #tooltip="{ bar }">
+          <p>CA {{ formatMoneyRounded(bar.values.revenue) }}</p>
+          <p>Encaissé {{ formatMoneyRounded(bar.values.collected) }}</p>
+        </template>
+      </ui-bar-chart>
       <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5 lg:col-span-2">
         <h2 class="heading-four">Encaissé par mode</h2>
         <div class="flex flex-col items-center gap-5 sm:flex-row lg:flex-col xl:flex-row">
@@ -61,19 +66,26 @@ import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype'
 import { formatMoneyRounded } from 'global/composables/money';
 import { formatNumber } from 'global/composables/number';
 
-import MoneyTiles from 'dashboard/prototype/money-tiles.prototype.vue';
-import SalesBars from 'dashboard/prototype/sales-bars.prototype.vue';
+import type { IChartSeries } from 'global/types/chart';
+
+import SalesTiles from 'finance/components/sales-tiles.vue';
+import UiBarChart from 'global/components/ui-bar-chart.vue';
 
 // props
 const props = defineProps<{ period: IPeriodPrototype; scale: number }>();
 
 // variables
+const SALES_SERIES: IChartSeries[] = [
+  { key: 'revenue', label: 'CA', colorClass: 'bg-primary-olive-light', hoverClass: 'bg-primary-olive-mid' },
+  { key: 'collected', label: 'Encaissé', colorClass: 'bg-primary-olive-dark' },
+];
 const hoveredKey = ref<PaymentMethodKey | null>(null);
 const methodTotal = PAYMENT_METHODS.reduce((sum, method) => sum + method.amount, 0);
 
 // computed
 const sales = computed(() => salesFigures(props.scale * props.period.factor));
 const chart = computed(() => salesBars(props.period.key, props.scale));
+const chartBars = computed(() => chart.value.bars.map((bar) => ({ label: bar.label, values: { revenue: bar.revenue, collected: bar.collected }, isCurrent: bar.isCurrent })));
 const slices = computed(() => {
   let offset = 0;
   return PAYMENT_METHODS.map((method) => {

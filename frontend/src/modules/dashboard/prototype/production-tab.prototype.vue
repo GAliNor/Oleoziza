@@ -1,30 +1,34 @@
 <template>
   <div class="stagger flex flex-col gap-5">
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <kpi-tile :label="`Olives reçues · ${period.label}`" :value="SEASON.olivesKg * factor" unit="kg" :delta="formatDelta(SEASON.olivesKg, SEASON.previousOlivesKg)" is-delta-good />
-      <kpi-tile :label="`Huile produite · ${period.label}`" :value="SEASON.oilKg * factor" unit="kg" :sub="formatLitres(SEASON.oilKg * factor)" :delta="formatDelta(SEASON.oilKg, SEASON.previousOilKg)" is-delta-good />
-      <kpi-tile
+      <ui-stat-tile :label="`Olives reçues · ${period.label}`" :value="SEASON.olivesKg * factor" unit="kg" :delta="formatDelta(SEASON.olivesKg, SEASON.previousOlivesKg)" delta-label="vs saison préc." is-delta-good />
+      <ui-stat-tile :label="`Huile produite · ${period.label}`" :value="SEASON.oilKg * factor" unit="kg" :sub="formatLitres(SEASON.oilKg * factor)" :delta="formatDelta(SEASON.oilKg, SEASON.previousOilKg)" delta-label="vs saison préc." is-delta-good />
+      <ui-stat-tile
         label="Rendement moyen"
         :value="SEASON.yieldPct"
         :decimals="1"
         unit="%"
         :sub="`${formatNumber(SEASON.yieldPct, 1, 1)} kg d’huile par quintal`"
-        :delta="formatDelta(SEASON.yieldPct, SEASON.previousYieldPct)"
+        :delta="formatDelta(SEASON.yieldPct, SEASON.previousYieldPct)" delta-label="vs saison préc."
         :is-delta-good="SEASON.yieldPct >= SEASON.previousYieldPct"
       />
-      <kpi-tile
+      <ui-stat-tile
         label="Attente avant pressage"
         :value="PRODUCTION_EXTRA.averageWaitHours"
         :decimals="1"
         unit="h"
         :sub="`${Math.round(PRODUCTION_EXTRA.lotsPressedSeason * factor)} lots pressés`"
-        :delta="formatDelta(PRODUCTION_EXTRA.averageWaitHours, PRODUCTION_EXTRA.previousAverageWaitHours)"
+        :delta="formatDelta(PRODUCTION_EXTRA.averageWaitHours, PRODUCTION_EXTRA.previousAverageWaitHours)" delta-label="vs saison préc."
         :is-delta-good="PRODUCTION_EXTRA.averageWaitHours <= PRODUCTION_EXTRA.previousAverageWaitHours"
       />
     </div>
 
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
-      <week-bars :title="chart.title" unit="kg" :bars="chart.bars" class="lg:col-span-3" />
+      <ui-bar-chart :title="chart.title" unit="kg" :series="OLIVE_SERIES" :bars="chart.bars" class="lg:col-span-3">
+        <template #tooltip="{ bar }">
+          <p v-for="line in bar.lines" :key="line">{{ line }}</p>
+        </template>
+      </ui-bar-chart>
       <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5 lg:col-span-2">
         <h2 class="heading-four">Origine des olives</h2>
         <div class="flex h-3 gap-0.5 overflow-hidden rounded-full">
@@ -82,15 +86,16 @@
 // imports
 import { computed } from 'vue';
 
-import { formatDelta, MODE_SPLIT, olivesBars, PRODUCTION_EXTRA, SEASON, VARIETY_FIGURES, type ITankPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { formatDelta, MODE_SPLIT, olivesBars,
+  OLIVE_SERIES, PRODUCTION_EXTRA, SEASON, VARIETY_FIGURES, type ITankPrototype } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
 import { formatKgRounded, formatLitres } from 'lot/composables/quantity';
 import { formatNumber } from 'global/composables/number';
 
 import UiProgressBar from 'global/components/ui-progress-bar.vue';
-import KpiTile from 'dashboard/prototype/kpi-tile.prototype.vue';
+import UiStatTile from 'global/components/ui-stat-tile.vue';
 import TankCards from 'dashboard/prototype/tank-cards.prototype.vue';
-import WeekBars from 'dashboard/prototype/week-bars.prototype.vue';
+import UiBarChart from 'global/components/ui-bar-chart.vue';
 
 // props
 const props = defineProps<{ scale: number; period: IPeriodPrototype; tanks: ITankPrototype[] }>();

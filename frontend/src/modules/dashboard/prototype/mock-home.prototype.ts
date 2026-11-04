@@ -1,4 +1,5 @@
 // PROTOTYPE — throwaway mock data for the Home prototypes (tickets 0018 and 0019). Not production code.
+import type { IChartBar, IChartSeries } from 'global/types/chart';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { formatKgRounded, formatLitres, formatOliveKg, formatOilKg, formatYield } from 'lot/composables/quantity';
 import { formatShortDate, todayIso, shiftDate } from 'global/composables/date';
@@ -284,13 +285,16 @@ export const SEASON_WEEKS = [
   { week: 'S6', oliveKg: 110400, oilKg: 20000 },
 ];
 
-export const olivesBars = (periodKey: string, scale: number): { title: string; bars: { label: string; value: number; lines: string[] }[] } => {
+export const OLIVE_SERIES: IChartSeries[] = [{ key: 'olives', colorClass: 'bg-primary-olive-light', hoverClass: 'bg-primary-olive-mid', currentClass: 'bg-primary-olive-dark' }];
+
+export const olivesBars = (periodKey: string, scale: number): { title: string; bars: (IChartBar & { lines: string[] })[] } => {
   if (periodKey === 'today' || periodKey === 'week') {
     return {
       title: 'Olives reçues, 7 derniers jours',
-      bars: LAST_SEVEN_DAYS.map((day) => ({
+      bars: LAST_SEVEN_DAYS.map((day, index) => ({
+        isCurrent: index === LAST_SEVEN_DAYS.length - 1,
         label: day.day,
-        value: day.oliveKg * scale,
+        values: { olives: day.oliveKg * scale },
         lines: [formatOliveKg(Math.round(day.oliveKg * scale)), formatOilKg(Math.round(day.oilKg * scale))],
       })),
     };
@@ -299,9 +303,10 @@ export const olivesBars = (periodKey: string, scale: number): { title: string; b
   const factor = periodKey === 'previous' ? 1.62 * scale : scale;
   return {
     title: periodKey === 'month' ? 'Olives reçues, par semaine ce mois' : 'Olives reçues, par semaine de saison',
-    bars: weeks.map((week) => ({
+    bars: weeks.map((week, index) => ({
+      isCurrent: index === weeks.length - 1,
       label: week.week,
-      value: week.oliveKg * factor,
+      values: { olives: week.oliveKg * factor },
       lines: [formatOliveKg(Math.round(week.oliveKg * factor)), formatOilKg(Math.round(week.oilKg * factor))],
     })),
   };

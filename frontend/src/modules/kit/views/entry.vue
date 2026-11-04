@@ -100,6 +100,73 @@
           </div>
         </div>
       </kit-section>
+
+      <kit-section id="kit" :title="$t('kit.sections.kit.title')" :description="$t('kit.sections.kit.description')">
+        <div class="grid gap-6 lg:grid-cols-2">
+          <kit-demo name="ui-segmented">
+            <ui-segmented v-model="segment" :options="SEGMENTS" :label="$t('kit.sections.kit.title')" />
+            <ui-segmented v-model="segment" variant="strong-pills" :options="SEGMENTS" :label="$t('kit.sections.kit.title')" />
+            <ui-segmented v-model="segment" class="self-start" variant="tabs" :options="SEGMENTS" :label="$t('kit.sections.kit.title')" />
+            <ui-segmented v-model="segment" variant="tabs" is-full :options="SEGMENTS" :label="$t('kit.sections.kit.title')" />
+          </kit-demo>
+
+          <kit-demo name="ui-avatar">
+            <div class="flex flex-wrap items-center gap-3">
+              <ui-avatar name="Mohammed Benali" variant="notionists" />
+              <ui-avatar name="Coopérative Angad" variant="patchwork" />
+              <ui-avatar name="Hamid Zerrouki" variant="line-face" />
+              <ui-avatar name="Fatima Zahra" fallback-class="bg-selected text-fg-brand" />
+              <ui-avatar class="h-16 w-16 text-lg" name="Said Tahiri" fallback-class="bg-action text-fg-on-action" />
+            </div>
+          </kit-demo>
+
+          <kit-demo name="ui-stat-tile">
+            <ui-stat-tile label="Olives · 7 jours" :value="77921" unit="kg" sub="58 réceptions" delta="+8,2 %" delta-label="vs saison préc." is-delta-good :progress="65" />
+          </kit-demo>
+
+          <kit-demo name="ui-bar-chart">
+            <ui-bar-chart title="Olives reçues" unit="kg" :series="CHART_SERIES" :bars="CHART_BARS">
+              <template #tooltip="{ bar }">{{ bar.values.olives }} kg</template>
+            </ui-bar-chart>
+          </kit-demo>
+
+          <kit-demo name="ui-field">
+            <ui-field v-slot="{ id }" :label="$t('kit.components.label')">
+              <input :id="id" class="input" :placeholder="$t('kit.components.placeholder')" />
+            </ui-field>
+          </kit-demo>
+
+          <kit-demo name="ui-progress-bar">
+            <ui-progress-bar class="h-2" :value="65" :label="$t('kit.sections.kit.title')" />
+          </kit-demo>
+
+          <kit-demo name="ui-confirm-button">
+            <ui-confirm-button class="self-start" :label="$t('kit.demo.delete')" :confirm-label="$t('kit.demo.confirmDelete')" />
+          </kit-demo>
+
+          <kit-demo name="ui-empty-state">
+            <ui-empty-state :message="$t('kit.demo.empty')" />
+            <ui-empty-state tone="danger" size="compact" :message="$t('kit.demo.error')">
+              <template #action><button type="button" class="btn-secondary">{{ $t('kit.demo.retry') }}</button></template>
+            </ui-empty-state>
+          </kit-demo>
+
+          <kit-demo name="ui-pagination">
+            <ui-pagination v-model:page="demoPage" :page-count="3" :total="27" :page-size="10" />
+          </kit-demo>
+
+          <kit-demo name="ui-master-detail">
+            <ui-master-detail :is-open="isDemoOpen" :back-label="$t('kit.demo.back')" @close="isDemoOpen = false">
+              <template #list>
+                <button type="button" class="btn-secondary self-start" @click="isDemoOpen = true">{{ $t('kit.demo.open') }}</button>
+              </template>
+              <template #detail>
+                <p class="body-two">{{ $t('kit.demo.detail') }}</p>
+              </template>
+            </ui-master-detail>
+          </kit-demo>
+        </div>
+      </kit-section>
     </div>
   </main>
 </template>
@@ -112,10 +179,21 @@ import tokensCss from '~/styles/tokens.css?raw';
 import typographyCss from '~/styles/typography.css?raw';
 import { readClasses, readTokens } from 'kit/composables/stylesheet';
 
+import KitDemo from 'kit/components/kit-demo.vue';
 import KitSection from 'kit/components/kit-section.vue';
+import UiAvatar from 'global/components/ui-avatar.vue';
+import UiBarChart from 'global/components/ui-bar-chart.vue';
+import UiConfirmButton from 'global/components/ui-confirm-button.vue';
+import UiEmptyState from 'global/components/ui-empty-state.vue';
+import UiField from 'global/components/ui-field.vue';
+import UiMasterDetail from 'global/components/ui-master-detail.vue';
+import UiPagination from 'global/components/ui-pagination.vue';
+import UiProgressBar from 'global/components/ui-progress-bar.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
+import UiStatTile from 'global/components/ui-stat-tile.vue';
 
 // variables
-const SECTIONS = ['palette', 'tokens', 'shadows', 'radius', 'typography', 'components'] as const;
+const SECTIONS = ['palette', 'tokens', 'shadows', 'radius', 'typography', 'components', 'kit'] as const;
 const TONES = [
   { name: 'success', classes: 'bg-success-subtle text-fg-success' },
   { name: 'warning', classes: 'bg-warning-subtle text-fg-warning' },
@@ -134,6 +212,20 @@ const semanticTokens = Object.entries(SEMANTIC_PREFIXES).flatMap(([namespace, pr
 const shadows = readTokens(THEME_TOKENS_CSS, 'shadow');
 const radii = readTokens(THEME_TOKENS_CSS, 'radius');
 const typeClasses = readClasses(typographyCss);
+const SEGMENTS = [
+  { key: 'one' as const, label: 'Vue d’ensemble' },
+  { key: 'two' as const, label: 'Production', count: 3 },
+];
+const CHART_SERIES = [{ key: 'olives', colorClass: 'bg-primary-olive-light', hoverClass: 'bg-primary-olive-mid', currentClass: 'bg-primary-olive-dark' }];
+const CHART_BARS = [
+  { label: 'lun.', values: { olives: 620 } },
+  { label: 'mar.', values: { olives: 980 } },
+  { label: 'mer.', values: { olives: 410 } },
+  { label: 'auj.', values: { olives: 1240 }, isCurrent: true },
+];
+const segment = ref<'one' | 'two'>('one');
+const demoPage = ref(1);
+const isDemoOpen = ref(false);
 const isDark = ref(document.documentElement.classList.contains('dark'));
 
 // event handlers

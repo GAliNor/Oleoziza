@@ -28,6 +28,10 @@
     "components": {
       "title": "Classes partagées",
       "description": "Boutons, étiquettes, champs et cartes de styles/*.css."
+    },
+    "kit": {
+      "title": "Composants",
+      "description": "Les composants partagés de global/components."
     }
   },
   "tones": {
@@ -50,5 +54,15 @@
     "error": "Ce champ est obligatoire.",
     "tile": "Brut",
     "tileActive": "Net"
+  },
+  "demo": {
+    "delete": "Supprimer",
+    "confirmDelete": "Confirmer la suppression",
+    "empty": "Aucun lot pour l’instant.",
+    "error": "Chargement impossible.",
+    "retry": "Réessayer",
+    "back": "Retour",
+    "open": "Ouvrir le détail",
+    "detail": "Le détail remplace la liste."
   }
 }
