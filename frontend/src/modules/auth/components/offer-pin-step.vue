@@ -16,5 +16,8 @@ import CredentialForm from 'auth/components/credential-form.vue';
 defineProps<{ isLoading: boolean; errorMessage: string }>();
 
 // emits
-const emit = defineEmits<{ submit: [pin: string]; skip: [] }>();
+const emit = defineEmits<{
+  (event: 'submit', pin: string): void;
+  (event: 'skip'): void;
+}>();
 </script>

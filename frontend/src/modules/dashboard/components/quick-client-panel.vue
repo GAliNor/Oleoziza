@@ -46,7 +46,10 @@ import UiAvatar from 'global/components/ui-avatar.vue';
 defineProps<{ closeLabel: string }>();
 
 // emits
-const emit = defineEmits<{ close: []; receive: [clientId: string] }>();
+const emit = defineEmits<{
+  (event: 'close'): void;
+  (event: 'receive', clientId: string): void;
+}>();
 
 // stores
 const clientStore = useClientStore();

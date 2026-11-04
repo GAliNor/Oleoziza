@@ -16,7 +16,7 @@
 defineProps<{ label: string; confirmLabel: string; isDisabled?: boolean }>();
 
 // emits
-const emit = defineEmits<{ confirm: [] }>();
+const emit = defineEmits<{ (event: 'confirm'): void }>();
 
 // variables
 const isArmed = defineModel<boolean>('isArmed', { default: false });

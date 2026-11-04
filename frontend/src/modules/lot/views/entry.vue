@@ -53,9 +53,6 @@ import UiSegmented from 'global/components/ui-segmented.vue';
 import LotBoard from 'lot/components/lot-board.vue';
 import LotTable from 'lot/components/lot-table.vue';
 
-// variables
-type RegisterView = 'table' | 'board';
-
 // stores
 const { t } = useI18n();
 const route = useRoute();
@@ -67,6 +64,8 @@ const { period, periodOptions, selectPeriod } = usePeriod();
 const { scopeName } = useSiteScope();
 
 // variables
+type RegisterView = 'table' | 'board';
+
 const search = ref('');
 
 // computed

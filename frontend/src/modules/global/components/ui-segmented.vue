@@ -48,7 +48,7 @@ const props = withDefaults(
 );
 
 // emits
-const emit = defineEmits<{ 'update:modelValue': [value: T] }>();
+const emit = defineEmits<{ (event: 'update:modelValue', value: T): void }>();
 
 // variables
 const track = useTemplateRef<HTMLElement>('track');
@@ -65,6 +65,12 @@ const containerClass = computed((): string[] => {
     props.variant === 'strong-pills' ? 'bg-surface shadow-raised ring-1 ring-default' : 'bg-subtle',
   ];
 });
+
+// watchers
+watch(
+  () => [props.modelValue, props.options.map((option) => option.label + option.count).join()],
+  () => nextTick(placeIndicator),
+);
 
 // methods
 const setButton = (key: T, element: HTMLElement | null): void => {
@@ -115,12 +121,6 @@ const handleScroll = (): void => {
 const handleSelect = (key: T): void => {
   emit('update:modelValue', key);
 };
-
-// watchers
-watch(
-  () => [props.modelValue, props.options.map((option) => option.label + option.count).join()],
-  () => nextTick(placeIndicator),
-);
 
 // lifecycle
 onMounted(() => {

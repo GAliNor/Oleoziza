@@ -53,7 +53,7 @@ import { isEmail } from 'auth/composables/normalize-identifier';
 import { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import { OTP_LENGTH, PIN_LENGTH } from 'auth/constants/auth';
 import { MOCK_SMS_CODE } from 'auth/constants/mock-auth';
-import type { LoginMethod, LoginSecretStep } from 'auth/types/auth';
+import type { LoginMethod, SecretStep } from 'auth/types/auth';
 
 import UiField from 'global/components/ui-field.vue';
 import AuthHeading from 'auth/components/auth-heading.vue';
@@ -63,10 +63,15 @@ import PinPad from 'auth/components/pin-pad.vue';
 import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 
 // props
-const props = defineProps<{ step: LoginSecretStep; identifier: string; loginMethods: LoginMethod[]; isLoading: boolean; errorMessage: string }>();
+const props = defineProps<{ step: SecretStep; identifier: string; loginMethods: LoginMethod[]; isLoading: boolean; errorMessage: string }>();
 
 // emits
-const emit = defineEmits<{ submit: [secret: string]; changeIdentifier: []; useMethod: [step: 'pin' | 'otp']; error: [error: unknown] }>();
+const emit = defineEmits<{
+  (event: 'submit', secret: string): void;
+  (event: 'changeIdentifier'): void;
+  (event: 'useMethod', step: 'pin' | 'otp'): void;
+  (event: 'error', error: unknown): void;
+}>();
 
 // stores
 const { t } = useI18n();

@@ -41,7 +41,7 @@ const props = withDefaults(defineProps<{ figures: ISalesFigures; periodLabel: st
 });
 
 // emits
-const emit = defineEmits<{ pending: [] }>();
+const emit = defineEmits<{ (event: 'pending'): void }>();
 
 // stores
 const { t } = useI18n();

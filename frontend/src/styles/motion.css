@@ -113,44 +113,6 @@
   transform: scale(0.99);
 }
 
-.sheet-enter-active,
-.sheet-leave-active {
-  transition: opacity 0.35s var(--ease-premium);
-}
-
-.sheet-enter-active > section,
-.sheet-leave-active > section {
-  transition: transform 0.5s var(--ease-premium);
-}
-
-.sheet-enter-from,
-.sheet-leave-to {
-  opacity: 0;
-}
-
-.sheet-enter-from > section,
-.sheet-leave-to > section {
-  transform: translateY(40px) scale(0.97);
-}
-
-.list-move,
-.list-enter-active {
-  transition:
-    opacity 0.4s var(--ease-premium),
-    transform 0.4s var(--ease-premium);
-}
-
-.list-leave-active {
-  position: absolute;
-  opacity: 0;
-  transition: none;
-}
-
-.list-enter-from {
-  opacity: 0;
-  transform: translateY(8px) scale(0.98);
-}
-
 .grow-y {
   transform-origin: bottom;
   animation: grow-y 0.9s var(--ease-premium) both;
@@ -181,18 +143,12 @@
   }
 
   .tab-switch-enter-active,
-  .tab-switch-leave-active,
-  .sheet-enter-active > section,
-  .sheet-leave-active > section,
-  .list-move,
-  .list-enter-active {
+  .tab-switch-leave-active {
     transition: opacity 0.2s linear;
   }
 
   .tab-switch-enter-from,
   .tab-switch-leave-to,
-  .sheet-enter-from > section,
-  .sheet-leave-to > section,
   .list-enter-from {
     transform: none;
     filter: none;

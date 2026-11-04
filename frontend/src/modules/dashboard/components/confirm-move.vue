@@ -44,7 +44,10 @@ import UiAvatar from 'global/components/ui-avatar.vue';
 const props = defineProps<{ lot: ILot; avatarVariant: AvatarVariant; nextLabel: string }>();
 
 // emits
-const emit = defineEmits<{ close: []; confirm: [lot: ILot, move: ILotMove] }>();
+const emit = defineEmits<{
+  (event: 'close'): void;
+  (event: 'confirm', lot: ILot, move: ILotMove): void;
+}>();
 
 // stores
 const lotStore = useLotStore();

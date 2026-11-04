@@ -78,13 +78,13 @@ import UiBarChart from 'global/components/ui-bar-chart.vue';
 // props
 defineProps<{ period: IPeriod }>();
 
-// variables
-const hoveredKey = ref<PaymentMethodKey | null>(null);
-
 // stores
 const { t } = useI18n();
 const financeStore = useFinanceStore();
 const { figures } = useFinance();
+
+// variables
+const hoveredKey = ref<PaymentMethodKey | null>(null);
 
 // computed
 const sales = computed(() => financeStore.sales);

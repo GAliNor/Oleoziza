@@ -31,7 +31,7 @@ import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 const props = defineProps<{ isOpen: boolean; backLabel: string }>();
 
 // emits
-const emit = defineEmits<{ close: [] }>();
+const emit = defineEmits<{ (event: 'close'): void }>();
 
 // event handlers
 const handleKeydown = (event: KeyboardEvent): void => {

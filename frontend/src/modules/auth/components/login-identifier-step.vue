@@ -21,7 +21,7 @@ import IdentifierForm from 'auth/components/identifier-form.vue';
 defineProps<{ isLoading: boolean; errorMessage: string }>();
 
 // emits
-const emit = defineEmits<{ submit: [] }>();
+const emit = defineEmits<{ (event: 'submit'): void }>();
 
 // stores
 const deviceProfileStore = useDeviceProfileStore();

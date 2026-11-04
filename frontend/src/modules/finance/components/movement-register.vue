@@ -103,9 +103,6 @@ type RegisterTab = 'pending' | 'all';
 const search = ref('');
 const lastId = ref<string | null>(null);
 
-// methods
-const find = (id: string | null): IMovement | undefined => financeStore.movements.find((movement) => movement.id === id);
-
 // computed
 const tabOptions = computed((): { key: RegisterTab; label: string }[] => [
   { key: 'pending', label: t('finance.register.tabs.pending') },
@@ -136,6 +133,9 @@ watch(
   },
   { immediate: true },
 );
+
+// methods
+const find = (id: string | null): IMovement | undefined => financeStore.movements.find((movement) => movement.id === id);
 
 // event handlers
 const handleTab = (key: RegisterTab): void => {

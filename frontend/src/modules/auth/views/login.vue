@@ -11,7 +11,7 @@
       />
       <offer-pin-step v-else-if="step === 'offerPin'" key="offerPin" :is-loading="isLoading" :error-message="errorMessage" @submit="handleOfferPinSubmit" @skip="handleOfferPinSkip" />
       <login-success v-else-if="step === 'success'" key="success" />
-      <login-secret-step-panel
+      <login-secret-step
         v-else
         :key="step"
         v-model:secret="secret"
@@ -38,10 +38,10 @@ import { useAuthStore } from 'auth/stores/auth';
 import { useToastStore } from 'global/stores/toast';
 import { useAuthAction } from 'auth/composables/use-auth-action';
 import { normalizeIdentifier } from 'auth/composables/normalize-identifier';
-import type { LoginMethod, LoginSecretStep } from 'auth/types/auth';
+import type { LoginMethod, SecretStep } from 'auth/types/auth';
 
 import LoginIdentifierStep from 'auth/components/login-identifier-step.vue';
-import LoginSecretStepPanel from 'auth/components/login-secret-step.vue';
+import LoginSecretStep from 'auth/components/login-secret-step.vue';
 import LoginSuccess from 'auth/components/login-success.vue';
 import OfferPinStep from 'auth/components/offer-pin-step.vue';
 
@@ -52,10 +52,10 @@ const { t } = useI18n();
 const { isLoading, errorMessage, setError, clearError, run, goToRedirect } = useAuthAction();
 
 // variables
-type LoginStep = 'identifier' | LoginSecretStep | 'offerPin' | 'success';
+type LoginStep = 'identifier' | SecretStep | 'offerPin' | 'success';
 
 const SUCCESS_DELAY_MS = 1500;
-const STEP_METHODS: Record<LoginSecretStep, LoginMethod> = {
+const STEP_METHODS: Record<SecretStep, LoginMethod> = {
   pin: 'phone_pin',
   password: 'email_password',
   otp: 'phone_otp',
@@ -74,7 +74,7 @@ const showSuccess = async (): Promise<void> => {
   await goToRedirect();
 };
 
-const openStep = (nextStep: LoginSecretStep): void => {
+const openStep = (nextStep: SecretStep): void => {
   clearError();
   secret.value = '';
   step.value = nextStep;

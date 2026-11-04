@@ -29,7 +29,7 @@ import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 defineProps<{ submitLabel: string; isLoading: boolean; errorMessage: string }>();
 
 // emits
-const emit = defineEmits<{ submit: [] }>();
+const emit = defineEmits<{ (event: 'submit'): void }>();
 
 // variables
 const identifier = defineModel<string>({ required: true });

@@ -55,10 +55,6 @@ import TankPlanningCards from 'dashboard/components/tank-planning-cards.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 
-// variables
-type HomeTab = 'overview' | 'production' | 'finance' | 'tanks';
-const TABS: { key: HomeTab; isFinance?: boolean }[] = [{ key: 'overview' }, { key: 'production' }, { key: 'finance', isFinance: true }, { key: 'tanks' }];
-
 // stores
 const { t } = useI18n();
 const dashboardStore = useDashboardStore();
@@ -70,6 +66,10 @@ const route = useRoute();
 const router = useRouter();
 const { period, periodOptions, selectPeriod } = usePeriod();
 const { scopeName } = useSiteScope();
+
+// variables
+type HomeTab = 'overview' | 'production' | 'finance' | 'tanks';
+const TABS: { key: HomeTab; isFinance?: boolean }[] = [{ key: 'overview' }, { key: 'production' }, { key: 'finance', isFinance: true }, { key: 'tanks' }];
 
 // computed
 const dashboard = computed(() => dashboardStore.dashboard);

@@ -73,7 +73,7 @@ import WeightPad from 'reception/components/weight-pad.vue';
 const props = defineProps<{ lot: ILot; siteId: string }>();
 
 // emits
-const emit = defineEmits<{ finish: [] }>();
+const emit = defineEmits<{ (event: 'finish'): void }>();
 
 // stores
 const { t } = useI18n();

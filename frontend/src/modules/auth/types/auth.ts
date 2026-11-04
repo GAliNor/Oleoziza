@@ -76,7 +76,7 @@ export interface IResetPayload {
   secret: string;
 }
 
-export type LoginSecretStep = 'pin' | 'password' | 'otp';
+export type SecretStep = 'pin' | 'password' | 'otp';
 
 export interface IDeviceProfileStore {
   profiles: IDeviceProfile[];
