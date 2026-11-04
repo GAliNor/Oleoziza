@@ -1,5 +1,5 @@
 // PROTOTYPE — throwaway mock data for the Home prototypes (tickets 0018 and 0019). Not production code.
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 
 export type LotStatus = 'received' | 'waiting' | 'pressing' | 'pressed' | 'withdrawn';
 

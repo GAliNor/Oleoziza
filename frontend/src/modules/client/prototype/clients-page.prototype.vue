@@ -126,7 +126,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { formatPhone } from 'global/composables/phone';
 import { formatDh, formatKg, type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MANAGEMENT_CLIENTS, type IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';

@@ -20,7 +20,7 @@
 // imports
 import { computed } from 'vue';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { PERIODS } from 'dashboard/prototype/use-period.prototype';
 import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
 

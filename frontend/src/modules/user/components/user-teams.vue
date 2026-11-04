@@ -36,7 +36,7 @@
 <script setup lang="ts">
 // imports
 import { formatFullName } from 'user/composables/format';
-import type { ISite } from 'global/types/site';
+import type { ISite } from 'site/types/site';
 import type { IStaffUser, StaffRole } from 'user/types/user';
 
 import UserAvatar from 'user/components/user-avatar.vue';

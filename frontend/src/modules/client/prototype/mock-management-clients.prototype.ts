@@ -1,6 +1,6 @@
 // PROTOTYPE — mock rows and details for the Management Clients page (ticket 0030) until the Money and Stock data models exist.
 import { CLIENTS_MOCK } from 'global/constants/mock-clients';
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { CLIENTS, type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { ORIGIN_SUGGESTIONS } from 'reception/constants/reception';
 

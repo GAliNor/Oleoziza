@@ -2,9 +2,9 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useSessionStore } from 'global/stores/session';
-import SiteMockService from 'global/services/site.mock';
-import { useSiteStore } from 'global/stores/site';
-import { ALL_SITES } from 'global/constants/site';
+import SiteMockService from 'site/services/site.mock';
+import { useSiteStore } from 'site/stores/site';
+import { ALL_SITES } from 'site/constants/site';
 import type { ISession, Permission } from 'global/types/session';
 
 const OUJDA = 'site-oujda';
@@ -82,5 +82,43 @@ describe('site store remembered Site', () => {
     siteStore.reset();
     await siteStore.fetchSites();
     expect(siteStore.currentSiteId).toBe(BERKANE);
+  });
+});
+
+describe('site store saving', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => undefined, removeItem: () => undefined });
+    signIn({}, true);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('creates a Site and shows it in the reloaded list', async () => {
+    const siteStore = useSiteStore();
+    const created = await siteStore.save({ name: 'Huilerie Taourirt', city: 'Taourirt' });
+    expect(siteStore.sites.map((site) => site.id)).toContain(created?.id);
+    await siteStore.remove(created?.id ?? '');
+    expect(siteStore.sites.map((site) => site.id)).not.toContain(created?.id);
+  });
+
+  it('moves the current Site away when it is removed', async () => {
+    const siteStore = useSiteStore();
+    const created = await siteStore.save({ name: 'Huilerie Taourirt', city: 'Taourirt' });
+    siteStore.selectSite(created?.id ?? '');
+    await siteStore.remove(created?.id ?? '');
+    expect(siteStore.currentSiteId).not.toBe(created?.id);
+  });
+
+  it('reports a failed save apart from a failed load', async () => {
+    vi.spyOn(SiteMockService.prototype, 'create').mockRejectedValue(new Error('down'));
+    const siteStore = useSiteStore();
+    expect(await siteStore.save({ name: 'X', city: 'Y' })).toBeNull();
+    expect([siteStore.hasSaveError, siteStore.hasError, siteStore.isSaving]).toEqual([true, false, false]);
+    siteStore.clearSaveError();
+    expect(siteStore.hasSaveError).toBe(false);
   });
 });

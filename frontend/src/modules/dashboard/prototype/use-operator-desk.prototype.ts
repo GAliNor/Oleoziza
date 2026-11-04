@@ -4,13 +4,13 @@ import { useRouter } from 'vue-router';
 
 import { useSessionStore } from 'global/stores/session';
 import { useClientStore } from 'global/stores/client';
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
 import { toPrototypeLot } from 'dashboard/prototype/reception-bridge.prototype';
 import { advanceLot, createLots, formatDh, formatKg, LOT_STATUSES, STATUS_LABELS, type ILotPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { AvatarKind } from 'global/types/avatar';
 
 export interface IDeskClient {

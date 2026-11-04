@@ -1,5 +1,5 @@
 import { PERMISSIONS, ROLE_DEFAULT_PERMISSIONS } from 'auth/constants/permissions';
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { IMockInvitation, IMockUser } from 'auth/types/mock-auth';
 
 export const MOCK_SIGNING_JWK = {

@@ -109,7 +109,7 @@
                 type="button"
                 class="btn-secondary border-danger-subtle text-fg-danger hover:border-danger hover:bg-danger-subtle"
                 :class="{ 'bg-danger text-fg-on-action hover:bg-danger/90': isDeleteArmed }"
-                :disabled="siteAdminStore.isSaving"
+                :disabled="siteStore.isSaving"
                 @click="handleDelete"
               >
                 {{ isDeleteArmed ? $t('site.delete.confirm') : $t('site.delete.action') }}
@@ -128,10 +128,9 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useSiteStore } from 'global/stores/site';
-import { useSiteAdminStore } from 'site/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
-import type { ISite } from 'global/types/site';
+import type { ISite } from 'site/types/site';
 
 import AppLayout from 'global/components/app-layout.vue';
 import SiteForm from 'site/components/site-form.vue';
@@ -142,7 +141,6 @@ import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 
 // stores
 const siteStore = useSiteStore();
-const siteAdminStore = useSiteAdminStore();
 const toastStore = useToastStore();
 const { t } = useI18n();
 const route = useRoute();
@@ -223,7 +221,7 @@ const handleDelete = async (): Promise<void> => {
     isDeleteArmed.value = true;
     return;
   }
-  const isDeleted = await siteAdminStore.remove(activeSite.value.id);
+  const isDeleted = await siteStore.remove(activeSite.value.id);
   if (!isDeleted) {
     toastStore.push(t('site.delete.error'), 'danger');
     return;

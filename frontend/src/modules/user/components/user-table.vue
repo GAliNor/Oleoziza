@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 // imports
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { formatPhone } from 'global/composables/phone';
 import { formatDateTime, formatFullName } from 'user/composables/format';
 import type { IStaffUser } from 'user/types/user';

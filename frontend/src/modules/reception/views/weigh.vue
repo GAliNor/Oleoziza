@@ -42,7 +42,7 @@
 // imports
 import { computed, watch } from 'vue';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useReceptionStore } from 'reception/stores/reception';
 import { formatKg, formatTime } from 'reception/composables/format';
 

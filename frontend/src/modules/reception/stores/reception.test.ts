@@ -8,7 +8,7 @@ import { useClientStore } from 'global/stores/client';
 import { createWeighingDraft } from 'reception/composables/weighing';
 import { createId } from 'global/composables/crypto';
 import { CLIENTS_MOCK } from 'global/constants/mock-clients';
-import { SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
 
 const RECEIVED_LOT_CODE = 'OJ-2627-0158';
 

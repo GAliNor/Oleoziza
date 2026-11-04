@@ -23,7 +23,7 @@
 // imports
 import { computed } from 'vue';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import {
   createLots,
   formatDelta,

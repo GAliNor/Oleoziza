@@ -54,7 +54,7 @@ import AppToast from 'global/components/app-toast.vue';
 import AvatarTag from 'global/components/avatar-tag.vue';
 import BackButton from 'global/components/back-button.vue';
 import NetworkBadge from 'global/components/network-badge.vue';
-import SiteSwitcher from 'global/components/site-switcher.vue';
+import SiteSwitcher from 'site/components/site-switcher.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
 import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';

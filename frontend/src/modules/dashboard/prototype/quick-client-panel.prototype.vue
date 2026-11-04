@@ -35,7 +35,7 @@
 import { computed, ref } from 'vue';
 
 import { useClientStore } from 'global/stores/client';
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { createId } from 'global/composables/crypto';
 import type { ClientKind, IClient } from 'global/types/client';
 

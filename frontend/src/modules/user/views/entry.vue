@@ -116,12 +116,12 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useUserStore } from 'user/stores/user';
 import { matchesFilter } from 'user/composables/filter';
 import { formatFullName } from 'user/composables/format';
 import { NEW_USER, PAGE_SIZE, USER_FILTERS, USER_VIEWS } from 'user/constants/user';
-import type { ISite } from 'global/types/site';
+import type { ISite } from 'site/types/site';
 import type { IStaffUser, UserFilter, UserView } from 'user/types/user';
 
 import AppLayout from 'global/components/app-layout.vue';

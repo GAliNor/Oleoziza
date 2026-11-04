@@ -74,7 +74,7 @@
 // imports
 import { computed, ref } from 'vue';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useClientStore } from 'global/stores/client';
 import { useOnlineStatus } from 'global/composables/use-online-status';
 import { formatPhone, normalizePhone } from 'global/composables/phone';

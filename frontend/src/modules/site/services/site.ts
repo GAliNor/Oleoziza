@@ -1,10 +1,13 @@
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
-import SiteAdminMockService from 'site/services/site.mock';
-import type { ISite } from 'global/types/site';
-import type { ISiteAdminService, ISiteForm } from 'site/types/site';
+import SiteMockService from 'site/services/site.mock';
+import type { ISite, ISiteForm, ISiteService } from 'site/types/site';
 
-class SiteAdminApiService extends BaseService implements ISiteAdminService {
+class SiteApiService extends BaseService implements ISiteService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/sites';
+
+  getAll(): Promise<ISite[]> {
+    return this.request<ISite[]>({ method: 'GET', url: this._BASE_API_URL });
+  }
 
   create(form: ISiteForm): Promise<ISite> {
     return this.request<ISite>({ method: 'POST', url: this._BASE_API_URL, data: form });
@@ -19,4 +22,4 @@ class SiteAdminApiService extends BaseService implements ISiteAdminService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? SiteAdminMockService : SiteAdminApiService;
+export default IS_MOCK_DATA_SOURCE ? SiteMockService : SiteApiService;

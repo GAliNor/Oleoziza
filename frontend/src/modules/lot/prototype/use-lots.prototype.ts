@@ -1,7 +1,7 @@
 // PROTOTYPE — in-memory Lots shared by the Opérations views (ticket 0036).
 import { computed, ref } from 'vue';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { usePeriod, type PeriodKey } from 'dashboard/prototype/use-period.prototype';
 import { createLotRecords, TODAY, type ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
 

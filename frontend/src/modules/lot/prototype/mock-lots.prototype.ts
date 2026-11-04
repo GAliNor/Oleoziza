@@ -1,5 +1,5 @@
 // PROTOTYPE — the Site's Lots for the Management Opérations page (ticket 0036), Service Milling only, until the Operations data model exists.
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { LOT_STATUSES, OIL_DENSITY, createLots, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 
 export interface IStepPrototype {

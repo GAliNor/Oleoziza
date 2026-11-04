@@ -1,5 +1,5 @@
 // PROTOTYPE — Payments and Payouts for the Management Finances page (ticket 0034), until the Money data model exists.
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { PaymentMethodKey } from 'dashboard/prototype/mock-home.prototype';
 
 export type MovementKind = 'payment' | 'payout';

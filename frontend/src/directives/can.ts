@@ -1,7 +1,7 @@
 // imports
 import { watchEffect, type Directive, type WatchStopHandle } from 'vue';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import type { Permission } from 'global/types/session';
 
 // variables

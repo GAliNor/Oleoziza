@@ -38,7 +38,7 @@
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { PERIODS } from 'dashboard/prototype/use-period.prototype';
 import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
 

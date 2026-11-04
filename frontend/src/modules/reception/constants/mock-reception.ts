@@ -1,4 +1,4 @@
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { CLIENTS_MOCK } from 'global/constants/mock-clients';
 import type { ILot, ISiteReceptionSettings, IWeighing } from 'reception/types/reception';
 

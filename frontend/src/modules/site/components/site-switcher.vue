@@ -27,8 +27,8 @@
 // imports
 import { computed } from 'vue';
 
-import { useSiteStore } from 'global/stores/site';
-import { ALL_SITES } from 'global/constants/site';
+import { useSiteStore } from 'site/stores/site';
+import { ALL_SITES } from 'site/constants/site';
 
 import ChevronDownLineIcon from 'global/icons/chevron-down-line.icon.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';

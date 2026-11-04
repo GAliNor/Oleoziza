@@ -90,7 +90,7 @@
 import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useUserStore } from 'user/stores/user';
 import { useUserRights } from 'user/composables/use-user-rights';

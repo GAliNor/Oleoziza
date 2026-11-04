@@ -35,7 +35,7 @@
 <script setup lang="ts">
 // PROTOTYPE — per-Site comparison table shown in "All Sites" mode; a row click switches Site (ticket 0019).
 // imports
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { formatDh, formatKg, SITE_FIGURES } from 'dashboard/prototype/mock-home.prototype';
 
 // props

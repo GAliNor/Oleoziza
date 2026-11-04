@@ -151,7 +151,7 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { formatDh, formatKg, formatQuintals, formatTime } from 'reception/composables/format';

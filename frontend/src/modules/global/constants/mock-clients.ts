@@ -1,4 +1,4 @@
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'global/constants/mock-sites';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { IClient } from 'global/types/client';
 
 export const CLIENTS_MOCK: IClient[] = [

@@ -69,7 +69,7 @@ import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useSessionStore } from 'global/stores/session';
-import { useSiteStore } from 'global/stores/site';
+import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { formatPhone } from 'global/composables/phone';
