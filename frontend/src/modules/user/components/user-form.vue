@@ -1,5 +1,5 @@
 <template>
-  <form class="card flex max-w-2xl flex-col gap-4 rounded-2xl" novalidate @submit.prevent="handleSubmit">
+  <form class="card flex max-w-2xl flex-col gap-4" novalidate @submit.prevent="handleSubmit">
     <h2 class="heading-four">{{ $t('user.form.title') }}</h2>
 
     <div class="flex flex-col gap-1.5">

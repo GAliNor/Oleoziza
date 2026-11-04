@@ -4,7 +4,7 @@
 
     <div v-else-if="receptionStore.isLoading && !lot" class="mx-auto flex w-full max-w-5xl flex-col gap-4">
       <div class="skeleton h-12" />
-      <div class="skeleton h-48 rounded-3xl" />
+      <div class="skeleton h-48 rounded-card" />
     </div>
 
     <ui-empty-state v-else-if="!lot" size="page" :message="$t('reception.station.notFound')">
@@ -20,7 +20,7 @@
           :key="item.id"
           :to="{ name: 'reception-station', params: { code: item.code } }"
           replace
-          class="flex shrink-0 flex-col rounded-2xl border px-3 py-2 transition-colors"
+          class="flex shrink-0 flex-col rounded-card border px-3 py-2 transition-colors"
           :class="item.id === lot.id ? 'border-brand bg-selected/50' : 'border-default bg-surface'"
         >
           <span class="heading-six">{{ item.clientName }}</span>

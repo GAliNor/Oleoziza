@@ -10,6 +10,12 @@ export type MovementPurpose = 'fee' | 'sale' | 'purchase';
 
 export type Settlement = 'credit_note' | 'refund';
 
+/** The mill's account money lands on or leaves from. Stands in until the bank account library exists. */
+export interface IBankAccount {
+  bank: string;
+  accountEnd: string;
+}
+
 /** A Payment received or a Payout paid. Provisional until the Money data model settles. */
 export interface IMovement {
   id: string;
@@ -17,12 +23,14 @@ export interface IMovement {
   kind: MovementKind;
   purpose: MovementPurpose;
   siteId: string;
+  clientId: string;
   client: string;
   label: string;
   amount: number;
   feeOffset?: number;
   method: PaymentMethodKey;
   reference?: string;
+  bankAccount?: IBankAccount;
   oilKg?: number;
   proofUrl: string | null;
   status: MovementStatus;
@@ -33,6 +41,24 @@ export interface IMovement {
   decidedAt?: string;
   note?: string;
   settlement?: Settlement;
+}
+
+/** One line of the details printed on a movement's ticket. */
+export interface ITicketFact {
+  key: string;
+  label: string;
+  value: string;
+  chip?: string;
+  note?: string;
+  isWide?: boolean;
+}
+
+/** Where the open movement sits among those still to confirm; `position` is null once it has left that list. */
+export interface IPendingSteps {
+  position: number | null;
+  total: number;
+  previousId: string | null;
+  nextId: string | null;
 }
 
 export interface ISalesFigures {

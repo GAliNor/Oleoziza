@@ -8,4 +8,5 @@ One file per runtime library, and only that file imports the package (`import ty
 | `dicebear.ts` | @dicebear/core, @dicebear/styles | `renderAvatarDataUri`, `AvatarStyleName`. Styles load lazily on first use. Used by `global/composables/avatar.ts`. |
 | `i18n.ts` | vue-i18n | `install`, `i18n`. Loads every `modules/*/locales/*.json`. |
 | `jose.ts` | jose | `importJwtKey`, `verifyJwt`, `readUnverifiedJwt`, `signJwt` (ES256). Claims are read in `auth/services/token.ts`. |
+| `map.ts` | maplibre-gl, through `lib/map` | `install`. One static map; `useMap()` from `map`. MapLibre also lives in `lib/map/adapters/maplibre/` and loads on the first `<MapView>`. |
 | `pinia.ts` | pinia | `install`. |

@@ -66,27 +66,11 @@
       
       </template>
       <template v-if="activeClient" #detail>
-        <div :key="activeClient.id" class="stagger flex flex-col gap-4">
-          <client-header :client="activeClient" />
-          <div class="grid grid-cols-3 gap-2 lg:gap-3">
-            <div class="card p-3">
-              <p class="body-three">{{ $t('client.record.oilStock') }}</p>
-              <p class="text-xl figure">{{ formatKg(activeClient.oilStockKg) }}</p>
-            </div>
-            <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': isFinanceShown && activeClient.balance }">
-              <p class="body-three">{{ $t('client.record.owes') }}</p>
-              <p class="text-xl figure" :class="{ 'text-fg-warning': isFinanceShown && activeClient.balance }">
-                {{ isFinanceShown ? formatMoney(activeClient.balance) : '—' }}
-              </p>
-            </div>
-            <div class="card p-3">
-              <p class="body-three">{{ $t('client.record.lots') }}</p>
-              <p class="text-xl figure">{{ activeClient.lots }}</p>
-            </div>
-          </div>
+        <div :key="activeClient.id" class="stagger flex flex-col gap-10">
+          <client-header :client="activeClient" :is-finance-shown="isFinanceShown" />
+          <client-coordinates :client="activeClient" />
           <management-client-detail :client="activeClient" :is-finance-shown="isFinanceShown" />
         </div>
-      
       </template>
     </ui-master-detail>
   </section>
@@ -104,14 +88,13 @@ import { formatPhone } from 'global/composables/phone';
 import { useClientStore } from 'client/stores/client';
 import { useSiteScope } from 'site/composables/use-site-scope';
 import type { ClientFollowUp, IClientRecord } from 'client/types/client';
-import { formatMoney } from 'global/composables/money';
-import { formatKg } from 'lot/composables/quantity';
 
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
+import ClientCoordinates from 'client/components/client-coordinates.vue';
 import ClientHeader from 'client/components/client-header.vue';
 import ManagementClientDetail from 'client/components/management-client-detail.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';

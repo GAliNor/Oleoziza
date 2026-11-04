@@ -59,11 +59,11 @@
       <ui-pagination v-model:page="page" :page-count="pageCount" :total="rows.length" :page-size="PAGE_SIZE" />
     
     </template>
-    <template v-if="nextPendingId" #actions>
-      <button type="button" class="link ml-auto" @click="handleOpen(nextPendingId)">{{ $t('finance.register.nextPending') }}</button>
+    <template v-if="steps.total" #actions>
+      <pending-pager class="w-full sm:ml-auto sm:w-auto" :steps="steps" @open="handleOpen" />
     </template>
     <template v-if="active" #detail>
-      <movement-detail :key="active.id" class="max-w-4xl" :movement="active" />
+      <movement-detail :key="active.id" :movement="active" />
     
     </template>
   </ui-master-detail>
@@ -78,8 +78,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useFinance } from 'finance/composables/use-finance';
+import { pendingSteps } from 'finance/composables/pending-steps';
 import { MOVEMENT_STATUS_TONES } from 'finance/constants/finance';
-import type { IMovement } from 'finance/types/finance';
+import type { IMovement, IPendingSteps } from 'finance/types/finance';
 import { formatMoney } from 'global/composables/money';
 import { formatDateTime } from 'global/composables/date';
 
@@ -89,6 +90,7 @@ import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import SalesTiles from 'finance/components/sales-tiles.vue';
 import MovementDetail from 'finance/components/movement-detail.vue';
+import PendingPager from 'finance/components/pending-pager.vue';
 
 // stores
 const route = useRoute();
@@ -120,7 +122,7 @@ const { page, pageCount, pageRows } = usePagedRows(rows, PAGE_SIZE);
 const openId = computed((): string | null => (typeof route.query.movement === 'string' ? route.query.movement : null));
 const isOpen = computed((): boolean => find(openId.value) !== undefined);
 const active = computed((): IMovement | undefined => find(openId.value ?? lastId.value));
-const nextPendingId = computed((): string | null => pending.value.find((movement) => movement.id !== openId.value)?.id ?? null);
+const steps = computed((): IPendingSteps => pendingSteps(pending.value, find(openId.value)));
 
 // watchers
 watch([search, tab], () => {

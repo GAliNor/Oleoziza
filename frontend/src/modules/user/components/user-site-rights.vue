@@ -1,5 +1,5 @@
 <template>
-  <article class="card flex flex-col gap-4 rounded-2xl">
+  <article class="card flex flex-col gap-4">
     <header class="flex flex-wrap items-center gap-3">
       <map-pin-line-icon class="h-5 w-5 text-fg-place" />
       <h4 class="font-semibold text-fg-display">{{ siteName }}</h4>

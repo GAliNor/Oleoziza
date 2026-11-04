@@ -33,7 +33,7 @@
             {{ $t(`reception.modes.${option}`) }}
           </button>
         </div>
-        <p v-if="mode === 'purchase'" class="rounded-xl bg-accent-subtle px-3 py-2 body-two text-fg-accent">
+        <p v-if="mode === 'purchase'" class="rounded-card bg-accent-subtle px-3 py-2 body-two text-fg-accent">
           {{ dailyPrice === null ? $t('reception.open.dailyPriceMissing') : $t('reception.open.dailyPrice', { price: formatMoney(dailyPrice) }) }}
         </p>
       </section>

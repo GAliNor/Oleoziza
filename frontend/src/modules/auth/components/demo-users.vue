@@ -1,5 +1,5 @@
 <template>
-  <details class="rounded-2xl border border-dashed border-accent bg-accent-subtle p-4">
+  <details class="rounded-card border border-dashed border-accent bg-accent-subtle p-4">
     <summary class="cursor-pointer label text-fg-accent">{{ $t('auth.demo.title') }}</summary>
     <ul class="mt-3 flex flex-col gap-1">
       <li v-for="user in DEMO_USERS" :key="user.id">

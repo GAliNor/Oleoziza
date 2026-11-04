@@ -1,6 +1,6 @@
 <template>
   <ol class="flex flex-col gap-2 md:col-start-1 md:row-start-2">
-    <li v-for="(weighing, index) in reversedWeighings" :key="weighing.id" class="flex items-center gap-3 rounded-2xl border border-default bg-surface px-4 py-3" :class="{ rise: index === 0 }">
+    <li v-for="(weighing, index) in reversedWeighings" :key="weighing.id" class="flex items-center gap-3 rounded-card border border-default bg-surface px-4 py-3" :class="{ rise: index === 0 }">
       <span class="round-badge h-9 w-9 bg-subtle text-fg-primary-paragraph">{{ lot.weighings.length - index }}</span>
       <span class="min-w-0 flex-1 body-two">
         {{ formatTime(weighing.recordedAt) }} · {{ weighing.source === 'scale' ? $t('reception.station.scale') : $t('reception.station.manual') }}
@@ -14,7 +14,7 @@
         <span v-if="weighing.isPendingSync" class="chip bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
       </span>
     </li>
-    <li v-if="!lot.weighings.length" class="body-two rounded-2xl border border-dashed border-strong p-6 text-center">
+    <li v-if="!lot.weighings.length" class="body-two rounded-card border border-dashed border-strong p-6 text-center">
       {{ $t('reception.station.noWeighing') }}
     </li>
   </ol>

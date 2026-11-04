@@ -1,22 +1,46 @@
 <template>
-  <header class="flex items-center gap-3">
-    <ui-avatar class="h-16 w-16 text-lg" :name="client.name" :variant="clientAvatarVariant(client.kind)" />
-    <div class="min-w-0 flex-1">
-      <h2 class="heading-four truncate">{{ client.name }}</h2>
-      <p class="body-two">{{ $t(`client.kinds.${client.kind}`) }} · {{ $t(`client.identifierKinds.${client.kind}`) }} {{ client.identifier }} · {{ client.region }}</p>
-      <p class="body-two truncate">{{ formatPhone(client.phone) }}<template v-if="client.email"> · {{ client.email }}</template></p>
+  <header class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex min-w-0 items-center gap-5">
+      <ui-avatar class="h-20 w-20 shrink-0 text-xl" :name="client.name" :variant="clientAvatarVariant(client.kind)" />
+      <div class="flex min-w-0 flex-col gap-2">
+        <h2 class="heading-two truncate">{{ client.name }}</h2>
+        <p class="flex flex-wrap items-center gap-2">
+          <span class="chip" :class="client.kind === 'company' ? 'bg-accent-subtle text-fg-accent' : 'bg-selected text-fg-brand'">{{ $t(`client.kinds.${client.kind}`) }}</span>
+          <span class="chip" :class="FOLLOW_UP_TONES[client.followUp]">{{ $t(`client.record.followUp.${client.followUp}`) }}</span>
+        </p>
+      </div>
     </div>
+    <dl class="flex shrink-0 gap-10 lg:text-right">
+      <div class="flex flex-col gap-1">
+        <dt class="eyebrow">{{ $t('client.record.oilStock') }}</dt>
+        <dd class="figure text-display-xs text-fg-display">{{ formatKg(client.oilStockKg) }}</dd>
+      </div>
+      <div class="flex flex-col gap-1 border-l border-default pl-10">
+        <dt class="eyebrow">{{ $t('client.record.owes') }}</dt>
+        <dd class="figure text-display-xs" :class="isFinanceShown && client.balance ? 'text-fg-warning' : 'text-fg-display'">
+          {{ isFinanceShown ? formatMoney(client.balance) : '—' }}
+        </dd>
+      </div>
+    </dl>
   </header>
 </template>
 
 <script setup lang="ts">
 // imports
-import { formatPhone } from 'global/composables/phone';
+import { formatMoney } from 'global/composables/money';
+import { formatKg } from 'lot/composables/quantity';
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
-import type { IClientRecord } from 'client/types/client';
+import type { ClientFollowUp, IClientRecord } from 'client/types/client';
 
 import UiAvatar from 'global/components/ui-avatar.vue';
 
 // props
-defineProps<{ client: IClientRecord }>();
+defineProps<{ client: IClientRecord; isFinanceShown: boolean }>();
+
+// variables
+const FOLLOW_UP_TONES: Record<ClientFollowUp, string> = {
+  active: 'bg-success-subtle text-fg-success',
+  'at-risk': 'bg-warning-subtle text-fg-warning',
+  inactive: 'bg-subtle text-fg-primary-paragraph',
+};
 </script>

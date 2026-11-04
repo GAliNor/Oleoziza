@@ -1,5 +1,5 @@
 <template>
-  <div class="card overflow-x-auto rounded-2xl p-0">
+  <div class="card overflow-x-auto p-0">
     <table class="data-table min-w-160">
       <thead>
         <tr>

@@ -1,12 +1,12 @@
 <template>
   <app-layout>
     <section class="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4">
-      <header class="rise flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+      <header :class="isDetailOpen ? 'sr-only' : 'rise flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between'">
         <div class="flex flex-col gap-1">
           <h1 class="heading-one">{{ $t('finance.page.title') }}</h1>
-          <p class="body-two">{{ $t('finance.page.subtitle', { scope: scopeName }) }}</p>
+          <p v-if="!isDetailOpen" class="body-two">{{ $t('finance.page.subtitle', { scope: scopeName }) }}</p>
         </div>
-        <ui-segmented :model-value="period.key" :options="periodOptions" :label="$t('global.period.label')" @update:model-value="selectPeriod" />
+        <ui-segmented v-if="!isDetailOpen" :model-value="period.key" :options="periodOptions" :label="$t('global.period.label')" @update:model-value="selectPeriod" />
       </header>
       <p v-if="siteStore.isAllSites" class="chip self-start bg-subtle text-fg-primary-paragraph">{{ $t('finance.page.readOnly') }}</p>
 
@@ -17,9 +17,9 @@
       </ui-empty-state>
       <div v-else-if="!financeStore.sales" class="flex flex-col gap-3">
         <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div v-for="index in 4" :key="index" class="skeleton h-28 rounded-2xl" />
+          <div v-for="index in 4" :key="index" class="skeleton h-28 rounded-card" />
         </div>
-        <div v-for="index in 5" :key="index" class="skeleton h-14 rounded-xl" />
+        <div v-for="index in 5" :key="index" class="skeleton h-14 rounded-card" />
       </div>
       <movement-register v-else />
     </section>
@@ -28,6 +28,9 @@
 
 <script setup lang="ts">
 // imports
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
 import { useFinanceStore } from 'finance/stores/finance';
 import { useSiteStore } from 'site/stores/site';
 import { useFinanceLoader } from 'finance/composables/use-finance';
@@ -40,9 +43,13 @@ import UiSegmented from 'global/components/ui-segmented.vue';
 import MovementRegister from 'finance/components/movement-register.vue';
 
 // stores
+const route = useRoute();
 const financeStore = useFinanceStore();
 const siteStore = useSiteStore();
 const { period, periodOptions, selectPeriod } = usePeriod();
 const { scopeName } = useSiteScope();
 const { reload } = useFinanceLoader();
+
+// computed
+const isDetailOpen = computed((): boolean => financeStore.movements.some((movement) => movement.id === route.query.movement));
 </script>

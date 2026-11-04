@@ -1,5 +1,5 @@
 <template>
-  <div v-if="layout === 'stacked'" class="card flex min-w-0 flex-col divide-y divide-subtle rounded-2xl p-0">
+  <div v-if="layout === 'stacked'" class="card flex min-w-0 flex-col divide-y divide-subtle rounded-card p-0">
     <div v-for="tile in tiles" :key="tile.key" class="flex items-center justify-between gap-3 px-5 py-3.5">
       <div class="min-w-0">
         <p class="eyebrow">{{ tile.label }}</p>
@@ -14,7 +14,7 @@
       v-for="tile in tiles"
       :key="tile.key"
       :type="isPendingAction(tile.key) ? 'button' : undefined"
-      class="min-w-0 rounded-2xl text-left"
+      class="min-w-0 rounded-card text-left"
       :class="[isPendingAction(tile.key) ? 'transition hover:ring-2 hover:ring-warning/40' : '', isPendingAction(tile.key) && isActive ? 'ring-2 ring-warning/60' : '']"
       @click="isPendingAction(tile.key) && emit('pending')"
     >

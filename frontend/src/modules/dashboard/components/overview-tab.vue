@@ -16,7 +16,7 @@
         <sales-tiles :figures="figures" :period-label="period.label" layout="stacked" class="-mt-3" />
         <sales-lines :title="$t(financeStore.sales.chartTitleKey)" :bars="financeStore.sales.bars" />
       </template>
-      <div v-else class="-mt-3 skeleton h-64 rounded-2xl" />
+      <div v-else class="-mt-3 skeleton h-64 rounded-card" />
     </div>
   </div>
 </template>

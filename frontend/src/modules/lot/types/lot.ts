@@ -23,12 +23,15 @@ export interface ILotMoveRecord {
   by: string;
 }
 
+export type LotStepKey = LotStatus | 'reception' | 'weighing' | 'stored';
+
 export interface ILotStep {
-  key: string;
+  key: LotStepKey;
   label: string;
   detail: string;
   at: string;
   by: string;
+  imageUrl: string | null;
 }
 
 export interface ILot {
@@ -52,6 +55,7 @@ export interface ILot {
   dailyPricePerKg: number | null;
   weighings: IWeighing[];
   moves: ILotMoveRecord[];
+  stepPhotos: Partial<Record<LotStepKey, string>>;
   receivedAt: string;
   receivedBy: string;
   finishedAt: string | null;

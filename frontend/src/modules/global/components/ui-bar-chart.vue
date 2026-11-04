@@ -1,5 +1,5 @@
 <template>
-  <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
+  <div class="card flex min-w-0 flex-col gap-4 p-5">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
       <h2 class="heading-four">{{ title }}</h2>
       <p v-if="unit" class="body-two">{{ unit }}</p>

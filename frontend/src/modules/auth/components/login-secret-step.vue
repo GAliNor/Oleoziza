@@ -2,7 +2,7 @@
   <div class="stagger flex flex-col gap-8">
     <auth-heading :eyebrow="$t('auth.login.eyebrow')" :title="$t(`auth.login.methodTitle.${step}`)" />
 
-    <div class="flex items-center justify-between gap-3 rounded-2xl bg-subtle/80 py-2 pr-2 pl-4">
+    <div class="flex items-center justify-between gap-3 rounded-card bg-subtle/80 py-2 pr-2 pl-4">
       <span class="truncate label">{{ displayIdentifier }}</span>
       <button type="button" class="btn-secondary min-h-9 shrink-0 px-4" @click="emit('changeIdentifier')">
         {{ $t('auth.login.changeIdentifier') }}

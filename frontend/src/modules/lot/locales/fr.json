@@ -66,6 +66,10 @@
     "yield": "rendement {value}",
     "stored": "Versé en cuve",
     "withdrawn": "Retrait",
-    "withdrawnContainers": "bidons de 20 L"
+    "withdrawnContainers": "bidons de 20 L",
+    "showPhoto": "Voir la photo",
+    "backToStep": "Retour au parcours",
+    "photoAlt": "Photo de l’étape {step}",
+    "photoUnavailable": "Photo indisponible"
   }
 }

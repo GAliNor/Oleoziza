@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!sales || !figures" class="skeleton h-64 rounded-2xl" />
+  <div v-if="!sales || !figures" class="skeleton h-64 rounded-card" />
   <div v-else class="stagger flex min-w-0 flex-col gap-5">
     <sales-tiles :figures="figures" :period-label="period.label" />
 
@@ -10,7 +10,7 @@
           <p>{{ $t('dashboard.management.sales.collected', { amount: formatMoneyRounded(bar.values.collected) }) }}</p>
         </template>
       </ui-bar-chart>
-      <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5 lg:col-span-2">
+      <div class="card flex min-w-0 flex-col gap-4 p-5 lg:col-span-2">
         <h2 class="heading-four">{{ $t('dashboard.management.sales.byMethod') }}</h2>
         <div class="flex flex-col items-center gap-5 sm:flex-row lg:flex-col xl:flex-row">
           <div class="relative h-40 w-40 shrink-0">

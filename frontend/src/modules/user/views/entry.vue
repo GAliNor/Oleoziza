@@ -35,7 +35,7 @@
       <ui-master-detail :is-open="isOpen" :back-label="$t('user.back')" @close="handleClose">
         <template #list>
           <div v-if="userStore.isLoading && !userStore.users.length" class="flex flex-col gap-2">
-            <div v-for="index in 4" :key="index" class="skeleton h-14 rounded-xl" />
+            <div v-for="index in 4" :key="index" class="skeleton h-14 rounded-card" />
           </div>
 
           <template v-else-if="view === 'list'">

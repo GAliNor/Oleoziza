@@ -33,7 +33,6 @@
     "photo": "photo",
     "emptyPending": "Rien à confirmer. Tout est à jour.",
     "emptyAll": "Aucun mouvement sur la période",
-    "nextPending": "Suivant à confirmer →",
     "columns": {
       "date": "Date",
       "client": "Client",
@@ -99,6 +98,27 @@
     "cancelPlaceholder": "Ex. chèque revenu impayé",
     "cancel": "Annuler le paiement",
     "cancelStart": "Annuler ce paiement…"
+  },
+  "recap": {
+    "title": "Récapitulatif"
+  },
+  "pager": {
+    "label": "À confirmer",
+    "position": "{position} sur {total}",
+    "previous": "Précédent à confirmer",
+    "next": "Suivant"
+  },
+  "ticket": {
+    "amount": "Montant",
+    "from": "De",
+    "to": "Vers",
+    "client": "Client",
+    "cashDesk": "Caisse",
+    "millStock": "Stock du moulin",
+    "account": "Compte •••• {end}",
+    "noAccount": "Compte non renseigné",
+    "recordedAt": "Saisi le",
+    "quantity": "Quantité"
   },
   "toasts": {
     "onlineOnly": "La confirmation se fait en ligne uniquement.",

@@ -2,7 +2,9 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ClientMockService from 'client/services/client.mock';
+import { ACCOUNTS_MOCK } from 'client/constants/mock-accounts';
 import { CLIENT_RECORDS_MOCK } from 'client/constants/mock-client-records';
+import { summarizeActivity } from 'client/composables/client-activity';
 import { useClientStore } from 'client/stores/client';
 import type { IClient } from 'client/types/client';
 
@@ -87,6 +89,39 @@ describe('the mock Client records', () => {
   it('keep the figures of every Site adding up to the Client’s', () => {
     const shared = CLIENT_RECORDS_MOCK.filter((record) => record.sites.length > 1 && record.balance);
     shared.forEach((record) => expect(record.sites.reduce((sum, site) => sum + site.balance, 0)).toBeCloseTo(record.balance, -1));
+  });
+});
+
+describe('the mock Client finances', () => {
+  it('owe the same on the record and on the account', () => {
+    CLIENT_RECORDS_MOCK.forEach((record) => expect([record.name, ACCOUNTS_MOCK[record.id].dueDh, ACCOUNTS_MOCK[record.id].oilStockKg]).toEqual([record.name, record.balance, record.oilStockKg]));
+  });
+
+  it('never owe more than they generated', () => {
+    CLIENT_RECORDS_MOCK.forEach((record) => expect(record.balance).toBeLessThanOrEqual(summarizeActivity(record.history).generatedDh));
+  });
+});
+
+describe('the mock Client lots', () => {
+  it('have one code each, across every Client', () => {
+    const codes = CLIENT_RECORDS_MOCK.flatMap((record) => record.history.map((lot) => lot.code));
+    expect(new Set(codes).size).toBe(codes.length);
+  });
+
+  it('belong to the Client’s own Sites, newest first, inside the rendement alert range', () => {
+    CLIENT_RECORDS_MOCK.forEach((record) => {
+      const siteIds = record.sites.map((site) => site.siteId);
+      record.history.forEach((lot, index) => {
+        expect(siteIds).toContain(lot.siteId);
+        expect(lot.oilKg / lot.kg).toBeGreaterThanOrEqual(0.12);
+        expect(lot.oilKg / lot.kg).toBeLessThanOrEqual(0.24);
+        if (index) expect(lot.receivedOn <= record.history[index - 1].receivedOn).toBe(true);
+      });
+    });
+  });
+
+  it('place every Client in a Province of the Oriental', () => {
+    expect(CLIENT_RECORDS_MOCK.filter((record) => !record.province).map((record) => record.region)).toEqual([]);
   });
 });
 

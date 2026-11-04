@@ -6,7 +6,7 @@ import type { ILot } from 'lot/types/lot';
 const clean = (text: string): string => text.replace(/\s/g, ' ');
 
 const lot = (changes: Partial<ILot>): ILot =>
-  ({ clientName: 'Said Tahiri', variety: 'Haouzia', netKg: 2050, oilKg: null, tankName: null, withdrawnKg: 0, receivedAt: '2026-11-04T07:45:00+01:00', receivedBy: 'Hamid', moves: [], ...changes }) as ILot;
+  ({ clientName: 'Said Tahiri', variety: 'Haouzia', netKg: 2050, oilKg: null, tankName: null, withdrawnKg: 0, receivedAt: '2026-11-04T07:45:00+01:00', receivedBy: 'Hamid', moves: [], stepPhotos: {}, ...changes }) as ILot;
 
 const move = (status: ILot['status']): ILot['moves'][number] => ({ status, at: '2026-11-04T12:00:00+01:00', by: 'Abdelkader' });
 
@@ -26,6 +26,16 @@ describe('buildLotTimeline', () => {
 
   it('skips the Tank when the oil went straight to the Client', () => {
     expect(buildLotTimeline(lot({ oilKg: 389, moves: [move('pressed')] })).map((step) => step.key)).not.toContain('stored');
+  });
+
+  it('gives a step its photo, and leaves the others without', () => {
+    const steps = buildLotTimeline(lot({ oilKg: 389, tankName: 'Cuve A2', moves: [move('pressed')], stepPhotos: { weighing: 'ticket.jpg', stored: 'tank.jpg' } }));
+    expect(steps.map((step) => [step.key, step.imageUrl])).toEqual([
+      ['reception', null],
+      ['weighing', 'ticket.jpg'],
+      ['pressed', null],
+      ['stored', 'tank.jpg'],
+    ]);
   });
 
   it('shows what left at the Withdrawal', () => {

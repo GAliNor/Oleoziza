@@ -1,8 +1,8 @@
 <template>
-  <aside v-can="'weighing.create'" class="card flex flex-col gap-3 rounded-3xl md:sticky md:top-20 md:col-start-2 md:row-span-2 md:row-start-1">
+  <aside v-can="'weighing.create'" class="card flex flex-col gap-3 rounded-card md:sticky md:top-20 md:col-start-2 md:row-span-2 md:row-start-1">
     <ui-segmented v-model="draft.kind" variant="tabs" is-full :options="weighingKinds" :label="$t('reception.station.kindLabel')" />
 
-    <div class="rounded-3xl bg-neutral-900 p-5 text-white">
+    <div class="rounded-card bg-neutral-900 p-5 text-white">
       <p class="eyebrow text-sm text-neutral-400">
         {{ $t(`reception.station.${draft.kind}`) }}
         <span v-if="draft.source === 'scale'" class="ml-1 rounded-full bg-info-blue px-2 py-0.5 normal-case">{{ $t('reception.station.scale') }}</span>

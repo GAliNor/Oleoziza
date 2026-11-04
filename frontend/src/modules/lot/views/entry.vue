@@ -27,7 +27,7 @@
         </template>
       </ui-empty-state>
       <div v-else-if="lotStore.isLoading && !lotStore.lots.length" class="flex flex-col gap-2">
-        <div v-for="index in 6" :key="index" class="skeleton h-14 rounded-xl" />
+        <div v-for="index in 6" :key="index" class="skeleton h-14 rounded-card" />
       </div>
       <lot-board v-else-if="view === 'board'" :search="search" />
       <lot-table v-else :search="search" />

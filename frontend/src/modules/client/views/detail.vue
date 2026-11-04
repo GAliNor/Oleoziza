@@ -31,7 +31,7 @@
           v-for="action in ACTIONS"
           :key="action.key"
           type="button"
-          class="flex min-h-20 flex-col items-start justify-end rounded-2xl p-3 text-left font-semibold transition-[transform,box-shadow] active:scale-95"
+          class="flex min-h-20 flex-col items-start justify-end rounded-card p-3 text-left font-semibold transition-[transform,box-shadow] active:scale-95"
           :class="[action.tone, { 'ring-4 ring-highlight': route.query.action === action.key }]"
           @click="handleAction(action.key)"
         >
@@ -40,25 +40,27 @@
         </button>
       </div>
 
-      <h2 class="heading-four mt-2">{{ $t('client.page.lots') }}</h2>
-      <ul class="flex flex-col gap-2">
-        <li v-for="lot in lots" :key="lot.code" class="card flex items-center justify-between gap-3 p-3">
-          <span>
-            <span class="font-medium">{{ lot.code }}</span>
-            <span class="body-two block">{{ formatKg(lot.kg) }}</span>
-          </span>
-          <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
-        </li>
-        <li v-if="!lots.length"><ui-empty-state size="compact" :message="$t('client.page.noLot')" /></li>
-      </ul>
+      <template v-if="!isManagement">
+        <h2 class="heading-four mt-2">{{ $t('client.page.lots') }}</h2>
+        <ul class="flex flex-col gap-2">
+          <li v-for="lot in lots" :key="lot.code" class="card flex items-center justify-between gap-3 p-3">
+            <span>
+              <span class="font-medium">{{ lot.code }}</span>
+              <span class="body-two block">{{ formatKg(lot.kg) }}</span>
+            </span>
+            <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
+          </li>
+          <li v-if="!lots.length"><ui-empty-state size="compact" :message="$t('client.page.noLot')" /></li>
+        </ul>
+      </template>
 
       <template v-if="managementClient">
-        <h2 class="heading-four mt-2">{{ $t('client.page.management') }}</h2>
-        <management-client-detail :client="managementClient" :is-finance-shown="siteStore.can('finance.view')" />
+        <client-coordinates class="mt-6" :client="managementClient" />
+        <management-client-detail class="mt-6" :client="managementClient" :is-finance-shown="siteStore.can('finance.view')" />
       </template>
     </section>
     <div v-else-if="clientStore.isLoading" class="mx-auto flex w-full max-w-3xl flex-col gap-3">
-      <div v-for="index in 3" :key="index" class="skeleton h-20 rounded-2xl" />
+      <div v-for="index in 3" :key="index" class="skeleton h-20 rounded-card" />
     </div>
     <ui-empty-state v-else size="page" :message="$t('client.page.notFound')" />
   </app-layout>
@@ -83,6 +85,7 @@ import { formatKg, formatLitres } from 'lot/composables/quantity';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import AppLayout from 'global/components/app-layout.vue';
+import ClientCoordinates from 'client/components/client-coordinates.vue';
 import ManagementClientDetail from 'client/components/management-client-detail.vue';
 
 // stores

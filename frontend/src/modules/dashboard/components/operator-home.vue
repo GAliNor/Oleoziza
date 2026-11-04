@@ -11,7 +11,7 @@
         <div class="stagger grid grid-cols-2 gap-3">
           <button
             type="button"
-            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl bg-action heading-five text-fg-on-action active:scale-[0.98]"
+            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-card bg-action heading-five text-fg-on-action active:scale-[0.98]"
             @click="desk.receive()"
           >
             <add-line-icon class="h-8 w-8" />
@@ -19,7 +19,7 @@
           </button>
           <button
             type="button"
-            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-brand
+            class="flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-card border-2 border-brand
               bg-surface heading-five text-fg-brand active:scale-[0.98]"
             @click="handleOpenPanel({ kind: 'client' })"
           >
@@ -34,7 +34,7 @@
         </label>
 
         <div v-if="query && searched.length" class="flex flex-col gap-2">
-          <div v-for="client in searched" :key="client.name" class="flex items-center gap-3 rounded-2xl bg-accent-subtle p-3">
+          <div v-for="client in searched" :key="client.name" class="flex items-center gap-3 rounded-card bg-accent-subtle p-3">
             <ui-avatar class="h-14 w-14" :name="client.name" :variant="client.avatarVariant" />
             <div class="min-w-0 flex-1">
               <p class="truncate heading-four">{{ client.name }}</p>

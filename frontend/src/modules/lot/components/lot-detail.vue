@@ -10,40 +10,32 @@
     </header>
 
     <dl class="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <div class="card rounded-2xl">
+      <div class="card">
         <dt class="eyebrow">{{ $t('lot.register.columns.olives') }}</dt>
         <dd class="text-display-xs figure">{{ formatNumber(lot.netKg, 1) }} <span class="body-two">{{ $t('global.units.kilogram') }}</span></dd>
         <dd class="body-two">{{ formatQuintals(lot.netKg) }}</dd>
       </div>
-      <div class="card rounded-2xl">
+      <div class="card">
         <dt class="eyebrow">{{ $t('lot.register.columns.oil') }}</dt>
         <dd class="text-display-xs figure">{{ lot.oilKg ? formatNumber(lot.oilKg, 1) : '—' }} <span v-if="lot.oilKg" class="body-two">{{ $t('global.units.kilogram') }}</span></dd>
         <dd class="body-two">{{ lot.oilKg ? `${formatLitres(lot.oilKg)} · ${lot.tankName ?? $t('lot.detail.clientContainers')}` : $t('lot.detail.notPressed') }}</dd>
       </div>
-      <div class="card rounded-2xl">
+      <div class="card">
         <dt class="eyebrow">{{ $t('lot.register.columns.yield') }}</dt>
         <dd class="text-display-xs figure" :class="isYieldOdd ? 'text-fg-warning' : 'text-fg-brand'">{{ lot.oilKg ? formatYield(lot.oilKg, lot.netKg) : '—' }}</dd>
         <dd class="body-two">{{ lot.oilKg ? $t('lot.detail.perQuintal', { kg: Math.round((lot.oilKg / lot.netKg) * 100) }) : $t('lot.detail.expectedYield') }}</dd>
       </div>
-      <div class="card rounded-2xl">
+      <div class="card">
         <dt class="eyebrow">{{ $t('lot.detail.fee') }}</dt>
         <dd class="text-display-xs figure">{{ formatMoney(lot.netKg * MILLING_RATE) }}</dd>
         <dd class="body-two truncate">{{ $t('lot.detail.feeRate', { rate: formatMoney(MILLING_RATE) }) }}</dd>
       </div>
     </dl>
 
-    <section class="card flex flex-col gap-3 rounded-2xl">
+    <section class="card flex flex-col gap-3">
       <h3 class="label">{{ $t('lot.detail.timeline') }}</h3>
-      <ol class="relative flex flex-col gap-4 border-l-2 border-brand pl-5">
-        <li v-for="step in steps" :key="step.key" class="relative">
-          <span class="absolute top-1 -left-[27px] h-3 w-3 rounded-full bg-primary-olive-mid ring-4 ring-surface" />
-          <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <p class="font-medium text-fg-display">{{ step.label }}</p>
-            <p class="body-two tabular-nums">{{ formatTime(step.at) }}</p>
-          </div>
-          <p class="body-two">{{ step.detail }}</p>
-          <p class="caption">{{ $t('lot.detail.by', { name: step.by }) }}</p>
-        </li>
+      <ol class="relative flex flex-col gap-3 border-l-2 border-brand pl-5">
+        <lot-timeline-step v-for="step in steps" :key="`${lot.id}-${step.key}`" :step="step" />
       </ol>
     </section>
   </div>
@@ -58,9 +50,11 @@ import { buildLotTimeline } from 'lot/composables/timeline';
 import { formatLitres, formatQuintals, formatYield } from 'lot/composables/quantity';
 import { formatMoney } from 'global/composables/money';
 import { formatNumber } from 'global/composables/number';
-import { formatShortDate, formatTime } from 'global/composables/date';
+import { formatShortDate } from 'global/composables/date';
 import { LOT_STATUS_TONES, MILLING_RATE, YIELD_EXPECTED_MAX, YIELD_EXPECTED_MIN } from 'lot/constants/lot';
 import type { ILot } from 'lot/types/lot';
+
+import LotTimelineStep from 'lot/components/lot-timeline-step.vue';
 
 // props
 const props = defineProps<{ lot: ILot }>();

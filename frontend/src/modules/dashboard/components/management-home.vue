@@ -19,7 +19,7 @@
       </template>
     </ui-empty-state>
     <div v-else-if="!dashboard" class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-      <div v-for="index in 8" :key="index" class="skeleton h-28 rounded-2xl" />
+      <div v-for="index in 8" :key="index" class="skeleton h-28 rounded-card" />
     </div>
     <Transition v-else name="tab-switch" mode="out-in">
       <overview-tab v-if="tab === 'overview'" key="overview" :period="period" :dashboard="dashboard" :is-finance-shown="isFinanceShown" />

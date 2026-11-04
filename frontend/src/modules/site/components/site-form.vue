@@ -1,5 +1,5 @@
 <template>
-  <form class="card flex flex-col gap-4 rounded-2xl" @submit.prevent="handleSubmit">
+  <form class="card flex flex-col gap-4" @submit.prevent="handleSubmit">
     <h2 class="heading-four">{{ site ? $t('site.form.editTitle') : $t('site.form.createTitle') }}</h2>
     <ui-field v-slot="{ id }" :label="$t('site.form.name')">
       <input :id="id" v-model="form.name" class="input" type="text" required />

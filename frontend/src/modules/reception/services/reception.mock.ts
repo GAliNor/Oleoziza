@@ -40,6 +40,7 @@ export default class ReceptionMockService implements IReceptionService {
       dailyPricePerKg: payload.mode === 'purchase' ? (SETTINGS_MOCK[payload.siteId]?.dailyPricePerKg ?? null) : null,
       weighings: [],
       moves: [],
+      stepPhotos: {},
       receivedAt: new Date().toISOString(),
       finishedAt: null,
       isPendingSync: isPendingSync(),

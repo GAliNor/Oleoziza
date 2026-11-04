@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-3xl bg-action p-5 text-fg-on-action md:col-start-1 md:row-start-1">
+  <div class="rounded-card bg-action p-5 text-fg-on-action md:col-start-1 md:row-start-1">
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0">
         <p class="eyebrow text-sm text-fg-on-action-muted">{{ $t('reception.station.eyebrow', { code: lot.code }) }}</p>

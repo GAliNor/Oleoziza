@@ -43,23 +43,38 @@
   },
   "record": {
     "oilStock": "Huile en stock",
-    "owes": "Doit au moulin",
-    "lots": "Lots cette saison",
-    "bySite": "Par site · saison",
-    "site": "Site",
-    "olives": "Olives",
-    "balance": "Solde",
+    "owes": "Reste à payer",
+    "followUp": {
+      "active": "Actif",
+      "at-risk": "À relancer",
+      "inactive": "Inactif"
+    },
+    "activity": "Activité",
+    "allTime": "Tout",
+    "noActivity": "Aucun lot sur cette période",
+    "lots": "Lots",
+    "olives": "Olives apportées",
+    "oil": "Huile extraite",
+    "yield": "Rendement",
+    "litres": "soit {quantity}",
+    "bySite": "Consommation par site",
+    "lotCount": "{count} lot | {count} lots",
+    "stockNow": "Stock actuel {quantity}",
+    "share": "Part du site {name}",
     "history": "Historique des lots",
-    "today": "auj.",
+    "today": "aujourd’hui",
     "yesterday": "hier",
-    "daysAgo": "il y a {count} j"
+    "daysAgo": "il y a {count} j",
+    "owesNow": "Reste à payer {amount}",
+    "owesOfTotal": "sur {amount} générés au total",
+    "generated": "Généré",
+    "generatedAmount": "{amount} générés"
   },
   "page": {
     "pending": "{amount} en attente",
     "millOwes": "Le moulin lui doit",
     "lots": "Lots sur ce site",
     "noLot": "Aucun lot cette saison",
-    "management": "Direction",
     "notFound": "Client introuvable",
     "actions": {
       "withdrawal": "Retrait",
@@ -77,5 +92,21 @@
     },
     "pendingScreen": "Prototype : écran « {name} » décidé, à construire.",
     "pendingScreenNext": " Ensuite : « Encaisser » les frais dus."
+  },
+  "tag": {
+    "open": "Fiche client"
+  },
+  "coordinates": {
+    "title": "Coordonnées",
+    "phone": "Téléphone",
+    "email": "Email",
+    "noEmail": "Non renseigné",
+    "origin": "Origine",
+    "province": "Province de {name}",
+    "prefecture": "Préfecture d’{name}",
+    "region": "Région de l’Oriental",
+    "mapLabel": "Carte de la région de l’Oriental, {name} en évidence",
+    "mapLabelNone": "Carte de la région de l’Oriental",
+    "mapUnavailable": "Carte indisponible sur cet appareil"
   }
 }

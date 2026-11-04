@@ -17,7 +17,7 @@
     </div>
 
     <div :key="startDay" class="stagger flex flex-col gap-3">
-      <div v-for="tank in tanks" :key="tank.id" class="card flex flex-col gap-3 rounded-2xl p-4">
+      <div v-for="tank in tanks" :key="tank.id" class="card flex flex-col gap-3 p-4">
         <div class="flex items-baseline justify-between gap-2">
           <div class="min-w-0">
             <p class="font-semibold text-fg-display">

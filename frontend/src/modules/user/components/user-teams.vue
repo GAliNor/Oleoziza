@@ -1,6 +1,6 @@
 <template>
   <div class="grid gap-4" :class="{ 'lg:grid-cols-2': sites.length > 1 }">
-    <section v-for="site in sites" :key="site.id" class="card flex min-w-0 flex-col gap-4 rounded-2xl bg-page">
+    <section v-for="site in sites" :key="site.id" class="card flex min-w-0 flex-col gap-4 rounded-card bg-page">
       <header class="flex items-center gap-2">
         <map-pin-line-icon class="h-5 w-5 shrink-0 text-fg-place" />
         <h2 class="truncate font-semibold text-fg-display">{{ site.name }}</h2>
@@ -14,7 +14,7 @@
             v-for="user in teamOf(site.id, role)"
             :key="user.id"
             type="button"
-            class="flex min-w-0 items-center gap-3 rounded-xl border border-default bg-surface p-3 text-left shadow-raised
+            class="flex min-w-0 items-center gap-3 rounded-card border border-default bg-surface p-3 text-left shadow-raised
               transition duration-300 ease-(--ease-premium) hover:-translate-y-0.5 hover:shadow-raised"
             :class="{ 'ring-2 ring-selected': user.id === highlightedId, 'opacity-60': user.status === 'disabled' }"
             @click="emit('open', user.id)"

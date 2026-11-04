@@ -65,7 +65,7 @@
 
             <site-form :site="activeSite" @saved="handleSaved" @cancel="handleClose" />
 
-            <div v-if="activeSite" class="card flex flex-col gap-3 rounded-2xl border-danger-subtle md:flex-row md:items-center">
+            <div v-if="activeSite" class="card flex flex-col gap-3 border-danger-subtle md:flex-row md:items-center">
               <div class="min-w-0 flex-1">
                 <p class="font-medium text-fg-display">{{ $t('site.delete.title') }}</p>
                 <p class="body-two">{{ $t('site.delete.hint') }}</p>

@@ -1,6 +1,14 @@
 .rise,
 .stagger > * {
-  animation: rise 0.7s var(--ease-premium) both;
+  animation: rise 0.7s var(--ease-premium) backwards;
+}
+
+/* Blurring a whole screen as it arrives is more than a phone's compositor should be asked to do. */
+@media (max-width: 47.99rem) {
+  .rise,
+  .stagger > * {
+    animation-name: rise-plain;
+  }
 }
 
 .stagger > :nth-child(2) { animation-delay: 70ms; }
@@ -58,6 +66,13 @@
     opacity: 0;
     transform: translateY(14px);
     filter: blur(4px);
+  }
+}
+
+@keyframes rise-plain {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
 }
 

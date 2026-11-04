@@ -8,7 +8,7 @@
       </header>
 
       <div v-if="receptionStore.isLoading && !lotStore.receivedLots.length" class="flex flex-col gap-2">
-        <div v-for="index in 3" :key="index" class="skeleton h-20 rounded-2xl" />
+        <div v-for="index in 3" :key="index" class="skeleton h-20 rounded-card" />
       </div>
 
       <ul v-else class="stagger grid gap-2 md:grid-cols-2">

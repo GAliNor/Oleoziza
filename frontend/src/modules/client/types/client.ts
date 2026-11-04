@@ -1,3 +1,6 @@
+import type { LngLat } from 'map';
+
+import type { PeriodKey } from 'global/types/period';
 import type { LotStatus } from 'lot/types/lot';
 
 export type ClientKind = 'individual' | 'company';
@@ -39,17 +42,40 @@ export type ClientFollowUp = 'active' | 'at-risk' | 'inactive';
 export interface IClientSiteFigures {
   siteId: string;
   siteName: string;
-  oliveKg: number;
   oilStockKg: number;
   balance: number;
 }
 
 export interface IClientLotLine {
   code: string;
+  siteId: string;
   siteName: string;
   status: LotStatus;
   kg: number;
-  daysAgo: number;
+  oilKg: number;
+  receivedOn: string;
+}
+
+export type ClientPeriodKey = Exclude<PeriodKey, 'today'> | 'all';
+
+export interface IClientActivity {
+  lots: number;
+  oliveKg: number;
+  oilKg: number;
+  generatedDh: number;
+}
+
+export interface ISiteConsumption extends IClientSiteFigures, IClientActivity {
+  sharePercent: number;
+}
+
+export type ProvinceId = 'oujda-angad' | 'nador' | 'berkane' | 'taourirt' | 'jerada' | 'driouch' | 'guercif' | 'figuig';
+
+export interface IProvince {
+  id: ProvinceId;
+  name: string;
+  kind: 'province' | 'prefecture';
+  labelAt: LngLat;
 }
 
 /** A Client as Management sees it, across every Site. Provisional until the Money and Stock data models settle. */
@@ -61,8 +87,8 @@ export interface IClientRecord {
   phone: string;
   identifier: string;
   region: string;
+  province: ProvinceId | null;
   email: string | null;
-  lots: number;
   oilStockKg: number;
   balance: number;
   sites: IClientSiteFigures[];

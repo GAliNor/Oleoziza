@@ -4,7 +4,7 @@
   <ui-master-detail :is-open="isOpen" :back-label="$t('lot.register.backToBoard')" @close="closeLot">
     <template #list>
       <div class="flex snap-x gap-3 overflow-x-auto pb-3">
-        <section v-for="column in columns" :key="column.key" class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-2xl bg-subtle/70 p-3">
+        <section v-for="column in columns" :key="column.key" class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-card bg-subtle/70 p-3">
           <header class="flex items-center justify-between px-1">
             <h2 class="heading-six">{{ $t(`lot.status.${column.key}`) }}</h2>
             <span class="chip bg-surface text-fg-primary-paragraph tabular-nums">{{ column.total }}</span>
@@ -13,7 +13,7 @@
             v-for="lot in column.lots"
             :key="lot.id"
             type="button"
-            class="flex flex-col gap-1 rounded-xl border border-default bg-surface p-3 text-left shadow-raised transition duration-300 ease-(--ease-premium) hover:-translate-y-0.5 hover:shadow-raised"
+            class="flex flex-col gap-1 rounded-card border border-default bg-surface p-3 text-left shadow-raised transition duration-300 ease-(--ease-premium) hover:-translate-y-0.5 hover:shadow-raised"
             @click="openLot(lot.id)"
           >
             <span class="flex items-center justify-between gap-2">

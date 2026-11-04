@@ -1,7 +1,9 @@
+import { daysSince, shiftDate, todayIso } from 'global/composables/date';
+import { SEASON_START } from 'global/constants/period';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { ORIGIN_SUGGESTIONS } from 'reception/constants/reception';
 import { SITES_MOCK, SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
-import type { ClientFollowUp, ClientKind, IClientRecord } from 'client/types/client';
+import type { ClientFollowUp, ClientKind, IClientLotLine, IClientRecord, ProvinceId } from 'client/types/client';
 
 interface ISeedRecord {
   name: string;
@@ -16,12 +18,12 @@ interface ISeedRecord {
 }
 
 const SEEDS: ISeedRecord[] = [
-  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 18400, lastVisitDays: 0, followUp: 'at-risk' },
+  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 12400, lastVisitDays: 0, followUp: 'at-risk' },
   { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 36900, lots: 8, oilStockKg: 0, balance: 4120, lastVisitDays: 0, followUp: 'active' },
   { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 5140, lots: 3, oilStockKg: 412, balance: 920, lastVisitDays: 0, followUp: 'active' },
   { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4310, lots: 2, oilStockKg: 389, balance: 1025, lastVisitDays: 0, followUp: 'active' },
   { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 2980, lots: 2, oilStockKg: 172, balance: 495, lastVisitDays: 9, followUp: 'at-risk' },
-  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockKg: 0, balance: 0, lastVisitDays: 0, followUp: 'active' },
+  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockKg: 0, balance: 560, lastVisitDays: 0, followUp: 'active' },
   { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1720, lots: 2, oilStockKg: 151, balance: 430, lastVisitDays: 0, followUp: 'active' },
   { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1200, lots: 1, oilStockKg: 0, balance: 0, lastVisitDays: 21, followUp: 'inactive' },
   { name: 'Abdelhak Bouhaddou', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 3620, lots: 2, oilStockKg: 0, balance: 0, lastVisitDays: 4, followUp: 'active' },
@@ -42,7 +44,67 @@ const SEEDS: ISeedRecord[] = [
 
 const siteNameOf = (siteId: string): string => SITES_MOCK.find((site) => site.id === siteId)?.name ?? '';
 
-const lotCode = (siteId: string, number: number): string => `${siteId === SITE_OUJDA_ID ? 'OJ' : 'BK'}-2627-${String(number).padStart(4, '0')}`;
+const ORIGIN_PROVINCES: Record<string, ProvinceId> = {
+  'Oujda-Angad': 'oujda-angad',
+  Ahfir: 'berkane',
+  Berkane: 'berkane',
+  Taourirt: 'taourirt',
+  Jerada: 'jerada',
+  'Bni Drar': 'oujda-angad',
+  Naïma: 'oujda-angad',
+  Madagh: 'berkane',
+  Aklim: 'berkane',
+};
+
+const CURRENT_SEASON = '2627';
+const PREVIOUS_SEASON = { code: '2526', start: '2025-10-01' };
+const OLDER_SEASON = { code: '2425', start: '2024-10-01' };
+const SEASON_LENGTH_DAYS = 170;
+
+const lotCode = (siteId: string, season: string, number: number): string => `${siteId === SITE_OUJDA_ID ? 'OJ' : 'BK'}-${season}-${String(number).padStart(4, '0')}`;
+
+/** Every third lot of a Client on two Sites goes to the second one. */
+const lotSiteId = (siteIds: string[], lotIndex: number): string => siteIds[siteIds.length > 1 && lotIndex % 3 === 2 ? 1 : 0];
+
+const buildLot = (siteIds: string[], season: string, seedIndex: number, lotIndex: number, line: Pick<IClientLotLine, 'status' | 'kg' | 'receivedOn'>): IClientLotLine => {
+  const siteId = lotSiteId(siteIds, lotIndex);
+  const yieldRate = 0.16 + ((seedIndex * 7 + lotIndex * 3) % 6) / 100;
+  return { ...line, code: lotCode(siteId, season, 100 + seedIndex * 13 + lotIndex), siteId, siteName: siteNameOf(siteId), oilKg: Math.round(line.kg * yieldRate) };
+};
+
+/** The season's lots, adding up to the seed's olives, from the last visit back towards the season's start. */
+const currentSeasonLots = (seed: ISeedRecord, siteIds: string[], seedIndex: number): IClientLotLine[] => {
+  const averageKg = seed.seasonKg / seed.lots;
+  const stepDays = Math.max(1, Math.floor((daysSince(SEASON_START) - seed.lastVisitDays) / seed.lots));
+  let remainingKg = seed.seasonKg;
+  return Array.from({ length: seed.lots }, (_, lotIndex) => {
+    const kg = lotIndex === seed.lots - 1 ? remainingKg : Math.round(averageKg * (lotIndex % 2 ? 0.85 : 1.15));
+    remainingKg -= kg;
+    const status = lotIndex === 0 && seed.oilStockKg ? 'pressed' : 'withdrawn';
+    return buildLot(siteIds, CURRENT_SEASON, seedIndex, lotIndex, { status, kg, receivedOn: shiftDate(todayIso(), -(seed.lastVisitDays + lotIndex * stepDays)) });
+  });
+};
+
+const pastSeasonLots = (seed: ISeedRecord, siteIds: string[], seedIndex: number, season: { code: string; start: string }, count: number): IClientLotLine[] =>
+  Array.from({ length: count }, (_, lotIndex) =>
+    buildLot(siteIds, season.code, seedIndex, lotIndex, {
+      status: 'withdrawn',
+      kg: Math.round((seed.seasonKg / seed.lots) * (0.8 + (lotIndex % 3) * 0.15)),
+      receivedOn: shiftDate(season.start, 10 + (lotIndex * 37 + seedIndex * 11) % SEASON_LENGTH_DAYS),
+    }),
+  );
+
+/** One Client in five is new this season; the others go back one or two seasons. */
+const clientHistory = (seed: ISeedRecord, siteIds: string[], seedIndex: number): IClientLotLine[] => {
+  const isNewClient = seedIndex % 5 === 4;
+  const previousCount = seed.kind === 'company' ? Math.max(2, seed.lots - 1) : (seedIndex % 3) + 1;
+  const lots = [
+    ...currentSeasonLots(seed, siteIds, seedIndex),
+    ...(isNewClient ? [] : pastSeasonLots(seed, siteIds, seedIndex, PREVIOUS_SEASON, previousCount)),
+    ...(!isNewClient && seedIndex % 2 === 0 ? pastSeasonLots(seed, siteIds, seedIndex, OLDER_SEASON, Math.ceil(previousCount / 2)) : []),
+  ];
+  return lots.sort((first, second) => second.receivedOn.localeCompare(first.receivedOn));
+};
 
 const slugOf = (name: string): string =>
   name
@@ -65,6 +127,7 @@ const emailOf = (seed: ISeedRecord, index: number): string | null => {
 export const CLIENT_RECORDS_MOCK: IClientRecord[] = SEEDS.map((seed, index) => {
   const client = CLIENTS_MOCK.find((item) => item.name === seed.name);
   const siteIds = client?.siteIds ?? [seed.siteId];
+  const region = ORIGIN_SUGGESTIONS[(index * 5) % ORIGIN_SUGGESTIONS.length];
   return {
     id: client?.id ?? '',
     name: seed.name,
@@ -72,9 +135,9 @@ export const CLIENT_RECORDS_MOCK: IClientRecord[] = SEEDS.map((seed, index) => {
     followUp: seed.followUp,
     phone: client?.phone ?? '',
     identifier: identifierOf(seed, index),
-    region: ORIGIN_SUGGESTIONS[(index * 5) % ORIGIN_SUGGESTIONS.length],
+    region,
+    province: ORIGIN_PROVINCES[region] ?? null,
     email: emailOf(seed, index),
-    lots: seed.lots,
     oilStockKg: seed.oilStockKg,
     balance: seed.balance,
     sites: siteIds.map((siteId, siteIndex) => {
@@ -82,14 +145,10 @@ export const CLIENT_RECORDS_MOCK: IClientRecord[] = SEEDS.map((seed, index) => {
       return {
         siteId,
         siteName: siteNameOf(siteId),
-        oliveKg: Math.round(seed.seasonKg * share),
         oilStockKg: Math.round(seed.oilStockKg * share),
         balance: Math.round(seed.balance * share),
       };
     }),
-    history: [
-      { code: lotCode(seed.siteId, 150 - index), siteName: siteNameOf(seed.siteId), status: 'pressed', kg: Math.round(seed.seasonKg / seed.lots), daysAgo: seed.lastVisitDays },
-      { code: lotCode(seed.siteId, 110 - index), siteName: siteNameOf(seed.siteId), status: 'withdrawn', kg: Math.round((seed.seasonKg / seed.lots) * 0.9), daysAgo: 14 },
-    ],
+    history: clientHistory(seed, siteIds, index),
   };
 });

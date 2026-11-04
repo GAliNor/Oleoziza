@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { daysSince, formatDateTime, formatDayDate, formatShortDate, formatTime, shiftDate, todayIso, toIsoDate } from 'global/composables/date';
+import { daysSince, formatDateTime, formatDayDate, formatFullDate, formatShortDate, formatTime, shiftDate, todayIso, toIsoDate } from 'global/composables/date';
 
 const clean = (text: string): string => text.replace(/\s/g, ' ');
 
@@ -29,7 +29,7 @@ describe('dates in Morocco time', () => {
 
   it('formats short, day and date-time labels', () => {
     const at = '2026-10-23T15:25:00+01:00';
-    expect([formatShortDate(at), formatDayDate(at), formatDateTime(at)].map(clean)).toEqual(['23 oct.', 'ven. 23 oct.', '23 oct., 15:25']);
+    expect([formatShortDate(at), formatFullDate(at), formatDayDate(at), formatDateTime(at)].map(clean)).toEqual(['23 oct.', '23 oct. 2026', 'ven. 23 oct.', '23 oct., 15:25']);
   });
 });
 

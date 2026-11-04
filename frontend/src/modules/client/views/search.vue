@@ -15,13 +15,13 @@
       />
       <ui-empty-state v-if="clientStore.hasError" tone="danger" size="compact" :message="$t('client.search.loadError')" />
       <div v-if="clientStore.isLoading && !clientStore.clients.length" class="flex flex-col gap-2">
-        <div v-for="index in 4" :key="index" class="skeleton h-16 rounded-2xl" />
+        <div v-for="index in 4" :key="index" class="skeleton h-16 rounded-card" />
       </div>
       <ul v-else class="flex flex-col gap-2">
         <li v-for="client in results" :key="client.id">
           <router-link
             :to="{ name: 'client-page', params: { id: client.id }, query: purpose === 'any' ? {} : { action: purpose } }"
-            class="flex min-h-16 items-center gap-3 rounded-2xl border border-default bg-surface px-3 py-2 transition-colors hover:border-brand"
+            class="flex min-h-16 items-center gap-3 rounded-card border border-default bg-surface px-3 py-2 transition-colors hover:border-brand"
           >
             <client-row :client="client" />
           </router-link>

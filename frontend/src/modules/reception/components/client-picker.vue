@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-3">
-    <div v-if="modelValue && !isPicking" class="flex items-center gap-3 rounded-2xl border border-brand bg-selected/40 p-3">
+    <div v-if="modelValue && !isPicking" class="flex items-center gap-3 rounded-card border border-brand bg-selected/40 p-3">
       <ui-avatar :name="modelValue.name" fallback-class="bg-action text-fg-on-action" />
       <div class="min-w-0 flex-1">
         <p class="truncate font-semibold text-fg-display">{{ modelValue.name }}</p>
@@ -21,7 +21,7 @@
         <li v-for="client in results" :key="client.id">
           <button
             type="button"
-            class="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-default bg-surface px-3 py-2 text-left transition-colors
+            class="flex min-h-14 w-full items-center gap-3 rounded-card border border-default bg-surface px-3 py-2 text-left transition-colors
               hover:border-brand"
             @click="handlePick(client)"
           >
@@ -36,7 +36,7 @@
       </button>
     </template>
 
-    <form v-else class="flex flex-col gap-3 rounded-2xl bg-page p-4" @submit.prevent="handleCreate">
+    <form v-else class="flex flex-col gap-3 rounded-card bg-page p-4" @submit.prevent="handleCreate">
       <div class="grid grid-cols-2 gap-2">
         <button
           v-for="kind in CLIENT_KINDS"

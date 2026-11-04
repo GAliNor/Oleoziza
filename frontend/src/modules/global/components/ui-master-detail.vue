@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-w-0 gap-4 overflow-hidden">
-    <div class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)" :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }">
+    <div class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)" :class="{ 'invisible -ml-[calc(100%+1rem)] h-0 overflow-hidden': isOpen }">
       <slot name="list" />
     </div>
     <aside
@@ -10,8 +10,8 @@
       :aria-hidden="!isOpen"
     >
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" class="btn-secondary inline-flex items-center gap-2" @click="emit('close')">
-          <arrow-left-line-icon class="h-5 w-5" />
+        <button type="button" class="btn-plain pl-2" @click="emit('close')">
+          <arrow-left-line-icon class="h-4 w-4" />
           {{ backLabel }}
         </button>
         <slot name="actions" />

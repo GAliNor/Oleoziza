@@ -24,7 +24,7 @@
       <kit-section id="palette" :title="$t('kit.sections.palette.title')" :description="$t('kit.sections.palette.description')">
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
           <div v-for="color in colors" :key="color.name" class="flex flex-col gap-2">
-            <div class="h-16 rounded-xl border border-default" :style="{ background: `var(${color.variable})` }" />
+            <div class="h-16 rounded-card border border-default" :style="{ background: `var(${color.variable})` }" />
             <p class="text-sm font-medium text-fg-default">{{ color.name }}</p>
             <p class="-mt-2 font-mono text-xs text-fg-secondary-paragraph">{{ color.value }}</p>
           </div>
@@ -33,7 +33,7 @@
 
       <kit-section id="tokens" :title="$t('kit.sections.tokens.title')" :description="$t('kit.sections.tokens.description')">
         <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div v-for="token in semanticTokens" :key="token.variable" class="flex items-center gap-3 rounded-xl border border-default bg-surface p-3">
+          <div v-for="token in semanticTokens" :key="token.variable" class="flex items-center gap-3 rounded-card border border-default bg-surface p-3">
             <div class="h-10 w-10 shrink-0 rounded-lg border border-default" :style="{ background: `var(${token.variable})` }" />
             <div class="min-w-0">
               <p class="truncate text-sm font-medium text-fg-default">{{ token.className }}</p>
@@ -44,8 +44,8 @@
       </kit-section>
 
       <kit-section id="shadows" :title="$t('kit.sections.shadows.title')" :description="$t('kit.sections.shadows.description')">
-        <div class="grid gap-6 rounded-2xl bg-subtle p-6 sm:grid-cols-3">
-          <div v-for="shadow in shadows" :key="shadow.name" class="flex h-28 items-end rounded-2xl bg-surface p-4" :style="{ boxShadow: `var(${shadow.variable})` }">
+        <div class="grid gap-6 rounded-card bg-subtle p-6 sm:grid-cols-3">
+          <div v-for="shadow in shadows" :key="shadow.name" class="flex h-28 items-end rounded-card bg-surface p-4" :style="{ boxShadow: `var(${shadow.variable})` }">
             <p class="text-sm font-medium text-fg-default">shadow-{{ shadow.name }}</p>
           </div>
         </div>
@@ -61,7 +61,7 @@
       </kit-section>
 
       <kit-section id="typography" :title="$t('kit.sections.typography.title')" :description="$t('kit.sections.typography.description')">
-        <div class="flex flex-col divide-y divide-default rounded-2xl bg-surface px-4">
+        <div class="flex flex-col divide-y divide-default rounded-card bg-surface px-4">
           <div v-for="name in typeClasses" :key="name" class="grid gap-2 py-4 sm:grid-cols-[10rem_1fr] sm:items-baseline">
             <code class="font-mono text-xs text-fg-secondary-paragraph">.{{ name }}</code>
             <p :class="name">{{ $t('kit.sample') }}</p>

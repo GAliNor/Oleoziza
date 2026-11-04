@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { useFinanceStore } from 'finance/stores/finance';
 import { salesMock } from 'finance/constants/mock-sales';
+import { MOVEMENTS_MOCK } from 'finance/constants/mock-movements';
+import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { ALL_SITES } from 'site/constants/site';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { IMovement, MovementStatus } from 'finance/types/finance';
@@ -58,5 +60,17 @@ describe('the mock sales', () => {
     const all = salesMock(ALL_SITES, 'season').figures.revenue;
     const sum = salesMock(SITE_OUJDA_ID, 'season').figures.revenue + salesMock(SITE_BERKANE_ID, 'season').figures.revenue;
     expect(sum).toBeCloseTo(all);
+  });
+});
+
+describe('finance mock movements', () => {
+  it('links every movement to a real Client, so the client tag always opens a page', () => {
+    const clientIds = new Set(CLIENTS_MOCK.map((client) => client.id));
+    expect(MOVEMENTS_MOCK.filter((movement) => !clientIds.has(movement.clientId))).toEqual([]);
+  });
+
+  it('names the bank account on every transfer and cheque', () => {
+    const banked = MOVEMENTS_MOCK.filter((movement) => movement.method === 'transfer' || movement.method === 'cheque');
+    expect(banked.filter((movement) => !movement.bankAccount)).toEqual([]);
   });
 });

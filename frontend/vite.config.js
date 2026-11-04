@@ -30,6 +30,14 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        globIgnores: ['**/loaded-engine-*', '**/maplibre-gl-worker-*'],
+        runtimeCaching: [
+          {
+            urlPattern: /\/assets\/(loaded-engine|maplibre-gl-worker)-.*\.(js|css)$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'map-engine', expiration: { maxEntries: 6 } },
+          },
+        ],
         navigateFallback: '/index.html',
       },
       devOptions: {
@@ -44,6 +52,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': fromSrc(''),
+      map: fromSrc('lib/map'),
       global: fromSrc('modules/global'),
       dashboard: fromSrc('modules/dashboard'),
       auth: fromSrc('modules/auth'),

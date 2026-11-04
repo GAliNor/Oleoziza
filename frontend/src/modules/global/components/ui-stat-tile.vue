@@ -1,5 +1,5 @@
 <template>
-  <div class="card lift flex min-w-0 flex-col gap-1.5 rounded-2xl p-5">
+  <div class="card lift flex min-w-0 flex-col gap-1.5 p-5">
     <p class="eyebrow">{{ label }}</p>
     <p class="text-display-xs figure sm:text-display-sm" :class="valueClass">
       <span v-count-up="{ value, format: formatValue }" /><span v-if="unit" class="ml-1 text-md font-medium text-fg-secondary-paragraph">{{ unit }}</span>

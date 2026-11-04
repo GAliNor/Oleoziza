@@ -18,7 +18,7 @@
     <p v-if="user.isOwner" class="card border-accent/60 bg-highlight/10 body-two">{{ $t('user.detail.ownerNote') }}</p>
     <p v-else-if="isMe" class="card bg-page body-two">{{ $t('user.detail.selfNote') }}</p>
 
-    <div class="card grid gap-4 rounded-2xl md:grid-cols-2">
+    <div class="card grid gap-4 md:grid-cols-2">
       <div class="flex flex-col gap-3">
         <p class="eyebrow">{{ $t('user.detail.contact') }}</p>
         <dl class="flex flex-col gap-2">
@@ -51,7 +51,7 @@
       </div>
     </div>
 
-    <div v-if="canEdit(user)" class="card flex flex-col gap-3 rounded-2xl md:flex-row md:flex-wrap md:items-center">
+    <div v-if="canEdit(user)" class="card flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center">
       <button v-if="user.status === 'invited'" type="button" class="btn-secondary" :disabled="userStore.isSaving" @click="handleInvite">
         <refresh-line-icon class="h-5 w-5" />
         {{ $t('user.actions.resendInvitation') }}
@@ -80,7 +80,7 @@
 
     <user-site-rights v-for="siteId in assignedSiteIds" :key="siteId" :user="user" :site-id="siteId" :site-name="siteName(siteId)" />
 
-    <div v-if="canEdit(user) && unassignedSiteIds.length" class="card flex flex-wrap items-center gap-2 rounded-2xl border-dashed">
+    <div v-if="canEdit(user) && unassignedSiteIds.length" class="card flex flex-wrap items-center gap-2 border-dashed">
       <span class="body-two">{{ $t('user.detail.addSite') }}</span>
       <button v-for="siteId in unassignedSiteIds" :key="siteId" type="button" class="choice-chip inline-flex items-center gap-1" :disabled="userStore.isSaving" @click="handleAddSite(siteId)">
         <add-line-icon class="h-4 w-4" />

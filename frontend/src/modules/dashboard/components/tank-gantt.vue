@@ -1,5 +1,5 @@
 <template>
-  <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
+  <div class="card flex min-w-0 flex-col gap-4 p-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <h2 class="heading-four">{{ $t('dashboard.tanks.planning') }}</h2>

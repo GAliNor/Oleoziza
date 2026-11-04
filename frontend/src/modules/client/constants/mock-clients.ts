@@ -27,6 +27,9 @@ const LISTED_CLIENTS: IClient[] = [
   { id: 'c0a1b2c3-0001-4000-8000-000000000023', kind: 'individual', name: 'Samira El Ouafi', phone: '+212661553794', siteIds: [SITE_BERKANE_ID], isPendingSync: false },
   { id: 'c0a1b2c3-0001-4000-8000-000000000024', kind: 'company', name: 'Domaine Beni Snassen', phone: '+212536618932', siteIds: [SITE_BERKANE_ID], isPendingSync: false },
   { id: 'c0a1b2c3-0001-4000-8000-000000000025', kind: 'individual', name: 'Zakaria Bensaid', phone: '+212669741205', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
+  { id: 'c0a1b2c3-0001-4000-8000-000000000026', kind: 'company', name: 'Restaurant Al Andalous', phone: '+212536684417', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
+  { id: 'c0a1b2c3-0001-4000-8000-000000000027', kind: 'company', name: 'Épicerie Zitouna', phone: '+212536702286', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
+  { id: 'c0a1b2c3-0001-4000-8000-000000000028', kind: 'company', name: 'Hôtel Atlas Oujda', phone: '+212536691350', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
 ];
 
 const EXTRA_CLIENT_NAMES = [

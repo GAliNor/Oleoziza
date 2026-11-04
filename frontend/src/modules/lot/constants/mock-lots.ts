@@ -2,6 +2,7 @@ import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { shiftDate, todayIso } from 'global/composables/date';
 import { LOT_STATUSES } from 'lot/constants/lot';
+import { mockStepPhotos } from 'lot/constants/mock-step-photos';
 import type { ILot, ILotMoveRecord, IWeighing, LotStatus, ReceptionMode } from 'lot/types/lot';
 
 const daysAgoAt = (daysAgo: number, time: string): string => `${shiftDate(todayIso(), -daysAgo)}T${time}:00+01:00`;
@@ -31,6 +32,7 @@ const baseLot = {
   note: '',
   dailyPricePerKg: null,
   finishedAt: null,
+  stepPhotos: {},
 };
 
 const OPENED_LOTS: Omit<ILot, 'moves'>[] = [
@@ -139,6 +141,7 @@ const toLot = (seed: ISeedLot): ILot => ({
   withdrawnKg: seed.status === 'withdrawn' ? (seed.oilKg ?? 0) : 0,
   weighings: [],
   moves: seedMoves(seed),
+  stepPhotos: mockStepPhotos(seed.code, ['reception', 'weighing', ...seedMoves(seed).map((move) => move.status), ...(seed.oilKg ? (['stored'] as const) : [])]),
   receivedAt: seed.receivedAt,
   receivedBy: FULL_NAMES[seed.operator] ?? seed.operator,
   isPendingSync: false,
@@ -206,4 +209,4 @@ const OLDER_SEEDS: ISeedLot[] = Array.from({ length: 64 }, (_, index) => {
   };
 });
 
-export const LOTS_MOCK: ILot[] = [...OPENED_LOTS.map((lot) => ({ ...lot, moves: [] })), ...[...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot)];
+export const LOTS_MOCK: ILot[] = [...OPENED_LOTS.map((lot) => ({ ...lot, moves: [], stepPhotos: mockStepPhotos(lot.code, ['reception', 'weighing']) })), ...[...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot)];

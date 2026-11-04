@@ -18,6 +18,8 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
+      "map": ["src/lib/map/index.ts"],
+      "map/*": ["src/lib/map/*"],
       "global/*": ["src/modules/global/*"],
       "dashboard/*": ["src/modules/dashboard/*"],
       "auth/*": ["src/modules/auth/*"],
