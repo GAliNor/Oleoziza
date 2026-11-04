@@ -7,10 +7,11 @@
       <div class="skeleton h-48 rounded-3xl" />
     </div>
 
-    <div v-else-if="!lot" class="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
-      <p class="body-one">{{ $t('reception.station.notFound') }}</p>
-      <router-link :to="{ name: 'dashboard' }" class="btn-secondary">{{ $t('reception.station.back') }}</router-link>
-    </div>
+    <ui-empty-state v-else-if="!lot" size="page" :message="$t('reception.station.notFound')">
+      <template #action>
+        <router-link :to="{ name: 'dashboard' }" class="btn-secondary">{{ $t('reception.station.back') }}</router-link>
+      </template>
+    </ui-empty-state>
 
     <section v-else class="mx-auto flex w-full max-w-5xl flex-col gap-4">
       <nav v-if="lotStore.receivedLots.length > 1" class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4" :aria-label="$t('reception.station.otherLots')">
@@ -47,9 +48,7 @@
               <span>{{ $t('reception.station.containersWeighed') }}</span>
               <span class="tabular-nums">{{ containersWeighed }} / {{ lot.announcedContainers }}</span>
             </div>
-            <div class="mt-1 h-2 overflow-hidden rounded-full bg-surface/15">
-              <div class="h-full rounded-full bg-highlight transition-[width] duration-700 ease-(--ease-premium)" :style="{ width: `${containerProgress}%` }" />
-            </div>
+            <ui-progress-bar class="mt-1 h-2" :value="containerProgress" :label="$t('reception.station.containersWeighed')" bar-class="bg-highlight" track-class="bg-surface/15" />
           </div>
         </div>
 
@@ -153,6 +152,8 @@ import { formatNumber } from 'global/composables/number';
 import { formatKg, formatQuintals } from 'lot/composables/quantity';
 import { formatTime } from 'global/composables/date';
 
+import UiProgressBar from 'global/components/ui-progress-bar.vue';
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import ContainerStepper from 'reception/components/container-stepper.vue';

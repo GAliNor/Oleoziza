@@ -62,16 +62,14 @@
       </button>
       <p v-if="isDisableArmed" class="body-two md:flex-1 md:text-right">{{ $t('user.actions.disableHint') }}</p>
       <span v-else class="hidden flex-1 md:block" aria-hidden="true" />
-      <button
+      <ui-confirm-button
         v-if="user.status !== 'disabled'"
-        type="button"
-        class="btn-secondary border-danger-subtle text-fg-danger hover:border-danger hover:bg-danger-subtle"
-        :class="{ 'bg-danger text-fg-on-action hover:bg-danger/90': isDisableArmed }"
-        :disabled="userStore.isSaving"
-        @click="handleDisable"
-      >
-        {{ isDisableArmed ? $t('user.actions.confirmDisable') : $t('user.actions.disable') }}
-      </button>
+        v-model:is-armed="isDisableArmed"
+        :label="$t('user.actions.disable')"
+        :confirm-label="$t('user.actions.confirmDisable')"
+        :is-disabled="userStore.isSaving"
+        @confirm="handleDisable"
+      />
       <button v-else type="button" class="btn-secondary" :disabled="userStore.isSaving" @click="handleEnable">{{ $t('user.actions.enable') }}</button>
     </div>
 
@@ -109,6 +107,7 @@ import type { LoginMethod } from 'auth/types/auth';
 import type { IStaffUser } from 'user/types/user';
 import { formatDateTime } from 'global/composables/date';
 
+import UiConfirmButton from 'global/components/ui-confirm-button.vue';
 import UserAvatar from 'user/components/user-avatar.vue';
 import UserSiteRights from 'user/components/user-site-rights.vue';
 import UserStatusChip from 'user/components/user-status-chip.vue';
@@ -172,11 +171,6 @@ const handleReset = async (): Promise<void> => {
 };
 
 const handleDisable = async (): Promise<void> => {
-  if (!isDisableArmed.value) {
-    isDisableArmed.value = true;
-    return;
-  }
-  isDisableArmed.value = false;
   notify(await userStore.setStatus(props.user.id, 'disabled'), t('user.actions.disabled', { name: formatFullName(props.user) }));
 };
 

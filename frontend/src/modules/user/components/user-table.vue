@@ -45,7 +45,7 @@
         </tr>
       </tbody>
     </table>
-    <p v-if="!users.length" class="body-two px-5 py-8 text-center">{{ $t('user.empty') }}</p>
+    <ui-empty-state v-if="!users.length" :message="$t('user.empty')" />
   </div>
 </template>
 
@@ -57,6 +57,7 @@ import { formatFullName } from 'user/composables/format';
 import type { IStaffUser } from 'user/types/user';
 import { formatDateTime } from 'global/composables/date';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UserAvatar from 'user/components/user-avatar.vue';
 import UserStatusChip from 'user/components/user-status-chip.vue';
 

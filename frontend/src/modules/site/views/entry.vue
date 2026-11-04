@@ -50,7 +50,7 @@
                 </tr>
               </tbody>
             </table>
-            <p v-if="!filteredRows.length" class="body-two px-5 py-8 text-center">{{ $t('site.empty') }}</p>
+            <ui-empty-state v-if="!filteredRows.length" :message="$t('site.empty')" />
           </div>
 
           <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" :aria-label="$t('site.pagination.label')">
@@ -105,15 +105,7 @@
                 <p class="font-medium text-fg-display">{{ $t('site.delete.title') }}</p>
                 <p class="body-two">{{ $t('site.delete.hint') }}</p>
               </div>
-              <button
-                type="button"
-                class="btn-secondary border-danger-subtle text-fg-danger hover:border-danger hover:bg-danger-subtle"
-                :class="{ 'bg-danger text-fg-on-action hover:bg-danger/90': isDeleteArmed }"
-                :disabled="siteStore.isSaving"
-                @click="handleDelete"
-              >
-                {{ isDeleteArmed ? $t('site.delete.confirm') : $t('site.delete.action') }}
-              </button>
+              <ui-confirm-button :label="$t('site.delete.action')" :confirm-label="$t('site.delete.confirm')" :is-disabled="siteStore.isSaving" @confirm="handleDelete" />
             </div>
           </div>
         </aside>
@@ -132,6 +124,8 @@ import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import type { ISite } from 'site/types/site';
 
+import UiConfirmButton from 'global/components/ui-confirm-button.vue';
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import SiteForm from 'site/components/site-form.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
@@ -152,7 +146,6 @@ const NEW_SITE = 'new';
 const search = ref('');
 const page = ref(1);
 const lastSiteId = ref<string | null>(null);
-const isDeleteArmed = ref(false);
 
 // computed
 const filteredRows = computed((): ISite[] => {
@@ -182,7 +175,6 @@ watch(pageCount, (count) => {
 watch(
   openSiteId,
   (id) => {
-    isDeleteArmed.value = false;
     if (id && id !== NEW_SITE) lastSiteId.value = id;
   },
   { immediate: true },
@@ -217,10 +209,6 @@ const handleSaved = (site: ISite): void => {
 
 const handleDelete = async (): Promise<void> => {
   if (!activeSite.value) return;
-  if (!isDeleteArmed.value) {
-    isDeleteArmed.value = true;
-    return;
-  }
   const isDeleted = await siteStore.remove(activeSite.value.id);
   if (!isDeleted) {
     toastStore.push(t('site.delete.error'), 'danger');

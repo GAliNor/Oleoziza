@@ -12,22 +12,18 @@
     </div>
 
     <div class="grid gap-3 sm:grid-cols-2">
-      <div class="flex flex-col gap-1.5">
-        <label class="label" for="user-first-name">{{ $t('user.form.firstName') }}</label>
-        <input id="user-first-name" v-model="form.firstName" class="input" type="text" autocomplete="off" required />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="label" for="user-last-name">{{ $t('user.form.lastName') }}</label>
-        <input id="user-last-name" v-model="form.lastName" class="input" type="text" autocomplete="off" required />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="label" for="user-phone">{{ $t('user.form.phone') }}</label>
-        <input id="user-phone" v-model="form.phone" class="input" type="tel" inputmode="tel" placeholder="06 61 00 00 00" />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="label" for="user-email">{{ $t('user.form.email') }}</label>
-        <input id="user-email" v-model="form.email" class="input" type="email" inputmode="email" />
-      </div>
+      <ui-field v-slot="{ id }" :label="$t('user.form.firstName')">
+        <input :id="id" v-model="form.firstName" class="input" type="text" autocomplete="off" required />
+      </ui-field>
+      <ui-field v-slot="{ id }" :label="$t('user.form.lastName')">
+        <input :id="id" v-model="form.lastName" class="input" type="text" autocomplete="off" required />
+      </ui-field>
+      <ui-field v-slot="{ id }" :label="$t('user.form.phone')">
+        <input :id="id" v-model="form.phone" class="input" type="tel" inputmode="tel" placeholder="06 61 00 00 00" />
+      </ui-field>
+      <ui-field v-slot="{ id }" :label="$t('user.form.email')">
+        <input :id="id" v-model="form.email" class="input" type="email" inputmode="email" />
+      </ui-field>
     </div>
 
     <div class="flex flex-col gap-1.5">
@@ -61,10 +57,9 @@
       </div>
     </div>
 
-    <div v-if="!form.isInvited" class="flex flex-col gap-1.5">
-      <label class="label" for="user-secret">{{ isPin ? $t('user.form.firstPin') : $t('user.form.firstPassword') }}</label>
+    <ui-field v-if="!form.isInvited" v-slot="{ id }" :label="isPin ? $t('user.form.firstPin') : $t('user.form.firstPassword')">
       <input
-        id="user-secret"
+        :id="id"
         v-model="form.secret"
         class="input"
         :type="isPin ? 'tel' : 'text'"
@@ -72,7 +67,7 @@
         autocomplete="off"
         :maxlength="isPin ? 6 : undefined"
       />
-    </div>
+    </ui-field>
 
     <p v-if="error" class="form-error" role="alert">{{ error }}</p>
 
@@ -99,6 +94,8 @@ import { normalizeIdentifier } from 'auth/composables/normalize-identifier';
 import { formatFullName } from 'user/composables/format';
 import { STAFF_ROLES } from 'user/constants/user';
 import type { IStaffUser, StaffRole } from 'user/types/user';
+
+import UiField from 'global/components/ui-field.vue';
 
 // emits
 const emit = defineEmits<{

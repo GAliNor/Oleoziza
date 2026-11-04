@@ -7,10 +7,11 @@
         <p class="body-two">{{ $t('reception.open.subtitle') }}</p>
       </header>
 
-      <div v-if="receptionStore.hasError" class="card flex items-center justify-between gap-3">
-        <p class="form-error">{{ $t('reception.loadError') }}</p>
-        <button type="button" class="btn-secondary" @click="handleRetry">{{ $t('reception.retry') }}</button>
-      </div>
+      <ui-empty-state v-if="receptionStore.hasError" class="card" tone="danger" size="compact" :message="$t('reception.loadError')">
+        <template #action>
+          <button type="button" class="btn-secondary" @click="handleRetry">{{ $t('reception.retry') }}</button>
+        </template>
+      </ui-empty-state>
 
       <section class="flex flex-col gap-2">
         <h2 class="label">{{ $t('reception.open.client') }}</h2>
@@ -130,6 +131,7 @@ import type { IClient } from 'client/types/client';
 import type { ReceptionMode } from 'lot/types/lot';
 import { formatMoney } from 'global/composables/money';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import ChevronDownLineIcon from 'global/icons/chevron-down-line.icon.vue';
 import ClientPicker from 'reception/components/client-picker.vue';

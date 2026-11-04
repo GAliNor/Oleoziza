@@ -71,8 +71,9 @@
 
     <div v-if="movement.status === 'pending' && canConfirm" class="card flex flex-col gap-3 rounded-2xl">
       <template v-if="mode === 'reject'">
-        <label class="label" for="reject-note">Motif du rejet</label>
-        <textarea id="reject-note" v-model="note" class="input min-h-20" placeholder="Ex. montant absent de la caisse" />
+        <ui-field v-slot="{ id }" label="Motif du rejet">
+          <textarea :id="id" v-model="note" class="input min-h-20" placeholder="Ex. montant absent de la caisse" />
+        </ui-field>
         <p v-if="movement.method === 'oil'" class="body-two">Les {{ movement.oilKg }} kg d’huile reviennent au stock du Client.</p>
         <div class="flex flex-wrap justify-end gap-2">
           <button type="button" class="btn-secondary" @click="mode = 'idle'">Retour</button>
@@ -87,8 +88,9 @@
 
     <div v-else-if="movement.status === 'confirmed' && movement.kind === 'payment' && canCancel" class="card flex flex-col gap-3 rounded-2xl">
       <template v-if="mode === 'cancel'">
-        <label class="label" for="cancel-note">Motif de l’annulation</label>
-        <textarea id="cancel-note" v-model="note" class="input min-h-20" placeholder="Ex. chèque revenu impayé" />
+        <ui-field v-slot="{ id }" label="Motif de l’annulation">
+          <textarea :id="id" v-model="note" class="input min-h-20" placeholder="Ex. chèque revenu impayé" />
+        </ui-field>
         <div class="grid gap-2 sm:grid-cols-2">
           <button
             v-for="(label, key) in SETTLEMENT_LABELS"
@@ -133,6 +135,8 @@ import {
 import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
 import { formatMoney } from 'global/composables/money';
 import { formatDateTime } from 'global/composables/date';
+
+import UiField from 'global/components/ui-field.vue';
 
 // props
 const props = defineProps<{ movement: IMovementPrototype }>();

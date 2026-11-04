@@ -47,7 +47,7 @@
             </tr>
           </tbody>
         </table>
-        <p v-if="!rows.length" class="body-two px-5 py-8 text-center">Aucun lot</p>
+        <ui-empty-state v-if="!rows.length" message="Aucun lot" />
       </div>
       <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
         <p class="body-two tabular-nums">{{ firstIndex + 1 }}–{{ firstIndex + pageRows.length }} sur {{ rows.length }}</p>
@@ -77,6 +77,7 @@ import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
 import { formatKg, formatYield } from 'lot/composables/quantity';
 import { formatDateTime } from 'global/composables/date';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import LotDetail from 'lot/prototype/lot-detail.prototype.vue';
 
 // props

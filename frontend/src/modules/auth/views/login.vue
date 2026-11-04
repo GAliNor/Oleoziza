@@ -5,10 +5,9 @@
         <auth-heading :eyebrow="$t('auth.login.eyebrow')" :title="$t('auth.login.title')" :subtitle="$t('auth.login.subtitle')" />
 
         <form class="flex flex-col gap-5" @submit.prevent="handleIdentifierSubmit">
-          <div class="flex flex-col gap-2">
-            <label class="label" for="identifier">{{ $t('auth.login.identifier') }}</label>
+          <ui-field v-slot="{ id }" :label="$t('auth.login.identifier')">
             <input
-              id="identifier"
+              :id="id"
               v-model="identifierInput"
               class="input"
               type="text"
@@ -17,7 +16,7 @@
               :placeholder="$t('auth.login.identifierPlaceholder')"
               :disabled="isLoading"
             />
-          </div>
+          </ui-field>
           <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
           <button type="submit" class="btn-primary w-full" :disabled="isLoading || !identifierInput.trim()">
             {{ $t('auth.login.continue') }}
@@ -67,18 +66,17 @@
         />
 
         <form v-else class="flex flex-col gap-5" @submit.prevent="handleSecretComplete(secret)">
-          <div class="flex flex-col gap-2">
-            <label class="label" :for="step">{{ $t(`auth.login.secretLabel.${step}`) }}</label>
+          <ui-field v-slot="{ id }" :label="$t(`auth.login.secretLabel.${step}`)">
             <code-input
               v-if="step === 'otp'"
-              :id="step"
+              :id="id"
               v-model="secret"
               :length="OTP_LENGTH"
               :is-disabled="isLoading"
               @complete="handleSecretComplete"
             />
-            <password-input v-else :id="step" v-model="secret" autocomplete="current-password" :is-disabled="isLoading" />
-          </div>
+            <password-input v-else :id="id" v-model="secret" autocomplete="current-password" :is-disabled="isLoading" />
+          </ui-field>
           <button type="submit" class="btn-primary w-full" :disabled="isLoading || !secret">
             {{ $t('auth.login.submit') }}
             <arrow-right-line-icon class="h-4 w-4" />
@@ -123,6 +121,7 @@ import { OTP_LENGTH, PIN_LENGTH } from 'auth/constants/auth';
 import { MOCK_SMS_CODE } from 'auth/constants/mock-auth';
 import type { LoginMethod } from 'auth/types/auth';
 
+import UiField from 'global/components/ui-field.vue';
 import AuthHeading from 'auth/components/auth-heading.vue';
 import CodeInput from 'auth/components/code-input.vue';
 import CredentialForm from 'auth/components/credential-form.vue';

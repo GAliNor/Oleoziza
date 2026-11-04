@@ -30,10 +30,11 @@
         </li>
       </ul>
 
-      <div v-if="!receptionStore.isLoading && !lotStore.receivedLots.length" class="flex flex-col items-center gap-4 py-12 text-center">
-        <p class="body-one">{{ $t('reception.weigh.empty') }}</p>
-        <router-link v-can="'reception.create'" :to="{ name: 'reception-new' }" class="btn-primary">{{ $t('reception.done.again') }}</router-link>
-      </div>
+      <ui-empty-state v-if="!receptionStore.isLoading && !lotStore.receivedLots.length" size="page" :message="$t('reception.weigh.empty')">
+        <template #action>
+          <router-link v-can="'reception.create'" :to="{ name: 'reception-new' }" class="btn-primary">{{ $t('reception.done.again') }}</router-link>
+        </template>
+      </ui-empty-state>
     </section>
   </app-layout>
 </template>
@@ -48,6 +49,7 @@ import { useLotStore } from 'lot/stores/lot';
 import { formatKg } from 'lot/composables/quantity';
 import { formatTime } from 'global/composables/date';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
 
 // stores

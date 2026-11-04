@@ -55,7 +55,7 @@
             </tr>
           </tbody>
         </table>
-        <p v-if="!rows.length" class="body-two px-5 py-8 text-center">{{ tab === 'pending' ? 'Rien à confirmer. Tout est à jour.' : 'Aucun mouvement sur la période' }}</p>
+        <ui-empty-state v-if="!rows.length" :message="tab === 'pending' ? 'Rien à confirmer. Tout est à jour.' : 'Aucun mouvement sur la période'" />
       </div>
       <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
         <p class="body-two tabular-nums">{{ firstIndex + 1 }}–{{ firstIndex + pageRows.length }} sur {{ rows.length }}</p>
@@ -87,6 +87,7 @@ import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
 import { formatMoney } from 'global/composables/money';
 import { formatDateTime } from 'global/composables/date';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import FinanceTiles from 'finance/prototype/finance-tiles.prototype.vue';
 import MovementDetail from 'finance/prototype/movement-detail.prototype.vue';

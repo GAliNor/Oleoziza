@@ -62,7 +62,7 @@
               </tr>
             </tbody>
           </table>
-          <p v-if="!filteredRows.length" class="body-two px-5 py-8 text-center">Aucun client</p>
+          <ui-empty-state v-if="!filteredRows.length" message="Aucun client" />
         </div>
 
         <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
@@ -134,6 +134,7 @@ import { formatMoney } from 'global/composables/money';
 import { formatKg } from 'lot/composables/quantity';
 
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import ClientHeader from 'client/prototype/client-header.prototype.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';

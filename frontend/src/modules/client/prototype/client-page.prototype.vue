@@ -50,7 +50,7 @@
           </span>
           <span class="chip bg-subtle text-fg-primary-paragraph">{{ lot.status }}</span>
         </li>
-        <li v-if="!lots.length" class="body-two py-6 text-center">Aucun lot cette saison</li>
+        <li v-if="!lots.length"><ui-empty-state size="compact" message="Aucun lot cette saison" /></li>
       </ul>
 
       <template v-if="managementClient">
@@ -58,7 +58,7 @@
         <management-client-detail :client="managementClient" :is-finance-shown="siteStore.can('finance.view')" />
       </template>
     </section>
-    <p v-else class="body-two py-16 text-center">Client introuvable</p>
+    <ui-empty-state v-else size="page" message="Client introuvable" />
   </app-layout>
 </template>
 
@@ -80,6 +80,7 @@ import { findManagementClient } from 'client/prototype/mock-management-clients.p
 import { formatMoney } from 'global/composables/money';
 import { formatKg, formatLitres } from 'lot/composables/quantity';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';

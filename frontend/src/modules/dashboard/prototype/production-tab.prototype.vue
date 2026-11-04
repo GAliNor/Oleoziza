@@ -64,9 +64,7 @@
               <td class="px-4 py-3 text-right tabular-nums">{{ formatKgRounded(row.oilKg * factor) }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <div class="h-1.5 w-20 overflow-hidden rounded-full bg-subtle">
-                    <div class="grow-x h-full rounded-full bg-primary-olive" :style="{ width: `${(yieldOf(row) / 24) * 100}%`, animationDelay: `${index * 60}ms` }" />
-                  </div>
+                  <ui-progress-bar class="h-1.5 w-20" :value="yieldOf(row)" :max="24" label="Rendement" :delay="index * 60" />
                   <span class="tabular-nums">{{ formatNumber(yieldOf(row), 1, 1) }} %</span>
                 </div>
               </td>
@@ -89,6 +87,7 @@ import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype'
 import { formatKgRounded, formatLitres } from 'lot/composables/quantity';
 import { formatNumber } from 'global/composables/number';
 
+import UiProgressBar from 'global/components/ui-progress-bar.vue';
 import KpiTile from 'dashboard/prototype/kpi-tile.prototype.vue';
 import TankCards from 'dashboard/prototype/tank-cards.prototype.vue';
 import WeekBars from 'dashboard/prototype/week-bars.prototype.vue';

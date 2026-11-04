@@ -8,9 +8,7 @@
     <p v-if="delta" class="flex items-center gap-1 text-xs font-medium" :class="isDeltaGood ? 'text-fg-success' : 'text-fg-danger'">
       {{ delta }} <span class="font-normal text-fg-secondary-paragraph">{{ deltaLabel ?? 'vs saison préc.' }}</span>
     </p>
-    <div v-if="progress !== undefined" class="mt-1 h-1.5 overflow-hidden rounded-full bg-subtle">
-      <div class="grow-x h-full rounded-full bg-primary-olive transition-[width] duration-700 ease-(--ease-premium)" :style="{ width: `${Math.min(progress, 100)}%` }" />
-    </div>
+    <ui-progress-bar v-if="progress !== undefined" class="mt-1 h-1.5" :value="progress" :label="label" />
   </div>
 </template>
 
@@ -21,6 +19,8 @@ import { computed, toRef } from 'vue';
 
 import { useCountUp } from 'dashboard/prototype/use-count-up.prototype';
 import { formatNumber } from 'global/composables/number';
+
+import UiProgressBar from 'global/components/ui-progress-bar.vue';
 
 // props
 const props = withDefaults(

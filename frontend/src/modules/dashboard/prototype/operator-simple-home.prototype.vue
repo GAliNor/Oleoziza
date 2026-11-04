@@ -79,7 +79,7 @@
           </li>
         </ul>
         <div v-if="visible.length < listed.length" :key="shownCount" ref="sentinel" class="skeleton h-14" aria-hidden="true" />
-        <p v-else-if="!listed.length" class="body-two py-8 text-center">Aucun lot</p>
+        <ui-empty-state v-else-if="!listed.length" message="Aucun lot" />
       </div>
 
       <div v-if="panel" class="w-full shrink-0">
@@ -106,6 +106,7 @@ import { useSessionStore } from 'global/stores/session';
 import { LOT_STATUSES, type ILotPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MOVE_LABELS, MOVE_TONES, useOperatorDesk } from 'dashboard/prototype/use-operator-desk.prototype';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';

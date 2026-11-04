@@ -14,20 +14,18 @@
   </div>
 
   <form v-else class="flex flex-col gap-5" @submit.prevent="handlePasswordSubmit">
-    <div class="flex flex-col gap-2">
-      <label class="label" for="new-password">{{ $t('auth.credential.newPassword') }}</label>
-      <password-input id="new-password" v-model="password" autocomplete="new-password" :is-disabled="isSubmitting" />
+    <ui-field v-slot="{ id }" :label="$t('auth.credential.newPassword')">
+      <password-input :id="id" v-model="password" autocomplete="new-password" :is-disabled="isSubmitting" />
       <p class="body-two">{{ $t('auth.credential.passwordRule', { length: PASSWORD_MIN_LENGTH }) }}</p>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label class="label" for="confirm-password">{{ $t('auth.credential.confirmPassword') }}</label>
+    </ui-field>
+    <ui-field v-slot="{ id }" :label="$t('auth.credential.confirmPassword')">
       <password-input
-        id="confirm-password"
+        :id="id"
         v-model="passwordConfirmation"
         autocomplete="new-password"
         :is-disabled="isSubmitting"
       />
-    </div>
+    </ui-field>
     <p v-if="localError" class="form-error" role="alert">{{ localError }}</p>
     <button type="submit" class="btn-primary w-full" :disabled="isSubmitting">
       {{ submitLabel }}
@@ -44,6 +42,7 @@ import { useI18n } from 'vue-i18n';
 import { PASSWORD_MIN_LENGTH, PIN_LENGTH } from 'auth/constants/auth';
 import type { CredentialKind } from 'auth/types/auth';
 
+import UiField from 'global/components/ui-field.vue';
 import PinPad from 'auth/components/pin-pad.vue';
 import PasswordInput from 'auth/components/password-input.vue';
 import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';

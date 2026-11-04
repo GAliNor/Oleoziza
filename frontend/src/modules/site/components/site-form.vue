@@ -1,14 +1,12 @@
 <template>
   <form class="card flex flex-col gap-4 rounded-2xl" @submit.prevent="handleSubmit">
     <h2 class="heading-four">{{ site ? $t('site.form.editTitle') : $t('site.form.createTitle') }}</h2>
-    <div class="flex flex-col gap-1.5">
-      <label class="label" for="site-name">{{ $t('site.form.name') }}</label>
-      <input id="site-name" v-model="form.name" class="input" type="text" required />
-    </div>
-    <div class="flex flex-col gap-1.5">
-      <label class="label" for="site-city">{{ $t('site.form.city') }}</label>
-      <input id="site-city" v-model="form.city" class="input" type="text" required />
-    </div>
+    <ui-field v-slot="{ id }" :label="$t('site.form.name')">
+      <input :id="id" v-model="form.name" class="input" type="text" required />
+    </ui-field>
+    <ui-field v-slot="{ id }" :label="$t('site.form.city')">
+      <input :id="id" v-model="form.city" class="input" type="text" required />
+    </ui-field>
     <p v-if="siteStore.hasSaveError" class="form-error" role="alert">{{ $t('site.form.error') }}</p>
     <div class="flex justify-end gap-2">
       <button type="button" class="btn-secondary" @click="handleCancel">{{ $t('site.form.cancel') }}</button>
@@ -26,6 +24,8 @@ import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import type { ISite } from 'site/types/site';
 import type { ISiteForm } from 'site/types/site';
+
+import UiField from 'global/components/ui-field.vue';
 
 // props
 const props = defineProps<{ site?: ISite }>();

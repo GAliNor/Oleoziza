@@ -13,7 +13,7 @@
         autocomplete="off"
         :placeholder="$t('client.search.placeholder')"
       />
-      <p v-if="clientStore.hasError" class="form-error">{{ $t('client.search.loadError') }}</p>
+      <ui-empty-state v-if="clientStore.hasError" tone="danger" size="compact" :message="$t('client.search.loadError')" />
       <div v-if="clientStore.isLoading && !clientStore.clients.length" class="flex flex-col gap-2">
         <div v-for="index in 4" :key="index" class="skeleton h-16 rounded-2xl" />
       </div>
@@ -32,7 +32,7 @@
           </router-link>
         </li>
       </ul>
-      <p v-if="query && !results.length && !clientStore.isLoading" class="body-two py-6 text-center">{{ $t('client.search.noResult', { query }) }}</p>
+      <ui-empty-state v-if="query && !results.length && !clientStore.isLoading" size="compact" :message="$t('client.search.noResult', { query })" />
     </section>
   </app-layout>
 </template>
@@ -46,6 +46,7 @@ import { useClientStore } from 'client/stores/client';
 import { formatPhone } from 'global/composables/phone';
 import type { IClient } from 'client/types/client';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import AppLayout from 'global/components/app-layout.vue';
 

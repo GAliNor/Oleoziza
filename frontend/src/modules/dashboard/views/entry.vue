@@ -10,7 +10,7 @@
 
       <div v-if="sessionStore.isStaff" class="flex flex-col gap-3">
         <h2 class="heading-four">{{ $t('dashboard.sites') }}</h2>
-        <p v-if="siteStore.hasError" class="body-one text-fg-danger">{{ $t('dashboard.loadError') }}</p>
+        <ui-empty-state v-if="siteStore.hasError" tone="danger" size="compact" :message="$t('dashboard.loadError')" />
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <template v-if="siteStore.isLoading">
             <div v-for="index in 2" :key="index" class="skeleton h-20" />
@@ -51,6 +51,7 @@ import { useSiteStore } from 'site/stores/site';
 import { DATA_SOURCE } from 'global/services/base';
 import { PERMISSIONS } from 'auth/constants/permissions';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 import ManagementHomePrototype from 'dashboard/prototype/management-home.prototype.vue';

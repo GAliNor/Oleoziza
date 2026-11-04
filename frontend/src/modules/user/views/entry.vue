@@ -30,7 +30,7 @@
         <ui-segmented class="self-start lg:ml-auto" variant="tabs" :model-value="view" :options="viewOptions" :label="$t('user.views.label')" @update:model-value="handleView" />
       </div>
 
-      <p v-if="userStore.hasError && !userStore.users.length" class="card body-two text-fg-danger">{{ $t('user.loadError') }}</p>
+      <ui-empty-state v-if="userStore.hasError && !userStore.users.length" class="card" tone="danger" :message="$t('user.loadError')" />
 
       <div class="flex min-w-0 gap-4 overflow-hidden">
         <div
@@ -111,6 +111,7 @@ import { NEW_USER, PAGE_SIZE, USER_FILTERS, USER_VIEWS } from 'user/constants/us
 import type { ISite } from 'site/types/site';
 import type { IStaffUser, UserFilter, UserView } from 'user/types/user';
 
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import UserDetail from 'user/components/user-detail.vue';

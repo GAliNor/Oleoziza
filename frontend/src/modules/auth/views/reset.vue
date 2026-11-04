@@ -5,10 +5,9 @@
         <auth-heading :eyebrow="$t('auth.reset.eyebrow')" :title="$t(`auth.reset.title.${step}`)" :subtitle="subtitle" />
 
         <form v-if="step === 'identifier'" class="flex flex-col gap-5" @submit.prevent="handleIdentifierSubmit">
-          <div class="flex flex-col gap-2">
-            <label class="label" for="reset-identifier">{{ $t('auth.login.identifier') }}</label>
+          <ui-field v-slot="{ id }" :label="$t('auth.login.identifier')">
             <input
-              id="reset-identifier"
+              :id="id"
               v-model="identifierInput"
               class="input"
               type="text"
@@ -17,7 +16,7 @@
               :placeholder="$t('auth.login.identifierPlaceholder')"
               :disabled="isLoading"
             />
-          </div>
+          </ui-field>
           <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
           <button type="submit" class="btn-primary w-full" :disabled="isLoading || !identifierInput.trim()">
             {{ $t('auth.reset.send') }}
@@ -26,10 +25,9 @@
         </form>
 
         <form v-else-if="step === 'code'" class="flex flex-col gap-5" @submit.prevent="handleCodeSubmit">
-          <div class="flex flex-col gap-2">
-            <label class="label" for="reset-code">{{ $t('auth.login.secretLabel.otp') }}</label>
-            <code-input id="reset-code" v-model="code" :length="OTP_LENGTH" @complete="handleCodeSubmit" />
-          </div>
+          <ui-field v-slot="{ id }" :label="$t('auth.login.secretLabel.otp')">
+            <code-input :id="id" v-model="code" :length="OTP_LENGTH" @complete="handleCodeSubmit" />
+          </ui-field>
           <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
           <button type="submit" class="btn-primary w-full" :disabled="code.length !== OTP_LENGTH">
             {{ $t('auth.login.continue') }}
@@ -69,6 +67,7 @@ import { OTP_LENGTH } from 'auth/constants/auth';
 import { MOCK_RESET_LINK_TOKEN, MOCK_SMS_CODE } from 'auth/constants/mock-auth';
 import type { CredentialKind } from 'auth/types/auth';
 
+import UiField from 'global/components/ui-field.vue';
 import AuthHeading from 'auth/components/auth-heading.vue';
 import CodeInput from 'auth/components/code-input.vue';
 import CredentialForm from 'auth/components/credential-form.vue';
