@@ -2,7 +2,7 @@ import { mockReject, mockResolve } from 'global/services/mock';
 import { LOTS_MOCK } from 'lot/constants/mock-lots';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import { ALL_SITES } from 'site/constants/site';
-import type { ILot, ILotMove, ILotService } from 'lot/types/lot';
+import type { ILot, ILotMovePayload, ILotService } from 'lot/types/lot';
 
 export const LOTS_MOCK_DB: ILot[] = structuredClone(LOTS_MOCK);
 
@@ -13,7 +13,7 @@ export default class LotMockService implements ILotService {
     return mockResolve(siteId === ALL_SITES ? LOTS_MOCK_DB : LOTS_MOCK_DB.filter((lot) => lot.siteId === siteId));
   }
 
-  moveLot(lotId: string, move: ILotMove): Promise<ILot> {
+  moveLot(lotId: string, move: ILotMovePayload): Promise<ILot> {
     const lot = LOTS_MOCK_DB.find((candidate) => candidate.id === lotId);
     if (!lot) return mockReject(new Error('lot_not_found'));
     if (appliedMoves.has(move.id)) return mockResolve(lot);
@@ -21,6 +21,7 @@ export default class LotMockService implements ILotService {
     if (!next) return mockReject(new Error('lot_already_withdrawn'));
     appliedMoves.add(move.id);
     lot.status = next;
+    lot.moves.push({ status: next, at: new Date().toISOString(), by: move.by });
     if (move.oilKg) lot.oilKg = move.oilKg;
     if (next === 'withdrawn') lot.withdrawnKg = lot.oilKg ?? 0;
     lot.isPendingSync = !navigator.onLine;

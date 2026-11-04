@@ -34,8 +34,10 @@ export const useSiteStore = defineStore('site', {
         return sites[siteId]?.includes(permission) ?? false;
       };
     },
-    can(state): (permission: Permission) => boolean {
-      return (permission: Permission): boolean => this.hasPermission(permission, state.currentSiteId);
+    /** Whether the current Site grants the Permission, or any one of a list. */
+    can(state): (permission: Permission | readonly Permission[]) => boolean {
+      return (permission: Permission | readonly Permission[]): boolean =>
+        (typeof permission === 'string' ? [permission] : permission).some((item) => this.hasPermission(item, state.currentSiteId));
     },
     accessibleSites(state): ISite[] {
       const session = useSessionStore().session;

@@ -36,5 +36,29 @@
     "search": "Rechercher un client",
     "pendingSync": "{count} élément à synchroniser | {count} éléments à synchroniser",
     "switchOperator": "{name}, changer d’opérateur"
+  },
+  "allSites": "Tous les sites",
+  "period": {
+    "label": "Période",
+    "today": {
+      "label": "Aujourd’hui",
+      "noun": "aujourd’hui"
+    },
+    "week": {
+      "label": "7 jours",
+      "noun": "sur 7 jours"
+    },
+    "month": {
+      "label": "Ce mois",
+      "noun": "ce mois"
+    },
+    "season": {
+      "label": "Cette saison",
+      "noun": "cette saison"
+    },
+    "previous": {
+      "label": "Saison préc.",
+      "noun": "saison 2025-2026"
+    }
   }
 }

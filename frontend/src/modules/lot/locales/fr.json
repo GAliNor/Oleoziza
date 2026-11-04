@@ -15,5 +15,57 @@
     "waiting": "Lancer le pressage",
     "pressing": "Saisir l’huile",
     "pressed": "Marquer retiré"
+  },
+  "register": {
+    "title": "Opérations",
+    "subtitle": "{scope} · registre des lots {period} · {count} lots",
+    "viewLabel": "Affichage",
+    "views": {
+      "table": "Tableau",
+      "board": "Par étape"
+    },
+    "search": "N° de lot ou Client",
+    "all": "Tous",
+    "empty": "Aucun lot",
+    "loadError": "Impossible de charger les lots.",
+    "retry": "Réessayer",
+    "backToLots": "Retour aux lots",
+    "backToBoard": "Retour au tableau",
+    "boardHint": "Les lots retirés montrent les 6 derniers ; cherchez pour les plus anciens.",
+    "columns": {
+      "lot": "Lot",
+      "client": "Client",
+      "variety": "Variété",
+      "olives": "Olives",
+      "oil": "Huile",
+      "yield": "Rendement",
+      "status": "Statut"
+    }
+  },
+  "detail": {
+    "heading": "{code} · {site} · reçu le {date}",
+    "recordedBy": "{variety} · saisi par {name}",
+    "clientContainers": "bidons du Client",
+    "notPressed": "pas encore pressé",
+    "perQuintal": "{kg} kg par quintal",
+    "expectedYield": "attendu 12–24 %",
+    "fee": "Frais",
+    "feeRate": "Trituration · {rate}/kg",
+    "timeline": "Parcours du lot",
+    "by": "par {name}"
+  },
+  "timeline": {
+    "reception": "Réception",
+    "weighing": "Pesées",
+    "weighingDetail": "{net} net ({quintals})",
+    "waiting": "Réception terminée",
+    "waitingDetail": "En file de pressage",
+    "pressing": "Pressage lancé",
+    "pressingDetail": "Ligne 1",
+    "pressed": "Pressé",
+    "yield": "rendement {value}",
+    "stored": "Versé en cuve",
+    "withdrawn": "Retrait",
+    "withdrawnContainers": "bidons de 20 L"
   }
 }

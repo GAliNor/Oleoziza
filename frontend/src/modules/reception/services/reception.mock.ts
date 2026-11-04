@@ -39,6 +39,7 @@ export default class ReceptionMockService implements IReceptionService {
       withdrawnKg: 0,
       dailyPricePerKg: payload.mode === 'purchase' ? (SETTINGS_MOCK[payload.siteId]?.dailyPricePerKg ?? null) : null,
       weighings: [],
+      moves: [],
       receivedAt: new Date().toISOString(),
       finishedAt: null,
       isPendingSync: isPendingSync(),
@@ -67,6 +68,7 @@ export default class ReceptionMockService implements IReceptionService {
     if (lot.status === 'received') {
       lot.status = 'waiting';
       lot.finishedAt = new Date().toISOString();
+      lot.moves.push({ status: 'waiting', at: lot.finishedAt, by: lot.receivedBy });
     }
     return mockResolve(lot);
   }

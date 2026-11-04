@@ -16,6 +16,21 @@ export interface IWeighing {
   isPendingSync: boolean;
 }
 
+/** A status a Lot reached, with who moved it and when. Provisional until the Operations data model settles. */
+export interface ILotMoveRecord {
+  status: LotStatus;
+  at: string;
+  by: string;
+}
+
+export interface ILotStep {
+  key: string;
+  label: string;
+  detail: string;
+  at: string;
+  by: string;
+}
+
 export interface ILot {
   id: string;
   code: string;
@@ -36,6 +51,7 @@ export interface ILot {
   note: string;
   dailyPricePerKg: number | null;
   weighings: IWeighing[];
+  moves: ILotMoveRecord[];
   receivedAt: string;
   receivedBy: string;
   finishedAt: string | null;
@@ -48,9 +64,13 @@ export interface ILotMove {
   oilKg?: number;
 }
 
+export interface ILotMovePayload extends ILotMove {
+  by: string;
+}
+
 export interface ILotService {
   getLots(siteId: string): Promise<ILot[]>;
-  moveLot(lotId: string, move: ILotMove): Promise<ILot>;
+  moveLot(lotId: string, move: ILotMovePayload): Promise<ILot>;
 }
 
 export interface ILotStore {

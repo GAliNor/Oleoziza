@@ -30,7 +30,8 @@ import { computed } from 'vue';
 import { useSiteStore } from 'site/stores/site';
 import { createLots, formatDelta, LOT_STATUSES, olivesBars,
   OLIVE_SERIES, salesBars, salesFigures, SEASON, SITE_FIGURES, type ITankPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
-import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { MOCK_PERIOD_FACTORS } from 'global/constants/period';
+import type { IPeriod } from 'global/types/period';
 import { formatLitres } from 'lot/composables/quantity';
 
 import UiStatTile from 'global/components/ui-stat-tile.vue';
@@ -42,7 +43,7 @@ import TankCards from 'dashboard/prototype/tank-cards.prototype.vue';
 import UiBarChart from 'global/components/ui-bar-chart.vue';
 
 // props
-const props = defineProps<{ period: IPeriodPrototype; scale: number; tanks: ITankPrototype[]; isFinanceShown: boolean }>();
+const props = defineProps<{ period: IPeriod; scale: number; tanks: ITankPrototype[]; isFinanceShown: boolean }>();
 
 // stores
 const siteStore = useSiteStore();
@@ -51,7 +52,7 @@ const siteStore = useSiteStore();
 const lots = createLots();
 
 // computed
-const factor = computed((): number => props.scale * props.period.factor);
+const factor = computed((): number => props.scale * MOCK_PERIOD_FACTORS[props.period.key]);
 const scopeSites = computed(() => (siteStore.isAllSites ? SITE_FIGURES : SITE_FIGURES.filter((site) => site.siteId === siteStore.currentSiteId)));
 const tankFill = computed((): number => {
   const capacity = props.tanks.reduce((sum, tank) => sum + tank.capacityKg, 0);

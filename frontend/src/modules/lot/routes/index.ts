@@ -4,8 +4,8 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/operations',
     name: 'lot',
-    component: () => import('lot/prototype/operations-page.prototype.vue'),
-    meta: { roles: ['management'], permission: 'audit_trail.view' },
+    component: () => import('lot/views/entry.vue'),
+    meta: { roles: ['management'], permission: ['record.correct', 'audit_trail.view'] },
   },
 ];
 

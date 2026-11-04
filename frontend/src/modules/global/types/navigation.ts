@@ -7,7 +7,7 @@ export interface INavItem {
   labelKey: string;
   shortLabelKey?: string;
   icon: Component;
-  permission?: Permission;
+  permission?: Permission | readonly Permission[];
   managementPermission?: Permission;
   roles?: Role[];
 }

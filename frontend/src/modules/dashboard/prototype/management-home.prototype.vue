@@ -11,7 +11,7 @@
 
     <div class="rise flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
       <ui-segmented :model-value="tab" :options="visibleTabs" variant="strong-pills" label="Sections" @update:model-value="handleTab" />
-      <ui-segmented :model-value="period.key" :options="PERIODS" label="Période" @update:model-value="selectPeriod" />
+      <ui-segmented :model-value="period.key" :options="periodOptions" :label="$t('global.period.label')" @update:model-value="selectPeriod" />
     </div>
 
     <Transition name="tab-switch" mode="out-in">
@@ -35,7 +35,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { SITE_FIGURES, TANKS } from 'dashboard/prototype/mock-home.prototype';
-import { PERIODS, usePeriod } from 'dashboard/prototype/use-period.prototype';
+import { usePeriod } from 'global/composables/use-period';
 
 import FinanceTab from 'dashboard/prototype/finance-tab.prototype.vue';
 import OverviewTab from 'dashboard/prototype/overview-tab.prototype.vue';
@@ -49,7 +49,7 @@ const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
 const route = useRoute();
 const router = useRouter();
-const { period, selectPeriod } = usePeriod();
+const { period, periodOptions, selectPeriod } = usePeriod();
 
 // variables
 type HomeTab = 'overview' | 'production' | 'finance' | 'tanks';

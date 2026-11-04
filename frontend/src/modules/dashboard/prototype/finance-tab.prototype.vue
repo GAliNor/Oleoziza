@@ -62,7 +62,8 @@
 import { computed, ref } from 'vue';
 
 import { PAYMENT_METHODS, salesBars, salesFigures, type PaymentMethodKey } from 'dashboard/prototype/mock-home.prototype';
-import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { MOCK_PERIOD_FACTORS } from 'global/constants/period';
+import type { IPeriod } from 'global/types/period';
 import { formatMoneyRounded } from 'global/composables/money';
 import { formatNumber } from 'global/composables/number';
 
@@ -72,7 +73,7 @@ import SalesTiles from 'finance/components/sales-tiles.vue';
 import UiBarChart from 'global/components/ui-bar-chart.vue';
 
 // props
-const props = defineProps<{ period: IPeriodPrototype; scale: number }>();
+const props = defineProps<{ period: IPeriod; scale: number }>();
 
 // variables
 const SALES_SERIES: IChartSeries[] = [
@@ -83,7 +84,7 @@ const hoveredKey = ref<PaymentMethodKey | null>(null);
 const methodTotal = PAYMENT_METHODS.reduce((sum, method) => sum + method.amount, 0);
 
 // computed
-const sales = computed(() => salesFigures(props.scale * props.period.factor));
+const sales = computed(() => salesFigures(props.scale * MOCK_PERIOD_FACTORS[props.period.key]));
 const chart = computed(() => salesBars(props.period.key, props.scale));
 const chartBars = computed(() => chart.value.bars.map((bar) => ({ label: bar.label, values: { revenue: bar.revenue, collected: bar.collected }, isCurrent: bar.isCurrent })));
 const slices = computed(() => {

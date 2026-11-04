@@ -13,3 +13,17 @@ export const LOT_MOVE_TONES: Record<LotStatus, string> = {
   pressed: 'bg-selected text-fg-brand',
   withdrawn: 'bg-subtle text-fg-secondary-paragraph',
 };
+
+export const LOT_STATUS_TONES: Record<LotStatus, string> = {
+  received: 'bg-info-subtle text-fg-info',
+  waiting: 'bg-warning-subtle text-fg-warning',
+  pressing: 'bg-warning-subtle text-fg-warning',
+  pressed: 'bg-selected text-fg-brand',
+  withdrawn: 'bg-emphasis text-fg-primary-paragraph',
+};
+
+export const MILLING_RATE = 0.5;
+
+export const YIELD_EXPECTED_MIN = 12;
+
+export const YIELD_EXPECTED_MAX = 24;

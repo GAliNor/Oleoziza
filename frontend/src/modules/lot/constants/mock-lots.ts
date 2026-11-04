@@ -1,7 +1,8 @@
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { shiftDate, todayIso } from 'global/composables/date';
-import type { ILot, IWeighing, LotStatus, ReceptionMode } from 'lot/types/lot';
+import { LOT_STATUSES } from 'lot/constants/lot';
+import type { ILot, ILotMoveRecord, IWeighing, LotStatus, ReceptionMode } from 'lot/types/lot';
 
 const daysAgoAt = (daysAgo: number, time: string): string => `${shiftDate(todayIso(), -daysAgo)}T${time}:00+01:00`;
 
@@ -32,7 +33,7 @@ const baseLot = {
   finishedAt: null,
 };
 
-const OPENED_LOTS: ILot[] = [
+const OPENED_LOTS: Omit<ILot, 'moves'>[] = [
   {
     ...baseLot,
     id: 'l0a1b2c3-0001-4000-8000-000000000158',
@@ -104,6 +105,22 @@ interface ISeedLot {
   tankName?: string;
 }
 
+const MOVE_TIMES: Partial<Record<LotStatus, { time: string; by?: string }>> = {
+  waiting: { time: '09:40' },
+  pressing: { time: '11:15', by: 'Abdelkader Mansouri' },
+  pressed: { time: '12:30', by: 'Abdelkader Mansouri' },
+  withdrawn: { time: '16:05', by: 'Hamid Zerrouki' },
+};
+
+const seedMoves = (seed: ISeedLot): ILotMoveRecord[] => {
+  const day = seed.receivedAt.slice(0, 10);
+  return LOT_STATUSES.slice(1, LOT_STATUSES.indexOf(seed.status) + 1).map((status) => ({
+    status,
+    at: `${day}T${MOVE_TIMES[status]?.time}:00+01:00`,
+    by: MOVE_TIMES[status]?.by ?? FULL_NAMES[seed.operator] ?? seed.operator,
+  }));
+};
+
 const defaultTank = (siteId: string): string => (siteId === SITE_OUJDA_ID ? 'Cuve A2' : 'Cuve B1');
 
 const toLot = (seed: ISeedLot): ILot => ({
@@ -121,6 +138,7 @@ const toLot = (seed: ISeedLot): ILot => ({
   tankName: seed.oilKg ? (seed.tankName ?? defaultTank(seed.siteId)) : null,
   withdrawnKg: seed.status === 'withdrawn' ? (seed.oilKg ?? 0) : 0,
   weighings: [],
+  moves: seedMoves(seed),
   receivedAt: seed.receivedAt,
   receivedBy: FULL_NAMES[seed.operator] ?? seed.operator,
   isPendingSync: false,
@@ -188,4 +206,4 @@ const OLDER_SEEDS: ISeedLot[] = Array.from({ length: 64 }, (_, index) => {
   };
 });
 
-export const LOTS_MOCK: ILot[] = [...OPENED_LOTS, ...[...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot)];
+export const LOTS_MOCK: ILot[] = [...OPENED_LOTS.map((lot) => ({ ...lot, moves: [] })), ...[...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot)];

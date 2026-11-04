@@ -43,6 +43,13 @@ describe('site store', () => {
     expect(useSiteStore().canSelectAll).toBe(true);
   });
 
+  it('grants a list of Permissions when any one of them is held on the current Site', () => {
+    signIn({ [OUJDA]: ['audit_trail.view'] });
+    const siteStore = useSiteStore();
+    siteStore.selectSite(OUJDA);
+    expect([siteStore.can(['record.correct', 'audit_trail.view']), siteStore.can(['record.correct', 'user.manage']), siteStore.can('audit_trail.view')]).toEqual([true, false, true]);
+  });
+
   it('refuses a Site the User does not hold, and all Sites without the right', () => {
     signIn({ [OUJDA]: [], [BERKANE]: [] });
     const siteStore = useSiteStore();

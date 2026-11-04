@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 
 import LotService from 'lot/services/lot';
+import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
 import type { ILot, ILotMove, ILotStore } from 'lot/types/lot';
@@ -32,7 +33,7 @@ export const useLotStore = defineStore('lot', {
       this.reportPending();
     },
     async moveLot(lot: ILot, move: ILotMove): Promise<ILot | null> {
-      const updated = await withStatus(this, 'isSaving', () => lotService.moveLot(lot.id, move));
+      const updated = await withStatus(this, 'isSaving', () => lotService.moveLot(lot.id, { ...move, by: useSessionStore().fullName }));
       if (updated) this.upsertLot(updated);
       return updated;
     },

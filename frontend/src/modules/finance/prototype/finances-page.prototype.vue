@@ -7,7 +7,7 @@
           <h1 class="heading-one">Finances</h1>
           <p class="body-two">{{ scopeName }} · paiements reçus et versements payés</p>
         </div>
-        <ui-segmented :model-value="period.key" :options="PERIODS" label="Période" @update:model-value="selectPeriod" />
+        <ui-segmented :model-value="period.key" :options="periodOptions" :label="$t('global.period.label')" @update:model-value="selectPeriod" />
       </header>
       <p v-if="isReadOnly" class="chip self-start bg-subtle text-fg-primary-paragraph">Tous les sites · lecture seule</p>
 
@@ -21,7 +21,7 @@
 import { computed } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
-import { PERIODS } from 'dashboard/prototype/use-period.prototype';
+import { usePeriod } from 'global/composables/use-period';
 import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
 
 import AppLayout from 'global/components/app-layout.vue';
@@ -31,6 +31,7 @@ import VariantA from 'finance/prototype/variant-a.prototype.vue';
 // stores
 const siteStore = useSiteStore();
 const { period, selectPeriod, isReadOnly } = useFinancePrototype();
+const { periodOptions } = usePeriod();
 
 // computed
 const scopeName = computed((): string => (siteStore.isAllSites ? 'Tous les sites' : (siteStore.currentSite?.name ?? '')));

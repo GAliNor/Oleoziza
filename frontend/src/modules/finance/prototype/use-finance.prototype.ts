@@ -6,7 +6,8 @@ import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useOnlineStatus } from 'global/composables/use-online-status';
 import { SITE_FIGURES, rebaseMockDate, salesFigures, type ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
-import { usePeriod } from 'dashboard/prototype/use-period.prototype';
+import { usePeriod } from 'global/composables/use-period';
+import { MOCK_PERIOD_FACTORS } from 'global/constants/period';
 import { MOVEMENTS_MOCK, type IMovementPrototype, type Settlement } from 'finance/prototype/mock-finance.prototype';
 import { formatMoney } from 'global/composables/money';
 
@@ -43,7 +44,7 @@ export const useFinancePrototype = () => {
     return sites.reduce((sum, site) => sum + site.revenueSeason, 0) / TOTAL_REVENUE || 1;
   });
   const figures = computed((): ISalesFiguresPrototype => {
-    const base = salesFigures(period.value.factor * scopeShare.value);
+    const base = salesFigures(MOCK_PERIOD_FACTORS[period.value.key] * scopeShare.value);
     const pendingPayments = pending.value.filter((movement) => movement.kind === 'payment');
     const pendingAmount = pendingPayments.reduce((sum, movement) => sum + movement.amount, 0);
     const outstanding = Math.min(base.outstanding, base.revenue - pendingAmount);

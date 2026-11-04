@@ -60,11 +60,11 @@
 import { computed, ref, watch } from 'vue';
 
 import { dayLabel, TANK_STORAGE, type ITankPrototype, type ITankStoragePrototype } from 'dashboard/prototype/mock-home.prototype';
-import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import type { IPeriod } from 'global/types/period';
 import { formatKgRounded } from 'lot/composables/quantity';
 
 // props
-const props = defineProps<{ tanks: ITankPrototype[]; period: IPeriodPrototype }>();
+const props = defineProps<{ tanks: ITankPrototype[]; period: IPeriod }>();
 
 // variables
 const offset = ref(0);

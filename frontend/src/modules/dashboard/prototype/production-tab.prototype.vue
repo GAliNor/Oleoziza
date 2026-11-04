@@ -88,7 +88,8 @@ import { computed } from 'vue';
 
 import { formatDelta, MODE_SPLIT, olivesBars,
   OLIVE_SERIES, PRODUCTION_EXTRA, SEASON, VARIETY_FIGURES, type ITankPrototype } from 'dashboard/prototype/mock-home.prototype';
-import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { MOCK_PERIOD_FACTORS } from 'global/constants/period';
+import type { IPeriod } from 'global/types/period';
 import { formatKgRounded, formatLitres } from 'lot/composables/quantity';
 import { formatNumber } from 'global/composables/number';
 
@@ -98,10 +99,10 @@ import TankCards from 'dashboard/prototype/tank-cards.prototype.vue';
 import UiBarChart from 'global/components/ui-bar-chart.vue';
 
 // props
-const props = defineProps<{ scale: number; period: IPeriodPrototype; tanks: ITankPrototype[] }>();
+const props = defineProps<{ scale: number; period: IPeriod; tanks: ITankPrototype[] }>();
 
 // computed
-const factor = computed((): number => props.scale * props.period.factor);
+const factor = computed((): number => props.scale * MOCK_PERIOD_FACTORS[props.period.key]);
 const chart = computed(() => olivesBars(props.period.key, props.scale));
 const servicePct = computed((): number => Math.round((MODE_SPLIT.serviceKg / (MODE_SPLIT.serviceKg + MODE_SPLIT.purchaseKg)) * 100));
 
