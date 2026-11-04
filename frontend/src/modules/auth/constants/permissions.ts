@@ -1,4 +1,4 @@
-import type { Permission, Role } from 'auth/types/auth';
+import type { Permission, Role } from 'global/types/session';
 
 export const PERMISSIONS: readonly Permission[] = [
   'reception.create',

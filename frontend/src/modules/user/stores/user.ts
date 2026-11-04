@@ -2,7 +2,8 @@ import { defineStore } from 'pinia';
 
 import UserService from 'user/services/user';
 import { withStatus } from 'global/composables/with-status';
-import type { LoginMethod, Permission } from 'auth/types/auth';
+import type { LoginMethod } from 'auth/types/auth';
+import type { Permission } from 'global/types/session';
 import type { IStaffForm, IStaffUser, IUserStore, StaffStatus } from 'user/types/user';
 
 const userService = new UserService();

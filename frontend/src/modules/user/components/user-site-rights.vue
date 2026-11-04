@@ -62,7 +62,7 @@ import { useToastStore } from 'global/stores/toast';
 import { useUserRights } from 'user/composables/use-user-rights';
 import { PERMISSIONS } from 'auth/constants/permissions';
 import { PERMISSION_GROUPS } from 'user/constants/user';
-import type { Permission } from 'auth/types/auth';
+import type { Permission } from 'global/types/session';
 import type { IStaffUser } from 'user/types/user';
 
 import LockLineIcon from 'global/icons/lock-line.icon.vue';

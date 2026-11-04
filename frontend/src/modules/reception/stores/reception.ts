@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
 import ReceptionService from 'reception/services/reception';
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 import { useClientStore } from 'global/stores/client';
 import { draftNetKg } from 'reception/composables/weighing';
@@ -22,7 +22,7 @@ export const useReceptionStore = defineStore('reception', {
   getters: {
     receivedLots: (state): ILot[] => state.lots.filter((lot) => lot.status === 'received'),
     lotByCode: (state) => (code: string): ILot | undefined => state.lots.find((lot) => lot.code === code),
-    operatorName: (): string => useAuthStore().session?.firstName ?? '',
+    operatorName: (): string => useSessionStore().session?.firstName ?? '',
   },
   actions: {
     async fetchSite(siteId: string, isForced = false): Promise<void> {

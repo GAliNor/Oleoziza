@@ -8,5 +8,4 @@ export const STORAGE_KEYS = {
   accessToken: 'oleoziza.auth.accessToken',
   credentialChange: 'oleoziza.auth.credentialChange',
   deviceProfiles: 'oleoziza.auth.deviceProfiles',
-  lastSite: 'oleoziza.site.last.',
 } as const;

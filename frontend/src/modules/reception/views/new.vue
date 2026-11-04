@@ -120,7 +120,6 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
@@ -139,7 +138,6 @@ import ClientPicker from 'reception/components/client-picker.vue';
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const authStore = useAuthStore();
 const siteStore = useSiteStore();
 const toastStore = useToastStore();
 const receptionStore = useReceptionStore();
@@ -160,7 +158,7 @@ const note = ref('');
 const siteId = computed((): string => siteStore.currentSite?.id ?? '');
 const siteName = computed((): string => siteStore.currentSite?.city ?? '');
 const modeOptions = computed((): ReceptionMode[] =>
-  RECEPTION_MODES.filter((option) => option !== 'purchase' || authStore.can('purchase.create')),
+  RECEPTION_MODES.filter((option) => option !== 'purchase' || siteStore.can('purchase.create')),
 );
 const dailyPrice = computed((): number | null => receptionStore.settings?.dailyPricePerKg ?? null);
 const canOpen = computed((): boolean => !!client.value && !!siteId.value && !receptionStore.isSaving);

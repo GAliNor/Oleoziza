@@ -74,7 +74,6 @@
 // imports
 import { computed, ref } from 'vue';
 
-import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
 import { useClientStore } from 'global/stores/client';
 import { useOnlineStatus } from 'global/composables/use-online-status';
@@ -91,7 +90,6 @@ const props = defineProps<{ modelValue: IClient | null; siteId: string }>();
 const emit = defineEmits<{ (event: 'update:modelValue', client: IClient): void }>();
 
 // stores
-const authStore = useAuthStore();
 const siteStore = useSiteStore();
 const clientStore = useClientStore();
 
@@ -108,7 +106,7 @@ const newClientId = ref(createId());
 
 // computed
 const results = computed((): IClient[] => clientStore.searchClients(query.value));
-const canCreate = computed((): boolean => authStore.can('client.create'));
+const canCreate = computed((): boolean => siteStore.can('client.create'));
 const canSubmitNew = computed((): boolean => !!newName.value.trim() && normalizePhone(newPhone.value) !== null);
 const otherSites = computed((): string[] =>
   (props.modelValue?.siteIds ?? [])

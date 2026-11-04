@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
 import SiteAdminService from 'site/services/site';
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'global/stores/site';
 import { withStatus } from 'global/composables/with-status';
 import type { ISite } from 'global/types/site';
@@ -35,7 +35,7 @@ export const useSiteAdminStore = defineStore('site-admin', {
         async () => {
           await siteAdminService.delete(id);
           await siteStore.fetchSites(true);
-          const userId = useAuthStore().session?.userId;
+          const userId = useSessionStore().session?.userId;
           if (siteStore.currentSiteId === id && userId) siteStore.pickInitialSite(userId);
           return true;
         },

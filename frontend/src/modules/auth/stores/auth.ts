@@ -2,13 +2,13 @@ import { defineStore } from 'pinia';
 
 import AuthService from 'auth/services/auth';
 import TokenService from 'auth/services/token';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'global/stores/site';
-import { setAccessToken } from 'global/services/access-token';
+import { setAccessToken, setTokenRefresher } from 'global/services/access-token';
 import { readStorage, writeStorage } from 'global/composables/storage';
 import { createSalt, hashPin, verifyPin } from 'auth/composables/hash-pin';
 import { hasWebCrypto } from 'global/composables/crypto';
 import { logDevError } from 'global/composables/with-status';
-import { ALL_SITES } from 'global/constants/site';
 import { REFRESH_MARGIN_MS, STORAGE_KEYS } from 'auth/constants/auth';
 import type {
   CredentialKind,
@@ -22,9 +22,8 @@ import type {
   ILoginResult,
   IResetPayload,
   IResetRequest,
-  ISession,
-  Permission,
 } from 'auth/types/auth';
+import type { ISession } from 'global/types/session';
 
 const authService = new AuthService();
 const tokenService = new TokenService();
@@ -46,43 +45,21 @@ const toSession = (claims: IAccessClaims): ISession => ({
 export const isAuthError = (error: unknown): error is IAuthError =>
   typeof error === 'object' && error !== null && 'code' in error;
 
+const isSessionGone = (error: unknown): boolean => isAuthError(error) && (error.code === 'session_expired' || error.code === 'disabled');
+
 export const useAuthStore = defineStore('auth', {
   state: (): IAuthStore => ({
-    session: null,
     accessToken: null,
     mustChangeCredential: false,
     canSkipCredentialChange: false,
     credentialKind: null,
     deviceProfiles: [],
-    isReady: false,
   }),
-  getters: {
-    isAuthenticated: (state): boolean => state.session !== null,
-    isStaff: (state): boolean => state.session !== null && state.session.role !== 'client',
-    fullName: (state): string => (state.session ? `${state.session.firstName} ${state.session.lastName}` : ''),
-    salutation(state): string {
-      if (!state.session) return '';
-      return state.session.title ? `${state.session.title} ${state.session.lastName}` : this.fullName;
-    },
-    hasPermission:
-      (state) =>
-      (permission: Permission, siteId: string | null): boolean => {
-        const sites = state.session?.sites ?? {};
-        if (!siteId) return false;
-        if (state.session?.isOwner) return true;
-        if (siteId === ALL_SITES) {
-          const siteIds = Object.keys(sites);
-          return siteIds.length > 0 && siteIds.every((id) => sites[id].includes(permission));
-        }
-        return sites[siteId]?.includes(permission) ?? false;
-      },
-    can(): (permission: Permission) => boolean {
-      return (permission: Permission): boolean => this.hasPermission(permission, useSiteStore().currentSiteId);
-    },
-  },
   actions: {
     async init(): Promise<void> {
-      if (this.isReady) return;
+      const sessionStore = useSessionStore();
+      if (sessionStore.isReady) return;
+      setTokenRefresher(() => this.refresh());
       this.deviceProfiles = readStorage<IDeviceProfile[]>(STORAGE_KEYS.deviceProfiles, []);
       const credentialChange = readStorage<Pick<IAuthStore, 'mustChangeCredential' | 'canSkipCredentialChange' | 'credentialKind'> | null>(
         STORAGE_KEYS.credentialChange,
@@ -100,27 +77,29 @@ export const useAuthStore = defineStore('auth', {
         }
       }
       window.addEventListener('online', () => this.refreshIfExpired());
-      this.isReady = true;
+      sessionStore.markReady();
     },
     async applyToken(token: string): Promise<void> {
       const claims = await tokenService.verify(token);
-      this.session = toSession(claims);
+      useSessionStore().setSession(toSession(claims));
       this.accessToken = token;
       setAccessToken(token);
       writeStorage(STORAGE_KEYS.accessToken, token);
       this.scheduleRefresh();
     },
     isExpired(): boolean {
-      return !this.session || this.session.expiresAt <= Date.now();
+      const session = useSessionStore().session;
+      return !session || session.expiresAt <= Date.now();
     },
     scheduleRefresh(): void {
       if (refreshTimer) clearTimeout(refreshTimer);
-      if (!this.session) return;
-      const delay = Math.max(this.session.expiresAt - Date.now() - REFRESH_MARGIN_MS, 0);
+      const session = useSessionStore().session;
+      if (!session) return;
+      const delay = Math.max(session.expiresAt - Date.now() - REFRESH_MARGIN_MS, 0);
       refreshTimer = setTimeout(() => this.refreshIfExpired(true), delay);
     },
     async refreshIfExpired(isDue = false): Promise<void> {
-      if (!this.session || !navigator.onLine || (!isDue && !this.isExpired())) return;
+      if (!useSessionStore().session || !navigator.onLine || (!isDue && !this.isExpired())) return;
       try {
         await this.refresh();
       } catch (error) {
@@ -128,12 +107,13 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     async refresh(): Promise<void> {
-      if (!this.session) return;
+      const session = useSessionStore().session;
+      if (!session) return;
       try {
-        await this.applyToken(await authService.refresh(this.session.sid));
+        await this.applyToken(await authService.refresh(session.sid));
         this.updateDeviceProfileToken();
       } catch (error) {
-        if (isAuthError(error) && error.code === 'session_expired') this.clearSession();
+        if (isSessionGone(error)) this.clearSession(true);
         throw error;
       }
     },
@@ -184,12 +164,13 @@ export const useAuthStore = defineStore('auth', {
       return authService.resetCredential(payload);
     },
     async saveDeviceProfile(pin: string): Promise<void> {
-      if (!this.session || this.session.role !== 'operator' || !this.accessToken || !hasWebCrypto()) return;
+      const session = useSessionStore().session;
+      if (!session || session.role !== 'operator' || !this.accessToken || !hasWebCrypto()) return;
       const salt = createSalt();
       const profile: IDeviceProfile = {
-        userId: this.session.userId,
-        firstName: this.session.firstName,
-        lastName: this.session.lastName,
+        userId: session.userId,
+        firstName: session.firstName,
+        lastName: session.lastName,
         salt,
         pinHash: await hashPin(pin, salt),
         accessToken: this.accessToken,
@@ -198,7 +179,7 @@ export const useAuthStore = defineStore('auth', {
       writeStorage(STORAGE_KEYS.deviceProfiles, this.deviceProfiles);
     },
     updateDeviceProfileToken(): void {
-      const profile = this.deviceProfiles.find((item) => item.userId === this.session?.userId);
+      const profile = this.deviceProfiles.find((item) => item.userId === useSessionStore().session?.userId);
       if (!profile || !this.accessToken) return;
       profile.accessToken = this.accessToken;
       writeStorage(STORAGE_KEYS.deviceProfiles, this.deviceProfiles);
@@ -212,7 +193,7 @@ export const useAuthStore = defineStore('auth', {
       await this.applyToken(profile.accessToken);
       this.setCredentialChange(false, false, null);
       await this.refreshIfExpired();
-      if (!this.isAuthenticated) {
+      if (!useSessionStore().isAuthenticated) {
         this.forgetDeviceProfile(userId);
         throw { code: 'session_expired' } as IAuthError;
       }
@@ -225,20 +206,22 @@ export const useAuthStore = defineStore('auth', {
       this.clearSession();
     },
     async logout(): Promise<void> {
-      const sid = this.session?.sid;
-      if (sid) {
+      const session = useSessionStore().session;
+      if (session) {
         try {
-          await authService.logout(sid);
+          await authService.logout(session.sid);
         } catch (error) {
           logDevError(error);
         }
       }
-      if (this.session) this.forgetDeviceProfile(this.session.userId);
+      if (session) this.forgetDeviceProfile(session.userId);
       this.clearSession();
     },
-    clearSession(): void {
+    clearSession(hasExpired = false): void {
       if (refreshTimer) clearTimeout(refreshTimer);
-      this.session = null;
+      const sessionStore = useSessionStore();
+      if (hasExpired) sessionStore.expire();
+      else sessionStore.setSession(null);
       this.accessToken = null;
       setAccessToken(null);
       writeStorage(STORAGE_KEYS.accessToken, null);

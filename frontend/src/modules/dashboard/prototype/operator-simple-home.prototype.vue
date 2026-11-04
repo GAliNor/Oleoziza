@@ -102,7 +102,7 @@
 // imports
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { LOT_STATUSES, type ILotPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MOVE_LABELS, MOVE_TONES, useOperatorDesk } from 'dashboard/prototype/use-operator-desk.prototype';
 
@@ -116,7 +116,7 @@ import QuickClientPanel from 'dashboard/prototype/quick-client-panel.prototype.v
 type Panel = { kind: 'move'; lot: ILotPrototype } | { kind: 'client' };
 
 // stores
-const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const desk = useOperatorDesk();
 
 // variables
@@ -134,7 +134,7 @@ const observer = new IntersectionObserver((entries) => {
 let clearTimer = 0;
 
 // computed
-const firstName = computed((): string => authStore.session?.firstName ?? '');
+const firstName = computed((): string => sessionStore.session?.firstName ?? '');
 const searched = computed(() => desk.searchClients(query.value));
 const listed = computed((): ILotPrototype[] => {
   const text = query.value.trim().toLowerCase();

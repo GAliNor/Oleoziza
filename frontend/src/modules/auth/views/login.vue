@@ -43,7 +43,7 @@
         </div>
         <div class="flex flex-col gap-2">
           <h1 class="heading-one text-fg-success">{{ $t('auth.login.success') }}</h1>
-          <p class="body-two">{{ $t('auth.login.redirecting', { name: authStore.salutation }) }}</p>
+          <p class="body-two">{{ $t('auth.login.redirecting', { name: sessionStore.salutation }) }}</p>
         </div>
       </div>
 
@@ -113,6 +113,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useToastStore } from 'global/stores/toast';
 import { useAuthError } from 'auth/composables/use-auth-error';
 import { formatPhone } from 'global/composables/phone';
@@ -132,6 +133,7 @@ import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 
 // stores
 const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const toastStore = useToastStore();
 const route = useRoute();
 const router = useRouter();

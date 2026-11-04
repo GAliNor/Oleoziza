@@ -4,7 +4,8 @@ import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
 import { createId } from 'global/composables/crypto';
 import { MOCK_INVITATIONS_DB, MOCK_USERS_DB } from 'auth/services/users.mock-db';
-import type { LoginMethod, Permission } from 'auth/types/auth';
+import type { LoginMethod } from 'auth/types/auth';
+import type { Permission } from 'global/types/session';
 import type { IMockUser } from 'auth/types/mock-auth';
 import type { IStaffForm, IStaffUser, IUserService, StaffStatus } from 'user/types/user';
 

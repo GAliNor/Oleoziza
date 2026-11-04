@@ -25,7 +25,7 @@
         :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
         @click="handleSwitchOperator"
       >
-        <avatar-tag class="h-9 w-9" :name="authStore.fullName" kind="user" fallback-class="bg-accent-brown text-white" />
+        <avatar-tag class="h-9 w-9" :name="sessionStore.fullName" kind="user" fallback-class="bg-accent-brown text-white" />
         <span class="max-w-24 truncate">{{ operatorName }}</span>
         <user-switch-line-icon class="h-4 w-4 text-fg-secondary-paragraph" />
       </button>
@@ -47,7 +47,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 
 import AppToast from 'global/components/app-toast.vue';
@@ -63,20 +63,18 @@ import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
 
 // stores
 const router = useRouter();
-const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const syncStore = useSyncStore();
 
 // computed
-const operatorName = computed((): string => authStore.session?.firstName ?? '');
+const operatorName = computed((): string => sessionStore.session?.firstName ?? '');
 
 // event handlers
-const handleSwitchOperator = async (): Promise<void> => {
-  authStore.lock();
-  await router.push({ name: 'auth-switch' });
+const handleSwitchOperator = (): void => {
+  router.push({ name: 'auth-lock' });
 };
 
-const handleLogout = async (): Promise<void> => {
-  await authStore.logout();
-  await router.push({ name: 'auth-login' });
+const handleLogout = (): void => {
+  router.push({ name: 'auth-logout' });
 };
 </script>

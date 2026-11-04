@@ -1,6 +1,6 @@
 import type { Component } from 'vue';
 
-import type { Permission, Role } from 'auth/types/auth';
+import type { Permission, Role } from 'global/types/session';
 
 export interface INavItem {
   name: string;

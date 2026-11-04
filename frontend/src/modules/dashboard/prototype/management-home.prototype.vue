@@ -3,7 +3,7 @@
   <section class="mx-auto flex max-w-6xl min-w-0 flex-col gap-5">
     <div class="rise mb-1 flex flex-wrap items-end justify-between gap-2">
       <div class="flex flex-col gap-1.5">
-        <h1 class="heading-one">Bonjour {{ authStore.salutation }}</h1>
+        <h1 class="heading-one">Bonjour {{ sessionStore.salutation }}</h1>
         <p class="body-two">{{ scopeName }}</p>
       </div>
       <p v-if="!isFinanceShown" class="chip bg-subtle text-fg-primary-paragraph">Finances masquées (autorisation « finance.view »)</p>
@@ -32,7 +32,7 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'global/stores/site';
 import { SITE_FIGURES, TANKS } from 'dashboard/prototype/mock-home.prototype';
 import { PERIODS, usePeriod } from 'dashboard/prototype/use-period.prototype';
@@ -45,7 +45,7 @@ import TankGantt from 'dashboard/prototype/tank-gantt.prototype.vue';
 import TankPlanningCards from 'dashboard/prototype/tank-planning-cards.prototype.vue';
 
 // stores
-const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
 const route = useRoute();
 const router = useRouter();
@@ -62,7 +62,7 @@ const TABS: { key: HomeTab; label: string; isFinance?: boolean }[] = [
 const totalRevenue = SITE_FIGURES.reduce((sum, site) => sum + site.revenueSeason, 0);
 
 // computed
-const isFinanceShown = computed((): boolean => authStore.can('finance.view'));
+const isFinanceShown = computed((): boolean => siteStore.can('finance.view'));
 const visibleTabs = computed(() => TABS.filter((item) => !item.isFinance || isFinanceShown.value));
 const tab = computed((): HomeTab => {
   const key = String(route.query.tab ?? 'overview');

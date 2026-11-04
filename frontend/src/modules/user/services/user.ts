@@ -1,6 +1,7 @@
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import UserMockService from 'user/services/user.mock';
-import type { LoginMethod, Permission } from 'auth/types/auth';
+import type { LoginMethod } from 'auth/types/auth';
+import type { Permission } from 'global/types/session';
 import type { IStaffForm, IStaffUser, IUserService, StaffStatus } from 'user/types/user';
 
 class UserApiService extends BaseService implements IUserService {

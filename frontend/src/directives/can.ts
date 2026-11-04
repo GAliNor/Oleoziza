@@ -1,8 +1,8 @@
 // imports
 import { watchEffect, type Directive, type WatchStopHandle } from 'vue';
 
-import { useAuthStore } from 'auth/stores/auth';
-import type { Permission } from 'auth/types/auth';
+import { useSiteStore } from 'global/stores/site';
+import type { Permission } from 'global/types/session';
 
 // variables
 const stopHandles = new WeakMap<HTMLElement, WatchStopHandle>();
@@ -15,11 +15,11 @@ const stopWatching = (el: HTMLElement): void => {
 
 const watchPermission = (el: HTMLElement, permission: Permission): void => {
   stopWatching(el);
-  const authStore = useAuthStore();
+  const siteStore = useSiteStore();
   stopHandles.set(
     el,
     watchEffect(() => {
-      el.hidden = !authStore.can(permission);
+      el.hidden = !siteStore.can(permission);
     }),
   );
 };

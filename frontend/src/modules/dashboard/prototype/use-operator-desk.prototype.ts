@@ -2,7 +2,7 @@
 import { computed, reactive, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useClientStore } from 'global/stores/client';
 import { useSiteStore } from 'global/stores/site';
 import { useToastStore } from 'global/stores/toast';
@@ -76,7 +76,7 @@ const isOlder = (first: ILotPrototype, second: ILotPrototype): boolean =>
 export const useOperatorDesk = () => {
   // stores
   const router = useRouter();
-  const authStore = useAuthStore();
+  const sessionStore = useSessionStore();
   const clientStore = useClientStore();
   const siteStore = useSiteStore();
   const toastStore = useToastStore();
@@ -106,7 +106,7 @@ export const useOperatorDesk = () => {
     () => receptionStore.lots,
     (receptionLots) => {
       receptionLots.forEach((receptionLot) => {
-        const mapped = toPrototypeLot(receptionLot, authStore.session?.firstName ?? '');
+        const mapped = toPrototypeLot(receptionLot, sessionStore.session?.firstName ?? '');
         const index = lots.findIndex((lot) => lot.code === mapped.code);
         if (index === -1) lots.unshift(mapped);
         else lots.splice(index, 1, mapped);

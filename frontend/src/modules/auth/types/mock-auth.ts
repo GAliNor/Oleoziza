@@ -1,4 +1,5 @@
-import type { LoginMethod, Permission, Role } from 'auth/types/auth';
+import type { LoginMethod } from 'auth/types/auth';
+import type { Permission, Role } from 'global/types/session';
 
 export interface IMockUser {
   id: string;

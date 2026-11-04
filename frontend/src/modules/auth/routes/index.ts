@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router';
 
+import { useAuthStore } from 'auth/stores/auth';
 import { checkParam } from 'global/composables/route-guards';
 import { TOKEN_PARAM_PATTERN } from 'global/constants/route-params';
 
@@ -41,6 +42,26 @@ const routes: RouteRecordRaw[] = [
         meta: { public: true, guestOnly: true },
       },
     ],
+  },
+  {
+    path: '/logout',
+    name: 'auth-logout',
+    component: () => import('auth/views/login.vue'),
+    meta: { public: true },
+    beforeEnter: async () => {
+      await useAuthStore().logout();
+      return { name: 'auth-login' };
+    },
+  },
+  {
+    path: '/lock',
+    name: 'auth-lock',
+    component: () => import('auth/views/switch.vue'),
+    meta: { public: true },
+    beforeEnter: () => {
+      useAuthStore().lock();
+      return { name: 'auth-switch' };
+    },
   },
 ];
 

@@ -3,7 +3,7 @@
     <auth-heading
       :eyebrow="$t('auth.changeCredential.eyebrow')"
       :title="$t(`auth.changeCredential.title.${kind}`)"
-      :subtitle="$t('auth.changeCredential.subtitle', { firstName: authStore.session?.firstName })"
+      :subtitle="$t('auth.changeCredential.subtitle', { firstName: sessionStore.session?.firstName })"
     />
     <credential-form :kind="kind" :submit-label="$t('auth.changeCredential.save')" :is-submitting="isLoading" @submit="handleSubmit" />
     <p v-if="errorMessage" class="form-error text-center" role="alert">{{ errorMessage }}</p>
@@ -24,6 +24,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useToastStore } from 'global/stores/toast';
 import { useAuthError } from 'auth/composables/use-auth-error';
 import type { CredentialKind } from 'auth/types/auth';
@@ -33,6 +34,7 @@ import CredentialForm from 'auth/components/credential-form.vue';
 
 // stores
 const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const toastStore = useToastStore();
 const route = useRoute();
 const router = useRouter();

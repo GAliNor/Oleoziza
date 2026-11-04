@@ -14,19 +14,7 @@ import {
   MOCK_SMS_CODE,
 } from 'auth/constants/mock-auth';
 import { MOCK_INVITATIONS_DB, MOCK_USERS_DB } from 'auth/services/users.mock-db';
-import type {
-  AuthErrorCode,
-  CredentialKind,
-  IAuthError,
-  IAuthService,
-  IInvitation,
-  ILoginOptions,
-  ILoginPayload,
-  ILoginResult,
-  IResetPayload,
-  IResetRequest,
-  LoginMethod,
-} from 'auth/types/auth';
+import type { AuthErrorCode, CredentialKind, IAuthError, IAuthService, IInvitation, ILoginOptions, ILoginPayload, ILoginResult, IResetPayload, IResetRequest, LoginMethod } from 'auth/types/auth';
 import type { IMockUser } from 'auth/types/mock-auth';
 
 const REFRESH_STORAGE_KEY = 'oleoziza.mock.refreshSessions';

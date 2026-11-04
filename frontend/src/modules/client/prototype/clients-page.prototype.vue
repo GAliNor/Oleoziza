@@ -126,7 +126,6 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
 import { useSiteStore } from 'global/stores/site';
 import { formatPhone } from 'global/composables/phone';
 import { formatDh, formatKg, type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
@@ -139,7 +138,6 @@ import AvatarTag from 'global/components/avatar-tag.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 
 // stores
-const authStore = useAuthStore();
 const siteStore = useSiteStore();
 const route = useRoute();
 const router = useRouter();
@@ -161,7 +159,7 @@ const page = ref(1);
 const lastClientId = ref<string | null>(null);
 
 // computed
-const isFinanceShown = computed((): boolean => authStore.can('finance.view'));
+const isFinanceShown = computed((): boolean => siteStore.can('finance.view'));
 const scopeName = computed((): string => (siteStore.isAllSites ? 'Tous les sites' : (siteStore.currentSite?.name ?? '')));
 const rows = computed((): IManagementClientPrototype[] =>
   MANAGEMENT_CLIENTS.filter((client) => siteStore.isAllSites || client.sites.some((site) => site.siteId === siteStore.currentSiteId)),

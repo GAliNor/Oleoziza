@@ -1,21 +1,23 @@
 import { computed } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
+import { useSiteStore } from 'global/stores/site';
 import { HOME_ROUTE_NAME, NAV_ITEMS } from 'global/constants/navigation';
 import type { INavItem } from 'global/types/navigation';
 
 export const useNavigation = () => {
   // stores
-  const authStore = useAuthStore();
+  const sessionStore = useSessionStore();
+  const siteStore = useSiteStore();
 
   // methods
   const canOpen = (item: INavItem): boolean => {
-    const role = authStore.session?.role;
+    const role = sessionStore.session?.role;
     if (!role) return false;
     if (item.roles && !item.roles.includes(role)) return false;
-    if (item.permission && !authStore.can(item.permission)) return false;
-    if (item.managementPermission && role === 'management' && !authStore.can(item.managementPermission)) return false;
+    if (item.permission && !siteStore.can(item.permission)) return false;
+    if (item.managementPermission && role === 'management' && !siteStore.can(item.managementPermission)) return false;
     return true;
   };
 

@@ -2,17 +2,7 @@ import { isHttpError } from '~/plugins/axios';
 
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import AuthMockService from 'auth/services/auth.mock';
-import type {
-  CredentialKind,
-  IAuthError,
-  IAuthService,
-  IInvitation,
-  ILoginOptions,
-  ILoginPayload,
-  ILoginResult,
-  IResetPayload,
-  IResetRequest,
-} from 'auth/types/auth';
+import type { CredentialKind, IAuthError, IAuthService, IInvitation, ILoginOptions, ILoginPayload, ILoginResult, IResetPayload, IResetRequest } from 'auth/types/auth';
 import type { IAPICallConfig } from 'global/types/api';
 
 class AuthApiService extends BaseService implements IAuthService {
@@ -20,7 +10,7 @@ class AuthApiService extends BaseService implements IAuthService {
 
   private async call<T>(config: Omit<IAPICallConfig, 'url'> & { path: string }): Promise<T> {
     try {
-      return await this.request<T>({ ...config, url: this._BASE_API_URL + config.path });
+      return await this.send<T>({ ...config, url: this._BASE_API_URL + config.path });
     } catch (error) {
       const data = isHttpError(error) ? error.response?.data : undefined;
       throw (data?.code ? data : { code: 'network' }) as IAuthError;

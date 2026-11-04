@@ -1,14 +1,14 @@
 <template>
   <app-layout>
-    <management-home-prototype v-if="authStore.session?.role === 'management'" />
-    <operator-simple-home-prototype v-else-if="authStore.session?.role === 'operator'" />
+    <management-home-prototype v-if="sessionStore.session?.role === 'management'" />
+    <operator-simple-home-prototype v-else-if="sessionStore.session?.role === 'operator'" />
     <section v-else class="flex flex-col gap-6">
       <div>
-        <h1 class="heading-one">{{ $t('dashboard.welcome', { name: authStore.salutation }) }}</h1>
-        <p class="body-two">{{ authStore.isStaff ? $t('dashboard.subtitle') : $t('dashboard.clientSubtitle') }}</p>
+        <h1 class="heading-one">{{ $t('dashboard.welcome', { name: sessionStore.salutation }) }}</h1>
+        <p class="body-two">{{ sessionStore.isStaff ? $t('dashboard.subtitle') : $t('dashboard.clientSubtitle') }}</p>
       </div>
 
-      <div v-if="authStore.isStaff" class="flex flex-col gap-3">
+      <div v-if="sessionStore.isStaff" class="flex flex-col gap-3">
         <h2 class="heading-four">{{ $t('dashboard.sites') }}</h2>
         <p v-if="siteStore.hasError" class="body-one text-fg-danger">{{ $t('dashboard.loadError') }}</p>
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -46,7 +46,7 @@
 // imports
 import { computed } from 'vue';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'global/stores/site';
 import { DATA_SOURCE } from 'global/services/base';
 import { PERMISSIONS } from 'auth/constants/permissions';
@@ -57,11 +57,11 @@ import ManagementHomePrototype from 'dashboard/prototype/management-home.prototy
 import OperatorSimpleHomePrototype from 'dashboard/prototype/operator-simple-home.prototype.vue';
 
 // stores
-const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
 
 // computed
-const currentPermissionCount = computed((): number => PERMISSIONS.filter((permission) => authStore.can(permission)).length);
+const currentPermissionCount = computed((): number => PERMISSIONS.filter((permission) => siteStore.can(permission)).length);
 
 // event handlers
 const handleSelectSite = (siteId: string): void => {

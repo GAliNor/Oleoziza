@@ -1,7 +1,7 @@
 // PROTOTYPE — in-memory Payments and Payouts shared by the Finances variants (ticket 0034), with rules H3 (online only), M4 (oil back on rejection), M10 (Credit Note or Refund) and A4 (read only on "Tous les sites").
 import { computed, ref } from 'vue';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'global/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useOnlineStatus } from 'global/composables/use-online-status';
@@ -17,14 +17,14 @@ const TOTAL_REVENUE = SITE_FIGURES.reduce((sum, site) => sum + site.revenueSeaso
 
 export const useFinancePrototype = () => {
   // stores
-  const authStore = useAuthStore();
+  const sessionStore = useSessionStore();
   const siteStore = useSiteStore();
   const toastStore = useToastStore();
   const { isOnline } = useOnlineStatus();
   const { period, selectPeriod } = usePeriod();
 
   // computed
-  const me = computed((): string => authStore.fullName);
+  const me = computed((): string => sessionStore.fullName);
   const scoped = computed((): IMovementPrototype[] =>
     movements.value
       .filter((movement) => siteStore.isAllSites || movement.siteId === siteStore.currentSiteId)
@@ -44,8 +44,8 @@ export const useFinancePrototype = () => {
     return { revenue: base.revenue, pending: pendingAmount, pendingCount: pendingPayments.length, outstanding, collected: base.revenue - pendingAmount - outstanding };
   });
   const isReadOnly = computed((): boolean => siteStore.isAllSites);
-  const canConfirm = computed((): boolean => !isReadOnly.value && authStore.can('payment.confirm'));
-  const canCancel = computed((): boolean => !isReadOnly.value && authStore.can('payment.cancel'));
+  const canConfirm = computed((): boolean => !isReadOnly.value && siteStore.can('payment.confirm'));
+  const canCancel = computed((): boolean => !isReadOnly.value && siteStore.can('payment.cancel'));
 
   // methods
   const siteName = (siteId: string): string => siteStore.sites.find((site) => site.id === siteId)?.name ?? '—';

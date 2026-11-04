@@ -1,11 +1,11 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import SiteMockService from 'global/services/site.mock';
 import { useSiteStore } from 'global/stores/site';
 import { ALL_SITES } from 'global/constants/site';
-import type { ISession, Permission } from 'auth/types/auth';
+import type { ISession, Permission } from 'global/types/session';
 
 const OUJDA = 'site-oujda';
 const BERKANE = 'site-berkane';
@@ -13,7 +13,7 @@ const TAOURIRT = 'site-taourirt';
 
 const signIn = (sites: Record<string, Permission[]>, isOwner = false): void => {
   const session: ISession = { userId: 'u1', sid: 's1', role: 'management', isOwner, sites, firstName: 'Ali', lastName: 'Guedda', expiresAt: 0 };
-  useAuthStore().session = session;
+  useSessionStore().session = session;
 };
 
 describe('site store', () => {

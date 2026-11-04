@@ -24,8 +24,8 @@
         </router-link>
       </nav>
       <div class="mt-auto flex flex-col gap-1 border-t border-default pt-4">
-        <p class="truncate px-3 label">{{ authStore.fullName }}</p>
-        <p v-if="authStore.session" class="px-3 body-two">{{ $t(`auth.roles.${authStore.session.role}`) }}</p>
+        <p class="truncate px-3 label">{{ sessionStore.fullName }}</p>
+        <p v-if="sessionStore.session" class="px-3 body-two">{{ $t(`auth.roles.${sessionStore.session.role}`) }}</p>
         <button v-if="canSwitchOperator" type="button" class="nav-link mt-2" @click="handleSwitchOperator">
           <user-switch-line-icon class="h-5 w-5" />
           {{ $t('auth.switch.action') }}
@@ -90,10 +90,12 @@
 <script setup lang="ts">
 // imports
 import { computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'global/stores/site';
+import { useToastStore } from 'global/stores/toast';
 import { useNavigation } from 'global/composables/use-navigation';
 import { HOME_ROUTE_NAME } from 'global/constants/navigation';
 
@@ -107,33 +109,43 @@ import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
 import OperatorShell from 'global/components/operator-shell.vue';
 
 // stores
-const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
+const toastStore = useToastStore();
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { visibleNavItems, canOpenHome, getLandingRoute } = useNavigation();
 
 // computed
-const isOperator = computed((): boolean => authStore.session?.role === 'operator');
-const canSwitchOperator = computed((): boolean => authStore.session?.role === 'operator');
+const isOperator = computed((): boolean => sessionStore.session?.role === 'operator');
+const canSwitchOperator = computed((): boolean => sessionStore.session?.role === 'operator');
 
 // watchers
 watch(
   () => siteStore.currentSiteId,
   () => {
-    const isAllowed = route.name === HOME_ROUTE_NAME ? canOpenHome() : !route.meta.permission || authStore.can(route.meta.permission);
+    if (!sessionStore.session) return;
+    const isAllowed = route.name === HOME_ROUTE_NAME ? canOpenHome() : !route.meta.permission || siteStore.can(route.meta.permission);
     if (!isAllowed) router.replace(getLandingRoute() ?? { name: HOME_ROUTE_NAME });
   },
 );
 
+watch(
+  () => sessionStore.hasExpired,
+  (hasExpired) => {
+    if (!hasExpired) return;
+    toastStore.push(t('auth.errors.session_expired'), 'danger');
+    router.replace({ name: 'auth-login', query: { redirect: route.fullPath } });
+  },
+);
+
 // event handlers
-const handleSwitchOperator = async (): Promise<void> => {
-  authStore.lock();
-  await router.push({ name: 'auth-switch' });
+const handleSwitchOperator = (): void => {
+  router.push({ name: 'auth-lock' });
 };
 
-const handleLogout = async (): Promise<void> => {
-  await authStore.logout();
-  await router.push({ name: 'auth-login' });
+const handleLogout = (): void => {
+  router.push({ name: 'auth-logout' });
 };
 </script>

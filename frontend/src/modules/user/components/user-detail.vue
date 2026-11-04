@@ -97,7 +97,7 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'global/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useUserStore } from 'user/stores/user';
@@ -118,7 +118,7 @@ import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';
 const props = defineProps<{ user: IStaffUser }>();
 
 // stores
-const authStore = useAuthStore();
+const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
 const toastStore = useToastStore();
 const userStore = useUserStore();
@@ -129,7 +129,7 @@ const { manageableSiteIds, canEdit, defaultsFor } = useUserRights();
 const isDisableArmed = ref(false);
 
 // computed
-const isMe = computed((): boolean => props.user.id === authStore.session?.userId);
+const isMe = computed((): boolean => props.user.id === sessionStore.session?.userId);
 const assignedSiteIds = computed((): string[] => Object.keys(props.user.sites).sort((first, second) => siteName(first).localeCompare(siteName(second), 'fr')));
 const unassignedSiteIds = computed((): string[] => manageableSiteIds.value.filter((siteId) => !(siteId in props.user.sites)));
 const contact = computed((): string => props.user.email ?? formatPhone(props.user.phone ?? ''));
