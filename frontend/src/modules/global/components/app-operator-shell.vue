@@ -2,7 +2,7 @@
   <div class="flex min-h-dvh min-w-0 flex-col">
     <header class="sticky top-0 z-30 flex items-center gap-1.5 border-b border-default bg-surface/90 px-4 py-2.5 backdrop-blur md:gap-2 md:px-8">
       <router-link :to="{ name: 'dashboard' }" class="shrink-0 max-md:has-[+button]:hidden" :aria-label="$t('global.nav.dashboard')">
-        <olive-fill-icon class="h-7 w-7 text-fg-brand" />
+        <logo-mark-fill-icon class="h-7 w-7 text-fg-brand" />
       </router-link>
       <app-back-button />
       <site-switcher class="flex-1" />
@@ -56,7 +56,7 @@ import AppBackButton from 'global/components/app-back-button.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
-import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
+import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
 import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';

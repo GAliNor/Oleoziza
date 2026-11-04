@@ -6,16 +6,7 @@
     >
       <div class="sun absolute top-[14%] right-[14%] h-20 w-20 rounded-full bg-accent-gold/70 blur-[1px] md:h-32 md:w-32" />
 
-      <div
-        v-for="(layer, index) in LAYERS"
-        :key="layer.className"
-        class="hill-layer absolute inset-x-0 bottom-0 flex w-[200%]"
-        :class="layer.className"
-        :style="{ height: layer.height, animationDuration: `${layer.duration}, 1.4s`, animationDelay: `0s, ${index * 120}ms` }"
-      >
-        <hill-fill-icon class="h-full w-[calc(50%+2px)] shrink-0" />
-        <hill-fill-icon class="-ml-[2px] h-full w-[calc(50%+2px)] shrink-0" />
-      </div>
+      <auth-mill-scene />
 
       <div class="absolute inset-0 hidden md:block">
         <div class="glass-card float-card absolute top-[9%] left-[8%] w-[min(21rem,52%)]" style="--rise-delay: 250ms">
@@ -51,11 +42,8 @@
             class="glass-card float-card flex items-center gap-3 py-3"
             :style="{ '--rise-delay': `${450 + index * 150}ms`, '--float-delay': `${index * 1.2}s` }"
           >
-            <span
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-selected heading-six
-                text-fg-brand"
-            >
-              {{ item.initials }}
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-selected text-fg-brand">
+              <component :is="item.icon" class="h-5 w-5" />
             </span>
             <div class="min-w-0 flex-1">
               <div class="flex items-baseline justify-between gap-2">
@@ -92,28 +80,15 @@
 // imports
 import { SHOWCASE_ACTIVITY, SHOWCASE_GROWTH_PERCENT, SHOWCASE_MONTHLY_OIL, SHOWCASE_OIL_KG, SHOWCASE_OIL_L, SHOWCASE_YIELD_PERCENT } from 'auth/constants/showcase';
 
+import AuthMillScene from 'auth/components/auth-mill-scene.vue';
 import ArrowUpLineIcon from 'global/icons/arrow-up-line.icon.vue';
-import HillFillIcon from 'global/icons/hill-fill.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
 
 // variables
-const LAYERS = [
-  { className: 'text-primary-olive-mid opacity-70', height: '62%', duration: '120s' },
-  { className: 'text-primary-olive', height: '44%', duration: '80s' },
-  { className: 'text-primary-olive-dark', height: '28%', duration: '55s' },
-];
-
 const peakKg = Math.max(...SHOWCASE_MONTHLY_OIL.map((month) => month.kg));
 </script>
 
 <style scoped>
-.hill-layer {
-  animation-name: drift, hill-rise;
-  animation-timing-function: linear, var(--ease-premium);
-  animation-iteration-count: infinite, 1;
-  animation-fill-mode: none, both;
-}
-
 .sun {
   animation: sun-rise 1.8s var(--ease-premium) both;
 }
@@ -134,18 +109,6 @@ const peakKg = Math.max(...SHOWCASE_MONTHLY_OIL.map((month) => month.kg));
   transform-origin: bottom;
   animation: bar-grow 0.9s var(--ease-premium) both;
   animation-delay: 600ms;
-}
-
-@keyframes drift {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes hill-rise {
-  from {
-    translate: 0 30%;
-  }
 }
 
 @keyframes sun-rise {
@@ -182,7 +145,6 @@ const peakKg = Math.max(...SHOWCASE_MONTHLY_OIL.map((month) => month.kg));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hill-layer,
   .sun,
   .float-card,
   .bar {

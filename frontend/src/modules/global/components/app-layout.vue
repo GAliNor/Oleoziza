@@ -7,9 +7,9 @@
       class="hidden w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-default bg-surface p-4
         md:sticky md:top-0 md:flex md:h-dvh"
     >
-      <div class="flex items-center gap-2 px-3">
-        <olive-fill-icon class="h-8 w-8 text-fg-brand" />
-        <span class="heading-three text-fg-accent">{{ $t('global.appName') }}</span>
+      <div class="px-3">
+        <logo-full-fill-icon class="h-10 w-auto text-fg-brand" />
+        <span class="sr-only">{{ $t('global.appName') }}</span>
       </div>
       <nav class="flex flex-col gap-1">
         <router-link
@@ -42,7 +42,7 @@
         class="sticky top-0 z-40 flex items-center gap-3 border-b border-default bg-surface/90 px-4 py-3
           backdrop-blur md:px-8"
       >
-        <olive-fill-icon class="h-7 w-7 shrink-0 text-fg-brand md:hidden" />
+        <logo-mark-fill-icon class="h-7 w-7 shrink-0 text-fg-brand md:hidden" />
         <app-back-button />
         <site-switcher />
         <slot name="header" />
@@ -104,7 +104,8 @@ import AppBackButton from 'global/components/app-back-button.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
-import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
+import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';
+import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
 import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
 import AppOperatorShell from 'global/components/app-operator-shell.vue';
 

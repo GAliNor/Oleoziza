@@ -1,3 +1,6 @@
+import CoinsLineIcon from 'global/icons/coins-line.icon.vue';
+import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
+
 export const SHOWCASE_OIL_KG = 12480;
 export const SHOWCASE_OIL_L = 13565;
 export const SHOWCASE_GROWTH_PERCENT = 8.2;
@@ -11,6 +14,6 @@ export const SHOWCASE_MONTHLY_OIL = [
 ] as const;
 
 export const SHOWCASE_ACTIVITY = [
-  { initials: 'HZ', titleKey: 'lotPressed', detailKey: 'lotPressedDetail', timeKey: 'minutesAgo', minutes: 5 },
-  { initials: 'DE', titleKey: 'paymentConfirmed', detailKey: 'paymentConfirmedDetail', timeKey: 'minutesAgo', minutes: 18 },
+  { icon: OliveFillIcon, titleKey: 'lotPressed', detailKey: 'lotPressedDetail', timeKey: 'minutesAgo', minutes: 5 },
+  { icon: CoinsLineIcon, titleKey: 'paymentConfirmed', detailKey: 'paymentConfirmedDetail', timeKey: 'minutesAgo', minutes: 18 },
 ] as const;

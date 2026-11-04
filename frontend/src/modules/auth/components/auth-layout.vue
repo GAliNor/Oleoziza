@@ -4,9 +4,9 @@
 
     <div class="flex min-h-[calc(100dvh-14rem)] flex-col px-6 pt-20 pb-8 md:min-h-dvh md:px-12 md:py-10 lg:px-20 xl:px-28">
       <header class="rise flex items-center justify-between gap-4">
-        <div class="flex items-center gap-2.5">
-          <olive-fill-icon class="h-8 w-8 text-fg-brand" />
-          <span class="heading-four tracking-tight text-fg-accent">{{ $t('global.appName') }}</span>
+        <div>
+          <logo-full-fill-icon class="h-10 w-auto text-fg-brand" />
+          <span class="sr-only">{{ $t('global.appName') }}</span>
         </div>
       </header>
 
@@ -31,5 +31,5 @@
 // imports
 import AuthArt from 'auth/components/auth-art.vue';
 import AppToast from 'global/components/app-toast.vue';
-import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
+import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';
 </script>
