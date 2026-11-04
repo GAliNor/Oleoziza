@@ -44,12 +44,6 @@ export interface ITankPrototype {
   isBio: boolean;
 }
 
-export interface IFollowUpPrototype {
-  client: string;
-  note: string;
-  state: 'active' | 'at-risk' | 'inactive';
-}
-
 export interface ISiteFiguresPrototype {
   siteId: string;
   name: string;
@@ -199,19 +193,6 @@ export const formatDelta = (current: number, previous: number): string => {
   return `${delta >= 0 ? '+' : '−'}${formatNumber(Math.abs(delta), 1, 1)} %`;
 };
 
-export interface IClientPrototype {
-  name: string;
-  kind: 'individual' | 'company';
-  siteId: string;
-  seasonKg: number;
-  lots: number;
-  oilStockKg: number;
-  balance: number;
-  lastVisit: string;
-  lastVisitDays: number;
-  state: IFollowUpPrototype['state'];
-}
-
 export interface ITankStoragePrototype {
   tankId: string;
   lotCode: string;
@@ -237,17 +218,6 @@ export const PRODUCTION_EXTRA = {
   previousAverageWaitHours: 7.1,
   lotsPressedToday: 9,
 };
-
-export const CLIENTS: IClientPrototype[] = [
-  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 18400, lastVisit: 'auj.', lastVisitDays: 0, state: 'at-risk' },
-  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 36900, lots: 8, oilStockKg: 0, balance: 4120, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
-  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 5140, lots: 3, oilStockKg: 412, balance: 920, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
-  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4310, lots: 2, oilStockKg: 389, balance: 1025, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
-  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 2980, lots: 2, oilStockKg: 172, balance: 495, lastVisit: 'il y a 9 j', lastVisitDays: 9, state: 'at-risk' },
-  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockKg: 0, balance: 0, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
-  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1720, lots: 2, oilStockKg: 151, balance: 430, lastVisit: 'auj.', lastVisitDays: 0, state: 'active' },
-  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1200, lots: 1, oilStockKg: 0, balance: 0, lastVisit: 'il y a 21 j', lastVisitDays: 21, state: 'inactive' },
-];
 
 export const TANK_STORAGE: ITankStoragePrototype[] = [
   { tankId: 'A1', lotCode: 'OJ-2627-0118', client: 'Achat · Coopérative Angad', kind: 'mill', kg: 6200, startDay: -18, endDay: null },
@@ -329,15 +299,6 @@ export interface ISalesBarPrototype {
   isCurrent: boolean;
 }
 
-export interface IServedClientPrototype {
-  name: string;
-  kind: IClientPrototype['kind'];
-  lastStep: 'Réception' | 'Pressage' | 'Retrait';
-  lastAt: string;
-  lots: number;
-  oliveKg: number;
-}
-
 export const SALES_SEASON: ISalesFiguresPrototype = { revenue: 371200, collected: 289400, pending: 23850, outstanding: 57950, pendingCount: 7 };
 
 export const PAYMENT_METHODS: { key: PaymentMethodKey; label: string; amount: number; tone: string }[] = [
@@ -400,16 +361,3 @@ export const salesBars = (periodKey: string, scale: number): { title: string; ba
   };
 };
 
-export const SERVED_CLIENTS: (IServedClientPrototype & { siteId: string; days: number })[] = [
-  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Réception', lastAt: 'auj. 10:52', lots: 1, oliveKg: 1840, days: 0 },
-  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Pressage', lastAt: 'auj. 12:30', lots: 1, oliveKg: 2050, days: 0 },
-  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, lastStep: 'Réception', lastAt: 'auj. 09:18', lots: 3, oliveKg: 9420, days: 0 },
-  { name: 'Driss Amrani', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Retrait', lastAt: 'auj. 16:05', lots: 1, oliveKg: 1300, days: 0 },
-  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, lastStep: 'Pressage', lastAt: 'auj. 08:00', lots: 2, oliveKg: 7930, days: 0 },
-  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, lastStep: 'Réception', lastAt: 'auj. 09:05', lots: 1, oliveKg: 860, days: 0 },
-  { name: 'Naima Lahlou', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Retrait', lastAt: 'hier 15:40', lots: 1, oliveKg: 780, days: 1 },
-  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Réception', lastAt: 'lun. 08:40', lots: 2, oliveKg: 2240, days: 2 },
-  { name: 'Youssef Kaddouri', kind: 'individual', siteId: SITE_BERKANE_ID, lastStep: 'Retrait', lastAt: 'sam. 11:20', lots: 2, oliveKg: 2690, days: 4 },
-  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, lastStep: 'Pressage', lastAt: 'il y a 9 j', lots: 2, oliveKg: 2980, days: 9 },
-  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, lastStep: 'Retrait', lastAt: 'il y a 21 j', lots: 1, oliveKg: 1200, days: 21 },
-];

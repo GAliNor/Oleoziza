@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ClientMockService from 'client/services/client.mock';
+import { CLIENT_RECORDS_MOCK } from 'client/constants/mock-client-records';
 import { useClientStore } from 'client/stores/client';
 import type { IClient } from 'client/types/client';
 
@@ -75,5 +76,30 @@ describe('client store accounts', () => {
     await clientStore.fetchAccount('c1');
     await clientStore.fetchAccount('c1');
     expect([clientStore.accountOf('c1').dueDh, getAccount.mock.calls.length]).toEqual([1025, 1]);
+  });
+});
+
+describe('the mock Client records', () => {
+  it('all belong to a known Client, on the Client list', () => {
+    expect(CLIENT_RECORDS_MOCK.filter((record) => !record.id).map((record) => record.name)).toEqual([]);
+  });
+
+  it('keep the figures of every Site adding up to the Client’s', () => {
+    const shared = CLIENT_RECORDS_MOCK.filter((record) => record.sites.length > 1 && record.balance);
+    shared.forEach((record) => expect(record.sites.reduce((sum, site) => sum + site.balance, 0)).toBeCloseTo(record.balance, -1));
+  });
+});
+
+describe('client store records', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
+  it('loads the records and finds one by id', async () => {
+    const clientStore = useClientStore();
+    await clientStore.fetchRecords();
+    const [first] = clientStore.records;
+    expect(clientStore.recordById(first.id)?.name).toBe(first.name);
+    expect(clientStore.recordById('nobody')).toBeUndefined();
   });
 });

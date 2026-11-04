@@ -1,3 +1,5 @@
+import type { LotStatus } from 'lot/types/lot';
+
 export type ClientKind = 'individual' | 'company';
 
 export interface IClient {
@@ -19,7 +21,7 @@ export interface ICreateClientPayload {
 
 export interface IClientAccountLine {
   code: string;
-  status: string;
+  status: LotStatus;
   kg: number;
 }
 
@@ -32,8 +34,44 @@ export interface IClientAccount {
   history: IClientAccountLine[];
 }
 
+export type ClientFollowUp = 'active' | 'at-risk' | 'inactive';
+
+export interface IClientSiteFigures {
+  siteId: string;
+  siteName: string;
+  oliveKg: number;
+  oilStockKg: number;
+  balance: number;
+}
+
+export interface IClientLotLine {
+  code: string;
+  siteName: string;
+  status: LotStatus;
+  kg: number;
+  daysAgo: number;
+}
+
+/** A Client as Management sees it, across every Site. Provisional until the Money and Stock data models settle. */
+export interface IClientRecord {
+  id: string;
+  name: string;
+  kind: ClientKind;
+  followUp: ClientFollowUp;
+  phone: string;
+  identifier: string;
+  region: string;
+  email: string | null;
+  lots: number;
+  oilStockKg: number;
+  balance: number;
+  sites: IClientSiteFigures[];
+  history: IClientLotLine[];
+}
+
 export interface IClientService {
   getAll(): Promise<IClient[]>;
+  getRecords(): Promise<IClientRecord[]>;
   getAccount(clientId: string): Promise<IClientAccount>;
   create(payload: ICreateClientPayload): Promise<IClient>;
 }
@@ -41,6 +79,7 @@ export interface IClientService {
 export interface IClientStore {
   clients: IClient[];
   accounts: Record<string, IClientAccount>;
+  records: IClientRecord[];
   isLoaded: boolean;
   isLoading: boolean;
   isSaving: boolean;

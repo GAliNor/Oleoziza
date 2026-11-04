@@ -4,7 +4,7 @@ import ClientService from 'client/services/client';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
 import { EMPTY_ACCOUNT } from 'client/constants/mock-accounts';
-import type { IClient, IClientAccount, IClientStore, ICreateClientPayload } from 'client/types/client';
+import type { IClient, IClientAccount, IClientRecord, IClientStore, ICreateClientPayload } from 'client/types/client';
 
 const clientService = new ClientService();
 
@@ -12,6 +12,7 @@ export const useClientStore = defineStore('client', {
   state: (): IClientStore => ({
     clients: [],
     accounts: {},
+    records: [],
     isLoaded: false,
     isLoading: false,
     isSaving: false,
@@ -19,6 +20,7 @@ export const useClientStore = defineStore('client', {
   }),
   getters: {
     clientById: (state) => (id: string): IClient | undefined => state.clients.find((client) => client.id === id),
+    recordById: (state) => (id: string): IClientRecord | undefined => state.records.find((record) => record.id === id),
     accountOf: (state) => (clientId: string): IClientAccount => state.accounts[clientId] ?? EMPTY_ACCOUNT,
   },
   actions: {
@@ -29,6 +31,11 @@ export const useClientStore = defineStore('client', {
       this.clients = clients;
       this.isLoaded = true;
       this.reportPending();
+    },
+    async fetchRecords(): Promise<void> {
+      if (this.records.length) return;
+      const records = await withStatus(this, 'isLoading', () => clientService.getRecords(), { errorFlag: 'hasError' });
+      if (records) this.records = records;
     },
     async fetchAccount(clientId: string): Promise<void> {
       if (this.accounts[clientId]) return;

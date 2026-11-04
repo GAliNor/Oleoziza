@@ -1,14 +1,14 @@
 <template>
   <div class="flex min-w-0 flex-col gap-4">
     <div class="table-card">
-      <p class="eyebrow px-4 pt-4 text-fg-secondary-paragraph">Par site · saison</p>
+      <p class="eyebrow px-4 pt-4">{{ $t('client.record.bySite') }}</p>
       <table class="w-full text-sm">
         <thead class="text-left body-three">
           <tr>
-            <th class="px-4 py-2 font-medium">Site</th>
-            <th class="px-4 py-2 text-right font-medium">Olives</th>
-            <th class="px-4 py-2 text-right font-medium">Huile en stock</th>
-            <th v-if="isFinanceShown" class="px-4 py-2 text-right font-medium">Solde</th>
+            <th class="px-4 py-2 font-medium">{{ $t('client.record.site') }}</th>
+            <th class="px-4 py-2 text-right font-medium">{{ $t('client.record.olives') }}</th>
+            <th class="px-4 py-2 text-right font-medium">{{ $t('client.record.oilStock') }}</th>
+            <th v-if="isFinanceShown" class="px-4 py-2 text-right font-medium">{{ $t('client.record.balance') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
     </div>
 
     <div class="card flex flex-col gap-2 rounded-2xl p-4">
-      <p class="eyebrow text-fg-secondary-paragraph">Historique des lots</p>
+      <p class="eyebrow">{{ $t('client.record.history') }}</p>
       <ul class="flex flex-col divide-y divide-subtle text-sm">
         <li v-for="lot in client.history" :key="lot.code" class="flex items-center justify-between gap-3 py-2">
           <span class="min-w-0">
@@ -31,8 +31,8 @@
             <span class="body-two block truncate">{{ lot.siteName }} · {{ formatKg(lot.kg) }}</span>
           </span>
           <span class="shrink-0 text-right">
-            <span class="chip bg-subtle text-fg-primary-paragraph">{{ lot.step }}</span>
-            <span class="block body-three">{{ lot.at }}</span>
+            <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
+            <span class="block body-three">{{ $t(daysAgoKey(lot.daysAgo), { count: lot.daysAgo }) }}</span>
           </span>
         </li>
       </ul>
@@ -41,12 +41,14 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — Management-only parts of a Client (all Sites, Lot history) for the Clients page (ticket 0030).
 // imports
-import type { IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';
 import { formatMoney } from 'global/composables/money';
 import { formatKg } from 'lot/composables/quantity';
+import type { IClientRecord } from 'client/types/client';
 
 // props
-defineProps<{ client: IManagementClientPrototype; isFinanceShown: boolean }>();
+defineProps<{ client: IClientRecord; isFinanceShown: boolean }>();
+
+// methods
+const daysAgoKey = (days: number): string => (days === 0 ? 'client.record.today' : days === 1 ? 'client.record.yesterday' : 'client.record.daysAgo');
 </script>

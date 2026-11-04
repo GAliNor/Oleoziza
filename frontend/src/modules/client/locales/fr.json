@@ -14,5 +14,68 @@
       "payment": "Encaisser",
       "payout": "Payer"
     }
+  },
+  "identifierKinds": {
+    "individual": "CIN",
+    "company": "ICE"
+  },
+  "register": {
+    "title": "Clients",
+    "subtitle": "{scope} · {count} clients",
+    "search": "Nom, téléphone ou identifiant",
+    "followUpLabel": "Suivi",
+    "followUp": {
+      "all": "Tous",
+      "at-risk": "À relancer",
+      "active": "Actifs",
+      "inactive": "Inactifs"
+    },
+    "back": "Retour aux clients",
+    "empty": "Aucun client",
+    "columns": {
+      "client": "Client",
+      "identifier": "Identifiant",
+      "region": "Région",
+      "kind": "Type",
+      "phone": "Téléphone",
+      "email": "Email"
+    }
+  },
+  "record": {
+    "oilStock": "Huile en stock",
+    "owes": "Doit au moulin",
+    "lots": "Lots cette saison",
+    "bySite": "Par site · saison",
+    "site": "Site",
+    "olives": "Olives",
+    "balance": "Solde",
+    "history": "Historique des lots",
+    "today": "auj.",
+    "yesterday": "hier",
+    "daysAgo": "il y a {count} j"
+  },
+  "page": {
+    "pending": "{amount} en attente",
+    "millOwes": "Le moulin lui doit",
+    "lots": "Lots sur ce site",
+    "noLot": "Aucun lot cette saison",
+    "management": "Direction",
+    "notFound": "Client introuvable",
+    "actions": {
+      "withdrawal": "Retrait",
+      "payment": "Encaisser",
+      "payout": "Payer",
+      "reception": "Réception"
+    },
+    "hints": {
+      "withdrawal": "{quantity} disponibles",
+      "payment": "{amount} dus",
+      "paymentNone": "Rien à régler",
+      "payout": "{amount} à payer",
+      "payoutNone": "Aucun achat",
+      "reception": "Ouvrir un lot"
+    },
+    "pendingScreen": "Prototype : écran « {name} » décidé, à construire.",
+    "pendingScreenNext": " Ensuite : « Encaisser » les frais dus."
   }
 }

@@ -1,28 +1,27 @@
 <template>
-  <!-- PROTOTYPE: Management Clients page at /clients (ticket 0030): the detail slides in over the table; ?client= keeps the open Client. -->
   <section class="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-4">
     <header class="rise flex flex-col gap-1">
-      <h1 class="heading-one">Clients</h1>
-      <p class="body-two">{{ scopeName }} · {{ rows.length }} clients</p>
+      <h1 class="heading-one">{{ $t('client.register.title') }}</h1>
+      <p class="body-two">{{ $t('client.register.subtitle', { scope: scopeName, count: rows.length }) }}</p>
     </header>
 
     <div v-show="!isOpen" class="rise flex flex-col gap-3 md:flex-row md:items-center">
-      <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Nom, téléphone ou identifiant" />
-      <ui-segmented v-model="stateFilter" :options="stateOptions" label="Suivi" />
+      <input v-model="search" class="input md:max-w-xs" type="search" :placeholder="$t('client.register.search')" />
+      <ui-segmented v-model="stateFilter" :options="stateOptions" :label="$t('client.register.followUpLabel')" />
     </div>
 
-    <ui-master-detail :is-open="isOpen" back-label="Retour aux clients" @close="handleClose">
+    <ui-master-detail :is-open="isOpen" :back-label="$t('client.register.back')" @close="handleClose">
       <template #list>
         <div class="table-card">
           <table class="data-table">
             <thead>
               <tr>
-                <th class="px-4 py-3 font-semibold">Client</th>
-                <th class="hidden px-4 py-3 font-semibold sm:table-cell">Identifiant</th>
-                <th class="hidden px-4 py-3 font-semibold lg:table-cell">Région</th>
-                <th class="hidden px-4 py-3 font-semibold md:table-cell">Type</th>
-                <th class="px-4 py-3 font-semibold">Téléphone</th>
-                <th class="hidden px-4 py-3 font-semibold xl:table-cell">Email</th>
+                <th class="px-4 py-3 font-semibold">{{ $t('client.register.columns.client') }}</th>
+                <th class="hidden px-4 py-3 font-semibold sm:table-cell">{{ $t('client.register.columns.identifier') }}</th>
+                <th class="hidden px-4 py-3 font-semibold lg:table-cell">{{ $t('client.register.columns.region') }}</th>
+                <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('client.register.columns.kind') }}</th>
+                <th class="px-4 py-3 font-semibold">{{ $t('client.register.columns.phone') }}</th>
+                <th class="hidden px-4 py-3 font-semibold xl:table-cell">{{ $t('client.register.columns.email') }}</th>
               </tr>
             </thead>
             <tbody :key="`${page}-${stateFilter}-${search}`" class="stagger">
@@ -46,12 +45,12 @@
                 </td>
                 <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph tabular-nums sm:table-cell">
                   {{ client.identifier }}
-                  <span class="block caption">{{ client.kind === 'company' ? 'ICE' : 'CIN' }}</span>
+                  <span class="block caption">{{ $t(`client.identifierKinds.${client.kind}`) }}</span>
                 </td>
                 <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph lg:table-cell">{{ client.region }}</td>
                 <td class="hidden px-4 py-3 md:table-cell">
                   <span class="chip" :class="client.kind === 'company' ? 'bg-accent-subtle text-fg-accent' : 'bg-selected text-fg-brand'">
-                    {{ KIND_LABELS[client.kind] }}
+                    {{ $t(`client.kinds.${client.kind}`) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-fg-primary-paragraph tabular-nums">{{ formatPhone(client.phone) }}</td>
@@ -59,7 +58,8 @@
               </tr>
             </tbody>
           </table>
-          <ui-empty-state v-if="!filteredRows.length" message="Aucun client" />
+          <ui-empty-state v-if="clientStore.hasError && !clientStore.records.length" tone="danger" :message="$t('client.search.loadError')" />
+          <ui-empty-state v-else-if="!filteredRows.length && !clientStore.isLoading" :message="$t('client.register.empty')" />
         </div>
 
         <ui-pagination v-model:page="page" :page-count="pageCount" :total="filteredRows.length" :page-size="PAGE_SIZE" />
@@ -70,17 +70,17 @@
           <client-header :client="activeClient" />
           <div class="grid grid-cols-3 gap-2 lg:gap-3">
             <div class="card p-3">
-              <p class="body-three">Huile en stock</p>
+              <p class="body-three">{{ $t('client.record.oilStock') }}</p>
               <p class="text-xl figure">{{ formatKg(activeClient.oilStockKg) }}</p>
             </div>
             <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': isFinanceShown && activeClient.balance }">
-              <p class="body-three">Doit au moulin</p>
+              <p class="body-three">{{ $t('client.record.owes') }}</p>
               <p class="text-xl figure" :class="{ 'text-fg-warning': isFinanceShown && activeClient.balance }">
                 {{ isFinanceShown ? formatMoney(activeClient.balance) : '—' }}
               </p>
             </div>
             <div class="card p-3">
-              <p class="body-three">Lots cette saison</p>
+              <p class="body-three">{{ $t('client.record.lots') }}</p>
               <p class="text-xl figure">{{ activeClient.lots }}</p>
             </div>
           </div>
@@ -93,16 +93,17 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — Management Clients page (ticket 0030): alphabetical paginated table; a row slides the table out and the detail in.
 // imports
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useSiteStore } from 'site/stores/site';
 import { formatPhone } from 'global/composables/phone';
-import { type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
-import { MANAGEMENT_CLIENTS, type IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';
+import { useClientStore } from 'client/stores/client';
+import { useSiteScope } from 'site/composables/use-site-scope';
+import type { ClientFollowUp, IClientRecord } from 'client/types/client';
 import { formatMoney } from 'global/composables/money';
 import { formatKg } from 'lot/composables/quantity';
 
@@ -111,44 +112,39 @@ import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
-import ClientHeader from 'client/prototype/client-header.prototype.vue';
-import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
+import ClientHeader from 'client/components/client-header.vue';
+import ManagementClientDetail from 'client/components/management-client-detail.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 
 // stores
+const { t } = useI18n();
 const siteStore = useSiteStore();
+const clientStore = useClientStore();
+const { scopeName } = useSiteScope();
 const route = useRoute();
 const router = useRouter();
 
 // variables
-type ClientState = IClientPrototype['state'];
-type StateFilter = ClientState | 'all';
+type StateFilter = ClientFollowUp | 'all';
 const PAGE_SIZE = 10;
-const STATE_FILTERS: { key: StateFilter; label: string }[] = [
-  { key: 'all', label: 'Tous' },
-  { key: 'at-risk', label: 'À relancer' },
-  { key: 'active', label: 'Actifs' },
-  { key: 'inactive', label: 'Inactifs' },
-];
-const KIND_LABELS: Record<IClientPrototype['kind'], string> = { individual: 'Particulier', company: 'Entreprise' };
+const STATE_FILTERS: StateFilter[] = ['all', 'at-risk', 'active', 'inactive'];
 const search = ref('');
 const stateFilter = ref<StateFilter>('all');
 const lastClientId = ref<string | null>(null);
 
 // computed
 const isFinanceShown = computed((): boolean => siteStore.can('finance.view'));
-const scopeName = computed((): string => (siteStore.isAllSites ? 'Tous les sites' : (siteStore.currentSite?.name ?? '')));
-const rows = computed((): IManagementClientPrototype[] =>
-  MANAGEMENT_CLIENTS.filter((client) => siteStore.isAllSites || client.sites.some((site) => site.siteId === siteStore.currentSiteId)),
+const rows = computed((): IClientRecord[] =>
+  clientStore.records.filter((client) => siteStore.isAllSites || client.sites.some((site) => site.siteId === siteStore.currentSiteId)),
 );
 const stateOptions = computed(() =>
-  STATE_FILTERS.map((filter) => ({ ...filter, count: rows.value.filter((client) => filter.key === 'all' || client.state === filter.key).length })),
+  STATE_FILTERS.map((key) => ({ key, label: t(`client.register.followUp.${key}`), count: rows.value.filter((client) => key === 'all' || client.followUp === key).length })),
 );
-const filteredRows = computed((): IManagementClientPrototype[] => {
+const filteredRows = computed((): IClientRecord[] => {
   const query = search.value.trim().toLowerCase();
   const digits = query.replace(/\D/g, '');
   return rows.value
-    .filter((client) => stateFilter.value === 'all' || client.state === stateFilter.value)
+    .filter((client) => stateFilter.value === 'all' || client.followUp === stateFilter.value)
     .filter(
       (client) =>
         [client.name, client.identifier, client.email ?? ''].some((value) => value.toLowerCase().includes(query)) ||
@@ -159,7 +155,7 @@ const filteredRows = computed((): IManagementClientPrototype[] => {
 const { page, pageCount, pageRows } = usePagedRows(filteredRows, PAGE_SIZE);
 const openClientId = computed((): string | null => (typeof route.query.client === 'string' ? route.query.client : null));
 const isOpen = computed((): boolean => rows.value.some((client) => client.id === openClientId.value));
-const activeClient = computed((): IManagementClientPrototype | undefined => rows.value.find((client) => client.id === (openClientId.value ?? lastClientId.value)));
+const activeClient = computed((): IClientRecord | undefined => rows.value.find((client) => client.id === (openClientId.value ?? lastClientId.value)));
 
 // watchers
 watch([search, stateFilter], () => {
@@ -182,4 +178,7 @@ const handleOpen = (id: string): void => {
 const handleClose = (): void => {
   router.replace({ query: { ...route.query, client: undefined } });
 };
+
+// lifecycle
+onMounted(() => clientStore.fetchRecords());
 </script>
