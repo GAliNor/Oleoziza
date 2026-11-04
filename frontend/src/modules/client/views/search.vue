@@ -23,12 +23,7 @@
             :to="{ name: 'client-page', params: { id: client.id }, query: purpose === 'any' ? {} : { action: purpose } }"
             class="flex min-h-16 items-center gap-3 rounded-2xl border border-default bg-surface px-3 py-2 transition-colors hover:border-brand"
           >
-            <ui-avatar :name="client.name" fallback-class="bg-subtle text-fg-primary-paragraph" />
-            <span class="min-w-0 flex-1">
-              <span class="block truncate font-medium text-fg-display">{{ client.name }}</span>
-              <span class="body-two block truncate">{{ formatPhone(client.phone) }}</span>
-            </span>
-            <span v-if="client.kind === 'company'" class="chip bg-accent-subtle text-fg-accent">{{ $t('client.kinds.company') }}</span>
+            <client-row :client="client" />
           </router-link>
         </li>
       </ul>
@@ -43,11 +38,10 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useClientStore } from 'client/stores/client';
-import { formatPhone } from 'global/composables/phone';
 import type { IClient } from 'client/types/client';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';
-import UiAvatar from 'global/components/ui-avatar.vue';
+import ClientRow from 'client/components/client-row.vue';
 import AppLayout from 'global/components/app-layout.vue';
 
 // stores

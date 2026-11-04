@@ -25,12 +25,7 @@
               hover:border-brand"
             @click="handlePick(client)"
           >
-            <ui-avatar :name="client.name" fallback-class="bg-subtle text-fg-primary-paragraph" />
-            <span class="min-w-0 flex-1">
-              <span class="block truncate font-medium text-fg-display">{{ client.name }}</span>
-              <span class="body-two block truncate">{{ formatPhone(client.phone) }}</span>
-            </span>
-            <span v-if="client.kind === 'company'" class="chip bg-accent-subtle text-fg-accent">{{ $t('reception.clientKinds.company') }}</span>
+            <client-row :client="client" />
           </button>
         </li>
       </ul>
@@ -81,6 +76,7 @@ import { formatPhone, normalizePhone } from 'global/composables/phone';
 import { createId } from 'global/composables/crypto';
 import type { ClientKind, IClient } from 'client/types/client';
 
+import ClientRow from 'client/components/client-row.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 
