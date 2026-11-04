@@ -1,12 +1,11 @@
 <template>
   <div class="flex min-h-dvh min-w-0 flex-col">
-    <header class="sticky top-0 z-30 flex items-center gap-2 border-b border-default bg-surface/90 px-4 py-2.5 backdrop-blur md:px-8">
-      <router-link :to="{ name: 'dashboard' }" class="shrink-0" :aria-label="$t('global.nav.dashboard')">
+    <header class="sticky top-0 z-30 flex items-center gap-1.5 border-b border-default bg-surface/90 px-4 py-2.5 backdrop-blur md:gap-2 md:px-8">
+      <router-link :to="{ name: 'dashboard' }" class="shrink-0 max-md:has-[+button]:hidden" :aria-label="$t('global.nav.dashboard')">
         <olive-fill-icon class="h-7 w-7 text-fg-brand" />
       </router-link>
       <app-back-button />
-      <site-switcher />
-      <span class="ml-auto" aria-hidden="true" />
+      <site-switcher class="flex-1" />
       <app-network-badge class="shrink-0" />
       <router-link :to="{ name: 'client-search' }" class="icon-btn shrink-0" :aria-label="$t('global.shell.search')">
         <search-line-icon class="h-5 w-5" />
@@ -21,13 +20,13 @@
       </span>
       <button
         type="button"
-        class="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-default bg-surface pr-3 pl-1 label"
+        class="flex min-h-11 min-w-0 items-center gap-2 rounded-full border border-default bg-surface pr-3 pl-1 label"
         :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
         @click="handleSwitchOperator"
       >
-        <ui-avatar class="h-9 w-9" :name="sessionStore.fullName" :variant="STAFF_AVATAR_VARIANT" fallback-class="bg-accent-brown text-white" />
-        <span class="max-w-24 truncate">{{ operatorName }}</span>
-        <user-switch-line-icon class="h-4 w-4 text-fg-secondary-paragraph" />
+        <ui-avatar class="h-9 w-9 shrink-0" :name="sessionStore.fullName" :variant="STAFF_AVATAR_VARIANT" fallback-class="bg-accent-brown text-white" />
+        <span class="max-w-24 min-w-0 truncate">{{ operatorName }}</span>
+        <user-switch-line-icon class="h-4 w-4 shrink-0 text-fg-secondary-paragraph max-[380px]:hidden" />
       </button>
       <button type="button" class="icon-btn shrink-0" :aria-label="$t('auth.logout')" @click="handleLogout">
         <logout-line-icon class="h-5 w-5" />
