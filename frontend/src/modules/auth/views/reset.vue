@@ -4,25 +4,14 @@
       <div :key="step" class="stagger flex flex-col gap-8">
         <auth-heading :eyebrow="$t('auth.reset.eyebrow')" :title="$t(`auth.reset.title.${step}`)" :subtitle="subtitle" />
 
-        <form v-if="step === 'identifier'" class="flex flex-col gap-5" @submit.prevent="handleIdentifierSubmit">
-          <ui-field v-slot="{ id }" :label="$t('auth.login.identifier')">
-            <input
-              :id="id"
-              v-model="identifierInput"
-              class="input"
-              type="text"
-              inputmode="email"
-              autocomplete="username"
-              :placeholder="$t('auth.login.identifierPlaceholder')"
-              :disabled="isLoading"
-            />
-          </ui-field>
-          <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
-          <button type="submit" class="btn-primary w-full" :disabled="isLoading || !identifierInput.trim()">
-            {{ $t('auth.reset.send') }}
-            <arrow-right-line-icon class="h-4 w-4" />
-          </button>
-        </form>
+        <identifier-form
+          v-if="step === 'identifier'"
+          v-model="identifierInput"
+          :submit-label="$t('auth.reset.send')"
+          :is-loading="isLoading"
+          :error-message="errorMessage"
+          @submit="handleIdentifierSubmit"
+        />
 
         <form v-else-if="step === 'code'" class="flex flex-col gap-5" @submit.prevent="handleCodeSubmit">
           <ui-field v-slot="{ id }" :label="$t('auth.login.secretLabel.otp')">
@@ -71,6 +60,7 @@ import UiField from 'global/components/ui-field.vue';
 import AuthHeading from 'auth/components/auth-heading.vue';
 import CodeInput from 'auth/components/code-input.vue';
 import CredentialForm from 'auth/components/credential-form.vue';
+import IdentifierForm from 'auth/components/identifier-form.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 

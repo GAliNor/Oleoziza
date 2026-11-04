@@ -19,14 +19,14 @@
 
 <script setup lang="ts">
 // imports
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import { useAuthStore } from 'auth/stores/auth';
 import { useSessionStore } from 'global/stores/session';
 import { useToastStore } from 'global/stores/toast';
-import { useAuthError } from 'auth/composables/use-auth-error';
+import { useAuthAction } from 'auth/composables/use-auth-action';
 import type { CredentialKind } from 'auth/types/auth';
 
 import AuthHeading from 'auth/components/auth-heading.vue';
@@ -36,44 +36,23 @@ import CredentialForm from 'auth/components/credential-form.vue';
 const authStore = useAuthStore();
 const sessionStore = useSessionStore();
 const toastStore = useToastStore();
-const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
-const { errorMessage, setError, clearError } = useAuthError();
-
-// variables
-const isLoading = ref(false);
+const { isLoading, errorMessage, run, goToRedirect } = useAuthAction();
 
 // computed
 const kind = computed((): CredentialKind => authStore.credentialKind ?? 'pin');
 
-// methods
-const goToRedirect = async (): Promise<void> => {
-  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/';
-  await router.replace(redirect);
-};
-
-const runAndContinue = async (action: () => Promise<void>, successKey?: string): Promise<void> => {
-  clearError();
-  isLoading.value = true;
-  try {
-    await action();
-    if (successKey) toastStore.push(t(successKey), 'success');
-    await goToRedirect();
-  } catch (error) {
-    setError(error);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
 // event handlers
-const handleSubmit = (secret: string): void => {
-  runAndContinue(() => authStore.changeCredential(kind.value, secret), `auth.changeCredential.saved.${kind.value}`);
+const handleSubmit = async (secret: string): Promise<void> => {
+  const savedKind = kind.value;
+  if (!(await run(() => authStore.changeCredential(savedKind, secret)))) return;
+  toastStore.push(t(`auth.changeCredential.saved.${savedKind}`), 'success');
+  await goToRedirect();
 };
 
-const handleSkip = (): void => {
-  runAndContinue(() => authStore.skipCredentialChange());
+const handleSkip = async (): Promise<void> => {
+  if (await run(() => authStore.skipCredentialChange())) await goToRedirect();
 };
 
 const handleLogout = async (): Promise<void> => {

@@ -4,9 +4,9 @@
       <div v-if="!selectedProfile" key="list" class="stagger flex flex-col gap-8">
         <auth-heading :eyebrow="$t('auth.switch.eyebrow')" :title="$t('auth.switch.title')" :subtitle="$t('auth.switch.subtitle')" />
 
-        <p v-if="!authStore.deviceProfiles.length" class="body-one">{{ $t('auth.switch.empty') }}</p>
+        <p v-if="!deviceProfileStore.profiles.length" class="body-one">{{ $t('auth.switch.empty') }}</p>
         <ul v-else class="grid grid-cols-2 gap-3">
-          <li v-for="profile in authStore.deviceProfiles" :key="profile.userId" class="relative">
+          <li v-for="profile in deviceProfileStore.profiles" :key="profile.userId" class="relative">
             <button
               type="button"
               class="card flex w-full flex-col items-center gap-3 py-6 transition-[transform,box-shadow,border-color] duration-300
@@ -55,7 +55,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { useAuthStore } from 'auth/stores/auth';
+import { useDeviceProfileStore } from 'auth/stores/device-profile';
 import { useAuthError } from 'auth/composables/use-auth-error';
 import { PIN_LENGTH } from 'auth/constants/auth';
 import type { IDeviceProfile } from 'auth/types/auth';
@@ -68,7 +68,7 @@ import CloseLineIcon from 'global/icons/close-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 
 // stores
-const authStore = useAuthStore();
+const deviceProfileStore = useDeviceProfileStore();
 const router = useRouter();
 const { errorMessage, setError, clearError } = useAuthError();
 
@@ -83,7 +83,7 @@ const unlock = async (value: string): Promise<void> => {
   clearError();
   isLoading.value = true;
   try {
-    await authStore.unlockDeviceProfile(selectedProfile.value.userId, value);
+    await deviceProfileStore.unlock(selectedProfile.value.userId, value);
     await router.replace({ name: 'dashboard' });
   } catch (error) {
     setError(error);
@@ -101,7 +101,7 @@ const handleSelect = (profile: IDeviceProfile): void => {
 };
 
 const handleForget = (profile: IDeviceProfile): void => {
-  authStore.forgetDeviceProfile(profile.userId);
+  deviceProfileStore.forget(profile.userId);
 };
 
 const handlePinComplete = (value: string): void => {

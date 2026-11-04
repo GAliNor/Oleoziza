@@ -76,6 +76,12 @@ export interface IResetPayload {
   secret: string;
 }
 
+export type LoginSecretStep = 'pin' | 'password' | 'otp';
+
+export interface IDeviceProfileStore {
+  profiles: IDeviceProfile[];
+}
+
 export interface IDeviceProfile {
   userId: string;
   firstName: string;
@@ -104,5 +110,4 @@ export interface IAuthStore {
   mustChangeCredential: boolean;
   canSkipCredentialChange: boolean;
   credentialKind: CredentialKind | null;
-  deviceProfiles: IDeviceProfile[];
 }

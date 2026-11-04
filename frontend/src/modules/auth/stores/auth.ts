@@ -2,12 +2,11 @@ import { defineStore } from 'pinia';
 
 import AuthService from 'auth/services/auth';
 import TokenService from 'auth/services/token';
+import { useDeviceProfileStore } from 'auth/stores/device-profile';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { setAccessToken, setTokenRefresher } from 'global/services/access-token';
 import { readStorage, writeStorage } from 'global/composables/storage';
-import { createSalt, hashPin, verifyPin } from 'auth/composables/hash-pin';
-import { hasWebCrypto } from 'global/composables/crypto';
 import { logDevError } from 'global/composables/with-status';
 import { REFRESH_MARGIN_MS, STORAGE_KEYS } from 'auth/constants/auth';
 import type {
@@ -15,7 +14,6 @@ import type {
   IAccessClaims,
   IAuthError,
   IAuthStore,
-  IDeviceProfile,
   IInvitation,
   ILoginOptions,
   ILoginPayload,
@@ -53,14 +51,13 @@ export const useAuthStore = defineStore('auth', {
     mustChangeCredential: false,
     canSkipCredentialChange: false,
     credentialKind: null,
-    deviceProfiles: [],
   }),
   actions: {
     async init(): Promise<void> {
       const sessionStore = useSessionStore();
       if (sessionStore.isReady) return;
       setTokenRefresher(() => this.refresh());
-      this.deviceProfiles = readStorage<IDeviceProfile[]>(STORAGE_KEYS.deviceProfiles, []);
+      useDeviceProfileStore().load();
       const credentialChange = readStorage<Pick<IAuthStore, 'mustChangeCredential' | 'canSkipCredentialChange' | 'credentialKind'> | null>(
         STORAGE_KEYS.credentialChange,
         null,
@@ -111,7 +108,7 @@ export const useAuthStore = defineStore('auth', {
       if (!session) return;
       try {
         await this.applyToken(await authService.refresh(session.sid));
-        this.updateDeviceProfileToken();
+        useDeviceProfileStore().updateToken();
       } catch (error) {
         if (isSessionGone(error)) this.clearSession(true);
         throw error;
@@ -140,7 +137,7 @@ export const useAuthStore = defineStore('auth', {
       useSiteStore().reset();
       await this.applyToken(result.accessToken);
       this.setCredentialChange(result.mustChangeCredential, result.canSkipCredentialChange, result.credentialKind);
-      if (pin) await this.saveDeviceProfile(pin);
+      if (pin) await useDeviceProfileStore().save(pin);
     },
     setCredentialChange(mustChange: boolean, canSkip: boolean, kind: CredentialKind | null): void {
       this.mustChangeCredential = mustChange;
@@ -151,7 +148,7 @@ export const useAuthStore = defineStore('auth', {
     async changeCredential(kind: CredentialKind, secret: string): Promise<void> {
       await authService.changeCredential(kind, secret);
       this.setCredentialChange(false, false, null);
-      if (kind === 'pin') await this.saveDeviceProfile(secret);
+      if (kind === 'pin') await useDeviceProfileStore().save(secret);
     },
     async skipCredentialChange(): Promise<void> {
       await authService.skipCredentialChange();
@@ -162,45 +159,6 @@ export const useAuthStore = defineStore('auth', {
     },
     resetCredential(payload: IResetPayload): Promise<void> {
       return authService.resetCredential(payload);
-    },
-    async saveDeviceProfile(pin: string): Promise<void> {
-      const session = useSessionStore().session;
-      if (!session || session.role !== 'operator' || !this.accessToken || !hasWebCrypto()) return;
-      const salt = createSalt();
-      const profile: IDeviceProfile = {
-        userId: session.userId,
-        firstName: session.firstName,
-        lastName: session.lastName,
-        salt,
-        pinHash: await hashPin(pin, salt),
-        accessToken: this.accessToken,
-      };
-      this.deviceProfiles = [...this.deviceProfiles.filter((item) => item.userId !== profile.userId), profile];
-      writeStorage(STORAGE_KEYS.deviceProfiles, this.deviceProfiles);
-    },
-    updateDeviceProfileToken(): void {
-      const profile = this.deviceProfiles.find((item) => item.userId === useSessionStore().session?.userId);
-      if (!profile || !this.accessToken) return;
-      profile.accessToken = this.accessToken;
-      writeStorage(STORAGE_KEYS.deviceProfiles, this.deviceProfiles);
-    },
-    async unlockDeviceProfile(userId: string, pin: string): Promise<void> {
-      const profile = this.deviceProfiles.find((item) => item.userId === userId);
-      if (!profile || !(await verifyPin(pin, profile.salt, profile.pinHash))) {
-        throw { code: 'invalid_credential' } as IAuthError;
-      }
-      useSiteStore().reset();
-      await this.applyToken(profile.accessToken);
-      this.setCredentialChange(false, false, null);
-      await this.refreshIfExpired();
-      if (!useSessionStore().isAuthenticated) {
-        this.forgetDeviceProfile(userId);
-        throw { code: 'session_expired' } as IAuthError;
-      }
-    },
-    forgetDeviceProfile(userId: string): void {
-      this.deviceProfiles = this.deviceProfiles.filter((item) => item.userId !== userId);
-      writeStorage(STORAGE_KEYS.deviceProfiles, this.deviceProfiles);
     },
     lock(): void {
       this.clearSession();
@@ -214,7 +172,7 @@ export const useAuthStore = defineStore('auth', {
           logDevError(error);
         }
       }
-      if (session) this.forgetDeviceProfile(session.userId);
+      if (session) useDeviceProfileStore().forget(session.userId);
       this.clearSession();
     },
     clearSession(hasExpired = false): void {
