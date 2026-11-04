@@ -1,6 +1,6 @@
 @layer components {
   .input {
-    @apply min-h-13 w-full rounded-2xl border border-default bg-page/60 px-4 text-md text-fg-default
+    @apply min-h-13 w-full rounded-control border border-default bg-page/60 px-4 text-md text-fg-default
       transition-[border-color,box-shadow,background-color] duration-300 ease-(--ease-premium)
       placeholder:text-fg-muted hover:border-strong focus:border-brand focus:bg-surface
       focus:shadow-[0_0_0_4px] focus:shadow-primary-olive-light/70 focus:outline-none disabled:opacity-60;
@@ -11,8 +11,8 @@
   }
 
   .toggle-tile {
-    @apply min-h-12 rounded-xl border border-default bg-surface px-3 text-sm font-medium text-fg-primary-paragraph
-      transition-colors duration-300 ease-(--ease-premium) hover:border-strong;
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed min-h-12 rounded-control border border-default bg-surface px-3 text-sm font-medium text-fg-primary-paragraph
+      hover:border-strong;
   }
 
   .toggle-tile-active {

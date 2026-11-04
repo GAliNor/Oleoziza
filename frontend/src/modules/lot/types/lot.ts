@@ -47,11 +47,7 @@ export interface ILot {
   oilKg: number | null;
   tankName: string | null;
   withdrawnKg: number;
-  announcedContainers: number | null;
-  plate: string;
-  origin: string;
-  quality: string[];
-  note: string;
+  boxNumbers: number[];
   dailyPricePerKg: number | null;
   weighings: IWeighing[];
   moves: ILotMoveRecord[];
@@ -66,6 +62,7 @@ export interface ILot {
 export interface ILotMove {
   id: string;
   oilKg?: number;
+  photoUrl?: string;
 }
 
 export interface ILotMovePayload extends ILotMove {

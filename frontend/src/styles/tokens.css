@@ -49,7 +49,7 @@
   --text-display-lg: 3rem;
   --text-display-lg--line-height: 1;
 
-  /* Radius scale: card is every card and card-like surface, kept light; 2xl is inputs and controls. Pills use rounded-full. */
+  /* Radius scale: card is every card and card-like surface, control is every input and button, both kept light. Only labels (chips) and avatars stay fully round. */
   --radius-*: initial;
   --radius-xs: 0.125rem;
   --radius-sm: 0.25rem;
@@ -59,6 +59,7 @@
   --radius-2xl: 1rem;
   --radius-3xl: 1.5rem;
   --radius-card: 0.5rem;
+  --radius-control: 0.5rem;
 
   --shadow-*: initial;
 
@@ -68,9 +69,15 @@
   --shadow-overlay: 0 1px 2px rgb(41 37 36 / 0.04), 0 8px 16px -6px rgb(41 37 36 / 0.08), 0 24px 48px -16px rgb(41 37 36 / 0.18),
     inset 0 1px 0 rgb(255 255 255 / 0.9);
 
+  --shadow-lifted: 0 1px 2px rgb(41 37 36 / 0.06), 0 10px 22px -10px rgb(41 37 36 / 0.22);
+
   --shadow-action: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(41 37 36 / 0.14), 0 10px 20px -12px rgb(41 37 36 / 0.45);
 
   --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The curve of an iOS sheet: leaves at once, settles slowly. For content that slides. */
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  /* A small overshoot, for what answers a touch: a press released, a choice made. */
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 
   /* Semantic tokens: components paint with these, and the .dark class below redefines only these. */
   --text-color-fg-display: var(--color-neutral-900);

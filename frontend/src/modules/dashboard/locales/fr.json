@@ -18,7 +18,7 @@
     "found": "Lots trouvés · {count}",
     "inProgress": "En cours · {count}",
     "noLot": "Aucun lot",
-    "backToList": "← Retour à la liste",
+    "backToList": "Retour à la liste",
     "moveError": "Le lot n’a pas pu avancer. Réessayez.",
     "moved": "{client} : {from} → {to}",
     "account": {
@@ -45,21 +45,12 @@
       "forClient": "pour",
       "oil": "Huile obtenue (kg)",
       "no": "Non",
-      "yes": "Oui, c’est ça"
+      "yes": "Oui, c’est ça",
+      "photo": "Photo de cette étape"
     },
-    "quickClient": {
-      "title": "Nouveau client",
-      "placeholderAvatar": "Nouveau client",
-      "individual": "Personne",
-      "company": "Société",
-      "companyName": "Nom de la société",
-      "fullName": "Prénom et nom",
-      "phone": "Téléphone (06…)",
-      "create": "Créer le client",
-      "created": "Client créé · sera synchronisé",
-      "receiveNow": "Réceptionner maintenant",
-      "later": "Plus tard"
-    }
+    "backToLot": "Retour au lot",
+    "openLot": "Voir le lot {code} de {client}",
+    "accountTitle": "Le client"
   },
   "management": {
     "financeHidden": "Finances masquées (autorisation « finance.view »)",

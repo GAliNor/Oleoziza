@@ -169,3 +169,47 @@
     filter: none;
   }
 }
+
+/* Sliding between panes of one screen, in the direction of travel: the new pane arrives from a quarter of the way, the old one drifts less. */
+.pane-forward-enter-active,
+.pane-back-enter-active {
+  transition:
+    opacity 0.42s var(--ease-sheet),
+    transform 0.42s var(--ease-sheet);
+}
+
+.pane-forward-leave-active,
+.pane-back-leave-active {
+  pointer-events: none;
+  transition:
+    opacity 0.16s ease-out,
+    transform 0.42s var(--ease-sheet);
+}
+
+.pane-forward-enter-from,
+.pane-back-leave-to {
+  opacity: 0;
+  transform: translate3d(25%, 0, 0);
+}
+
+.pane-forward-leave-to,
+.pane-back-enter-from {
+  opacity: 0;
+  transform: translate3d(-12%, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pane-forward-enter-active,
+  .pane-forward-leave-active,
+  .pane-back-enter-active,
+  .pane-back-leave-active {
+    transition: opacity 0.2s linear;
+  }
+
+  .pane-forward-enter-from,
+  .pane-forward-leave-to,
+  .pane-back-enter-from,
+  .pane-back-leave-to {
+    transform: none;
+  }
+}

@@ -1,0 +1,167 @@
+/* How the app answers a pointer and a finger: one feel everywhere.
+   Pressing goes down at once and springs back. Hovering only exists where a real pointer does, so a
+   touch screen never keeps a stale hover. Selecting answers with a small spring, never a snap.
+   Components own what they look like; this file owns how they move. It loads last, and templates using
+   these classes leave out Tailwind's transition utilities, which would win over this layer. */
+@layer components {
+  .press,
+  .press-lift,
+  .select-tile,
+  .box-tile,
+  .btn-primary,
+  .btn-secondary,
+  .btn-plain,
+  .btn-round,
+  .icon-btn,
+  .nav-link,
+  .pin-key,
+  .weight-key,
+  .toggle-tile,
+  .choice-chip {
+    transition-property: background-color, border-color, color, box-shadow, opacity, translate, scale;
+    transition-duration: 0.25s, 0.25s, 0.2s, 0.35s, 0.2s, 0.5s, 0.5s;
+    transition-timing-function: var(--ease-premium), var(--ease-premium), var(--ease-premium), var(--ease-premium), var(--ease-premium), var(--ease-spring), var(--ease-spring);
+  }
+
+  .press:not(:disabled):active,
+  .press-lift:not(:disabled):active,
+  .select-tile:not(:disabled):active,
+  .btn-primary:not(:disabled):active,
+  .btn-secondary:not(:disabled):active,
+  .btn-plain:not(:disabled):active,
+  .icon-btn:not(:disabled):active,
+  .nav-link:active,
+  .toggle-tile:not(:disabled):active,
+  .choice-chip:not(:disabled):active {
+    scale: 0.97;
+    translate: none;
+    transition-duration: 0.25s, 0.25s, 0.2s, 0.1s, 0.2s, 0.1s, 0.1s;
+  }
+
+  .box-tile:not(:disabled):active,
+  .btn-round:not(:disabled):active,
+  .weight-key:not(:disabled):active,
+  .pin-key:not(:disabled):active {
+    scale: 0.92;
+    transition-duration: 0.25s, 0.25s, 0.2s, 0.1s, 0.2s, 0.1s, 0.1s;
+  }
+
+  /* A tile the user chooses among others: the choice gets a ring standing just off its edge. */
+  .select-tile {
+    @apply cursor-pointer rounded-card border border-default bg-surface;
+  }
+
+  .select-tile-active {
+    @apply border-transparent bg-selected/25;
+    box-shadow:
+      0 0 0 2px var(--background-color-page),
+      0 0 0 4px var(--border-color-brand),
+      var(--shadow-lifted);
+    animation: select-pop 0.5s var(--ease-spring);
+  }
+
+  /* One square of the numbered storage grid. */
+  .box-tile {
+    @apply flex aspect-square w-full cursor-pointer items-center justify-center rounded-card border border-strong bg-surface text-md
+      font-semibold text-fg-display tabular-nums disabled:cursor-not-allowed;
+  }
+
+  .box-tile-active {
+    @apply border-transparent bg-action text-fg-on-action shadow-action;
+    animation: select-pop 0.5s var(--ease-spring);
+  }
+
+  .box-tile-taken {
+    @apply border-default bg-emphasis text-fg-muted;
+  }
+
+  .toggle-tile-active,
+  .choice-chip-active {
+    animation: select-pop 0.5s var(--ease-spring);
+  }
+
+  /* The small check on a chosen tile arrives after the tile has answered. */
+  .check-pop {
+    animation: check-pop 0.5s var(--ease-spring) 0.06s backwards;
+  }
+
+  .option-row {
+    transition: background-color 0.18s var(--ease-premium);
+  }
+}
+
+@media (hover: hover) {
+  @layer components {
+    .press-lift:not(:disabled):hover,
+    .btn-primary:not(:disabled):hover {
+      translate: 0 -1px;
+      box-shadow: var(--shadow-lifted);
+    }
+
+    .select-tile:not(.select-tile-active):hover {
+      @apply border-strong;
+      translate: 0 -2px;
+      box-shadow: var(--shadow-lifted);
+    }
+
+    .select-tile-active:hover {
+      translate: 0 -1px;
+    }
+
+    .box-tile:not(:disabled):not(.box-tile-active):hover {
+      @apply border-brand bg-selected/30;
+      scale: 1.06;
+      box-shadow: var(--shadow-lifted);
+    }
+
+    .box-tile-active:not(:disabled):hover {
+      scale: 1.04;
+    }
+
+    .toggle-tile:not(.toggle-tile-active):hover,
+    .choice-chip:not(.choice-chip-active):hover {
+      box-shadow: var(--shadow-raised);
+    }
+  }
+}
+
+@keyframes select-pop {
+  from {
+    scale: 0.95;
+  }
+}
+
+@keyframes check-pop {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .select-tile-active,
+  .box-tile-active,
+  .toggle-tile-active,
+  .choice-chip-active,
+  .check-pop {
+    animation: none;
+  }
+
+  .press,
+  .press-lift,
+  .select-tile,
+  .box-tile,
+  .btn-primary,
+  .btn-secondary,
+  .btn-plain,
+  .btn-round,
+  .icon-btn,
+  .nav-link,
+  .pin-key,
+  .weight-key,
+  .toggle-tile,
+  .choice-chip {
+    translate: none !important;
+    scale: none !important;
+  }
+}

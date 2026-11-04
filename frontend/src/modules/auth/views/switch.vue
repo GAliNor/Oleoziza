@@ -9,8 +9,7 @@
           <li v-for="profile in deviceProfileStore.profiles" :key="profile.userId" class="relative">
             <button
               type="button"
-              class="card flex w-full flex-col items-center gap-3 py-6 transition-[transform,box-shadow,border-color] duration-300
-              ease-(--ease-premium) hover:-translate-y-0.5 hover:border-brand hover:shadow-raised active:scale-[0.98]"
+              class="card press-lift flex w-full flex-col items-center gap-3 py-6 hover:border-brand"
               @click="handleSelect(profile)"
             >
               <ui-avatar class="h-14 w-14 text-lg" :name="`${profile.firstName} ${profile.lastName}`" fallback-class="bg-selected text-fg-brand" />

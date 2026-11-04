@@ -8,7 +8,7 @@
   >
     <span
       v-if="variant !== 'tabs'"
-      class="pointer-events-none absolute top-1 bottom-1 rounded-full transition-[left,width] duration-500 ease-(--ease-premium)"
+      class="pointer-events-none absolute top-1 bottom-1 rounded-md transition-[left,width] duration-500 ease-(--ease-sheet)"
       :class="variant === 'strong-pills' ? 'bg-action shadow-raised shadow-primary-olive-dark/25' : 'bg-surface shadow-raised'"
       :style="indicatorStyle"
       aria-hidden="true"
@@ -59,9 +59,9 @@ let resizeObserver: ResizeObserver | null = null;
 
 // computed
 const containerClass = computed((): string[] => {
-  if (props.variant === 'tabs') return props.isFull ? ['grid grid-flow-col auto-cols-fr rounded-2xl bg-subtle p-1'] : ['inline-flex rounded-xl bg-subtle p-1'];
+  if (props.variant === 'tabs') return props.isFull ? ['grid grid-flow-col auto-cols-fr rounded-control bg-subtle p-1'] : ['inline-flex rounded-control bg-subtle p-1'];
   return [
-    'no-scrollbar relative flex max-w-full overflow-x-auto rounded-full p-1',
+    props.isFull ? 'relative grid grid-flow-col auto-cols-fr rounded-control p-1' : 'no-scrollbar relative flex max-w-full overflow-x-auto rounded-control p-1',
     props.variant === 'strong-pills' ? 'bg-surface shadow-raised ring-1 ring-default' : 'bg-subtle',
   ];
 });
@@ -82,13 +82,14 @@ const optionClass = (key: T): string[] => {
   const isSelected = key === props.modelValue;
   if (props.variant === 'tabs') {
     return [
-      'text-sm font-medium whitespace-nowrap transition-colors',
-      props.isFull ? 'min-h-11 rounded-xl' : 'min-h-10 rounded-lg px-4',
+      'press text-sm font-medium whitespace-nowrap',
+      props.isFull ? 'min-h-11 rounded-md' : 'min-h-10 rounded-md px-4',
       isSelected ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default',
     ];
   }
   return [
-    'relative z-10 flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-colors duration-300',
+    'press relative z-10 flex shrink-0 items-center gap-1.5 rounded-md px-4 font-medium whitespace-nowrap',
+    props.isFull ? 'min-h-13 justify-center text-md' : 'min-h-10 text-sm',
     isSelected ? (props.variant === 'strong-pills' ? 'text-fg-on-action' : 'text-fg-display') : 'text-fg-primary-paragraph hover:text-fg-display',
   ];
 };

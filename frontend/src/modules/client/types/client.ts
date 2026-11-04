@@ -1,7 +1,6 @@
-import type { LngLat } from 'map';
-
 import type { PeriodKey } from 'global/types/period';
 import type { LotStatus } from 'lot/types/lot';
+import type { ILocation, ProvinceId } from 'territory/types/territory';
 
 export type ClientKind = 'individual' | 'company';
 
@@ -10,6 +9,7 @@ export interface IClient {
   kind: ClientKind;
   name: string;
   phone: string;
+  identifier: string | null;
   siteIds: string[];
   isPendingSync: boolean;
 }
@@ -20,6 +20,9 @@ export interface ICreateClientPayload {
   name: string;
   phone: string;
   siteId: string;
+  identifier: string | null;
+  email: string | null;
+  location: ILocation;
 }
 
 export interface IClientAccountLine {
@@ -69,15 +72,6 @@ export interface ISiteConsumption extends IClientSiteFigures, IClientActivity {
   sharePercent: number;
 }
 
-export type ProvinceId = 'oujda-angad' | 'nador' | 'berkane' | 'taourirt' | 'jerada' | 'driouch' | 'guercif' | 'figuig';
-
-export interface IProvince {
-  id: ProvinceId;
-  name: string;
-  kind: 'province' | 'prefecture';
-  labelAt: LngLat;
-}
-
 /** A Client as Management sees it, across every Site. Provisional until the Money and Stock data models settle. */
 export interface IClientRecord {
   id: string;
@@ -88,6 +82,7 @@ export interface IClientRecord {
   identifier: string;
   region: string;
   province: ProvinceId | null;
+  address: string | null;
   email: string | null;
   oilStockKg: number;
   balance: number;

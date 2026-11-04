@@ -29,7 +29,8 @@
       "user/*": ["src/modules/user/*"],
       "finance/*": ["src/modules/finance/*"],
       "lot/*": ["src/modules/lot/*"],
-      "kit/*": ["src/modules/kit/*"]
+      "kit/*": ["src/modules/kit/*"],
+      "territory/*": ["src/modules/territory/*"]
     }
   },
   "include": ["env.d.ts", "src/**/*.ts", "src/**/*.vue"]

@@ -61,11 +61,7 @@ describe('a Reception seen through the lot store', () => {
       clientId: CLIENTS_MOCK[1].id,
       mode: 'service',
       variety: 'Haouzia',
-      announcedContainers: null,
-      plate: '',
-      origin: '',
-      quality: [],
-      note: '',
+      boxNumbers: [3],
     });
     expect(lotStore.lots[0].id).toBe(opened?.id);
     expect(lotStore.receivedLots.map((item) => item.id)).toContain(opened?.id);
@@ -113,6 +109,14 @@ describe('moving a Lot', () => {
     const pressed = lotAt('pressed');
     const updated = await useLotStore().moveLot(pressed, { id: createId() });
     expect([updated?.status, updated?.withdrawnKg]).toEqual(['withdrawn', pressed.oilKg]);
+  });
+
+  it('keeps the photo taken at a move on the step it reached', async () => {
+    const lotStore = useLotStore();
+    await lotStore.fetchLots(SITE_OUJDA_ID, true);
+    const lot = lotStore.lots.find((item) => item.status === 'waiting') as ILot;
+    const moved = await lotStore.moveLot(lot, { id: createId(), photoUrl: 'press.jpg' });
+    expect([moved?.status, moved?.stepPhotos.pressing]).toEqual(['pressing', 'press.jpg']);
   });
 
   it('moves once when the same intent is retried after a lost response', async () => {

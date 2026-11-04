@@ -3,7 +3,8 @@ import { SEASON_START } from 'global/constants/period';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { ORIGIN_SUGGESTIONS } from 'reception/constants/reception';
 import { SITES_MOCK, SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
-import type { ClientFollowUp, ClientKind, IClientLotLine, IClientRecord, ProvinceId } from 'client/types/client';
+import type { ClientFollowUp, ClientKind, IClientLotLine, IClientRecord } from 'client/types/client';
+import type { ProvinceId } from 'territory/types/territory';
 
 interface ISeedRecord {
   name: string;
@@ -55,6 +56,8 @@ const ORIGIN_PROVINCES: Record<string, ProvinceId> = {
   Madagh: 'berkane',
   Aklim: 'berkane',
 };
+
+const STREETS = ['Rue Al Massira', 'Avenue Hassan II', 'Quartier Al Qods', 'Douar Ouled Ali', 'Route de Berkane', 'Hay Al Andalous', 'Douar Ouled Sidi Ali'];
 
 const CURRENT_SEASON = '2627';
 const PREVIOUS_SEASON = { code: '2526', start: '2025-10-01' };
@@ -137,6 +140,7 @@ export const CLIENT_RECORDS_MOCK: IClientRecord[] = SEEDS.map((seed, index) => {
     identifier: identifierOf(seed, index),
     region,
     province: ORIGIN_PROVINCES[region] ?? null,
+    address: `${((index * 7) % 90) + 1}, ${STREETS[index % STREETS.length]}`,
     email: emailOf(seed, index),
     oilStockKg: seed.oilStockKg,
     balance: seed.balance,

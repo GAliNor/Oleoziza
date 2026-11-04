@@ -31,7 +31,7 @@
 @layer components {
   .nav-link {
     @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-fg-primary-paragraph
-      transition-colors hover:bg-selected hover:text-fg-brand;
+      hover:bg-selected hover:text-fg-brand;
   }
 
   .nav-link-active {
@@ -46,9 +46,11 @@
     border-color 0.35s var(--ease-premium);
 }
 
-.lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px -14px rgb(41 37 36 / 0.25);
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lifted);
+  }
 }
 
 .no-scrollbar {

@@ -1,12 +1,13 @@
 import { i18n } from '~/plugins/i18n';
 
+import { formatBoxes } from 'lot/composables/lot-boxes';
 import { formatKg, formatLitres, formatOilKg, formatQuintals, formatYield } from 'lot/composables/quantity';
 import type { ILot, ILotStep, LotStatus, LotStepKey } from 'lot/types/lot';
 
 const t = (key: string, values: Record<string, string> = {}): string => i18n.global.t(`lot.timeline.${key}`, values);
 
 const moveDetail = (lot: ILot, status: LotStatus): string => {
-  if (status === 'waiting') return t('waitingDetail');
+  if (status === 'waiting') return lot.boxNumbers.length ? `${t('waitingDetail')} · ${formatBoxes(lot.boxNumbers)}` : t('waitingDetail');
   if (status === 'pressing') return t('pressingDetail');
   if (status === 'pressed') return lot.oilKg ? `${formatOilKg(lot.oilKg)} · ${t('yield', { value: formatYield(lot.oilKg, lot.netKg) })}` : '';
   return `${formatLitres(lot.withdrawnKg)} · ${t('withdrawnContainers')}`;

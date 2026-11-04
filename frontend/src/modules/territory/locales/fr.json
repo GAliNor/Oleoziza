@@ -1,0 +1,16 @@
+{
+  "region": "Région de l’Oriental",
+  "province": "Province de {name}",
+  "prefecture": "Préfecture d’{name}",
+  "mapLabel": "Carte de la région de l’Oriental, {name} en évidence",
+  "mapLabelNone": "Carte de la région de l’Oriental",
+  "mapUnavailable": "Carte indisponible sur cet appareil",
+  "fields": {
+    "area": "Province",
+    "areaHint": "Touchez la province sur la carte ou dans la liste.",
+    "city": "Ville",
+    "cityPlaceholder": "Ville, commune ou douar",
+    "address": "Adresse",
+    "addressPlaceholder": "Rue, quartier ou douar"
+  }
+}

@@ -3,6 +3,8 @@ import type { ContainerKind, ILot, ReceptionMode, WeighingKind, WeighingSource }
 export interface ISiteReceptionSettings {
   containerTareKg: Record<ContainerKind, number>;
   dailyPricePerKg: number | null;
+  boxCount: number;
+  boxCapacityKg: number;
 }
 
 export interface IOpenReceptionPayload {
@@ -11,11 +13,8 @@ export interface IOpenReceptionPayload {
   clientId: string;
   mode: ReceptionMode;
   variety: string;
-  announcedContainers: number | null;
-  plate: string;
-  origin: string;
-  quality: string[];
-  note: string;
+  boxNumbers: number[];
+  photoUrl?: string;
   receivedBy: string;
 }
 

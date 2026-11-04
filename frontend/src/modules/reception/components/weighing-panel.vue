@@ -5,7 +5,6 @@
     <div class="rounded-card bg-neutral-900 p-5 text-white">
       <p class="eyebrow text-sm text-neutral-400">
         {{ $t(`reception.station.${draft.kind}`) }}
-        <span v-if="draft.source === 'scale'" class="ml-1 rounded-full bg-info-blue px-2 py-0.5 normal-case">{{ $t('reception.station.scale') }}</span>
       </p>
       <p class="mt-1 text-display-lg figure">
         {{ formatNumber(typedValue ?? 0, 1) }}<span class="ml-1 text-display-xs text-neutral-400">{{ $t('global.units.kilogram') }}</span>
@@ -15,10 +14,6 @@
         <span class="font-semibold text-white">{{ formatKg(net) }} · {{ formatQuintals(net) }}</span>
       </p>
     </div>
-
-    <button v-if="draft.kind === 'gross'" type="button" class="btn-secondary min-h-14 text-md" :disabled="isReading" @click="handleReadScale">
-      {{ isReading ? $t('reception.station.reading') : $t('reception.station.readScale') }}
-    </button>
 
     <weight-pad v-model="typedValue" />
 
@@ -54,7 +49,7 @@
 
 <script setup lang="ts">
 // imports
-import { computed, ref, watch } from 'vue';
+import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useReceptionStore } from 'reception/stores/reception';
@@ -79,10 +74,7 @@ const emit = defineEmits<{ (event: 'finish'): void }>();
 const { t } = useI18n();
 const receptionStore = useReceptionStore();
 const toastStore = useToastStore();
-const { draft, typedValue, tare, net, isValid, isTareTooHigh, setScaleReading, reset } = useWeighingDraft(() => receptionStore.settings);
-
-// variables
-const isReading = ref(false);
+const { draft, typedValue, tare, net, isValid, isTareTooHigh, reset } = useWeighingDraft(() => receptionStore.settings);
 
 // computed
 const weighingKinds = computed((): { key: WeighingKind; label: string }[] => [
@@ -94,17 +86,6 @@ const weighingKinds = computed((): { key: WeighingKind; label: string }[] => [
 watch(() => props.lot.code, reset);
 
 // event handlers
-const handleReadScale = async (): Promise<void> => {
-  isReading.value = true;
-  const grossKg = await receptionStore.readScale(props.siteId);
-  isReading.value = false;
-  if (grossKg === null) {
-    toastStore.push(t('reception.station.scaleError'), 'danger');
-    return;
-  }
-  setScaleReading(grossKg);
-};
-
 const handleAddWeighing = async (): Promise<void> => {
   const updated = await receptionStore.addWeighing(props.lot, draft.value);
   if (!updated) {

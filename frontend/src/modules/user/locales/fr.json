@@ -69,7 +69,8 @@
     "siteAdded": "Site ajouté avec les droits par défaut du rôle.",
     "siteRemoved": "Site retiré.",
     "lastSite": "Un membre du personnel garde au moins un Site ; désactivez-le plutôt.",
-    "error": "Impossible d’enregistrer la modification."
+    "error": "Impossible d’enregistrer la modification.",
+    "address": "Adresse"
   },
   "actions": {
     "resendInvitation": "Renvoyer l’invitation",
@@ -97,28 +98,76 @@
     "admin": "Administration"
   },
   "permissions": {
-    "dashboard": { "view": "Voir le tableau de bord" },
-    "stock": { "view": "Voir les stocks" },
-    "audit_trail": { "view": "Voir le journal d’audit" },
-    "reception": { "create": "Ouvrir une réception" },
-    "weighing": { "create": "Peser" },
-    "lot": { "update_status": "Faire avancer un Lot" },
-    "pressing": { "create": "Presser" },
-    "withdrawal": { "create": "Faire un retrait" },
-    "purchase": { "create": "Acheter des olives" },
-    "client": { "create": "Créer un Client", "edit": "Modifier un Client", "manage_access": "Gérer l’accès des Clients" },
-    "payment": { "record": "Encaisser un paiement", "confirm": "Confirmer les paiements", "cancel": "Annuler un paiement" },
-    "payout": { "record": "Payer un versement" },
-    "sale": { "create": "Vendre de l’huile" },
-    "finance": { "view": "Voir les finances" },
-    "payment_method": { "manage": "Régler les modes de paiement" },
-    "expense": { "record": "Saisir les dépenses" },
-    "record": { "correct": "Corriger après coup" },
-    "daily_price": { "set": "Fixer le prix du jour" },
-    "product": { "manage": "Gérer les produits" },
-    "user": { "manage": "Gérer les utilisateurs" },
-    "site": { "manage": "Gérer les Sites" },
-    "season": { "manage": "Ouvrir et clôturer la Saison" }
+    "dashboard": {
+      "view": "Voir le tableau de bord"
+    },
+    "stock": {
+      "view": "Voir les stocks"
+    },
+    "audit_trail": {
+      "view": "Voir le journal d’audit"
+    },
+    "reception": {
+      "create": "Ouvrir une réception"
+    },
+    "weighing": {
+      "create": "Peser"
+    },
+    "lot": {
+      "update_status": "Faire avancer un Lot"
+    },
+    "pressing": {
+      "create": "Presser"
+    },
+    "withdrawal": {
+      "create": "Faire un retrait"
+    },
+    "purchase": {
+      "create": "Acheter des olives"
+    },
+    "client": {
+      "create": "Créer un Client",
+      "edit": "Modifier un Client",
+      "manage_access": "Gérer l’accès des Clients"
+    },
+    "payment": {
+      "record": "Encaisser un paiement",
+      "confirm": "Confirmer les paiements",
+      "cancel": "Annuler un paiement"
+    },
+    "payout": {
+      "record": "Payer un versement"
+    },
+    "sale": {
+      "create": "Vendre de l’huile"
+    },
+    "finance": {
+      "view": "Voir les finances"
+    },
+    "payment_method": {
+      "manage": "Régler les modes de paiement"
+    },
+    "expense": {
+      "record": "Saisir les dépenses"
+    },
+    "record": {
+      "correct": "Corriger après coup"
+    },
+    "daily_price": {
+      "set": "Fixer le prix du jour"
+    },
+    "product": {
+      "manage": "Gérer les produits"
+    },
+    "user": {
+      "manage": "Gérer les utilisateurs"
+    },
+    "site": {
+      "manage": "Gérer les Sites"
+    },
+    "season": {
+      "manage": "Ouvrir et clôturer la Saison"
+    }
   },
   "form": {
     "title": "Nouvel utilisateur",
@@ -147,6 +196,7 @@
     "passwordInvalid": "Le mot de passe compte au moins 8 caractères.",
     "error": "Impossible de créer l’utilisateur ; le téléphone ou l’e-mail est peut-être déjà utilisé.",
     "created": "{name} est créé ; il changera son code à sa première connexion.",
-    "invited": "Invitation envoyée à {to}."
+    "invited": "Invitation envoyée à {to}.",
+    "locationRequired": "La province, la ville et l’adresse de l’Opérateur sont nécessaires."
   }
 }

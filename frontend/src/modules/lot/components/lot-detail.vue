@@ -6,6 +6,7 @@
         <h2 class="heading-four">{{ lot.clientName }}</h2>
         <p class="body-two">{{ $t('lot.detail.recordedBy', { variety: lot.variety, name: lot.receivedBy }) }}</p>
       </div>
+      <span v-if="holdsBox(lot)" class="chip bg-selected text-fg-brand tabular-nums">{{ formatBoxes(lot.boxNumbers) }}</span>
       <span class="chip" :class="LOT_STATUS_TONES[lot.status]">{{ $t(`lot.status.${lot.status}`) }}</span>
     </header>
 
@@ -47,6 +48,7 @@ import { computed } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
 import { buildLotTimeline } from 'lot/composables/timeline';
+import { formatBoxes, holdsBox } from 'lot/composables/lot-boxes';
 import { formatLitres, formatQuintals, formatYield } from 'lot/composables/quantity';
 import { formatMoney } from 'global/composables/money';
 import { formatNumber } from 'global/composables/number';

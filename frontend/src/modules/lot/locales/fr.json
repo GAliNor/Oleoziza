@@ -71,5 +71,8 @@
     "backToStep": "Retour au parcours",
     "photoAlt": "Photo de l’étape {step}",
     "photoUnavailable": "Photo indisponible"
+  },
+  "box": {
+    "label": "Box {numbers}"
   }
 }

@@ -3,14 +3,14 @@
     ref="frame"
     class="province-map relative h-full w-full"
     role="img"
-    :aria-label="province ? $t('client.coordinates.mapLabel', { name: province.name }) : $t('client.coordinates.mapLabelNone')"
+    :aria-label="province ? $t('territory.mapLabel', { name: province.name }) : $t('territory.mapLabelNone')"
   >
     <div v-if="isUnavailable" class="flex h-full items-center justify-center p-6">
-      <p class="body-two text-center">{{ $t('client.coordinates.mapUnavailable') }}</p>
+      <p class="body-two text-center">{{ $t('territory.mapUnavailable') }}</p>
     </div>
     <map-view v-else />
     <map-marker v-for="item in otherProvinces" :key="item.id" :lng-lat="item.labelAt">
-      <span class="text-xs whitespace-nowrap text-fg-secondary-paragraph">{{ item.name }}</span>
+      <span class="pointer-events-none text-xs whitespace-nowrap text-fg-secondary-paragraph">{{ item.name }}</span>
     </map-marker>
     <span
       v-if="province && !isUnavailable"
@@ -25,17 +25,21 @@
 <script setup lang="ts">
 // imports
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
-import { MapMarker, MapView, useMap, useMapLayer, type IFeatureCollection } from 'map';
+import { MapMarker, MapView, useMap, useMapLayer, type IFeature, type IFeatureCollection } from 'map';
 
 import { readCssToken } from 'global/composables/css-token';
-import { ORIENTAL_BOUNDS, ORIENTAL_PROVINCES } from 'client/constants/provinces';
-import ORIENTAL_GEOJSON from 'client/constants/oriental-provinces.json';
-import type { IProvince, ProvinceId } from 'client/types/client';
+import { provinceById } from 'territory/composables/location';
+import { ORIENTAL_BOUNDS, ORIENTAL_PROVINCES } from 'territory/constants/provinces';
+import ORIENTAL_GEOJSON from 'territory/constants/oriental-provinces.json';
+import type { IProvince, ProvinceId } from 'territory/types/territory';
 
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 
 // props
-const props = defineProps<{ provinceId: ProvinceId | null }>();
+const props = withDefaults(defineProps<{ provinceId: ProvinceId | null; isSelectable?: boolean }>(), { isSelectable: false });
+
+// emits
+const emit = defineEmits<{ (event: 'select', province: ProvinceId): void }>();
 
 // stores
 const map = useMap();
@@ -47,7 +51,7 @@ const isUnavailable = ref(false);
 let resizeObserver: ResizeObserver | null = null;
 
 // computed
-const province = computed((): IProvince | undefined => ORIENTAL_PROVINCES.find((item) => item.id === props.provinceId));
+const province = computed((): IProvince | undefined => provinceById(props.provinceId));
 const otherProvinces = computed((): IProvince[] => ORIENTAL_PROVINCES.filter((item) => item.id !== props.provinceId));
 
 // methods
@@ -60,8 +64,10 @@ const frameRegion = (): void => {
 useMapLayer({
   id: 'oriental-provinces',
   data: PROVINCE_SHAPES,
+  featureIdProperty: 'id',
+  ...(props.isSelectable ? { onClick: (feature: IFeature) => emit('select', feature.properties.id as ProvinceId) } : {}),
   symbols: {
-    fill: { color: readCssToken('--background-color-emphasis') },
+    fill: { color: readCssToken('--background-color-emphasis'), hover: { color: readCssToken('--background-color-selected') } },
     line: { color: readCssToken('--background-color-surface'), width: 1.5 },
   },
 });

@@ -1,8 +1,8 @@
 <template>
   <router-link
     :to="{ name: 'client-page', params: { id: clientId } }"
-    class="group flex min-w-0 items-center gap-3 rounded-card bg-surface/70 p-3 shadow-hairline
-      transition-[background-color,box-shadow] duration-300 ease-(--ease-premium) hover:bg-surface hover:shadow-raised
+    class="press-lift group flex min-w-0 items-center gap-3 rounded-card bg-surface/70 p-3 shadow-hairline
+      hover:bg-surface
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
   >
     <ui-avatar class="h-14 w-14 text-lg" :name="name" :variant="avatarVariant" fallback-class="bg-selected text-fg-brand" />

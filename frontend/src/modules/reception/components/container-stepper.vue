@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-between rounded-2xl bg-subtle p-1.5">
+  <div class="flex items-center justify-between rounded-control bg-subtle p-1.5">
     <button type="button" class="weight-key h-12 w-12 bg-surface text-xl" :disabled="!modelValue" :aria-label="`− ${label}`" @click="handleStep(-1)">−</button>
     <span class="text-center">
       <span class="block text-xl figure text-fg-display">{{ modelValue }}</span>

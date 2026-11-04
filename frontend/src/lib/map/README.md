@@ -36,7 +36,7 @@ export const install = (app: App): void => {
 symbols are skipped with a warning. MapLibre loads on the first `<MapView>` mount, so importing the
 adapter costs nothing until a map shows. A failed load reaches `map.on('error')`.
 
-`isInteractive: false` makes a static figure that never captures page scroll. `attribution` credits
+`isInteractive: false` makes a static figure that never captures page scroll; clicking a feature still works. `attribution` credits
 data the host draws itself.
 
 Put one `<MapView />` in the layout. It creates the engine on mount and destroys it on unmount.

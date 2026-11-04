@@ -19,7 +19,7 @@
       </dl>
     </div>
     <div class="h-96 min-w-0 bg-subtle md:h-auto md:min-h-112">
-      <client-province-map :province-id="client.province" />
+      <province-map :province-id="client.province" />
     </div>
   </section>
 </template>
@@ -30,7 +30,7 @@ import { computed, defineAsyncComponent, type Component } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { formatPhone } from 'global/composables/phone';
-import { ORIENTAL_PROVINCES } from 'client/constants/provinces';
+import { formatArea } from 'territory/composables/location';
 import type { IClientRecord } from 'client/types/client';
 
 import IdCardLineIcon from 'global/icons/id-card-line.icon.vue';
@@ -45,22 +45,16 @@ const props = defineProps<{ client: IClientRecord }>();
 const { t } = useI18n();
 
 // variables
-const ClientProvinceMap = defineAsyncComponent(() => import('client/components/client-province-map.vue'));
+const ProvinceMap = defineAsyncComponent(() => import('territory/components/province-map.vue'));
 
 // computed
-const originDetail = computed((): string => {
-  const province = ORIENTAL_PROVINCES.find((item) => item.id === props.client.province);
-  const region = t('client.coordinates.region');
-  return province ? `${t(`client.coordinates.${province.kind}`, { name: province.name })} · ${region}` : region;
-});
-
 const rows = computed((): { label: string; value: string; icon: Component; href?: string; detail?: string }[] => {
   const { client } = props;
   return [
     { label: t('client.coordinates.phone'), value: formatPhone(client.phone), icon: PhoneLineIcon, href: `tel:${client.phone}` },
     { label: t('client.coordinates.email'), value: client.email ?? t('client.coordinates.noEmail'), icon: MailLineIcon, href: client.email ? `mailto:${client.email}` : undefined },
-    { label: t(`client.identifierKinds.${client.kind}`), value: client.identifier, icon: IdCardLineIcon },
-    { label: t('client.coordinates.origin'), value: client.region, icon: MapPinLineIcon, detail: originDetail.value },
+    ...(client.identifier ? [{ label: t(`client.identifierKinds.${client.kind}`), value: client.identifier, icon: IdCardLineIcon }] : []),
+    { label: t('client.coordinates.address'), value: client.address ?? client.region, icon: MapPinLineIcon, detail: `${client.address ? `${client.region} · ` : ''}${formatArea(client.province)}` },
   ];
 });
 </script>

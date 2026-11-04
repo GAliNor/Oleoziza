@@ -10,7 +10,7 @@
           :is="step.imageUrl ? 'button' : 'div'"
           ref="summary"
           class="w-full shrink-0 px-2 py-1 text-left"
-          :class="{ 'group rounded-card transition-colors hover:bg-subtle': step.imageUrl }"
+          :class="{ 'press group rounded-card hover:bg-subtle': step.imageUrl }"
           :type="step.imageUrl ? 'button' : undefined"
           :aria-expanded="step.imageUrl ? isImageShown : undefined"
           :inert="isImageShown"

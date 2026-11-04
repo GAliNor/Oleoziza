@@ -9,7 +9,7 @@
         v-for="number in pageCount"
         :key="number"
         type="button"
-        class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums transition-colors"
+        class="press h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums"
         :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'"
         :aria-current="number === page ? 'page' : undefined"
         @click="page = number"

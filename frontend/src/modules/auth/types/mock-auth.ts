@@ -1,5 +1,6 @@
 import type { LoginMethod } from 'auth/types/auth';
 import type { Permission, Role } from 'global/types/session';
+import type { ILocation } from 'territory/types/territory';
 
 export interface IMockUser {
   id: string;
@@ -10,6 +11,7 @@ export interface IMockUser {
   lastName: string;
   phone: string | null;
   email: string | null;
+  location?: ILocation | null;
   loginMethods: LoginMethod[];
   pin: string | null;
   password: string | null;

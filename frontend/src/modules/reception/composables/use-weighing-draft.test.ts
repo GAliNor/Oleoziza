@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { useWeighingDraft } from 'reception/composables/use-weighing-draft';
 import type { ISiteReceptionSettings } from 'reception/types/reception';
 
-const SETTINGS: ISiteReceptionSettings = { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null };
+const SETTINGS: ISiteReceptionSettings = { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null, boxCount: 24, boxCapacityKg: 1000 };
 
 const setup = () => useWeighingDraft(() => SETTINGS);
 

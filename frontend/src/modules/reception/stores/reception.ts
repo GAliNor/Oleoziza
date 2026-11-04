@@ -39,7 +39,7 @@ export const useReceptionStore = defineStore('reception', {
       return withStatus(this, 'isSaving', async () => {
         const lot = await receptionService.openReception({
           ...payload,
-          quality: [...payload.quality],
+          boxNumbers: [...payload.boxNumbers],
           receivedBy: this.operatorName,
         });
         useLotStore().upsertLot(lot);
@@ -67,6 +67,14 @@ export const useReceptionStore = defineStore('reception', {
         useLotStore().upsertLot(updated);
         return updated;
       });
+    },
+    /** Opens, weighs and finishes one Reception. Each step keeps its own id, so a retry after a lost response never repeats one. */
+    async receiveLot(payload: Omit<IOpenReceptionPayload, 'receivedBy'>, weighing: IWeighingDraft): Promise<ILot | null> {
+      const opened = await this.openReception(payload);
+      if (!opened) return null;
+      if (opened.status !== 'received') return opened;
+      const weighed = await this.addWeighing(opened, weighing);
+      return weighed && this.finishReception(weighed);
     },
     async readScale(siteId: string): Promise<number | null> {
       try {

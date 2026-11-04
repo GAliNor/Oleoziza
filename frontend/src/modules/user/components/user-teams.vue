@@ -14,8 +14,7 @@
             v-for="user in teamOf(site.id, role)"
             :key="user.id"
             type="button"
-            class="flex min-w-0 items-center gap-3 rounded-card border border-default bg-surface p-3 text-left shadow-raised
-              transition duration-300 ease-(--ease-premium) hover:-translate-y-0.5 hover:shadow-raised"
+            class="press-lift flex min-w-0 items-center gap-3 rounded-card border border-default bg-surface p-3 text-left shadow-raised"
             :class="{ 'ring-2 ring-selected': user.id === highlightedId, 'opacity-60': user.status === 'disabled' }"
             @click="emit('open', user.id)"
           >

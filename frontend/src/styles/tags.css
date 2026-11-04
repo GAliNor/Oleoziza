@@ -4,8 +4,8 @@
   }
 
   .choice-chip {
-    @apply min-h-11 rounded-full border border-default bg-surface px-4 text-sm text-fg-primary-paragraph
-      transition-colors duration-300 ease-(--ease-premium) hover:border-strong;
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed min-h-11 rounded-control border border-default bg-surface px-4 text-sm text-fg-primary-paragraph
+      hover:border-strong;
   }
 
   .choice-chip-active {

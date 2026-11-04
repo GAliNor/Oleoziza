@@ -21,7 +21,7 @@
         <li v-for="client in results" :key="client.id">
           <router-link
             :to="{ name: 'client-page', params: { id: client.id }, query: purpose === 'any' ? {} : { action: purpose } }"
-            class="flex min-h-16 items-center gap-3 rounded-card border border-default bg-surface px-3 py-2 transition-colors hover:border-brand"
+            class="press-lift flex min-h-16 items-center gap-3 rounded-card border border-default bg-surface px-3 py-2 hover:border-brand"
           >
             <client-row :client="client" />
           </router-link>

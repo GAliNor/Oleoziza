@@ -9,5 +9,6 @@
 @import './styles/forms.css';
 @import './styles/loading.css';
 @import './styles/surfaces.css';
+@import './styles/interaction.css';
 
 @custom-variant dark (&:where(.dark, .dark *));

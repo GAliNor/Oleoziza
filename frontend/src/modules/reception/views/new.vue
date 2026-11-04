@@ -1,216 +1,87 @@
 <template>
   <app-layout>
-    <form class="mx-auto flex w-full max-w-lg flex-col gap-5" @submit.prevent>
-      <header class="rise">
-        <p class="eyebrow">{{ $t('reception.open.eyebrow', { site: siteName }) }}</p>
-        <h1 class="heading-one">{{ $t('reception.open.title') }}</h1>
-        <p class="body-two">{{ $t('reception.open.subtitle') }}</p>
-      </header>
+    <div class="mx-auto flex w-full max-w-lg flex-col gap-5">
+      <p class="eyebrow rise">{{ $t('reception.open.eyebrow', { site: siteName }) }}</p>
+      <ui-segmented v-if="!isFinished && tabOptions.length > 1" class="rise" variant="strong-pills" is-full :model-value="tab" :options="tabOptions" :label="$t('reception.tabs.label')" @update:model-value="handleTab" />
 
-      <ui-empty-state v-if="receptionStore.hasError" class="card" tone="danger" size="compact" :message="$t('reception.loadError')">
-        <template #action>
-          <button type="button" class="btn-secondary" @click="handleRetry">{{ $t('reception.retry') }}</button>
-        </template>
-      </ui-empty-state>
-
-      <section class="flex flex-col gap-2">
-        <h2 class="label">{{ $t('reception.open.client') }}</h2>
-        <div v-if="receptionStore.isLoading" class="skeleton h-14" />
-        <client-picker v-else v-model="client" :site-id="siteId" />
-      </section>
-
-      <section class="flex flex-col gap-2">
-        <h2 class="label">{{ $t('reception.open.mode') }}</h2>
-        <div class="grid grid-cols-2 gap-2">
-          <button
-            v-for="option in modeOptions"
-            :key="option"
-            type="button"
-            class="toggle-tile min-h-14"
-            :class="{ 'toggle-tile-active': mode === option }"
-            @click="mode = option"
-          >
-            {{ $t(`reception.modes.${option}`) }}
-          </button>
-        </div>
-        <p v-if="mode === 'purchase'" class="rounded-card bg-accent-subtle px-3 py-2 body-two text-fg-accent">
-          {{ dailyPrice === null ? $t('reception.open.dailyPriceMissing') : $t('reception.open.dailyPrice', { price: formatMoney(dailyPrice) }) }}
-        </p>
-      </section>
-
-      <section class="flex flex-col gap-2">
-        <h2 class="label">{{ $t('reception.open.variety') }}</h2>
-        <div class="flex flex-wrap gap-2">
-          <button
-            v-for="option in VARIETIES"
-            :key="option"
-            type="button"
-            class="choice-chip"
-            :class="{ 'choice-chip-active': variety === option }"
-            @click="variety = option"
-          >
-            {{ option }}
-          </button>
-        </div>
-      </section>
-
-      <details class="card group">
-        <summary class="label flex cursor-pointer list-none items-center justify-between">
-          <span>{{ $t('reception.open.details') }} <span class="font-normal text-fg-secondary-paragraph">({{ $t('reception.open.optional') }})</span></span>
-          <chevron-down-line-icon class="h-5 w-5 transition-transform group-open:rotate-180" />
-        </summary>
-        <div class="mt-4 flex flex-col gap-3">
-          <div class="grid grid-cols-2 gap-3">
-            <label class="flex flex-col gap-1">
-              <span class="body-two">{{ $t('reception.open.announcedContainers') }}</span>
-              <input
-                v-model.number="announcedContainers"
-                class="input"
-                type="number"
-                inputmode="numeric"
-                min="0"
-                :placeholder="$t('reception.open.announcedPlaceholder')"
-              />
-            </label>
-            <label class="flex flex-col gap-1">
-              <span class="body-two">{{ $t('reception.open.plate') }}</span>
-              <input v-model="plate" class="input" :placeholder="$t('reception.open.platePlaceholder')" />
-            </label>
+      <div class="-mx-2 grid min-w-0 overflow-x-clip px-2">
+        <Transition :name="paneTransition">
+          <div v-show="tab === 'reception'" class="col-start-1 row-start-1 min-w-0" :inert="tab !== 'reception'">
+            <reception-form @create-client="handleCreateClient" @finished="isFinished = $event" />
           </div>
-          <label class="flex flex-col gap-1">
-            <span class="body-two">{{ $t('reception.open.origin') }}</span>
-            <input v-model="origin" class="input" list="reception-origins" :placeholder="$t('reception.open.originPlaceholder')" />
-            <datalist id="reception-origins">
-              <option v-for="suggestion in ORIGIN_SUGGESTIONS" :key="suggestion" :value="suggestion" />
-            </datalist>
-          </label>
-          <div class="flex flex-col gap-1">
-            <span class="body-two">{{ $t('reception.open.qualityLabel') }}</span>
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="tag in QUALITY_TAGS"
-                :key="tag"
-                type="button"
-                class="choice-chip"
-                :class="{ 'choice-chip-active': quality.includes(tag) }"
-                @click="handleToggleQuality(tag)"
-              >
-                {{ $t(`reception.quality.${tag}`) }}
-              </button>
-            </div>
+        </Transition>
+        <Transition :name="paneTransition">
+          <div v-show="tab === 'client'" class="col-start-1 row-start-1 min-w-0" :inert="tab !== 'client'">
+            <quick-client-form :prefill="clientPrefill" :returns-on-create="returnsOnCreate" :is-active="tab === 'client'" @receive="handleReceive" @later="handleLater" />
           </div>
-          <textarea v-model="note" class="input min-h-20 py-3" :placeholder="$t('reception.open.note')" />
-        </div>
-      </details>
-
-      <div class="grid grid-cols-2 gap-2">
-        <button type="button" class="btn-secondary min-h-14" :disabled="!canOpen" @click="handleOpen(false)">
-          {{ $t('reception.open.weighLater') }}
-        </button>
-        <button type="button" class="btn-primary min-h-14" :disabled="!canOpen" @click="handleOpen(true)">
-          {{ $t('reception.open.weighNow') }}
-        </button>
+        </Transition>
       </div>
-    </form>
+    </div>
   </app-layout>
 </template>
 
 <script setup lang="ts">
 // imports
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useSiteStore } from 'site/stores/site';
-import { useToastStore } from 'global/stores/toast';
-import { useReceptionStore } from 'reception/stores/reception';
-import { useClientStore } from 'client/stores/client';
-import { createId } from 'global/composables/crypto';
-import { ORIGIN_SUGGESTIONS, QUALITY_TAGS, RECEPTION_MODES, VARIETIES } from 'reception/constants/reception';
-import type { IClient } from 'client/types/client';
-import type { ReceptionMode } from 'lot/types/lot';
-import { formatMoney } from 'global/composables/money';
 
-import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
-import ChevronDownLineIcon from 'global/icons/chevron-down-line.icon.vue';
-import ClientPicker from 'reception/components/client-picker.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
+import QuickClientForm from 'client/components/quick-client-form.vue';
+import ReceptionForm from 'reception/components/reception-form.vue';
 
 // stores
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const siteStore = useSiteStore();
-const toastStore = useToastStore();
-const receptionStore = useReceptionStore();
-const clientStore = useClientStore();
 
 // variables
-const receptionId = createId();
-const client = ref<IClient | null>(null);
-const mode = ref<ReceptionMode>('service');
-const variety = ref(VARIETIES[0]);
-const announcedContainers = ref<number | null>(null);
-const plate = ref('');
-const origin = ref('');
-const quality = ref<string[]>([]);
-const note = ref('');
+type ArrivalTab = 'reception' | 'client';
+const paneTransition = ref('pane-forward');
+const isFinished = ref(false);
+const returnsOnCreate = ref(false);
+const clientPrefill = ref(typeof route.query.name === 'string' ? route.query.name : '');
 
 // computed
-const siteId = computed((): string => siteStore.currentSite?.id ?? '');
 const siteName = computed((): string => siteStore.currentSite?.city ?? '');
-const modeOptions = computed((): ReceptionMode[] =>
-  RECEPTION_MODES.filter((option) => option !== 'purchase' || siteStore.can('purchase.create')),
-);
-const dailyPrice = computed((): number | null => receptionStore.settings?.dailyPricePerKg ?? null);
-const canOpen = computed((): boolean => !!client.value && !!siteId.value && !receptionStore.isSaving);
+const tabOptions = computed((): { key: ArrivalTab; label: string }[] => [
+  ...(siteStore.can('reception.create') ? [{ key: 'reception' as const, label: t('reception.tabs.reception') }] : []),
+  ...(siteStore.can('client.create') ? [{ key: 'client' as const, label: t('reception.tabs.client') }] : []),
+]);
+const tab = computed((): ArrivalTab => {
+  const wanted = route.query.tab === 'client' ? 'client' : 'reception';
+  return tabOptions.value.some((option) => option.key === wanted) ? wanted : (tabOptions.value[0]?.key ?? 'reception');
+});
 
-// watchers
-watch(
-  siteId,
-  (value) => {
-    if (value) receptionStore.fetchSite(value);
-  },
-  { immediate: true },
-);
-
-watch(
-  () => clientStore.clients,
-  (clients) => {
-    if (!client.value && route.query.client) client.value = clients.find((item) => item.id === route.query.client) ?? null;
-  },
-  { immediate: true },
-);
+// methods
+const showTab = (next: ArrivalTab, query: Record<string, string | undefined> = {}): void => {
+  paneTransition.value = next === 'client' ? 'pane-forward' : 'pane-back';
+  router.replace({ query: { ...route.query, name: undefined, tab: next === 'client' ? 'client' : undefined, ...query } });
+};
 
 // event handlers
-const handleRetry = (): void => {
-  receptionStore.fetchSite(siteId.value, true);
+const handleTab = (next: ArrivalTab): void => {
+  returnsOnCreate.value = false;
+  showTab(next);
 };
 
-const handleToggleQuality = (tag: string): void => {
-  quality.value = quality.value.includes(tag) ? quality.value.filter((item) => item !== tag) : [...quality.value, tag];
+const handleCreateClient = (query: string): void => {
+  clientPrefill.value = query;
+  returnsOnCreate.value = true;
+  showTab('client');
 };
 
-const handleOpen = async (isWeighingNow: boolean): Promise<void> => {
-  if (!client.value) return;
-  const lot = await receptionStore.openReception({
-    id: receptionId,
-    siteId: siteId.value,
-    clientId: client.value.id,
-    mode: mode.value,
-    variety: variety.value,
-    announcedContainers: announcedContainers.value || null,
-    plate: plate.value.trim(),
-    origin: origin.value.trim(),
-    quality: quality.value,
-    note: note.value.trim(),
-  });
-  if (!lot) {
-    toastStore.push(t('reception.saveError'), 'danger');
-    return;
-  }
-  toastStore.push(t('reception.open.opened', { code: lot.code, client: lot.clientName }), 'success');
-  if (isWeighingNow) router.push({ name: 'reception-station', params: { code: lot.code } });
-  else router.push({ name: 'dashboard' });
+const handleReceive = (clientId: string): void => {
+  returnsOnCreate.value = false;
+  clientPrefill.value = '';
+  showTab('reception', { client: clientId });
+};
+
+const handleLater = (): void => {
+  router.push({ name: 'dashboard' });
 };
 </script>

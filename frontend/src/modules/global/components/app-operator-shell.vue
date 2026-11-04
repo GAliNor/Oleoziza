@@ -20,7 +20,7 @@
       </span>
       <button
         type="button"
-        class="flex min-h-11 min-w-0 items-center gap-2 rounded-full border border-default bg-surface pr-3 pl-1 label"
+        class="flex min-h-11 min-w-0 items-center gap-2 rounded-control border border-default bg-surface pr-3 pl-1 label"
         :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
         @click="handleSwitchOperator"
       >

@@ -1,5 +1,5 @@
 import { createId } from 'global/composables/crypto';
-import type { ContainerKind, ILot } from 'lot/types/lot';
+import type { ContainerKind } from 'lot/types/lot';
 import type { ISiteReceptionSettings, IWeighingDraft } from 'reception/types/reception';
 
 export const createWeighingDraft = (kind: IWeighingDraft['kind'] = 'gross'): IWeighingDraft => ({
@@ -25,5 +25,3 @@ export const isDraftValid = (draft: IWeighingDraft, settings: ISiteReceptionSett
 export const isTareOverGross = (draft: IWeighingDraft, settings: ISiteReceptionSettings | null): boolean =>
   draft.kind === 'gross' && !!draft.grossKg && !isDraftValid(draft, settings);
 
-export const weighedContainers = (lot: ILot): number =>
-  lot.weighings.reduce((total, weighing) => total + weighing.containers.sac + weighing.containers.caisse, 0);

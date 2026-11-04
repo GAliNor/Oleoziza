@@ -1,58 +1,54 @@
 @layer components {
   .btn-primary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-action px-6
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed inline-flex min-h-12 items-center justify-center gap-2 rounded-control bg-action px-6
       text-sm font-semibold tracking-tight text-fg-on-action shadow-action
-      transition-[background-color,box-shadow,transform,opacity] duration-200 ease-(--ease-premium)
-      hover:bg-action-hover active:scale-[0.97] active:opacity-90
+      hover:bg-action-hover active:opacity-90
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus
-      disabled:opacity-40 disabled:shadow-none disabled:active:scale-100 motion-reduce:active:scale-100;
+      disabled:opacity-40 disabled:shadow-none;
   }
 
   .btn-secondary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-transparent bg-emphasis/60
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed inline-flex min-h-12 items-center justify-center gap-2 rounded-control border border-transparent bg-emphasis/60
       px-6 text-sm font-semibold tracking-tight text-fg-display
-      transition-[background-color,transform,opacity] duration-200 ease-(--ease-premium)
-      hover:bg-emphasis active:scale-[0.97] active:opacity-90
+      hover:bg-emphasis active:opacity-90
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus
-      disabled:opacity-40 disabled:active:scale-100 motion-reduce:active:scale-100;
+      disabled:opacity-40;
   }
 
   /* The quiet action: text only until hovered, for a way back or a destructive second choice. */
   .btn-plain {
-    @apply inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-medium tracking-tight text-fg-brand
-      transition-[background-color,transform,opacity] duration-200 ease-(--ease-premium)
-      hover:bg-emphasis/60 active:scale-[0.97] active:opacity-80
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed inline-flex min-h-11 items-center justify-center gap-1.5 rounded-control px-4 text-sm font-medium tracking-tight text-fg-brand
+      hover:bg-emphasis/60 active:opacity-80
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus
-      disabled:opacity-40 disabled:active:scale-100 motion-reduce:active:scale-100;
+      disabled:opacity-40;
   }
 
   .btn-round {
-    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emphasis/60 text-fg-display
-      transition-[background-color,transform,opacity] duration-200 ease-(--ease-premium)
-      hover:bg-emphasis active:scale-90 active:opacity-80
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-emphasis/60 text-fg-display
+      hover:bg-emphasis active:opacity-80
       focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus
-      disabled:opacity-40 disabled:active:scale-100 motion-reduce:active:scale-100;
+      disabled:opacity-40;
   }
 
   .link {
-    @apply text-sm font-medium text-fg-brand underline-offset-4 hover:underline
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed text-sm font-medium text-fg-brand underline-offset-4 hover:underline
       disabled:cursor-not-allowed disabled:text-fg-muted disabled:no-underline;
   }
 
   .icon-btn {
-    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg text-fg-primary-paragraph transition-colors
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed inline-flex h-10 w-10 items-center justify-center rounded-control text-fg-primary-paragraph
       hover:bg-selected hover:text-fg-brand;
   }
 
   .pin-key {
-    @apply flex h-16 items-center justify-center rounded-full bg-subtle text-display-xs font-light text-fg-display
-      transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none
-      hover:bg-emphasis/70 active:scale-90 active:bg-selected disabled:opacity-40;
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed flex h-16 items-center justify-center rounded-control bg-subtle text-display-xs font-light text-fg-display
+      select-none
+      hover:bg-emphasis/70 active:bg-selected disabled:opacity-40;
   }
 
   .weight-key {
-    @apply flex h-16 items-center justify-center rounded-2xl bg-subtle text-display-xs font-medium text-fg-display
-      transition-[background-color,transform] duration-200 ease-(--ease-premium) select-none hover:bg-emphasis/70
-      active:scale-95 active:bg-selected disabled:opacity-40 disabled:active:scale-100;
+    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed flex h-16 items-center justify-center rounded-control bg-subtle text-display-xs font-medium text-fg-display
+      select-none hover:bg-emphasis/70
+      active:bg-selected disabled:opacity-40;
   }
 }

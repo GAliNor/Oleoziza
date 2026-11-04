@@ -10,6 +10,7 @@ import { useToastStore } from 'global/stores/toast';
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import { daysSince, formatTime } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
+import { formatBoxes } from 'lot/composables/lot-boxes';
 import { formatKg } from 'lot/composables/quantity';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import type { IClientAccount } from 'client/types/client';
@@ -84,7 +85,8 @@ export const useOperatorDesk = () => {
   const stageSentence = (lot: ILot): string => {
     if (lot.status === 'waiting') {
       const ahead = queueAhead(lot);
-      return ahead ? t('dashboard.operator.stage.waitingAhead', { count: ahead }) : t('dashboard.operator.stage.waitingNext');
+      const queue = ahead ? t('dashboard.operator.stage.waitingAhead', { count: ahead }) : t('dashboard.operator.stage.waitingNext');
+      return lot.boxNumbers.length ? `${queue} · ${formatBoxes(lot.boxNumbers)}` : queue;
     }
     if (lot.status === 'pressed') return t('dashboard.operator.stage.pressed', { quantity: formatKg(lot.oilKg ?? 0) });
     return t(`dashboard.operator.stage.${lot.status}`);
@@ -117,9 +119,15 @@ export const useOperatorDesk = () => {
     return true;
   };
 
+  const deskClientOf = (lot: ILot): IDeskClient => toDeskClient(lot.clientId, lot.clientName, clientStore.clientById(lot.clientId)?.kind ?? 'individual');
+
+  const createClient = (name?: string): void => {
+    router.push({ name: 'reception-new', query: { tab: 'client', ...(name ? { name } : {}) } });
+  };
+
   const receive = (clientId?: string): void => {
     router.push({ name: 'reception-new', query: clientId ? { client: clientId } : {} });
   };
 
-  return { activeLots, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, needsConfirmation, nextLabel, openStation, move, receive };
+  return { activeLots, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, deskClientOf, needsConfirmation, nextLabel, openStation, move, receive, createClient };
 };

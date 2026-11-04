@@ -63,6 +63,7 @@ export default defineConfig({
       finance: fromSrc('modules/finance'),
       lot: fromSrc('modules/lot'),
       kit: fromSrc('modules/kit'),
+      territory: fromSrc('modules/territory'),
     },
   },
 });

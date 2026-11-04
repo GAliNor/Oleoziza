@@ -7,6 +7,7 @@
       <p class="eyebrow text-sm">{{ lot.code }} · {{ $t('reception.done.waiting') }}</p>
       <h2 class="display-md mt-1 tabular-nums">{{ formatKg(lot.netKg) }}</h2>
       <p class="body-one">{{ formatQuintals(lot.netKg) }} · {{ lot.clientName }}</p>
+      <p v-if="lot.boxNumbers.length" class="heading-two mt-3 text-fg-brand tabular-nums">{{ formatBoxes(lot.boxNumbers) }}</p>
       <p v-if="lot.dailyPricePerKg !== null" class="body-two mt-1">
         {{ $t('reception.done.purchase', { price: formatMoney(lot.dailyPricePerKg), amount: formatMoney(lot.netKg * lot.dailyPricePerKg) }) }}
       </p>
@@ -15,7 +16,7 @@
     <div class="flex w-full flex-col gap-2">
       <button type="button" class="btn-primary min-h-14" @click="handlePrint">{{ $t('reception.done.print') }}</button>
       <div class="grid grid-cols-2 gap-2">
-        <router-link :to="{ name: 'reception-new' }" class="btn-secondary">{{ $t('reception.done.again') }}</router-link>
+        <router-link :to="{ name: 'reception-new' }" class="btn-secondary" @click="emit('again')">{{ $t('reception.done.again') }}</router-link>
         <router-link :to="{ name: 'dashboard' }" class="btn-secondary">{{ $t('reception.done.home') }}</router-link>
       </div>
     </div>
@@ -29,12 +30,16 @@ import { useI18n } from 'vue-i18n';
 import { useToastStore } from 'global/stores/toast';
 import type { ILot } from 'lot/types/lot';
 import { formatMoney } from 'global/composables/money';
+import { formatBoxes } from 'lot/composables/lot-boxes';
 import { formatKg, formatQuintals } from 'lot/composables/quantity';
 
 import AnimatedCheckIcon from 'global/icons/animated-check.icon.vue';
 
 // props
 const props = defineProps<{ lot: ILot }>();
+
+// emits
+const emit = defineEmits<{ (event: 'again'): void }>();
 
 // stores
 const { t } = useI18n();

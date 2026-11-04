@@ -1,12 +1,17 @@
-import type { ContainerKind, ReceptionMode } from 'lot/types/lot';
-
-export const RECEPTION_MODES: readonly ReceptionMode[] = ['service', 'purchase'];
+import type { ContainerKind } from 'lot/types/lot';
 
 export const CONTAINER_KINDS: readonly ContainerKind[] = ['sac', 'caisse'];
 
-export const VARIETIES: readonly string[] = ['Picholine marocaine', 'Haouzia', 'Menara', 'Arbequina', 'Picual', 'Autre'];
+export const OLIVE_VARIETIES: readonly { slug: string; name: string }[] = [
+  { slug: 'picholine-marocaine', name: 'Picholine marocaine' },
+  { slug: 'haouzia', name: 'Haouzia' },
+  { slug: 'menara', name: 'Menara' },
+  { slug: 'arbequina', name: 'Arbequina' },
+  { slug: 'picual', name: 'Picual' },
+  { slug: 'autre', name: 'Autre' },
+];
 
-export const QUALITY_TAGS: readonly string[] = ['clean', 'leaves', 'bruised', 'fallen', 'fermented'];
+export const RECEPTION_MAX_KG = 99_999.9;
 
 export const ORIGIN_SUGGESTIONS: readonly string[] = [
   'Oujda-Angad',

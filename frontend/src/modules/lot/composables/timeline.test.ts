@@ -6,7 +6,7 @@ import type { ILot } from 'lot/types/lot';
 const clean = (text: string): string => text.replace(/\s/g, ' ');
 
 const lot = (changes: Partial<ILot>): ILot =>
-  ({ clientName: 'Said Tahiri', variety: 'Haouzia', netKg: 2050, oilKg: null, tankName: null, withdrawnKg: 0, receivedAt: '2026-11-04T07:45:00+01:00', receivedBy: 'Hamid', moves: [], stepPhotos: {}, ...changes }) as ILot;
+  ({ clientName: 'Said Tahiri', variety: 'Haouzia', netKg: 2050, oilKg: null, tankName: null, withdrawnKg: 0, receivedAt: '2026-11-04T07:45:00+01:00', receivedBy: 'Hamid', moves: [], stepPhotos: {}, boxNumbers: [], ...changes }) as ILot;
 
 const move = (status: ILot['status']): ILot['moves'][number] => ({ status, at: '2026-11-04T12:00:00+01:00', by: 'Abdelkader' });
 
@@ -22,6 +22,11 @@ describe('buildLotTimeline', () => {
     expect(steps.map((step) => step.key)).toEqual(['reception', 'weighing', 'waiting', 'pressing', 'pressed', 'stored']);
     expect(clean(steps[4].detail)).toBe('389 kg d’huile · rendement 19,0 %');
     expect(steps[5].detail).toBe('Cuve A2');
+  });
+
+  it('says which Box the olives wait in', () => {
+    const steps = buildLotTimeline(lot({ boxNumbers: [7, 8], moves: [move('waiting')] }));
+    expect(steps[2].detail).toBe('En file de pressage · Box 7, 8');
   });
 
   it('skips the Tank when the oil went straight to the Client', () => {

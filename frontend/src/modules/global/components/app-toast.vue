@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-x-4 top-4 z-50 flex flex-col items-center gap-2 md:inset-x-auto md:right-6" aria-live="polite">
+  <div class="pointer-events-none fixed inset-x-4 top-4 z-50 flex flex-col items-center gap-2 md:inset-x-auto md:right-6" aria-live="polite">
     <transition-group name="toast">
       <div
         v-for="toast in toastStore.toasts"
@@ -11,7 +11,7 @@
         <p class="flex-1 text-sm">{{ toast.message }}</p>
         <button
           type="button"
-          class="text-fg-secondary-paragraph hover:text-fg-default"
+          class="pointer-events-auto -m-3 flex h-11 w-11 shrink-0 items-center justify-center text-fg-secondary-paragraph hover:text-fg-default"
           :aria-label="$t('global.toast.close')"
           @click="handleDismiss(toast.id)"
         >

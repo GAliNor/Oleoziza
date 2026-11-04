@@ -31,7 +31,7 @@
           v-for="action in ACTIONS"
           :key="action.key"
           type="button"
-          class="flex min-h-20 flex-col items-start justify-end rounded-card p-3 text-left font-semibold transition-[transform,box-shadow] active:scale-95"
+          class="press-lift flex min-h-20 flex-col items-start justify-end rounded-card p-3 text-left font-semibold"
           :class="[action.tone, { 'ring-4 ring-highlight': route.query.action === action.key }]"
           @click="handleAction(action.key)"
         >

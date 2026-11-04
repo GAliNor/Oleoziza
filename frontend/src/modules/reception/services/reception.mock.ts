@@ -20,7 +20,7 @@ const findLot = (lotId: string): ILot | undefined => LOTS_MOCK_DB.find((lot) => 
 
 export default class ReceptionMockService implements IReceptionService {
   getSettings(siteId: string): Promise<ISiteReceptionSettings> {
-    return mockResolve(SETTINGS_MOCK[siteId] ?? { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null });
+    return mockResolve(SETTINGS_MOCK[siteId] ?? { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null, boxCount: 24, boxCapacityKg: 1000 });
   }
 
   openReception(payload: IOpenReceptionPayload): Promise<ILot> {
@@ -28,8 +28,9 @@ export default class ReceptionMockService implements IReceptionService {
     if (existing) return mockResolve(existing);
     const client = CLIENTS_MOCK_DB.find((option) => option.id === payload.clientId);
     if (!client) return mockReject(new Error('client_not_found'));
+    const { photoUrl, ...fields } = payload;
     const lot: ILot = {
-      ...payload,
+      ...fields,
       code: nextLotCode(payload.siteId),
       clientName: client.name,
       status: 'received',
@@ -40,7 +41,7 @@ export default class ReceptionMockService implements IReceptionService {
       dailyPricePerKg: payload.mode === 'purchase' ? (SETTINGS_MOCK[payload.siteId]?.dailyPricePerKg ?? null) : null,
       weighings: [],
       moves: [],
-      stepPhotos: {},
+      stepPhotos: photoUrl ? { reception: photoUrl } : {},
       receivedAt: new Date().toISOString(),
       finishedAt: null,
       isPendingSync: isPendingSync(),

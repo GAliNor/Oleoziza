@@ -1,10 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { createWeighingDraft, draftNetKg, isDraftValid, isTareOverGross, tareKg, weighedContainers } from 'reception/composables/weighing';
-import type { ILot, IWeighing } from 'lot/types/lot';
+import { createWeighingDraft, draftNetKg, isDraftValid, isTareOverGross, tareKg } from 'reception/composables/weighing';
 import type { ISiteReceptionSettings, IWeighingDraft } from 'reception/types/reception';
 
-const SETTINGS: ISiteReceptionSettings = { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null };
+const SETTINGS: ISiteReceptionSettings = { containerTareKg: { sac: 0.6, caisse: 2 }, dailyPricePerKg: null, boxCount: 24, boxCapacityKg: 1000 };
 
 const grossDraft = (grossKg: number | null, sac = 0, caisse = 0): IWeighingDraft => ({
   ...createWeighingDraft('gross'),
@@ -56,19 +55,3 @@ describe('isDraftValid and isTareOverGross', () => {
   });
 });
 
-describe('weighedContainers', () => {
-  it('counts every sack and crate across the Weighings', () => {
-    const weighing = (sac: number, caisse: number): IWeighing => ({
-      id: `${sac}-${caisse}`,
-      kind: 'gross',
-      grossKg: 100,
-      containers: { sac, caisse },
-      netKg: 90,
-      source: 'manual',
-      recordedAt: '2026-11-03T08:00:00Z',
-      recordedBy: 'Hamid',
-      isPendingSync: false,
-    });
-    expect(weighedContainers({ weighings: [weighing(4, 1), weighing(2, 3)] } as Pick<ILot, 'weighings'> as ILot)).toBe(10);
-  });
-});

@@ -30,6 +30,14 @@
             <dt class="label">{{ $t('user.detail.email') }}</dt>
             <dd class="truncate text-fg-display">{{ user.email ?? '—' }}</dd>
           </div>
+          <div v-if="user.role === 'operator'">
+            <dt class="label">{{ $t('user.detail.address') }}</dt>
+            <template v-if="user.location">
+              <dd class="text-fg-display">{{ user.location.address }}, {{ user.location.city }}</dd>
+              <dd class="body-two">{{ formatArea(user.location.province) }}</dd>
+            </template>
+            <dd v-else class="text-fg-display">—</dd>
+          </div>
         </dl>
       </div>
       <div class="flex flex-col gap-3">
@@ -101,6 +109,7 @@ import { useToastStore } from 'global/stores/toast';
 import { useUserStore } from 'user/stores/user';
 import { useUserRights } from 'user/composables/use-user-rights';
 import { formatPhone } from 'global/composables/phone';
+import { formatArea } from 'territory/composables/location';
 import { formatFullName } from 'user/composables/format';
 import { LOGIN_METHODS } from 'user/constants/user';
 import type { LoginMethod } from 'auth/types/auth';

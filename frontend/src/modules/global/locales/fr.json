@@ -60,5 +60,13 @@
       "label": "Saison préc.",
       "noun": "saison 2025-2026"
     }
+  },
+  "photo": {
+    "optional": "(facultatif)",
+    "take": "Prendre une photo",
+    "upload": "Importer une photo",
+    "reading": "Préparation…",
+    "remove": "Retirer",
+    "error": "Cette image n’a pas pu être lue. Essayez une autre photo."
   }
 }

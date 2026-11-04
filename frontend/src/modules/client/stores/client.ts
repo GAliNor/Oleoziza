@@ -20,6 +20,7 @@ export const useClientStore = defineStore('client', {
   }),
   getters: {
     clientById: (state) => (id: string): IClient | undefined => state.clients.find((client) => client.id === id),
+    clientByIdentifier: (state) => (identifier: string): IClient | undefined => state.clients.find((client) => client.identifier === identifier),
     recordById: (state) => (id: string): IClientRecord | undefined => state.records.find((record) => record.id === id),
     accountOf: (state) => (clientId: string): IClientAccount => state.accounts[clientId] ?? EMPTY_ACCOUNT,
   },
@@ -53,6 +54,7 @@ export const useClientStore = defineStore('client', {
       const client = await withStatus(this, 'isSaving', () => clientService.create(payload));
       if (!client) return null;
       this.clients.unshift(client);
+      this.records = [];
       this.reportPending();
       return client;
     },

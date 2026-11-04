@@ -3,6 +3,8 @@ import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { shiftDate, todayIso } from 'global/composables/date';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import { mockStepPhotos } from 'lot/constants/mock-step-photos';
+import { boxesNeeded } from 'lot/composables/lot-boxes';
+import { SETTINGS_MOCK } from 'reception/constants/mock-reception';
 import type { ILot, ILotMoveRecord, IWeighing, LotStatus, ReceptionMode } from 'lot/types/lot';
 
 const daysAgoAt = (daysAgo: number, time: string): string => `${shiftDate(todayIso(), -daysAgo)}T${time}:00+01:00`;
@@ -25,11 +27,7 @@ const baseLot = {
   oilKg: null,
   tankName: null,
   withdrawnKg: 0,
-  announcedContainers: null,
-  plate: '',
-  origin: '',
-  quality: [],
-  note: '',
+  boxNumbers: [],
   dailyPricePerKg: null,
   finishedAt: null,
   stepPhotos: {},
@@ -47,8 +45,6 @@ const OPENED_LOTS: Omit<ILot, 'moves'>[] = [
     variety: 'Picholine marocaine',
     status: 'received',
     netKg: 1840,
-    announcedContainers: 60,
-    origin: 'Bni Drar',
     weighings: [
       netWeighing('w0a1b2c3-0001-4000-8000-000000000001', 920, '10:49', 'Hamid', true),
       netWeighing('w0a1b2c3-0001-4000-8000-000000000002', 920, '10:52', 'Hamid', true),
@@ -139,6 +135,7 @@ const toLot = (seed: ISeedLot): ILot => ({
   oilKg: seed.oilKg,
   tankName: seed.oilKg ? (seed.tankName ?? defaultTank(seed.siteId)) : null,
   withdrawnKg: seed.status === 'withdrawn' ? (seed.oilKg ?? 0) : 0,
+  boxNumbers: [],
   weighings: [],
   moves: seedMoves(seed),
   stepPhotos: mockStepPhotos(seed.code, ['reception', 'weighing', ...seedMoves(seed).map((move) => move.status), ...(seed.oilKg ? (['stored'] as const) : [])]),
@@ -209,4 +206,23 @@ const OLDER_SEEDS: ISeedLot[] = Array.from({ length: 64 }, (_, index) => {
   };
 });
 
-export const LOTS_MOCK: ILot[] = [...OPENED_LOTS.map((lot) => ({ ...lot, moves: [], stepPhotos: mockStepPhotos(lot.code, ['reception', 'weighing']) })), ...[...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot)];
+/** Lots still holding olives fill their Site's Boxes in order, a gap every third Lot so the grid has holes; older Lots remember a Box they once used. */
+const withBoxes = (lots: ILot[]): ILot[] => {
+  const nextBox: Record<string, number> = {};
+  const lotsPlaced: Record<string, number> = {};
+  return lots.map((lot) => {
+    const { boxCount, boxCapacityKg } = SETTINGS_MOCK[lot.siteId];
+    const count = Math.max(1, boxesNeeded(lot.netKg, boxCapacityKg));
+    if (lot.status !== 'received' && lot.status !== 'waiting') {
+      const first = Number(lot.code.slice(-4)) % (boxCount - count + 1);
+      return { ...lot, boxNumbers: Array.from({ length: count }, (_, index) => first + index + 1) };
+    }
+    const start = nextBox[lot.siteId] ?? 1;
+    const placed = lotsPlaced[lot.siteId] ?? 0;
+    lotsPlaced[lot.siteId] = placed + 1;
+    nextBox[lot.siteId] = start + count + (placed % 3 === 2 ? 2 : 0);
+    return { ...lot, boxNumbers: Array.from({ length: count }, (_, index) => start + index).filter((box) => box <= boxCount) };
+  });
+};
+
+export const LOTS_MOCK: ILot[] = withBoxes([...OPENED_LOTS.map((lot) => ({ ...lot, moves: [], stepPhotos: mockStepPhotos(lot.code, ['reception', 'weighing']) })), ...[...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot)]);

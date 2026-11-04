@@ -30,7 +30,7 @@ export interface IMapPluginOptions {
   limits?: ICameraLimits;
   insets?: Partial<IInsets>;
   basemap?: IBasemap;
-  /** Default true. False makes a static figure: no pan, zoom or page-scroll capture. */
+  /** Default true. False makes a static figure: no pan, zoom or page-scroll capture, though clicking a feature still works. */
   isInteractive?: boolean;
   /** Credit for data the host draws, shown with the map's own. */
   attribution?: string;

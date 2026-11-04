@@ -101,12 +101,50 @@
     "phone": "Téléphone",
     "email": "Email",
     "noEmail": "Non renseigné",
-    "origin": "Origine",
-    "province": "Province de {name}",
-    "prefecture": "Préfecture d’{name}",
-    "region": "Région de l’Oriental",
-    "mapLabel": "Carte de la région de l’Oriental, {name} en évidence",
-    "mapLabelNone": "Carte de la région de l’Oriental",
-    "mapUnavailable": "Carte indisponible sur cet appareil"
+    "address": "Adresse"
+  },
+  "quick": {
+    "title": "Nouveau client",
+    "placeholderAvatar": "Nouveau client",
+    "individual": "Personne",
+    "company": "Société",
+    "companyName": "Nom de la société",
+    "fullName": "Prénom et nom",
+    "phone": "06 61 00 00 00",
+    "create": "Créer le client",
+    "created": "Client créé · sera synchronisé",
+    "receiveNow": "Réceptionner maintenant",
+    "later": "Plus tard",
+    "offlineHint": "Hors ligne, le client est créé sur ce poste ; un doublon éventuel sera fusionné par la Direction.",
+    "phoneLabel": "Téléphone",
+    "email": "Email (facultatif)",
+    "emailInvalid": "Cet email n’est pas valide.",
+    "missing": "Il manque : {items}",
+    "missingItems": {
+      "name": "le nom",
+      "phone": "le téléphone",
+      "province": "la province",
+      "city": "la ville",
+      "address": "l’adresse"
+    },
+    "identifier": {
+      "individual": "CIN (facultatif)",
+      "company": "ICE (facultatif)"
+    },
+    "identifierPlaceholder": {
+      "individual": "F486168",
+      "company": "15 chiffres"
+    },
+    "identifierInvalid": {
+      "individual": "Un CIN compte une ou deux lettres, puis des chiffres (ex. F486168).",
+      "company": "Un ICE compte exactement 15 chiffres."
+    },
+    "duplicate": {
+      "individual": "Ce CIN appartient déjà à {name}",
+      "company": "Cet ICE appartient déjà à {name}"
+    },
+    "openDuplicate": "Voir sa fiche",
+    "receiveDuplicate": "Réceptionner pour ce client",
+    "createAnyway": "Créer quand même"
   }
 }

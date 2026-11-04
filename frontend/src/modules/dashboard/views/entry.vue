@@ -20,7 +20,7 @@
             v-else
             :key="site.id"
             type="button"
-            class="card flex items-center gap-3 text-left transition-colors hover:border-brand"
+            class="card press-lift flex items-center gap-3 text-left hover:border-brand"
             :class="{ 'border-brand': site.id === siteStore.currentSiteId || siteStore.isAllSites }"
             @click="handleSelectSite(site.id)"
           >

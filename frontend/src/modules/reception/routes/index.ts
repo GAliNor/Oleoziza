@@ -8,7 +8,7 @@ const routes: RouteRecordRaw[] = [
     path: '/reception/new',
     name: 'reception-new',
     component: () => import('reception/views/new.vue'),
-    meta: { roles: ['operator', 'management'], permission: 'reception.create' },
+    meta: { roles: ['operator', 'management'], permission: ['reception.create', 'client.create'] },
   },
   {
     path: '/reception/weigh',

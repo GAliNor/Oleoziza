@@ -13,7 +13,7 @@
             v-for="lot in column.lots"
             :key="lot.id"
             type="button"
-            class="flex flex-col gap-1 rounded-card border border-default bg-surface p-3 text-left shadow-raised transition duration-300 ease-(--ease-premium) hover:-translate-y-0.5 hover:shadow-raised"
+            class="press-lift flex flex-col gap-1 rounded-card border border-default bg-surface p-3 text-left shadow-raised"
             @click="openLot(lot.id)"
           >
             <span class="flex items-center justify-between gap-2">

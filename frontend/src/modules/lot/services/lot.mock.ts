@@ -23,6 +23,7 @@ export default class LotMockService implements ILotService {
     lot.status = next;
     lot.moves.push({ status: next, at: new Date().toISOString(), by: move.by });
     if (move.oilKg) lot.oilKg = move.oilKg;
+    if (move.photoUrl) lot.stepPhotos[next] = move.photoUrl;
     if (next === 'withdrawn') lot.withdrawnKg = lot.oilKg ?? 0;
     lot.isPendingSync = !navigator.onLine;
     return mockResolve(lot);

@@ -5,10 +5,12 @@ import ClientMockService from 'client/services/client.mock';
 import { ACCOUNTS_MOCK } from 'client/constants/mock-accounts';
 import { CLIENT_RECORDS_MOCK } from 'client/constants/mock-client-records';
 import { summarizeActivity } from 'client/composables/client-activity';
+import { createId } from 'global/composables/crypto';
+import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { useClientStore } from 'client/stores/client';
 import type { IClient } from 'client/types/client';
 
-const client = (name: string, phone: string): IClient => ({ id: name, kind: 'individual', name, phone, siteIds: [], isPendingSync: false });
+const client = (name: string, phone: string): IClient => ({ id: name, kind: 'individual', name, phone, identifier: null, siteIds: [], isPendingSync: false });
 
 describe('client store searchClients', () => {
   beforeEach(() => {
@@ -92,6 +94,39 @@ describe('the mock Client records', () => {
   });
 });
 
+describe('client store clientByIdentifier', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('finds who holds a number from the Client list alone, so it works for an Operator', async () => {
+    const clientStore = useClientStore();
+    await clientStore.fetchClients();
+    const [record] = CLIENT_RECORDS_MOCK;
+    expect(clientStore.clientByIdentifier(record.identifier)?.id).toBe(record.id);
+    expect(clientStore.clientByIdentifier('Z000000')).toBeUndefined();
+  });
+
+  it('knows the number of a Client just created', async () => {
+    vi.stubGlobal('navigator', { onLine: true });
+    const clientStore = useClientStore();
+    await clientStore.fetchClients();
+    const id = createId();
+    await clientStore.createClient({ id, kind: 'individual', name: 'Nadia Rahmani', phone: '+212661223344', siteId: SITE_OUJDA_ID, identifier: 'AB123456', email: null, location: { province: 'jerada', city: 'Touissit', address: 'Hay Essalam' } });
+    expect(clientStore.clientByIdentifier('AB123456')?.id).toBe(id);
+  });
+
+  it('never matches a Client who gave no number', async () => {
+    const clientStore = useClientStore();
+    await clientStore.fetchClients();
+    expect(clientStore.clientByIdentifier('')).toBeUndefined();
+  });
+});
+
 describe('the mock Client finances', () => {
   it('owe the same on the record and on the account', () => {
     CLIENT_RECORDS_MOCK.forEach((record) => expect([record.name, ACCOUNTS_MOCK[record.id].dueDh, ACCOUNTS_MOCK[record.id].oilStockKg]).toEqual([record.name, record.balance, record.oilStockKg]));
@@ -99,6 +134,13 @@ describe('the mock Client finances', () => {
 
   it('never owe more than they generated', () => {
     CLIENT_RECORDS_MOCK.forEach((record) => expect(record.balance).toBeLessThanOrEqual(summarizeActivity(record.history).generatedDh));
+  });
+});
+
+describe('the mock Client numbers', () => {
+  it('belong to one Client each', () => {
+    const numbers = CLIENT_RECORDS_MOCK.map((record) => record.identifier);
+    expect(new Set(numbers).size).toBe(numbers.length);
   });
 });
 
@@ -128,6 +170,29 @@ describe('the mock Client lots', () => {
 describe('client store records', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+  });
+
+  it('shows a new Client on the records, with where they live, once', async () => {
+    vi.stubGlobal('navigator', { onLine: true });
+    const clientStore = useClientStore();
+    await clientStore.fetchRecords();
+    const payload = { id: createId(), kind: 'individual' as const, name: 'Zineb Test', phone: '+212661112233', siteId: SITE_OUJDA_ID, identifier: 'F486168', email: 'zineb@test.ma', location: { province: 'berkane' as const, city: 'Ahfir', address: '12 rue des Oliviers' } };
+    await clientStore.createClient(payload);
+    await clientStore.createClient(payload);
+    await clientStore.fetchRecords();
+    const records = clientStore.records.filter((record) => record.id === payload.id);
+    expect(records.map((record) => [record.identifier, record.email, record.province, record.region, record.address, record.sites[0].siteId, record.history])).toEqual([['F486168', 'zineb@test.ma', 'berkane', 'Ahfir', '12 rue des Oliviers', SITE_OUJDA_ID, []]]);
+    vi.unstubAllGlobals();
+  });
+
+  it('leaves the number empty for a new Client who gave none', async () => {
+    vi.stubGlobal('navigator', { onLine: true });
+    const clientStore = useClientStore();
+    const id = createId();
+    await clientStore.createClient({ id, kind: 'company', name: 'Domaine Test', phone: '+212536112233', siteId: SITE_OUJDA_ID, identifier: null, email: null, location: { province: 'nador', city: 'Nador', address: 'Route de Selouane' } });
+    await clientStore.fetchRecords();
+    expect(clientStore.recordById(id)?.identifier).toBe('');
+    vi.unstubAllGlobals();
   });
 
   it('loads the records and finds one by id', async () => {

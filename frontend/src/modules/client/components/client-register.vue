@@ -39,12 +39,12 @@
                     <ui-avatar class="h-10 w-10" :name="client.name" :variant="clientAvatarVariant(client.kind)" :delay="index * 40" />
                     <div class="min-w-0">
                       <p class="truncate font-medium text-fg-display">{{ client.name }}</p>
-                      <p class="body-two truncate sm:hidden">{{ client.identifier }}</p>
+                      <p class="body-two truncate sm:hidden">{{ client.identifier || '—' }}</p>
                     </div>
                   </div>
                 </td>
                 <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph tabular-nums sm:table-cell">
-                  {{ client.identifier }}
+                  {{ client.identifier || '—' }}
                   <span class="block caption">{{ $t(`client.identifierKinds.${client.kind}`) }}</span>
                 </td>
                 <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph lg:table-cell">{{ client.region }}</td>
