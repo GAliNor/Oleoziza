@@ -3,7 +3,7 @@
     <button type="button" class="link self-start" @click="emit('close')">← Retour à la liste</button>
 
     <div class="flex flex-col items-center gap-2 text-center">
-      <avatar-tag class="h-24 w-24" :name="lot.client" :kind="kind" />
+      <ui-avatar class="h-24 w-24" :name="lot.client" :variant="avatarVariant" />
       <p class="body-two">Vous allez</p>
       <h2 class="heading-two">{{ MOVE_LABELS[lot.status] }}</h2>
       <p class="text-lg text-fg-default">pour <strong>{{ lot.client }}</strong></p>
@@ -35,13 +35,13 @@ import { ref, watch } from 'vue';
 
 import { STATUS_LABELS, type ILotPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MOVE_LABELS } from 'dashboard/prototype/use-operator-desk.prototype';
-import type { AvatarKind } from 'global/types/avatar';
+import type { AvatarVariant } from 'global/types/avatar';
 import { formatKg } from 'lot/composables/quantity';
 
-import AvatarTag from 'global/components/avatar-tag.vue';
+import UiAvatar from 'global/components/ui-avatar.vue';
 
 // props
-const props = defineProps<{ lot: ILotPrototype; kind: AvatarKind; nextLabel: string }>();
+const props = defineProps<{ lot: ILotPrototype; avatarVariant: AvatarVariant; nextLabel: string }>();
 const emit = defineEmits<{ close: []; confirm: [lot: ILotPrototype, oilKg?: number] }>();
 
 // variables

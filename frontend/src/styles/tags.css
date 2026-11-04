@@ -12,7 +12,7 @@
     @apply border-accent bg-accent-subtle font-medium text-fg-accent hover:border-accent;
   }
 
-  .avatar {
+  .round-badge {
     @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold;
   }
 }

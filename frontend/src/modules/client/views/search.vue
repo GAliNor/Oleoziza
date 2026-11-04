@@ -23,7 +23,7 @@
             :to="{ name: 'client-page', params: { id: client.id }, query: purpose === 'any' ? {} : { action: purpose } }"
             class="flex min-h-16 items-center gap-3 rounded-2xl border border-default bg-surface px-3 py-2 transition-colors hover:border-brand"
           >
-            <span class="avatar bg-subtle text-fg-primary-paragraph">{{ initials(client.name) }}</span>
+            <ui-avatar :name="client.name" fallback-class="bg-subtle text-fg-primary-paragraph" />
             <span class="min-w-0 flex-1">
               <span class="block truncate font-medium text-fg-display">{{ client.name }}</span>
               <span class="body-two block truncate">{{ formatPhone(client.phone) }}</span>
@@ -46,6 +46,7 @@ import { useClientStore } from 'client/stores/client';
 import { formatPhone } from 'global/composables/phone';
 import type { IClient } from 'client/types/client';
 
+import UiAvatar from 'global/components/ui-avatar.vue';
 import AppLayout from 'global/components/app-layout.vue';
 
 // stores
@@ -62,14 +63,6 @@ const purpose = computed((): string => (PURPOSES.includes(String(route.query.for
 const results = computed((): IClient[] => clientStore.searchClients(query.value, 12));
 
 // methods
-const initials = (name: string): string =>
-  name
-    .split(' ')
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase();
-
 // lifecycle
 onMounted(() => {
   clientStore.fetchClients();

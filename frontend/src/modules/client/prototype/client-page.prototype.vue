@@ -3,7 +3,7 @@
   <app-layout>
     <section v-if="client" class="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <header class="rise flex items-center gap-3">
-        <span class="avatar h-14 w-14 bg-action text-lg text-fg-on-action">{{ client.name.slice(0, 2).toUpperCase() }}</span>
+        <ui-avatar class="h-14 w-14 text-lg" :name="client.name" fallback-class="bg-action text-fg-on-action" />
         <div class="min-w-0">
           <h1 class="heading-one truncate">{{ client.name }}</h1>
           <p class="body-two">{{ formatPhone(client.phone) }} · {{ client.kind === 'company' ? 'Entreprise' : 'Particulier' }}</p>
@@ -80,6 +80,7 @@ import { findManagementClient } from 'client/prototype/mock-management-clients.p
 import { formatMoney } from 'global/composables/money';
 import { formatKg, formatLitres } from 'lot/composables/quantity';
 
+import UiAvatar from 'global/components/ui-avatar.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
 

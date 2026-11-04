@@ -1,10 +1,10 @@
 import { renderAvatarDataUri } from '~/plugins/dicebear';
 
-import { AVATAR_STYLES } from 'global/constants/avatar';
-import type { AvatarKind } from 'global/types/avatar';
+import { AVATAR_OPTIONS } from 'global/constants/avatar';
+import type { AvatarVariant } from 'global/types/avatar';
 
-export const renderAvatar = (kind: AvatarKind, seed: string): Promise<string> =>
-  renderAvatarDataUri(AVATAR_STYLES[kind].style, { seed, ...AVATAR_STYLES[kind].options });
+export const renderAvatar = (variant: AvatarVariant, seed: string): Promise<string> =>
+  renderAvatarDataUri(variant, { seed, ...AVATAR_OPTIONS[variant] });
 
 export const toInitials = (name: string): string => {
   const words = name.split(/\s+/).filter((word) => word.length > 2);

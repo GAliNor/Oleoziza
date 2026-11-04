@@ -6,7 +6,7 @@
         <button type="button" class="link" @click="handleClose">{{ closeLabel }}</button>
       </header>
       <div class="flex items-center gap-3">
-        <avatar-tag class="h-16 w-16" :name="name.trim() || 'Nouveau client'" :kind="kind === 'company' ? 'company' : 'client'" />
+        <ui-avatar class="h-16 w-16" :name="name.trim() || 'Nouveau client'" :variant="clientAvatarVariant(kind)" />
         <div class="grid flex-1 grid-cols-2 gap-2">
           <button type="button" class="toggle-tile" :class="{ 'toggle-tile-active': kind === 'individual' }" @click="kind = 'individual'">Personne</button>
           <button type="button" class="toggle-tile" :class="{ 'toggle-tile-active': kind === 'company' }" @click="kind = 'company'">Société</button>
@@ -19,7 +19,7 @@
 
     <template v-else>
       <div class="flex flex-col items-center gap-2 py-2 text-center">
-        <avatar-tag class="h-20 w-20" :name="created.name" :kind="created.kind === 'company' ? 'company' : 'client'" />
+        <ui-avatar class="h-20 w-20" :name="created.name" :variant="clientAvatarVariant(created.kind)" />
         <p class="heading-three">{{ created.name }}</p>
         <p class="body-two">Client créé · sera synchronisé</p>
       </div>
@@ -39,7 +39,8 @@ import { useSiteStore } from 'site/stores/site';
 import { createId } from 'global/composables/crypto';
 import type { ClientKind, IClient } from 'client/types/client';
 
-import AvatarTag from 'global/components/avatar-tag.vue';
+import { clientAvatarVariant } from 'client/composables/avatar-variant';
+import UiAvatar from 'global/components/ui-avatar.vue';
 
 // props
 withDefaults(defineProps<{ closeLabel?: string }>(), { closeLabel: 'Fermer' });

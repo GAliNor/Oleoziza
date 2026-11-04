@@ -36,7 +36,7 @@
 
         <div v-if="query && searched.length" class="flex flex-col gap-2">
           <div v-for="client in searched" :key="client.name" class="flex items-center gap-3 rounded-2xl bg-accent-subtle p-3">
-            <avatar-tag class="h-14 w-14" :name="client.name" :kind="client.kind" />
+            <ui-avatar class="h-14 w-14" :name="client.name" :variant="client.avatarVariant" />
             <div class="min-w-0 flex-1">
               <p class="truncate heading-four">{{ client.name }}</p>
               <p v-for="line in desk.accountLines(client)" :key="line" class="body-two text-fg-primary-paragraph">{{ line }}</p>
@@ -52,7 +52,7 @@
         <h2 class="label">{{ query ? 'Lots trouvés' : 'En cours' }} · {{ listed.length }}</h2>
         <ul class="flex flex-col divide-y divide-default border-y border-default">
           <li v-for="lot in visible" :key="lot.id" class="flex items-center gap-3 py-3">
-            <avatar-tag class="h-12 w-12" :name="lot.client" :kind="desk.avatarKind(lot.client)" />
+            <ui-avatar class="h-12 w-12" :name="lot.client" :variant="desk.avatarVariant(lot.client)" />
             <div class="min-w-0 flex-1">
               <p class="truncate font-semibold text-fg-display">{{ lot.client }}</p>
               <p class="truncate body-two text-fg-primary-paragraph">{{ desk.stageSentence(lot) }}</p>
@@ -86,7 +86,7 @@
         <confirm-move
           v-if="panel.kind === 'move'"
           :lot="panel.lot"
-          :kind="desk.avatarKind(panel.lot.client)"
+          :avatar-variant="desk.avatarVariant(panel.lot.client)"
           :next-label="desk.nextLabel(panel.lot)"
           @close="handleClosePanel"
           @confirm="handleConfirm"
@@ -106,7 +106,7 @@ import { useSessionStore } from 'global/stores/session';
 import { LOT_STATUSES, type ILotPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MOVE_LABELS, MOVE_TONES, useOperatorDesk } from 'dashboard/prototype/use-operator-desk.prototype';
 
-import AvatarTag from 'global/components/avatar-tag.vue';
+import UiAvatar from 'global/components/ui-avatar.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';

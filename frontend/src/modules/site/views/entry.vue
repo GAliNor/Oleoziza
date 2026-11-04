@@ -91,7 +91,7 @@
           </button>
           <div :key="activeSite?.id ?? NEW_SITE" class="stagger flex max-w-2xl flex-col gap-4">
             <header v-if="activeSite" class="flex items-center gap-3">
-              <span class="avatar h-12 w-12 bg-action text-fg-on-action"><map-pin-line-icon class="h-6 w-6" /></span>
+              <span class="round-badge h-12 w-12 bg-action text-fg-on-action"><map-pin-line-icon class="h-6 w-6" /></span>
               <div class="min-w-0 flex-1">
                 <h2 class="heading-four truncate">{{ activeSite.name }}</h2>
                 <p class="body-two">{{ activeSite.city }}</p>

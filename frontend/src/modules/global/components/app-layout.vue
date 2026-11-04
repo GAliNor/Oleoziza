@@ -1,7 +1,7 @@
 <template>
-  <operator-shell v-if="isOperator">
+  <app-operator-shell v-if="isOperator">
     <slot />
-  </operator-shell>
+  </app-operator-shell>
   <div v-else class="min-h-dvh md:flex">
     <aside
       class="hidden w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-default bg-surface p-4
@@ -43,11 +43,11 @@
           backdrop-blur md:px-8"
       >
         <olive-fill-icon class="h-7 w-7 shrink-0 text-fg-brand md:hidden" />
-        <back-button />
+        <app-back-button />
         <site-switcher />
         <slot name="header" />
         <span class="ml-auto" aria-hidden="true" />
-        <network-badge class="shrink-0" />
+        <app-network-badge class="shrink-0" />
         <button
           v-if="canSwitchOperator"
           type="button"
@@ -100,13 +100,13 @@ import { useNavigation } from 'global/composables/use-navigation';
 import { HOME_ROUTE_NAME } from 'global/constants/navigation';
 
 import AppToast from 'global/components/app-toast.vue';
-import BackButton from 'global/components/back-button.vue';
-import NetworkBadge from 'global/components/network-badge.vue';
+import AppBackButton from 'global/components/app-back-button.vue';
+import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';
 import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
-import OperatorShell from 'global/components/operator-shell.vue';
+import AppOperatorShell from 'global/components/app-operator-shell.vue';
 
 // stores
 const sessionStore = useSessionStore();

@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-3">
     <div v-if="modelValue && !isPicking" class="flex items-center gap-3 rounded-2xl border border-brand bg-selected/40 p-3">
-      <span class="avatar bg-action text-fg-on-action">{{ initials(modelValue.name) }}</span>
+      <ui-avatar :name="modelValue.name" fallback-class="bg-action text-fg-on-action" />
       <div class="min-w-0 flex-1">
         <p class="truncate font-semibold text-fg-display">{{ modelValue.name }}</p>
         <p class="body-two truncate">
@@ -25,7 +25,7 @@
               hover:border-brand"
             @click="handlePick(client)"
           >
-            <span class="avatar bg-subtle text-fg-primary-paragraph">{{ initials(client.name) }}</span>
+            <ui-avatar :name="client.name" fallback-class="bg-subtle text-fg-primary-paragraph" />
             <span class="min-w-0 flex-1">
               <span class="block truncate font-medium text-fg-display">{{ client.name }}</span>
               <span class="body-two block truncate">{{ formatPhone(client.phone) }}</span>
@@ -81,6 +81,7 @@ import { formatPhone, normalizePhone } from 'global/composables/phone';
 import { createId } from 'global/composables/crypto';
 import type { ClientKind, IClient } from 'client/types/client';
 
+import UiAvatar from 'global/components/ui-avatar.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 
 // props
@@ -116,14 +117,6 @@ const otherSites = computed((): string[] =>
 );
 
 // methods
-const initials = (name: string): string =>
-  name
-    .split(' ')
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase();
-
 const pickClient = (client: IClient): void => {
   emit('update:modelValue', client);
   isPicking.value = false;

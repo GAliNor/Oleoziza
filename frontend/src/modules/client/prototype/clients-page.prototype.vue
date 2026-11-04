@@ -40,7 +40,7 @@
               >
                 <td class="px-4 py-3">
                   <div class="flex min-w-0 items-center gap-3">
-                    <avatar-tag class="h-10 w-10" :name="client.name" :kind="client.kind === 'company' ? 'company' : 'client'" :delay="index * 40" />
+                    <ui-avatar class="h-10 w-10" :name="client.name" :variant="clientAvatarVariant(client.kind)" :delay="index * 40" />
                     <div class="min-w-0">
                       <p class="truncate font-medium text-fg-display">{{ client.name }}</p>
                       <p class="body-two truncate sm:hidden">{{ client.identifier }}</p>
@@ -133,10 +133,11 @@ import { MANAGEMENT_CLIENTS, type IManagementClientPrototype } from 'client/prot
 import { formatMoney } from 'global/composables/money';
 import { formatKg } from 'lot/composables/quantity';
 
+import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
 import ClientHeader from 'client/prototype/client-header.prototype.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
-import AvatarTag from 'global/components/avatar-tag.vue';
+import UiAvatar from 'global/components/ui-avatar.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 
 // stores

@@ -4,10 +4,10 @@
       <router-link :to="{ name: 'dashboard' }" class="shrink-0" :aria-label="$t('global.nav.dashboard')">
         <olive-fill-icon class="h-7 w-7 text-fg-brand" />
       </router-link>
-      <back-button />
+      <app-back-button />
       <site-switcher />
       <span class="ml-auto" aria-hidden="true" />
-      <network-badge class="shrink-0" />
+      <app-network-badge class="shrink-0" />
       <router-link :to="{ name: 'client-search' }" class="icon-btn shrink-0" :aria-label="$t('global.shell.search')">
         <search-line-icon class="h-5 w-5" />
       </router-link>
@@ -25,7 +25,7 @@
         :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
         @click="handleSwitchOperator"
       >
-        <avatar-tag class="h-9 w-9" :name="sessionStore.fullName" kind="user" fallback-class="bg-accent-brown text-white" />
+        <ui-avatar class="h-9 w-9" :name="sessionStore.fullName" :variant="STAFF_AVATAR_VARIANT" fallback-class="bg-accent-brown text-white" />
         <span class="max-w-24 truncate">{{ operatorName }}</span>
         <user-switch-line-icon class="h-4 w-4 text-fg-secondary-paragraph" />
       </button>
@@ -50,10 +50,11 @@ import { useRouter } from 'vue-router';
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 
+import { STAFF_AVATAR_VARIANT } from 'user/constants/user';
 import AppToast from 'global/components/app-toast.vue';
-import AvatarTag from 'global/components/avatar-tag.vue';
-import BackButton from 'global/components/back-button.vue';
-import NetworkBadge from 'global/components/network-badge.vue';
+import UiAvatar from 'global/components/ui-avatar.vue';
+import AppBackButton from 'global/components/app-back-button.vue';
+import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import OliveFillIcon from 'global/icons/olive-fill.icon.vue';

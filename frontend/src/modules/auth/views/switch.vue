@@ -13,11 +13,7 @@
               ease-(--ease-premium) hover:-translate-y-0.5 hover:border-brand hover:shadow-raised active:scale-[0.98]"
               @click="handleSelect(profile)"
             >
-              <span
-                class="flex h-14 w-14 items-center justify-center rounded-full bg-selected heading-four text-fg-brand"
-              >
-                {{ initials(profile) }}
-              </span>
+              <ui-avatar class="h-14 w-14 text-lg" :name="`${profile.firstName} ${profile.lastName}`" fallback-class="bg-selected text-fg-brand" />
               <span class="text-center label">{{ profile.firstName }} {{ profile.lastName }}</span>
             </button>
             <button
@@ -64,6 +60,7 @@ import { useAuthError } from 'auth/composables/use-auth-error';
 import { PIN_LENGTH } from 'auth/constants/auth';
 import type { IDeviceProfile } from 'auth/types/auth';
 
+import UiAvatar from 'global/components/ui-avatar.vue';
 import AuthHeading from 'auth/components/auth-heading.vue';
 import PinPad from 'auth/components/pin-pad.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
@@ -81,8 +78,6 @@ const pin = ref('');
 const isLoading = ref(false);
 
 // methods
-const initials = (profile: IDeviceProfile): string => `${profile.firstName[0] ?? ''}${profile.lastName[0] ?? ''}`.toUpperCase();
-
 const unlock = async (value: string): Promise<void> => {
   if (!selectedProfile.value) return;
   clearError();

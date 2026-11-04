@@ -2,7 +2,7 @@
   <!-- PROTOTYPE: one Payment or Payout (ticket 0034): amount, method, Payment Proof, who recorded it, and confirm / reject / cancel. -->
   <div class="stagger flex flex-col gap-4">
     <header class="flex flex-wrap items-start gap-3">
-      <span class="avatar h-12 w-12" :class="movement.kind === 'payment' ? 'bg-selected text-fg-brand' : 'bg-accent-subtle text-fg-accent'">
+      <span class="round-badge h-12 w-12" :class="movement.kind === 'payment' ? 'bg-selected text-fg-brand' : 'bg-accent-subtle text-fg-accent'">
         {{ movement.kind === 'payment' ? '↓' : '↑' }}
       </span>
       <div class="min-w-0 flex-1">

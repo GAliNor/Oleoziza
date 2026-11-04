@@ -1,11 +1,11 @@
 <template>
   <span
-    class="avatar-tag avatar overflow-hidden"
+    class="ui-avatar round-badge overflow-hidden"
     :class="faceUri ? 'bg-selected' : fallbackClass"
     :style="{ animationDelay: `${delay}ms` }"
     :title="name"
   >
-    <img v-if="faceUri" class="avatar-tag-face h-full w-full" :src="faceUri" alt="" @error="handleError" />
+    <img v-if="faceUri" class="ui-avatar-face h-full w-full" :src="faceUri" alt="" @error="handleError" />
     <template v-else>{{ initials }}</template>
   </span>
 </template>
@@ -15,10 +15,11 @@
 import { ref, watch } from 'vue';
 
 import { renderAvatar, toInitials } from 'global/composables/avatar';
-import type { AvatarKind } from 'global/types/avatar';
+import type { AvatarVariant } from 'global/types/avatar';
 
 // props
-const props = withDefaults(defineProps<{ name: string; kind: AvatarKind; delay?: number; fallbackClass?: string }>(), {
+const props = withDefaults(defineProps<{ name: string; variant?: AvatarVariant; delay?: number; fallbackClass?: string }>(), {
+  variant: undefined,
   delay: 0,
   fallbackClass: 'bg-action text-fg-on-action',
 });
@@ -29,12 +30,13 @@ const initials = ref('');
 
 // methods
 const renderFace = async (): Promise<void> => {
-  const { name, kind } = props;
+  const { name, variant } = props;
   initials.value = toInitials(name);
   faceUri.value = null;
+  if (!variant) return;
   try {
-    const uri = await renderAvatar(kind, name);
-    if (name === props.name && kind === props.kind) faceUri.value = uri;
+    const uri = await renderAvatar(variant, name);
+    if (name === props.name && variant === props.variant) faceUri.value = uri;
   } catch {
     faceUri.value = null;
   }
@@ -46,20 +48,20 @@ const handleError = (): void => {
 };
 
 // watchers
-watch(() => [props.name, props.kind], renderFace, { immediate: true });
+watch(() => [props.name, props.variant], renderFace, { immediate: true });
 </script>
 
 <style scoped>
-.avatar-tag {
+.ui-avatar {
   animation: avatar-pop 0.55s var(--ease-premium) both;
 }
 
-.avatar-tag-face {
+.ui-avatar-face {
   transform-origin: 50% 85%;
 }
 
-.avatar-tag:hover .avatar-tag-face,
-tr:hover .avatar-tag-face {
+.ui-avatar:hover .ui-avatar-face,
+tr:hover .ui-avatar-face {
   animation: avatar-nod 0.9s var(--ease-premium);
 }
 
@@ -81,9 +83,9 @@ tr:hover .avatar-tag-face {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .avatar-tag,
-  .avatar-tag:hover .avatar-tag-face,
-  tr:hover .avatar-tag-face {
+  .ui-avatar,
+  .ui-avatar:hover .ui-avatar-face,
+  tr:hover .ui-avatar-face {
     animation: none;
   }
 }

@@ -1,6 +1,4 @@
-import type { AvatarStyleName } from '~/plugins/dicebear';
-
-import type { AvatarKind } from 'global/types/avatar';
+import type { AvatarVariant } from 'global/types/avatar';
 
 const MALE_HAIR = [
   'hat',
@@ -20,26 +18,17 @@ const PALETTE = {
   neutral50: '#FAFAF9',
 };
 
-export const AVATAR_STYLES: Record<AvatarKind, { style: AvatarStyleName; options: Record<string, unknown> }> = {
-  client: {
-    style: 'notionists',
-    options: { hairVariant: MALE_HAIR, beardProbability: 35, gestureProbability: 0, glassesProbability: 15, scale: 1.4, translateY: 8 },
+export const AVATAR_OPTIONS: Record<AvatarVariant, Record<string, unknown>> = {
+  notionists: { hairVariant: MALE_HAIR, beardProbability: 35, gestureProbability: 0, glassesProbability: 15, scale: 1.4, translateY: 8 },
+  patchwork: {
+    backgroundColor: PALETTE.neutral50,
+    fabricAColor: [PALETTE.accentRust, PALETTE.accentBrown],
+    fabricBColor: [PALETTE.primaryOlive, PALETTE.primaryOliveDark],
+    fabricCColor: [PALETTE.accentGold, PALETTE.accentSand],
   },
-  company: {
-    style: 'patchwork',
-    options: {
-      backgroundColor: PALETTE.neutral50,
-      fabricAColor: [PALETTE.accentRust, PALETTE.accentBrown],
-      fabricBColor: [PALETTE.primaryOlive, PALETTE.primaryOliveDark],
-      fabricCColor: [PALETTE.accentGold, PALETTE.accentSand],
-    },
-  },
-  user: {
-    style: 'line-face',
-    options: {
-      mouthVariant: ['smile', 'pleased', 'soft'],
-      eyesVariant: ['happy', 'dots', 'closed', 'wink'],
-      backgroundColor: [PALETTE.primaryOliveLight, PALETTE.accentSand, PALETTE.accentGold],
-    },
+  'line-face': {
+    mouthVariant: ['smile', 'pleased', 'soft'],
+    eyesVariant: ['happy', 'dots', 'closed', 'wink'],
+    backgroundColor: [PALETTE.primaryOliveLight, PALETTE.accentSand, PALETTE.accentGold],
   },
 };

@@ -123,7 +123,7 @@
             class="flex items-center gap-3 rounded-2xl border border-default bg-surface px-4 py-3"
             :class="{ rise: index === 0 }"
           >
-            <span class="avatar h-9 w-9 bg-subtle text-fg-primary-paragraph">{{ lot.weighings.length - index }}</span>
+            <span class="round-badge h-9 w-9 bg-subtle text-fg-primary-paragraph">{{ lot.weighings.length - index }}</span>
             <span class="min-w-0 flex-1 body-two">
               {{ formatTime(weighing.recordedAt) }} · {{ weighing.source === 'scale' ? $t('reception.station.scale') : $t('reception.station.manual') }}
               <template v-if="weighing.kind === 'gross' && weighing.grossKg !== null">

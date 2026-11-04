@@ -12,13 +12,14 @@ import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from
 import { toPrototypeLot } from 'dashboard/prototype/reception-bridge.prototype';
 import { advanceLot, createLots, LOT_STATUSES, STATUS_LABELS, type ILotPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
-import type { AvatarKind } from 'global/types/avatar';
+import type { AvatarVariant } from 'global/types/avatar';
+import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import { formatMoney } from 'global/composables/money';
 import { formatKg } from 'lot/composables/quantity';
 
 export interface IDeskClient {
   name: string;
-  kind: AvatarKind;
+  avatarVariant: AvatarVariant;
   phone: string;
   lots: ILotPrototype[];
   account: IAccountPrototype;
@@ -120,15 +121,14 @@ export const useOperatorDesk = () => {
   );
 
   // methods
-  const avatarKind = (name: string): AvatarKind => {
+  const avatarVariant = (name: string): AvatarVariant => {
     const known = clientStore.clients.find((client) => client.name === name);
-    if (known) return known.kind === 'company' ? 'company' : 'client';
-    return COMPANY_PATTERN.test(name) ? 'company' : 'client';
+    return clientAvatarVariant(known ? known.kind : COMPANY_PATTERN.test(name) ? 'company' : 'individual');
   };
 
   const toDeskClient = (name: string): IDeskClient => ({
     name,
-    kind: avatarKind(name),
+    avatarVariant: avatarVariant(name),
     phone: clientStore.clients.find((client) => client.name === name)?.phone ?? '',
     lots: siteLots.value.filter((lot) => lot.client === name),
     account: CLIENT_ACCOUNTS_PROTOTYPE[name] ?? EMPTY_ACCOUNT,
@@ -204,7 +204,7 @@ export const useOperatorDesk = () => {
     activeLots,
     todoLots,
     clientsToday,
-    avatarKind,
+    avatarVariant,
     searchClients,
     stageSentence,
     ageLabel,

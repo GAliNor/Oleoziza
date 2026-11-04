@@ -21,3 +21,5 @@ export const PERMISSION_GROUPS: IPermissionGroup[] = [
   { key: 'finance', permissions: ['finance.view', 'payment.confirm', 'payment.cancel', 'payment_method.manage', 'expense.record'] },
   { key: 'admin', permissions: ['record.correct', 'daily_price.set', 'product.manage', 'user.manage', 'site.manage', 'season.manage'] },
 ];
+
+export const STAFF_AVATAR_VARIANT = 'line-face';

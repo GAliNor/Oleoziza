@@ -1,1 +1,3 @@
-export type AvatarKind = 'client' | 'company' | 'user';
+import type { AvatarStyleName } from '~/plugins/dicebear';
+
+export type AvatarVariant = AvatarStyleName;
