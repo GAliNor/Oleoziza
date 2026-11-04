@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import ReceptionService from 'reception/services/reception';
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { draftNetKg } from 'reception/composables/weighing';
 import { logDevError, withStatus } from 'global/composables/with-status';
 import type { ILot, IOpenReceptionPayload, IReceptionStore, IWeighingDraft } from 'reception/types/reception';

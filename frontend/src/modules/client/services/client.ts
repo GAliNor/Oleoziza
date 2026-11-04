@@ -1,6 +1,6 @@
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
-import ClientMockService from 'global/services/client.mock';
-import type { IClient, IClientService, ICreateClientPayload } from 'global/types/client';
+import ClientMockService from 'client/services/client.mock';
+import type { IClient, IClientService, ICreateClientPayload } from 'client/types/client';
 
 class ClientApiService extends BaseService implements IClientService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/clients';

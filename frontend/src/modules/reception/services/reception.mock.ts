@@ -1,5 +1,5 @@
 import { mockReject, mockResolve } from 'global/services/mock';
-import { CLIENTS_MOCK_DB } from 'global/services/client.mock';
+import { CLIENTS_MOCK_DB } from 'client/services/client.mock';
 import { LAST_LOT_NUMBER_MOCK, LOTS_MOCK, SETTINGS_MOCK } from 'reception/constants/mock-reception';
 import { SCALE_READ_DELAY_MS } from 'reception/constants/reception';
 import type {

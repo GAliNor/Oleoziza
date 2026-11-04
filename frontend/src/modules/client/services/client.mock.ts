@@ -1,6 +1,6 @@
 import { mockResolve } from 'global/services/mock';
-import { CLIENTS_MOCK } from 'global/constants/mock-clients';
-import type { IClient, IClientService, ICreateClientPayload } from 'global/types/client';
+import { CLIENTS_MOCK } from 'client/constants/mock-clients';
+import type { IClient, IClientService, ICreateClientPayload } from 'client/types/client';
 
 export const CLIENTS_MOCK_DB: IClient[] = structuredClone(CLIENTS_MOCK);
 

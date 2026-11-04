@@ -123,11 +123,11 @@ import { useRoute, useRouter } from 'vue-router';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { formatDh } from 'reception/composables/format';
 import { createId } from 'global/composables/crypto';
 import { ORIGIN_SUGGESTIONS, QUALITY_TAGS, RECEPTION_MODES, VARIETIES } from 'reception/constants/reception';
-import type { IClient } from 'global/types/client';
+import type { IClient } from 'client/types/client';
 import type { ReceptionMode } from 'reception/types/reception';
 
 import AppLayout from 'global/components/app-layout.vue';

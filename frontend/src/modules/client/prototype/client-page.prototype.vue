@@ -73,7 +73,7 @@ import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { formatPhone } from 'global/composables/phone';
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
 import { findManagementClient } from 'client/prototype/mock-management-clients.prototype';
 

@@ -34,10 +34,10 @@
 // imports
 import { computed, ref } from 'vue';
 
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { useSiteStore } from 'site/stores/site';
 import { createId } from 'global/composables/crypto';
-import type { ClientKind, IClient } from 'global/types/client';
+import type { ClientKind, IClient } from 'client/types/client';
 
 import AvatarTag from 'global/components/avatar-tag.vue';
 

@@ -1,9 +1,9 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import ClientMockService from 'global/services/client.mock';
-import { useClientStore } from 'global/stores/client';
-import type { IClient } from 'global/types/client';
+import ClientMockService from 'client/services/client.mock';
+import { useClientStore } from 'client/stores/client';
+import type { IClient } from 'client/types/client';
 
 const client = (name: string, phone: string): IClient => ({ id: name, kind: 'individual', name, phone, siteIds: [], isPendingSync: false });
 

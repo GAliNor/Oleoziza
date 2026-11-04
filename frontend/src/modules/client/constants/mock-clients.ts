@@ -1,5 +1,5 @@
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
-import type { IClient } from 'global/types/client';
+import type { IClient } from 'client/types/client';
 
 export const CLIENTS_MOCK: IClient[] = [
   { id: 'c0a1b2c3-0001-4000-8000-000000000001', kind: 'individual', name: 'Mohammed Benali', phone: '+212661234518', siteIds: [SITE_OUJDA_ID], isPendingSync: false },

@@ -2,12 +2,12 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ReceptionMockService from 'reception/services/reception.mock';
-import ClientMockService from 'global/services/client.mock';
+import ClientMockService from 'client/services/client.mock';
 import { useReceptionStore } from 'reception/stores/reception';
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { createWeighingDraft } from 'reception/composables/weighing';
 import { createId } from 'global/composables/crypto';
-import { CLIENTS_MOCK } from 'global/constants/mock-clients';
+import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
 
 const RECEIVED_LOT_CODE = 'OJ-2627-0158';

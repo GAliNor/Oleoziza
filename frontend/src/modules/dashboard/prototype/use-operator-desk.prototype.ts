@@ -3,7 +3,7 @@ import { computed, reactive, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useSessionStore } from 'global/stores/session';
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';

@@ -42,9 +42,9 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { formatPhone } from 'global/composables/phone';
-import type { IClient } from 'global/types/client';
+import type { IClient } from 'client/types/client';
 
 import AppLayout from 'global/components/app-layout.vue';
 

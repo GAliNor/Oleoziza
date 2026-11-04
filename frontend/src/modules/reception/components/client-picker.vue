@@ -75,11 +75,11 @@
 import { computed, ref } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
-import { useClientStore } from 'global/stores/client';
+import { useClientStore } from 'client/stores/client';
 import { useOnlineStatus } from 'global/composables/use-online-status';
 import { formatPhone, normalizePhone } from 'global/composables/phone';
 import { createId } from 'global/composables/crypto';
-import type { ClientKind, IClient } from 'global/types/client';
+import type { ClientKind, IClient } from 'client/types/client';
 
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 

@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 
-import ClientService from 'global/services/client';
+import ClientService from 'client/services/client';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
-import type { IClient, IClientStore, ICreateClientPayload } from 'global/types/client';
+import type { IClient, IClientStore, ICreateClientPayload } from 'client/types/client';
 
 const clientService = new ClientService();
 
