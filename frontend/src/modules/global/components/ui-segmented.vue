@@ -1,14 +1,15 @@
 <template>
   <div
     ref="track"
-    class="no-scrollbar relative flex max-w-full overflow-x-auto rounded-full p-1"
-    :class="[isDark ? 'bg-surface shadow-raised ring-1 ring-default' : 'bg-subtle', fadeClass]"
+    :class="[containerClass, fadeClass]"
     role="tablist"
+    :aria-label="label"
     @scroll.passive="handleScroll"
   >
     <span
+      v-if="variant !== 'tabs'"
       class="pointer-events-none absolute top-1 bottom-1 rounded-full transition-[left,width] duration-500 ease-(--ease-premium)"
-      :class="isDark ? 'bg-action shadow-raised shadow-primary-olive-dark/25' : 'bg-surface shadow-raised'"
+      :class="variant === 'strong-pills' ? 'bg-action shadow-raised shadow-primary-olive-dark/25' : 'bg-surface shadow-raised'"
       :style="indicatorStyle"
       aria-hidden="true"
     />
@@ -19,24 +20,32 @@
       type="button"
       role="tab"
       :aria-selected="option.key === modelValue"
-      class="relative z-10 flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium whitespace-nowrap
-        transition-colors duration-300"
       :class="optionClass(option.key)"
       @click="handleSelect(option.key)"
     >
-      {{ option.label }}
-      <span v-if="option.count !== undefined" class="tabular-nums opacity-70">{{ option.count }}</span>
+      <slot name="option" :option="option">
+        {{ option.label }}
+        <span v-if="option.count !== undefined" class="tabular-nums opacity-70">{{ option.count }}</span>
+      </slot>
     </button>
   </div>
 </template>
 
 <script setup lang="ts" generic="T extends string">
-// PROTOTYPE — Apple-style segmented control: a pill slides under the selected option; scrolls sideways on a phone.
 // imports
-import { nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
 
 // props
-const props = defineProps<{ options: { key: T; label: string; count?: number }[]; modelValue: T; isDark?: boolean }>();
+const props = withDefaults(
+  defineProps<{
+    options: { key: T; label: string; count?: number }[];
+    modelValue: T;
+    label: string;
+    variant?: 'pills' | 'strong-pills' | 'tabs';
+    isFull?: boolean;
+  }>(),
+  { variant: 'pills', isFull: false },
+);
 
 // emits
 const emit = defineEmits<{ 'update:modelValue': [value: T] }>();
@@ -48,18 +57,38 @@ const indicatorStyle = ref<Record<string, string>>({ left: '4px', width: '0px' }
 const fadeClass = ref('');
 let resizeObserver: ResizeObserver | null = null;
 
+// computed
+const containerClass = computed((): string[] => {
+  if (props.variant === 'tabs') return props.isFull ? ['grid grid-flow-col auto-cols-fr rounded-2xl bg-subtle p-1'] : ['inline-flex rounded-xl bg-subtle p-1'];
+  return [
+    'no-scrollbar relative flex max-w-full overflow-x-auto rounded-full p-1',
+    props.variant === 'strong-pills' ? 'bg-surface shadow-raised ring-1 ring-default' : 'bg-subtle',
+  ];
+});
+
 // methods
 const setButton = (key: T, element: HTMLElement | null): void => {
   if (element) buttons.set(key, element);
   else buttons.delete(key);
 };
 
-const optionClass = (key: T): string => {
-  if (key !== props.modelValue) return 'text-fg-primary-paragraph hover:text-fg-display';
-  return props.isDark ? 'text-fg-on-action' : 'text-fg-display';
+const optionClass = (key: T): string[] => {
+  const isSelected = key === props.modelValue;
+  if (props.variant === 'tabs') {
+    return [
+      'text-sm font-medium whitespace-nowrap transition-colors',
+      props.isFull ? 'min-h-11 rounded-xl' : 'min-h-10 rounded-lg px-4',
+      isSelected ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default',
+    ];
+  }
+  return [
+    'relative z-10 flex min-h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium whitespace-nowrap transition-colors duration-300',
+    isSelected ? (props.variant === 'strong-pills' ? 'text-fg-on-action' : 'text-fg-display') : 'text-fg-primary-paragraph hover:text-fg-display',
+  ];
 };
 
 const placeIndicator = (): void => {
+  if (props.variant === 'tabs') return;
   const button = buttons.get(props.modelValue);
   if (!button) return;
   indicatorStyle.value = { left: `${button.offsetLeft}px`, width: `${button.offsetWidth}px` };

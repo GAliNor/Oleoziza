@@ -10,8 +10,8 @@
     </div>
 
     <div class="rise flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <segmented-control :model-value="tab" :options="visibleTabs" is-dark aria-label="Sections" @update:model-value="handleTab" />
-      <segmented-control :model-value="period.key" :options="PERIODS" aria-label="Période" @update:model-value="selectPeriod" />
+      <ui-segmented :model-value="tab" :options="visibleTabs" variant="strong-pills" label="Sections" @update:model-value="handleTab" />
+      <ui-segmented :model-value="period.key" :options="PERIODS" label="Période" @update:model-value="selectPeriod" />
     </div>
 
     <Transition name="tab-switch" mode="out-in">
@@ -40,7 +40,7 @@ import { PERIODS, usePeriod } from 'dashboard/prototype/use-period.prototype';
 import FinanceTab from 'dashboard/prototype/finance-tab.prototype.vue';
 import OverviewTab from 'dashboard/prototype/overview-tab.prototype.vue';
 import ProductionTab from 'dashboard/prototype/production-tab.prototype.vue';
-import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
 import TankGantt from 'dashboard/prototype/tank-gantt.prototype.vue';
 import TankPlanningCards from 'dashboard/prototype/tank-planning-cards.prototype.vue';
 

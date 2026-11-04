@@ -8,7 +8,7 @@
 
     <div v-show="!isOpen" class="rise flex flex-col gap-3 md:flex-row md:items-center">
       <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Nom, téléphone ou identifiant" />
-      <segmented-control v-model="stateFilter" :options="stateOptions" aria-label="Suivi" />
+      <ui-segmented v-model="stateFilter" :options="stateOptions" label="Suivi" />
     </div>
 
     <div class="flex min-w-0 gap-4 overflow-hidden">
@@ -134,7 +134,7 @@ import { formatMoney } from 'global/composables/money';
 import { formatKg } from 'lot/composables/quantity';
 
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
-import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
 import ClientHeader from 'client/prototype/client-header.prototype.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';

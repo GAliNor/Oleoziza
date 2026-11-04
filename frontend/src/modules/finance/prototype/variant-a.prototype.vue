@@ -4,21 +4,12 @@
 
   <div v-show="!isOpen" class="rise flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between">
     <input v-model="search" class="input md:max-w-xs" type="search" placeholder="Client, référence ou n°" />
-    <div class="inline-flex shrink-0 self-start rounded-xl bg-subtle p-1 md:self-auto" role="tablist">
-      <button
-        v-for="(label, key) in TABS"
-        :key="key"
-        type="button"
-        role="tab"
-        :aria-selected="tab === key"
-        class="min-h-10 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors"
-        :class="tab === key ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default'"
-        @click="handleTab(key)"
-      >
-        {{ label }}
-        <span v-if="key === 'pending'" class="chip ml-1 bg-warning-subtle text-fg-warning">{{ pending.length }}</span>
-      </button>
-    </div>
+    <ui-segmented class="shrink-0 self-start md:self-auto" variant="tabs" :model-value="tab" :options="TAB_OPTIONS" label="Mouvements" @update:model-value="handleTab">
+      <template #option="{ option }">
+        {{ option.label }}
+        <span v-if="option.key === 'pending'" class="chip ml-1 bg-warning-subtle text-fg-warning">{{ pending.length }}</span>
+      </template>
+    </ui-segmented>
   </div>
 
   <div class="flex min-w-0 gap-4 overflow-hidden">
@@ -96,6 +87,7 @@ import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
 import { formatMoney } from 'global/composables/money';
 import { formatDateTime } from 'global/composables/date';
 
+import UiSegmented from 'global/components/ui-segmented.vue';
 import FinanceTiles from 'finance/prototype/finance-tiles.prototype.vue';
 import MovementDetail from 'finance/prototype/movement-detail.prototype.vue';
 
@@ -107,6 +99,10 @@ const { inPeriod, pending, figures, period, find } = useFinancePrototype();
 // variables
 const PAGE_SIZE = 10;
 const TABS = { pending: 'À confirmer', all: 'Tous les mouvements' } as const;
+const TAB_OPTIONS = [
+  { key: 'pending' as const, label: TABS.pending },
+  { key: 'all' as const, label: TABS.all },
+];
 const search = ref('');
 const page = ref(1);
 const lastId = ref<string | null>(null);

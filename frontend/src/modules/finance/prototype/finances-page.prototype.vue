@@ -7,7 +7,7 @@
           <h1 class="heading-one">Finances</h1>
           <p class="body-two">{{ scopeName }} · paiements reçus et versements payés</p>
         </div>
-        <segmented-control :model-value="period.key" :options="PERIODS" aria-label="Période" @update:model-value="selectPeriod" />
+        <ui-segmented :model-value="period.key" :options="PERIODS" label="Période" @update:model-value="selectPeriod" />
       </header>
       <p v-if="isReadOnly" class="chip self-start bg-subtle text-fg-primary-paragraph">Tous les sites · lecture seule</p>
 
@@ -25,7 +25,7 @@ import { PERIODS } from 'dashboard/prototype/use-period.prototype';
 import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
 
 import AppLayout from 'global/components/app-layout.vue';
-import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
 import VariantA from 'finance/prototype/variant-a.prototype.vue';
 
 // stores

@@ -7,24 +7,11 @@
           <h1 class="heading-one">Opérations</h1>
           <p class="body-two">{{ scopeName }} · registre des lots {{ period.noun }} · {{ scoped.length }} lots</p>
         </div>
-        <div v-show="!isLotOpen" class="inline-flex shrink-0 self-start rounded-xl bg-subtle p-1 md:self-auto" role="radiogroup" aria-label="Affichage">
-          <button
-            v-for="(label, key) in VIEWS"
-            :key="key"
-            type="button"
-            role="radio"
-            :aria-checked="view === key"
-            class="min-h-10 rounded-lg px-4 text-sm font-medium whitespace-nowrap transition-colors duration-300 ease-(--ease-premium)"
-            :class="view === key ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default'"
-            @click="handleView(key)"
-          >
-            {{ label }}
-          </button>
-        </div>
+        <ui-segmented v-show="!isLotOpen" class="shrink-0 self-start md:self-auto" variant="tabs" :model-value="view" :options="VIEW_OPTIONS" label="Affichage" @update:model-value="handleView" />
       </header>
       <div v-show="!isLotOpen" class="rise flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <input v-model="search" class="input lg:max-w-xs" type="search" placeholder="N° de lot ou Client" />
-        <segmented-control class="self-start lg:self-auto" :model-value="period.key" :options="PERIODS" aria-label="Période" @update:model-value="selectPeriod" />
+        <ui-segmented class="self-start lg:self-auto" :model-value="period.key" :options="PERIODS" label="Période" @update:model-value="selectPeriod" />
       </div>
 
       <variant-b v-if="view === 'board'" :search="search" />
@@ -43,7 +30,7 @@ import { PERIODS } from 'dashboard/prototype/use-period.prototype';
 import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
 
 import AppLayout from 'global/components/app-layout.vue';
-import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
 import VariantA from 'lot/prototype/variant-a.prototype.vue';
 import VariantB from 'lot/prototype/variant-b.prototype.vue';
 
@@ -55,6 +42,10 @@ const { scoped, period, selectPeriod } = useLotsPrototype();
 
 // variables
 const VIEWS = { table: 'Tableau', board: 'Par étape' } as const;
+const VIEW_OPTIONS = [
+  { key: 'table' as const, label: VIEWS.table },
+  { key: 'board' as const, label: VIEWS.board },
+];
 const search = ref('');
 
 // computed

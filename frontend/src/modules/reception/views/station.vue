@@ -54,18 +54,7 @@
         </div>
 
         <aside v-can="'weighing.create'" class="card flex flex-col gap-3 rounded-3xl md:sticky md:top-20 md:col-start-2 md:row-span-2 md:row-start-1">
-          <div class="grid grid-cols-2 rounded-2xl bg-subtle p-1">
-            <button
-              v-for="kind in WEIGHING_KINDS"
-              :key="kind"
-              type="button"
-              class="min-h-11 rounded-xl text-sm font-medium transition-colors"
-              :class="draft.kind === kind ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph'"
-              @click="draft.kind = kind"
-            >
-              {{ $t(`reception.station.${kind}`) }}
-            </button>
-          </div>
+          <ui-segmented v-model="draft.kind" variant="tabs" is-full :options="weighingKinds" :label="$t('reception.station.kindLabel')" />
 
           <div class="rounded-3xl bg-neutral-900 p-5 text-white">
             <p class="eyebrow text-sm text-neutral-400">
@@ -164,6 +153,7 @@ import { formatNumber } from 'global/composables/number';
 import { formatKg, formatQuintals } from 'lot/composables/quantity';
 import { formatTime } from 'global/composables/date';
 
+import UiSegmented from 'global/components/ui-segmented.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import ContainerStepper from 'reception/components/container-stepper.vue';
 import ReceptionDone from 'reception/components/reception-done.vue';
@@ -178,12 +168,15 @@ const receptionStore = useReceptionStore();
 const lotStore = useLotStore();
 
 // variables
-const WEIGHING_KINDS: WeighingKind[] = ['gross', 'net'];
 const draft = ref<IWeighingDraft>(createWeighingDraft());
 const isReading = ref(false);
 const finishedLot = ref<ILot | null>(null);
 
 // computed
+const weighingKinds = computed((): { key: WeighingKind; label: string }[] => [
+  { key: 'gross', label: t('reception.station.gross') },
+  { key: 'net', label: t('reception.station.net') },
+]);
 const siteId = computed((): string => siteStore.currentSite?.id ?? '');
 const lot = computed((): ILot | undefined => {
   const found = lotStore.lotByCode(String(route.params.code));

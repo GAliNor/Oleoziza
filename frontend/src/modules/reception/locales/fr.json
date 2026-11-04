@@ -67,6 +67,7 @@
     "weighings": "{count} pesée | {count} pesées",
     "containersWeighed": "Contenants pesés",
     "noWeighing": "Aucune pesée pour l’instant",
+    "kindLabel": "Type de pesée",
     "gross": "Brut",
     "net": "Net",
     "grossHint": "brut {gross} − tare {tare}",

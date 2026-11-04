@@ -27,20 +27,7 @@
             {{ $t(`user.filters.${key}`) }} <span class="text-fg-muted tabular-nums">{{ counts[key] }}</span>
           </button>
         </div>
-        <div class="inline-flex self-start rounded-xl bg-subtle p-1 lg:ml-auto" role="radiogroup" :aria-label="$t('user.views.label')">
-          <button
-            v-for="key in USER_VIEWS"
-            :key="key"
-            type="button"
-            role="radio"
-            :aria-checked="view === key"
-            class="min-h-10 rounded-lg px-4 text-sm font-medium transition-colors duration-300 ease-(--ease-premium)"
-            :class="view === key ? 'bg-surface text-fg-display shadow-raised' : 'text-fg-secondary-paragraph hover:text-fg-default'"
-            @click="handleView(key)"
-          >
-            {{ $t(`user.views.${key}`) }}
-          </button>
-        </div>
+        <ui-segmented class="self-start lg:ml-auto" variant="tabs" :model-value="view" :options="viewOptions" :label="$t('user.views.label')" @update:model-value="handleView" />
       </div>
 
       <p v-if="userStore.hasError && !userStore.users.length" class="card body-two text-fg-danger">{{ $t('user.loadError') }}</p>
@@ -124,6 +111,7 @@ import { NEW_USER, PAGE_SIZE, USER_FILTERS, USER_VIEWS } from 'user/constants/us
 import type { ISite } from 'site/types/site';
 import type { IStaffUser, UserFilter, UserView } from 'user/types/user';
 
+import UiSegmented from 'global/components/ui-segmented.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import UserDetail from 'user/components/user-detail.vue';
 import UserForm from 'user/components/user-form.vue';
@@ -149,6 +137,7 @@ const formKey = ref(0);
 
 // computed
 const scopeLabel = computed((): string => (siteStore.isAllSites ? t('user.allSites') : (siteStore.currentSite?.name ?? '')));
+const viewOptions = computed(() => USER_VIEWS.map((key) => ({ key, label: t(`user.views.${key}`) })));
 const view = computed((): UserView => (route.query.view === 'teams' ? 'teams' : 'list'));
 const teamSites = computed((): ISite[] =>
   siteStore.isAllSites ? siteStore.accessibleSites : siteStore.accessibleSites.filter((site) => site.id === siteStore.currentSiteId),
