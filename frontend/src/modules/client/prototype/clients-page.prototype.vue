@@ -105,7 +105,7 @@
             <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': isFinanceShown && activeClient.balance }">
               <p class="body-three">Doit au moulin</p>
               <p class="text-xl figure" :class="{ 'text-fg-warning': isFinanceShown && activeClient.balance }">
-                {{ isFinanceShown ? formatDh(activeClient.balance) : '—' }}
+                {{ isFinanceShown ? formatMoney(activeClient.balance) : '—' }}
               </p>
             </div>
             <div class="card p-3">
@@ -128,8 +128,10 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { useSiteStore } from 'site/stores/site';
 import { formatPhone } from 'global/composables/phone';
-import { formatDh, formatKg, type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MANAGEMENT_CLIENTS, type IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';
+import { formatMoney } from 'global/composables/money';
+import { formatKg } from 'lot/composables/quantity';
 
 import SegmentedControl from 'dashboard/prototype/segmented-control.prototype.vue';
 import ClientHeader from 'client/prototype/client-header.prototype.vue';

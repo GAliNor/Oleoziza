@@ -33,7 +33,7 @@
           </button>
         </div>
         <p v-if="mode === 'purchase'" class="rounded-xl bg-accent-subtle px-3 py-2 body-two text-fg-accent">
-          {{ dailyPrice === null ? $t('reception.open.dailyPriceMissing') : $t('reception.open.dailyPrice', { price: formatDh(dailyPrice) }) }}
+          {{ dailyPrice === null ? $t('reception.open.dailyPriceMissing') : $t('reception.open.dailyPrice', { price: formatMoney(dailyPrice) }) }}
         </p>
       </section>
 
@@ -124,11 +124,11 @@ import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useClientStore } from 'client/stores/client';
-import { formatDh } from 'reception/composables/format';
 import { createId } from 'global/composables/crypto';
 import { ORIGIN_SUGGESTIONS, QUALITY_TAGS, RECEPTION_MODES, VARIETIES } from 'reception/constants/reception';
 import type { IClient } from 'client/types/client';
 import type { ReceptionMode } from 'lot/types/lot';
+import { formatMoney } from 'global/composables/money';
 
 import AppLayout from 'global/components/app-layout.vue';
 import ChevronDownLineIcon from 'global/icons/chevron-down-line.icon.vue';

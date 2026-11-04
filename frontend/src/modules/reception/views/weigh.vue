@@ -45,7 +45,8 @@ import { computed, watch } from 'vue';
 import { useSiteStore } from 'site/stores/site';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useLotStore } from 'lot/stores/lot';
-import { formatKg, formatTime } from 'reception/composables/format';
+import { formatKg } from 'lot/composables/quantity';
+import { formatTime } from 'global/composables/date';
 
 import AppLayout from 'global/components/app-layout.vue';
 

@@ -29,7 +29,7 @@
             </svg>
             <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
               <p class="body-three">{{ hovered ? hovered.label : 'Encaissé' }}</p>
-              <p class="text-lg figure">{{ formatDh(hovered ? hovered.amount : sales.collected) }}</p>
+              <p class="text-lg figure">{{ formatMoneyRounded(hovered ? hovered.amount : sales.collected) }}</p>
             </div>
           </div>
           <ul class="flex w-full flex-col gap-2 text-sm">
@@ -42,7 +42,7 @@
               @mouseleave="hoveredKey = null"
             >
               <span class="flex items-center gap-2 text-fg-primary-paragraph"><span class="h-2.5 w-2.5 rounded-full" :style="{ background: slice.tone }" /> {{ slice.label }}</span>
-              <span class="tabular-nums text-fg-secondary-paragraph">{{ slice.pct.toFixed(0) }} %</span>
+              <span class="tabular-nums text-fg-secondary-paragraph">{{ formatNumber(slice.pct) }} %</span>
             </li>
           </ul>
         </div>
@@ -56,8 +56,10 @@
 // imports
 import { computed, ref } from 'vue';
 
-import { formatDh, PAYMENT_METHODS, salesBars, salesFigures, type PaymentMethodKey } from 'dashboard/prototype/mock-home.prototype';
+import { PAYMENT_METHODS, salesBars, salesFigures, type PaymentMethodKey } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { formatMoneyRounded } from 'global/composables/money';
+import { formatNumber } from 'global/composables/number';
 
 import MoneyTiles from 'dashboard/prototype/money-tiles.prototype.vue';
 import SalesBars from 'dashboard/prototype/sales-bars.prototype.vue';

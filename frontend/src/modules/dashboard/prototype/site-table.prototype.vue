@@ -20,12 +20,12 @@
           @click="siteStore.selectSite(site.siteId)"
         >
           <td class="px-4 py-3 font-medium text-fg-display">{{ site.name }} →</td>
-          <td class="px-4 py-3 text-right tabular-nums">{{ formatKg(site.oliveKgToday) }}</td>
-          <td class="px-4 py-3 text-right tabular-nums">{{ formatKg(site.oilKgToday) }}</td>
+          <td class="px-4 py-3 text-right tabular-nums">{{ formatKgRounded(site.oliveKgToday) }}</td>
+          <td class="px-4 py-3 text-right tabular-nums">{{ formatKgRounded(site.oilKgToday) }}</td>
           <td class="px-4 py-3 text-right tabular-nums">{{ site.queue }}</td>
-          <td class="px-4 py-3 text-right tabular-nums">{{ site.yieldPct.toFixed(1) }} %</td>
-          <td v-if="isFinanceShown" class="px-4 py-3 text-right tabular-nums">{{ formatDh(site.revenueSeason) }}</td>
-          <td v-if="isFinanceShown" class="px-4 py-3 text-right tabular-nums">{{ formatDh(site.outstanding) }}</td>
+          <td class="px-4 py-3 text-right tabular-nums">{{ formatNumber(site.yieldPct, 1, 1) }} %</td>
+          <td v-if="isFinanceShown" class="px-4 py-3 text-right tabular-nums">{{ formatMoneyRounded(site.revenueSeason) }}</td>
+          <td v-if="isFinanceShown" class="px-4 py-3 text-right tabular-nums">{{ formatMoneyRounded(site.outstanding) }}</td>
         </tr>
       </tbody>
     </table>
@@ -36,7 +36,10 @@
 // PROTOTYPE — per-Site comparison table shown in "All Sites" mode; a row click switches Site (ticket 0019).
 // imports
 import { useSiteStore } from 'site/stores/site';
-import { formatDh, formatKg, SITE_FIGURES } from 'dashboard/prototype/mock-home.prototype';
+import { SITE_FIGURES } from 'dashboard/prototype/mock-home.prototype';
+import { formatMoneyRounded } from 'global/composables/money';
+import { formatKgRounded } from 'lot/composables/quantity';
+import { formatNumber } from 'global/composables/number';
 
 // props
 defineProps<{ isFinanceShown: boolean }>();

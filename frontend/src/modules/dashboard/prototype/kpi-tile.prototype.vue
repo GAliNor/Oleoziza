@@ -20,6 +20,7 @@
 import { computed, toRef } from 'vue';
 
 import { useCountUp } from 'dashboard/prototype/use-count-up.prototype';
+import { formatNumber } from 'global/composables/number';
 
 // props
 const props = withDefaults(
@@ -42,6 +43,6 @@ const display = useCountUp(toRef(props, 'value'));
 
 // computed
 const formatted = computed((): string =>
-  display.value.toLocaleString('fr-FR', { minimumFractionDigits: props.decimals, maximumFractionDigits: props.decimals }),
+  formatNumber(display.value, props.decimals, props.decimals),
 );
 </script>

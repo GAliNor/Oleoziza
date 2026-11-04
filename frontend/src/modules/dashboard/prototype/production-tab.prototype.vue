@@ -8,7 +8,7 @@
         :value="SEASON.yieldPct"
         :decimals="1"
         unit="%"
-        :sub="`${SEASON.yieldPct.toFixed(1)} kg d’huile par quintal`"
+        :sub="`${formatNumber(SEASON.yieldPct, 1, 1)} kg d’huile par quintal`"
         :delta="formatDelta(SEASON.yieldPct, SEASON.previousYieldPct)"
         :is-delta-good="SEASON.yieldPct >= SEASON.previousYieldPct"
       />
@@ -34,11 +34,11 @@
         <dl class="flex flex-col gap-2 text-sm">
           <div class="flex items-center justify-between gap-2">
             <dt class="flex items-center gap-2 text-fg-primary-paragraph"><span class="h-2.5 w-2.5 rounded-full bg-primary-olive" /> Trituration à façon</dt>
-            <dd class="font-medium whitespace-nowrap tabular-nums">{{ formatKg(MODE_SPLIT.serviceKg * factor) }} · {{ servicePct }} %</dd>
+            <dd class="font-medium whitespace-nowrap tabular-nums">{{ formatKgRounded(MODE_SPLIT.serviceKg * factor) }} · {{ servicePct }} %</dd>
           </div>
           <div class="flex items-center justify-between gap-2">
             <dt class="flex items-center gap-2 text-fg-primary-paragraph"><span class="h-2.5 w-2.5 rounded-full bg-accent-sand" /> Achats</dt>
-            <dd class="font-medium whitespace-nowrap tabular-nums">{{ formatKg(MODE_SPLIT.purchaseKg * factor) }} · {{ 100 - servicePct }} %</dd>
+            <dd class="font-medium whitespace-nowrap tabular-nums">{{ formatKgRounded(MODE_SPLIT.purchaseKg * factor) }} · {{ 100 - servicePct }} %</dd>
           </div>
         </dl>
       </div>
@@ -60,14 +60,14 @@
             <tr v-for="(row, index) in VARIETY_FIGURES" :key="row.variety" class="border-t border-subtle">
               <td class="px-4 py-3 font-medium text-fg-display">{{ row.variety }}</td>
               <td class="px-4 py-3 text-right tabular-nums">{{ Math.max(1, Math.round(row.lots * factor)) }}</td>
-              <td class="px-4 py-3 text-right tabular-nums">{{ formatKg(row.olivesKg * factor) }}</td>
-              <td class="px-4 py-3 text-right tabular-nums">{{ formatKg(row.oilKg * factor) }}</td>
+              <td class="px-4 py-3 text-right tabular-nums">{{ formatKgRounded(row.olivesKg * factor) }}</td>
+              <td class="px-4 py-3 text-right tabular-nums">{{ formatKgRounded(row.oilKg * factor) }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
                   <div class="h-1.5 w-20 overflow-hidden rounded-full bg-subtle">
                     <div class="grow-x h-full rounded-full bg-primary-olive" :style="{ width: `${(yieldOf(row) / 24) * 100}%`, animationDelay: `${index * 60}ms` }" />
                   </div>
-                  <span class="tabular-nums">{{ yieldOf(row).toFixed(1) }} %</span>
+                  <span class="tabular-nums">{{ formatNumber(yieldOf(row), 1, 1) }} %</span>
                 </div>
               </td>
             </tr>
@@ -84,18 +84,10 @@
 // imports
 import { computed } from 'vue';
 
-import {
-  formatDelta,
-  formatKg,
-  formatLitres,
-  MODE_SPLIT,
-  olivesBars,
-  PRODUCTION_EXTRA,
-  SEASON,
-  VARIETY_FIGURES,
-  type ITankPrototype,
-} from 'dashboard/prototype/mock-home.prototype';
+import { formatDelta, MODE_SPLIT, olivesBars, PRODUCTION_EXTRA, SEASON, VARIETY_FIGURES, type ITankPrototype } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { formatKgRounded, formatLitres } from 'lot/composables/quantity';
+import { formatNumber } from 'global/composables/number';
 
 import KpiTile from 'dashboard/prototype/kpi-tile.prototype.vue';
 import TankCards from 'dashboard/prototype/tank-cards.prototype.vue';

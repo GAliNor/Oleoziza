@@ -21,7 +21,7 @@
       <p
         class="font-semibold tracking-tight whitespace-nowrap tabular-nums"
         :class="[tile.tone, layout === 'grid' ? 'mt-1 text-display-xs sm:text-display-sm' : layout === 'strip' ? 'text-xl' : 'text-display-xs']"
-        v-count-up="{ value: tile.value, format: formatDh }"
+        v-count-up="{ value: tile.value, format: formatMoneyRounded }"
       />
     </component>
   </div>
@@ -31,8 +31,9 @@
 // imports
 import { computed } from 'vue';
 
-import { formatDh, type ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { type ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { formatMoneyRounded } from 'global/composables/money';
 
 // props
 const props = defineProps<{ figures: ISalesFiguresPrototype; period: IPeriodPrototype; layout: 'grid' | 'stacked' | 'strip'; isActive?: boolean }>();

@@ -25,7 +25,7 @@
             </p>
             <p class="truncate label text-fg-brand">{{ tank.variety }}</p>
           </div>
-          <p class="body-two whitespace-nowrap tabular-nums">{{ formatKg(tank.fillKg) }} / {{ formatKg(tank.capacityKg) }}</p>
+          <p class="body-two whitespace-nowrap tabular-nums">{{ formatKgRounded(tank.fillKg) }} / {{ formatKgRounded(tank.capacityKg) }}</p>
         </div>
         <div class="flex h-2.5 overflow-hidden rounded-full bg-subtle">
           <div
@@ -40,7 +40,7 @@
           <li v-for="entry in entriesOf(tank.id)" :key="entry.lotCode" class="flex flex-col gap-1.5 py-2" :class="{ 'opacity-60': entry.endDay !== null }">
             <div class="flex items-baseline justify-between gap-2">
               <p class="min-w-0 truncate label text-fg-display">{{ entry.client }}</p>
-              <p class="text-sm whitespace-nowrap tabular-nums">{{ formatKg(entry.kg) }}</p>
+              <p class="text-sm whitespace-nowrap tabular-nums">{{ formatKgRounded(entry.kg) }}</p>
             </div>
             <div class="relative h-1.5 rounded-full bg-subtle">
               <div class="absolute inset-y-0 rounded-full" :class="barClass(entry)" :style="rangeStyle(entry)" />
@@ -59,8 +59,9 @@
 // imports
 import { computed, ref, watch } from 'vue';
 
-import { dayLabel, formatKg, TANK_STORAGE, type ITankPrototype, type ITankStoragePrototype } from 'dashboard/prototype/mock-home.prototype';
+import { dayLabel, TANK_STORAGE, type ITankPrototype, type ITankStoragePrototype } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { formatKgRounded } from 'lot/composables/quantity';
 
 // props
 const props = defineProps<{ tanks: ITankPrototype[]; period: IPeriodPrototype }>();

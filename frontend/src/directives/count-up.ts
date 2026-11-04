@@ -1,6 +1,8 @@
 // imports
 import type { Directive } from 'vue';
 
+import { formatNumber } from 'global/composables/number';
+
 // types
 type CountUpValue = number | { value: number; format?: (value: number) => string };
 
@@ -16,10 +18,10 @@ const states = new WeakMap<HTMLElement, ICountUpState>();
 // methods
 const easeOutExpo = (progress: number): number => (progress >= 1 ? 1 : 1 - 2 ** (-10 * progress));
 
-const formatNumber = (value: number): string => Math.round(value).toLocaleString('fr-FR');
+const formatRounded = (value: number): string => formatNumber(Math.round(value));
 
 const readBinding = (binding: CountUpValue): { value: number; format: (value: number) => string } =>
-  typeof binding === 'number' ? { value: binding, format: formatNumber } : { value: binding.value, format: binding.format ?? formatNumber };
+  typeof binding === 'number' ? { value: binding, format: formatRounded } : { value: binding.value, format: binding.format ?? formatNumber };
 
 const animate = (el: HTMLElement, binding: CountUpValue): void => {
   const { value, format } = readBinding(binding);

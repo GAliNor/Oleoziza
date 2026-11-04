@@ -46,7 +46,7 @@
               @click="handleOpen(movement.id)"
               @keydown.enter="handleOpen(movement.id)"
             >
-              <td class="px-4 py-3 whitespace-nowrap text-fg-primary-paragraph">{{ formatWhen(movement.recordedAt) }}</td>
+              <td class="px-4 py-3 whitespace-nowrap text-fg-primary-paragraph">{{ formatDateTime(movement.recordedAt) }}</td>
               <td class="px-4 py-3">
                 <p class="font-medium text-fg-display">{{ movement.client }}</p>
                 <p class="body-two">{{ movement.code }}<span class="lg:hidden"> · {{ PURPOSE_LABELS[movement.purpose] }}</span></p>
@@ -58,7 +58,7 @@
               </td>
               <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph xl:table-cell">{{ movement.recordedBy }}</td>
               <td class="px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
-                {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatDh(movement.amount) }}
+                {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatMoney(movement.amount) }}
               </td>
               <td class="hidden px-4 py-3 whitespace-nowrap sm:table-cell"><span class="chip" :class="STATUS_CLASSES[movement.status]">{{ STATUS_LABELS[movement.status] }}</span></td>
             </tr>
@@ -91,9 +91,10 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { formatDh } from 'dashboard/prototype/mock-home.prototype';
-import { METHOD_LABELS, PURPOSE_LABELS, STATUS_CLASSES, STATUS_LABELS, formatWhen, type IMovementPrototype } from 'finance/prototype/mock-finance.prototype';
+import { METHOD_LABELS, PURPOSE_LABELS, STATUS_CLASSES, STATUS_LABELS, type IMovementPrototype } from 'finance/prototype/mock-finance.prototype';
 import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
+import { formatMoney } from 'global/composables/money';
+import { formatDateTime } from 'global/composables/date';
 
 import FinanceTiles from 'finance/prototype/finance-tiles.prototype.vue';
 import MovementDetail from 'finance/prototype/movement-detail.prototype.vue';

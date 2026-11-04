@@ -5,13 +5,19 @@ import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useOnlineStatus } from 'global/composables/use-online-status';
-import { SITE_FIGURES, salesFigures, type ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { SITE_FIGURES, rebaseMockDate, salesFigures, type ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { usePeriod } from 'dashboard/prototype/use-period.prototype';
 import { MOVEMENTS_MOCK, type IMovementPrototype, type Settlement } from 'finance/prototype/mock-finance.prototype';
+import { formatMoney } from 'global/composables/money';
 
-const movements = ref<IMovementPrototype[]>(structuredClone(MOVEMENTS_MOCK));
+const movements = ref<IMovementPrototype[]>(
+  structuredClone(MOVEMENTS_MOCK).map((movement) => ({
+    ...movement,
+    recordedAt: rebaseMockDate(movement.recordedAt),
+    ...(movement.decidedAt ? { decidedAt: rebaseMockDate(movement.decidedAt) } : {}),
+  })),
+);
 
-const MOCK_NOW = new Date('2026-10-24T13:00:00+01:00').getTime();
 const DAY_MS = 86_400_000;
 const TOTAL_REVENUE = SITE_FIGURES.reduce((sum, site) => sum + site.revenueSeason, 0);
 
@@ -30,7 +36,7 @@ export const useFinancePrototype = () => {
       .filter((movement) => siteStore.isAllSites || movement.siteId === siteStore.currentSiteId)
       .sort((first, second) => second.recordedAt.localeCompare(first.recordedAt)),
   );
-  const inPeriod = computed((): IMovementPrototype[] => scoped.value.filter((movement) => MOCK_NOW - new Date(movement.recordedAt).getTime() < period.value.days * DAY_MS));
+  const inPeriod = computed((): IMovementPrototype[] => scoped.value.filter((movement) => Date.now() - new Date(movement.recordedAt).getTime() < period.value.days * DAY_MS));
   const pending = computed((): IMovementPrototype[] => scoped.value.filter((movement) => movement.status === 'pending').reverse());
   const scopeShare = computed((): number => {
     const sites = siteStore.isAllSites ? SITE_FIGURES : SITE_FIGURES.filter((site) => site.siteId === siteStore.currentSiteId);
@@ -61,7 +67,7 @@ export const useFinancePrototype = () => {
       return false;
     }
     decide(movement, { status: 'confirmed' });
-    toastStore.push(`${movement.code} confirmé · ${movement.amount.toLocaleString('fr-FR')} DH`, 'success');
+    toastStore.push(`${movement.code} confirmé · ${formatMoney(movement.amount)}`, 'success');
     return true;
   };
 
@@ -78,7 +84,7 @@ export const useFinancePrototype = () => {
   const cancel = (movement: IMovementPrototype, note: string, settlement: Settlement): boolean => {
     if (!canCancel.value || movement.status !== 'confirmed' || movement.kind !== 'payment' || !note.trim() || !isOnline.value) return false;
     decide(movement, { status: 'cancelled', note: note.trim(), settlement });
-    toastStore.push(settlement === 'credit_note' ? `Avoir de ${movement.amount.toLocaleString('fr-FR')} DH créé pour ${movement.client}` : `Remboursement de ${movement.amount.toLocaleString('fr-FR')} DH à faire à ${movement.client}`, 'success');
+    toastStore.push(settlement === 'credit_note' ? `Avoir de ${formatMoney(movement.amount)} créé pour ${movement.client}` : `Remboursement de ${formatMoney(movement.amount)} à faire à ${movement.client}`, 'success');
     return true;
   };
 

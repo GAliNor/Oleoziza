@@ -27,8 +27,8 @@
             </span>
             <span class="truncate body-two text-fg-default">{{ lot.client }}</span>
             <span class="body-three tabular-nums">
-              {{ (lot.netKg / 100).toLocaleString('fr-FR') }} q
-              <template v-if="lot.oilKg"> · {{ lot.oilKg.toLocaleString('fr-FR') }} kg huile · {{ ((lot.oilKg / lot.netKg) * 100).toFixed(1).replace('.', ',') }} %</template>
+              {{ formatQuintals(lot.netKg) }}
+              <template v-if="lot.oilKg"> · {{ formatOilKg(lot.oilKg) }} · {{ formatYield(lot.oilKg, lot.netKg) }}</template>
             </span>
           </button>
           <p v-if="!column.lots.length" class="px-1 py-4 text-center body-two">—</p>
@@ -49,8 +49,10 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { LOT_STATUSES, STATUS_LABELS } from 'dashboard/prototype/mock-home.prototype';
-import { TODAY, type ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
+import type { ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
 import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
+import { formatQuintals, formatOilKg, formatYield } from 'lot/composables/quantity';
+import { formatTime, formatShortDate, todayIso, toIsoDate } from 'global/composables/date';
 
 import LotDetail from 'lot/prototype/lot-detail.prototype.vue';
 
@@ -92,10 +94,7 @@ watch(
 );
 
 // methods
-const formatDate = (iso: string): string => {
-  const date = new Date(iso);
-  return iso.startsWith(TODAY) ? date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-};
+const formatDate = (iso: string): string => (toIsoDate(iso) === todayIso() ? formatTime(iso) : formatShortDate(iso));
 
 // event handlers
 const handleOpen = (id: string): void => {

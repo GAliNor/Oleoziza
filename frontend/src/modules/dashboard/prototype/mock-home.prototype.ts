@@ -1,5 +1,8 @@
 // PROTOTYPE — throwaway mock data for the Home prototypes (tickets 0018 and 0019). Not production code.
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
+import { formatKgRounded, formatLitres, formatOliveKg, formatOilKg, formatYield } from 'lot/composables/quantity';
+import { formatShortDate, todayIso, shiftDate } from 'global/composables/date';
+import { formatNumber } from 'global/composables/number';
 
 export type LotStatus = 'received' | 'waiting' | 'pressing' | 'pressed' | 'withdrawn';
 
@@ -76,7 +79,6 @@ export const NEXT_STEP_LABELS: Record<LotStatus, string | null> = {
   withdrawn: null,
 };
 
-export const OIL_DENSITY = 0.916;
 export const CURRENT_OPERATOR = 'Hamid';
 
 const buildSteps = (lot: Omit<ILotPrototype, 'steps'>): ITimelineStep[] => {
@@ -95,7 +97,7 @@ const buildSteps = (lot: Omit<ILotPrototype, 'steps'>): ITimelineStep[] => {
     steps.push({
       kind: 'weighing',
       label: `Pesée ${index}`,
-      detail: `${Math.round(lot.netKg / weighings).toLocaleString('fr-FR')} kg net · bascule`,
+      detail: `${formatKgRounded(lot.netKg / weighings)} net · bascule`,
       at: lot.receivedAt,
       by: lot.operator,
       isPendingSync: lot.isPendingSync,
@@ -108,7 +110,7 @@ const buildSteps = (lot: Omit<ILotPrototype, 'steps'>): ITimelineStep[] => {
     steps.push({
       kind: 'pressed',
       label: 'Pressé',
-      detail: `${lot.oilKg} kg d’huile · rendement ${((lot.oilKg / lot.netKg) * 100).toFixed(1)} %`,
+      detail: `${formatOilKg(lot.oilKg)} · rendement ${formatYield(lot.oilKg, lot.netKg)}`,
       at: '12:30',
       by: 'Abdelkader',
     });
@@ -118,7 +120,7 @@ const buildSteps = (lot: Omit<ILotPrototype, 'steps'>): ITimelineStep[] => {
     steps.push({
       kind: 'withdrawal',
       label: 'Retrait',
-      detail: `${Math.round(lot.oilKg / OIL_DENSITY)} L · bidons 20 L`,
+      detail: `${formatLitres(lot.oilKg)} · bidons 20 L`,
       at: '16:05',
       by: 'Hamid',
     });
@@ -191,12 +193,9 @@ export const LAST_SEVEN_DAYS = [
   { day: 'auj.', oliveKg: 20800, oilKg: 2800 },
 ];
 
-export const formatKg = (value: number): string => `${Math.round(value).toLocaleString('fr-FR')} kg`;
-export const formatLitres = (kg: number): string => `${Math.round(kg / OIL_DENSITY).toLocaleString('fr-FR')} L`;
-export const formatDh = (value: number): string => `${value < 0 ? '−' : ''}${Math.abs(Math.round(value)).toLocaleString('fr-FR')} DH`;
 export const formatDelta = (current: number, previous: number): string => {
   const delta = ((current - previous) / previous) * 100;
-  return `${delta >= 0 ? '+' : '−'}${Math.abs(delta).toFixed(1)} %`;
+  return `${delta >= 0 ? '+' : '−'}${formatNumber(Math.abs(delta), 1, 1)} %`;
 };
 
 export interface IClientPrototype {
@@ -266,10 +265,14 @@ export const TANK_STORAGE: ITankStoragePrototype[] = [
   { tankId: 'B2', lotCode: 'BK-2627-0058', client: 'Youssef Kaddouri', kind: 'client', kg: 2080, startDay: -19, endDay: -7 },
 ];
 
-export const dayLabel = (offset: number): string => {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+export const dayLabel = (offset: number): string => formatShortDate(shiftDate(todayIso(), offset));
+
+const MOCK_DATA_TODAY = '2026-10-24';
+
+/** Keeps dated mock rows as recent as they were written, however long ago that was. */
+export const rebaseMockDate = (at: string): string => {
+  const shiftInDays = Math.round((new Date(todayIso()).getTime() - new Date(MOCK_DATA_TODAY).getTime()) / 86_400_000);
+  return `${shiftDate(at.slice(0, 10), shiftInDays)}${at.slice(10)}`;
 };
 
 export const SEASON_WEEKS = [
@@ -288,7 +291,7 @@ export const olivesBars = (periodKey: string, scale: number): { title: string; b
       bars: LAST_SEVEN_DAYS.map((day) => ({
         label: day.day,
         value: day.oliveKg * scale,
-        lines: [`${formatKg(day.oliveKg * scale)} d’olives`, `${formatKg(day.oilKg * scale)} d’huile`],
+        lines: [formatOliveKg(Math.round(day.oliveKg * scale)), formatOilKg(Math.round(day.oilKg * scale))],
       })),
     };
   }
@@ -299,7 +302,7 @@ export const olivesBars = (periodKey: string, scale: number): { title: string; b
     bars: weeks.map((week) => ({
       label: week.week,
       value: week.oliveKg * factor,
-      lines: [`${formatKg(week.oliveKg * factor)} d’olives`, `${formatKg(week.oilKg * factor)} d’huile`],
+      lines: [formatOliveKg(Math.round(week.oliveKg * factor)), formatOilKg(Math.round(week.oilKg * factor))],
     })),
   };
 };

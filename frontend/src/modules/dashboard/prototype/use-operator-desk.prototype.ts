@@ -10,9 +10,11 @@ import { useReceptionStore } from 'reception/stores/reception';
 import { useLotStore } from 'lot/stores/lot';
 import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
 import { toPrototypeLot } from 'dashboard/prototype/reception-bridge.prototype';
-import { advanceLot, createLots, formatDh, formatKg, LOT_STATUSES, STATUS_LABELS, type ILotPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
+import { advanceLot, createLots, LOT_STATUSES, STATUS_LABELS, type ILotPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { AvatarKind } from 'global/types/avatar';
+import { formatMoney } from 'global/composables/money';
+import { formatKg } from 'lot/composables/quantity';
 
 export interface IDeskClient {
   name: string;
@@ -171,8 +173,8 @@ export const useOperatorDesk = () => {
   const accountLines = (client: IDeskClient): string[] => {
     const lines: string[] = [];
     if (client.account.oilStockKg) lines.push(`Huile en stock : ${formatKg(client.account.oilStockKg)}`);
-    if (client.account.dueDh) lines.push(`Reste à payer : ${formatDh(client.account.dueDh)}`);
-    if (client.account.payoutDh) lines.push(`Le moulin lui doit : ${formatDh(client.account.payoutDh)}`);
+    if (client.account.dueDh) lines.push(`Reste à payer : ${formatMoney(client.account.dueDh)}`);
+    if (client.account.payoutDh) lines.push(`Le moulin lui doit : ${formatMoney(client.account.payoutDh)}`);
     if (!lines.length) lines.push('Rien à payer, rien en stock');
     return lines;
   };

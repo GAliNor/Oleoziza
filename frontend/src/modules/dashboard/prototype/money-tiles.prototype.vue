@@ -5,7 +5,7 @@
         <p class="eyebrow text-fg-secondary-paragraph">{{ tile.label }}</p>
         <p class="body-two truncate">{{ tile.sub }}</p>
       </div>
-      <p class="text-display-xs figure whitespace-nowrap" :class="tile.tone">{{ formatDh(tile.value) }}</p>
+      <p class="text-display-xs figure whitespace-nowrap" :class="tile.tone">{{ formatMoneyRounded(tile.value) }}</p>
     </div>
   </div>
   <div v-else class="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -18,8 +18,9 @@
 // imports
 import { computed } from 'vue';
 
-import { formatDh, type ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { type ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { formatMoneyRounded } from 'global/composables/money';
 
 import KpiTile from 'dashboard/prototype/kpi-tile.prototype.vue';
 

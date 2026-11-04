@@ -3,15 +3,18 @@ import { computed, ref } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
 import { usePeriod, type PeriodKey } from 'dashboard/prototype/use-period.prototype';
-import { createLotRecords, TODAY, type ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
+import { createLotRecords, type ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
+import { todayIso, shiftDate } from 'global/composables/date';
 
 const lots = ref<ILotRecordPrototype[]>(createLotRecords());
 
 const SEASON_START = '2026-10-01';
 
+const TODAY = todayIso();
+
 const PERIOD_RANGES: Record<PeriodKey, { from: string; to: string }> = {
   today: { from: TODAY, to: TODAY },
-  week: { from: '2026-10-18', to: TODAY },
+  week: { from: shiftDate(TODAY, -6), to: TODAY },
   month: { from: `${TODAY.slice(0, 7)}-01`, to: TODAY },
   season: { from: SEASON_START, to: TODAY },
   previous: { from: '2025-10-01', to: '2026-03-31' },

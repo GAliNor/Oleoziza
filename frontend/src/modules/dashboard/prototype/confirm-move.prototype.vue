@@ -33,9 +33,10 @@
 // imports
 import { ref, watch } from 'vue';
 
-import { formatKg, STATUS_LABELS, type ILotPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { STATUS_LABELS, type ILotPrototype } from 'dashboard/prototype/mock-home.prototype';
 import { MOVE_LABELS } from 'dashboard/prototype/use-operator-desk.prototype';
 import type { AvatarKind } from 'global/types/avatar';
+import { formatKg } from 'lot/composables/quantity';
 
 import AvatarTag from 'global/components/avatar-tag.vue';
 

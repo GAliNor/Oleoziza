@@ -14,16 +14,16 @@
         <div class="card p-3">
           <p class="body-two">Huile en stock</p>
           <p class="text-xl figure">{{ account.oilStockKg }} kg</p>
-          <p class="body-two">{{ Math.round(account.oilStockKg / 0.916) }} L</p>
+          <p class="body-two">{{ formatLitres(account.oilStockKg) }}</p>
         </div>
         <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': account.dueDh }">
           <p class="body-two">Doit au moulin</p>
-          <p class="text-xl figure" :class="{ 'text-fg-warning': account.dueDh }">{{ account.dueDh.toLocaleString('fr-FR') }} DH</p>
+          <p class="text-xl figure" :class="{ 'text-fg-warning': account.dueDh }">{{ formatMoney(account.dueDh) }}</p>
           <p v-if="account.pendingDh" class="body-two text-fg-warning">{{ account.pendingDh }} DH en attente</p>
         </div>
         <div class="card p-3">
           <p class="body-two">Le moulin lui doit</p>
-          <p class="text-xl figure">{{ account.payoutDh.toLocaleString('fr-FR') }} DH</p>
+          <p class="text-xl figure">{{ formatMoney(account.payoutDh) }}</p>
         </div>
       </div>
 
@@ -46,7 +46,7 @@
         <li v-for="lot in lots" :key="lot.code" class="card flex items-center justify-between gap-3 p-3">
           <span>
             <span class="font-medium">{{ lot.code }}</span>
-            <span class="body-two block">{{ lot.kg.toLocaleString('fr-FR') }} kg</span>
+            <span class="body-two block">{{ formatKg(lot.kg) }}</span>
           </span>
           <span class="chip bg-subtle text-fg-primary-paragraph">{{ lot.status }}</span>
         </li>
@@ -77,6 +77,8 @@ import { formatPhone } from 'global/composables/phone';
 import { useClientStore } from 'client/stores/client';
 import { CLIENT_ACCOUNTS_PROTOTYPE, EMPTY_ACCOUNT, type IAccountPrototype } from 'client/prototype/mock-accounts.prototype';
 import { findManagementClient } from 'client/prototype/mock-management-clients.prototype';
+import { formatMoney } from 'global/composables/money';
+import { formatKg, formatLitres } from 'lot/composables/quantity';
 
 import AppLayout from 'global/components/app-layout.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';

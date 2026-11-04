@@ -1,6 +1,12 @@
 {
   "appName": "Oleoziza",
   "back": "Retour",
+  "units": {
+    "dirham": "DH",
+    "kilogram": "kg",
+    "quintal": "q",
+    "litre": "L"
+  },
   "nav": {
     "dashboard": "Tableau de bord",
     "dashboardShort": "Accueil",

@@ -1,0 +1,6 @@
+{
+  "quantity": {
+    "olives": "{quantity} d’olives",
+    "oil": "{quantity} d’huile"
+  }
+}

@@ -36,13 +36,13 @@
             >
               <td class="px-4 py-3 whitespace-nowrap">
                 <p class="font-medium text-fg-display">{{ lot.code }}</p>
-                <p class="body-two">{{ formatDate(lot.receivedAt) }}</p>
+                <p class="body-two">{{ formatDateTime(lot.receivedAt) }}</p>
               </td>
               <td class="px-4 py-3 text-fg-display">{{ lot.client }}</td>
               <td class="hidden px-4 py-3 text-fg-primary-paragraph lg:table-cell">{{ lot.variety }}</td>
-              <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ lot.netKg.toLocaleString('fr-FR') }} kg</td>
-              <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ lot.oilKg ? `${lot.oilKg.toLocaleString('fr-FR')} kg` : '—' }}</td>
-              <td class="hidden px-4 py-3 text-right tabular-nums md:table-cell">{{ lot.oilKg ? `${((lot.oilKg / lot.netKg) * 100).toFixed(1).replace('.', ',')} %` : '—' }}</td>
+              <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ formatKg(lot.netKg) }}</td>
+              <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ lot.oilKg ? `${formatKg(lot.oilKg)}` : '—' }}</td>
+              <td class="hidden px-4 py-3 text-right tabular-nums md:table-cell">{{ lot.oilKg ? formatYield(lot.oilKg, lot.netKg) : '—' }}</td>
               <td class="hidden px-4 py-3 sm:table-cell"><span class="chip bg-subtle text-fg-primary-paragraph">{{ STATUS_LABELS[lot.status] }}</span></td>
             </tr>
           </tbody>
@@ -74,6 +74,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { LOT_STATUSES, STATUS_LABELS, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 import type { ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
 import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
+import { formatKg, formatYield } from 'lot/composables/quantity';
+import { formatDateTime } from 'global/composables/date';
 
 import LotDetail from 'lot/prototype/lot-detail.prototype.vue';
 
@@ -121,7 +123,6 @@ watch(
 
 // methods
 const countOf = (key: LotStatus): number => scoped.value.filter((lot) => lot.status === key).length;
-const formatDate = (iso: string): string => new Date(iso).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 // event handlers
 const handleOpen = (id: string): void => {

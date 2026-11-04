@@ -3,7 +3,7 @@
   <div class="stagger flex flex-col gap-4">
     <header class="flex flex-wrap items-start gap-3">
       <div class="min-w-0 flex-1">
-        <p class="eyebrow">{{ lot.code }} · {{ siteName(lot.siteId) }} · reçu le {{ formatDate(lot.receivedAt) }}</p>
+        <p class="eyebrow">{{ lot.code }} · {{ siteName(lot.siteId) }} · reçu le {{ formatShortDate(lot.receivedAt) }}</p>
         <h2 class="heading-four">{{ lot.client }}</h2>
         <p class="body-two">{{ lot.variety }} · saisi par {{ lot.operator }}</p>
       </div>
@@ -13,12 +13,12 @@
     <dl class="grid grid-cols-2 gap-3 md:grid-cols-4">
       <div class="card rounded-2xl">
         <dt class="eyebrow text-fg-secondary-paragraph">Olives</dt>
-        <dd class="text-display-xs figure">{{ lot.netKg.toLocaleString('fr-FR') }} <span class="body-two">kg</span></dd>
-        <dd class="body-two">{{ (lot.netKg / 100).toLocaleString('fr-FR') }} quintaux</dd>
+        <dd class="text-display-xs figure">{{ formatNumber(lot.netKg, 1) }} <span class="body-two">kg</span></dd>
+        <dd class="body-two">{{ formatQuintals(lot.netKg) }}</dd>
       </div>
       <div class="card rounded-2xl">
         <dt class="eyebrow text-fg-secondary-paragraph">Huile</dt>
-        <dd class="text-display-xs figure">{{ lot.oilKg?.toLocaleString('fr-FR') ?? '—' }} <span v-if="lot.oilKg" class="body-two">kg</span></dd>
+        <dd class="text-display-xs figure">{{ lot.oilKg ? formatNumber(lot.oilKg, 1) : '—' }} <span v-if="lot.oilKg" class="body-two">kg</span></dd>
         <dd class="body-two">{{ lot.oilKg ? `${formatLitres(lot.oilKg)} · ${lot.tank ?? 'bidons du Client'}` : 'pas encore pressé' }}</dd>
       </div>
       <div class="card rounded-2xl">
@@ -28,7 +28,7 @@
       </div>
       <div class="card rounded-2xl">
         <dt class="eyebrow text-fg-secondary-paragraph">Frais</dt>
-        <dd class="text-display-xs figure">{{ formatDh(moneyOf(lot).amount) }}</dd>
+        <dd class="text-display-xs figure">{{ formatMoney(moneyOf(lot).amount) }}</dd>
         <dd class="body-two truncate">{{ moneyOf(lot).label }}</dd>
       </div>
     </dl>
@@ -54,9 +54,13 @@
 // imports
 import { computed } from 'vue';
 
-import { STATUS_LABELS, formatDh, formatLitres, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
+import { STATUS_LABELS, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 import { moneyOf, type ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
 import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
+import { formatMoney } from 'global/composables/money';
+import { formatQuintals, formatLitres } from 'lot/composables/quantity';
+import { formatTime, formatShortDate } from 'global/composables/date';
+import { formatNumber } from 'global/composables/number';
 
 // props
 const props = defineProps<{ lot: ILotRecordPrototype }>();
@@ -75,10 +79,8 @@ const LOT_STATUS_CLASSES: Record<LotStatus, string> = {
 
 // computed
 const yieldRate = computed((): number | null => (props.lot.oilKg ? (props.lot.oilKg / props.lot.netKg) * 100 : null));
-const yieldText = computed((): string => (yieldRate.value === null ? '—' : `${yieldRate.value.toFixed(1).replace('.', ',')} %`));
+const yieldText = computed((): string => (yieldRate.value === null ? '—' : `${formatNumber(yieldRate.value, 1, 1)} %`));
 const isYieldOdd = computed((): boolean => yieldRate.value !== null && (yieldRate.value < 12 || yieldRate.value > 24));
 
 // methods
-const formatDate = (iso: string): string => new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-const formatTime = (iso: string): string => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 </script>

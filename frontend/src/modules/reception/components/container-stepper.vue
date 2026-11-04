@@ -3,13 +3,16 @@
     <button type="button" class="weight-key h-12 w-12 bg-surface text-xl" :disabled="!modelValue" :aria-label="`− ${label}`" @click="handleStep(-1)">−</button>
     <span class="text-center">
       <span class="block text-xl figure text-fg-display">{{ modelValue }}</span>
-      <span class="block body-two">{{ label }} · {{ $t('reception.station.containerTare', { kg: tareKg.toLocaleString('fr-FR') }) }}</span>
+      <span class="block body-two">{{ label }} · {{ $t('reception.station.containerTare', { kg: formatNumber(tareKg, 1) }) }}</span>
     </span>
     <button type="button" class="weight-key h-12 w-12 bg-surface text-xl" :aria-label="`+ ${label}`" @click="handleStep(1)">+</button>
   </div>
 </template>
 
 <script setup lang="ts">
+// imports
+import { formatNumber } from 'global/composables/number';
+
 // props
 const props = defineProps<{ modelValue: number; label: string; tareKg: number }>();
 

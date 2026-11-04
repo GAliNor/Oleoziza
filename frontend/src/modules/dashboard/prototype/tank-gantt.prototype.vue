@@ -36,7 +36,7 @@
           <div class="pr-2">
             <p class="label text-fg-display">{{ tank.name }}</p>
             <p class="truncate body-three font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
-            <p class="body-three tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKg(tank.capacityKg) }}</p>
+            <p class="body-three tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKgRounded(tank.capacityKg) }}</p>
           </div>
           <div class="relative" :style="{ gridColumn: `2 / span ${periodDays}`, height: `${lanesOf(tank.id).length * 30 + 4}px` }">
             <div class="absolute inset-y-0 bg-selected/30" :style="todayStyle" />
@@ -47,9 +47,9 @@
                 class="grow-x absolute flex h-6.5 items-center overflow-hidden rounded-md px-2 text-xs font-medium whitespace-nowrap"
                 :class="barClass(entry)"
                 :style="{ ...barStyle(entry, laneIndex), animationDelay: `${(laneIndex + entryIndex) * 70}ms` }"
-                :title="`${entry.client} · ${entry.lotCode} · ${formatKg(entry.kg)} · ${dayLabel(entry.startDay)} → ${entry.endDay === null ? 'en cours' : dayLabel(entry.endDay)}`"
+                :title="`${entry.client} · ${entry.lotCode} · ${formatKgRounded(entry.kg)} · ${dayLabel(entry.startDay)} → ${entry.endDay === null ? 'en cours' : dayLabel(entry.endDay)}`"
               >
-                {{ entry.client }} · {{ formatKg(entry.kg) }}
+                {{ entry.client }} · {{ formatKgRounded(entry.kg) }}
               </div>
             </template>
           </div>
@@ -64,8 +64,9 @@
 // imports
 import { computed, ref, watch } from 'vue';
 
-import { dayLabel, formatKg, TANK_STORAGE, type ITankPrototype, type ITankStoragePrototype } from 'dashboard/prototype/mock-home.prototype';
+import { dayLabel, TANK_STORAGE, type ITankPrototype, type ITankStoragePrototype } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { formatKgRounded } from 'lot/composables/quantity';
 
 // props
 const props = defineProps<{ tanks: ITankPrototype[]; period: IPeriodPrototype }>();

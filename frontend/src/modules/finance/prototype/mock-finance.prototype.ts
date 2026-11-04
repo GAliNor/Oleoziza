@@ -1,6 +1,7 @@
 // PROTOTYPE — Payments and Payouts for the Management Finances page (ticket 0034), until the Money data model exists.
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { PaymentMethodKey } from 'dashboard/prototype/mock-home.prototype';
+import { formatNumber } from 'global/composables/number';
 
 export type MovementKind = 'payment' | 'payout';
 
@@ -78,7 +79,7 @@ export const MOVEMENTS_MOCK: IMovementPrototype[] = [
 const PROOF_TITLES: Record<PaymentMethodKey, string> = { cash: 'REÇU', cheque: 'CHÈQUE', transfer: 'AVIS DE VIREMENT', oil: 'BON' };
 
 export const proofImage = (movement: IMovementPrototype): string => {
-  const amount = movement.amount.toLocaleString('fr-FR');
+  const amount = formatNumber(movement.amount);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="280" viewBox="0 0 480 280">
     <rect width="480" height="280" rx="14" fill="#FBF8F1" stroke="#D6D3D1"/>
     <rect x="0" y="0" width="480" height="54" rx="14" fill="#E9E4D8"/>
@@ -94,7 +95,3 @@ export const proofImage = (movement: IMovementPrototype): string => {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
-export const formatWhen = (iso: string): string =>
-  new Date(iso).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-export const formatDay = (iso: string): string => new Date(iso).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });

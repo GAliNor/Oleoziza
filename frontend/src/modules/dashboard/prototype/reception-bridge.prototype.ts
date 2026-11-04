@@ -1,7 +1,8 @@
 // PROTOTYPE — maps the real reception store's Lots onto the Home prototype's Lot cards until the Home is rebuilt for real.
-import { formatTime } from 'reception/composables/format';
 import type { ILot } from 'lot/types/lot';
 import type { ILotPrototype, ITimelineStep } from 'dashboard/prototype/mock-home.prototype';
+import { formatKg } from 'lot/composables/quantity';
+import { formatTime } from 'global/composables/date';
 
 const MODE_LABELS = { service: 'Trituration à façon', purchase: 'Achat' };
 
@@ -19,7 +20,7 @@ export const toPrototypeLot = (lot: ILot, currentOperator: string): ILotPrototyp
       (weighing, index): ITimelineStep => ({
         kind: 'weighing',
         label: `Pesée ${index + 1}`,
-        detail: `${weighing.netKg.toLocaleString('fr-FR')} kg net · ${weighing.source === 'scale' ? 'bascule' : 'saisie'}`,
+        detail: `${formatKg(weighing.netKg)} net · ${weighing.source === 'scale' ? 'bascule' : 'saisie'}`,
         at: formatTime(weighing.recordedAt),
         by: weighing.recordedBy,
         isPendingSync: weighing.isPendingSync,

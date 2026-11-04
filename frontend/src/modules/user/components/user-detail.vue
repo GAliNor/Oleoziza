@@ -103,10 +103,11 @@ import { useToastStore } from 'global/stores/toast';
 import { useUserStore } from 'user/stores/user';
 import { useUserRights } from 'user/composables/use-user-rights';
 import { formatPhone } from 'global/composables/phone';
-import { formatDateTime, formatFullName } from 'user/composables/format';
+import { formatFullName } from 'user/composables/format';
 import { LOGIN_METHODS } from 'user/constants/user';
 import type { LoginMethod } from 'auth/types/auth';
 import type { IStaffUser } from 'user/types/user';
+import { formatDateTime } from 'global/composables/date';
 
 import UserAvatar from 'user/components/user-avatar.vue';
 import UserSiteRights from 'user/components/user-site-rights.vue';

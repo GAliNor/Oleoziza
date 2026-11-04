@@ -35,8 +35,8 @@
           :style="{ left: `clamp(0px, calc(${(hoveredIndex + 0.5) * (100 / bars.length)}% - 70px), calc(100% - 150px))` }"
         >
           <p class="font-semibold">{{ bars[hoveredIndex].label }}</p>
-          <p>CA {{ formatDh(bars[hoveredIndex].revenue) }}</p>
-          <p>Encaissé {{ formatDh(bars[hoveredIndex].collected) }}</p>
+          <p>CA {{ formatMoneyRounded(bars[hoveredIndex].revenue) }}</p>
+          <p>Encaissé {{ formatMoneyRounded(bars[hoveredIndex].collected) }}</p>
         </div>
       </Transition>
     </div>
@@ -53,7 +53,8 @@
 // imports
 import { computed, ref } from 'vue';
 
-import { formatDh, type ISalesBarPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { type ISalesBarPrototype } from 'dashboard/prototype/mock-home.prototype';
+import { formatMoneyRounded } from 'global/composables/money';
 
 // props
 const props = defineProps<{ title: string; bars: ISalesBarPrototype[] }>();

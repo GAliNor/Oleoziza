@@ -12,7 +12,7 @@
       </div>
       <div class="text-right">
         <p class="text-display-sm figure" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
-          {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatDh(movement.amount) }}
+          {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatMoney(movement.amount) }}
         </p>
         <span class="chip" :class="STATUS_CLASSES[movement.status]">{{ STATUS_LABELS[movement.status] }}</span>
       </div>
@@ -31,7 +31,7 @@
         <div>
           <dt class="label">Saisi par</dt>
           <dd class="text-fg-display">
-            {{ movement.recordedBy }} · {{ formatWhen(movement.recordedAt) }}
+            {{ movement.recordedBy }} · {{ formatDateTime(movement.recordedAt) }}
             <span v-if="movement.wasOffline" class="chip ml-1 bg-info-subtle text-fg-info">saisi hors ligne</span>
           </dd>
         </div>
@@ -42,13 +42,13 @@
         <div v-if="movement.feeOffset" class="sm:col-span-2">
           <dt class="label">Compensation (frais déduits)</dt>
           <dd class="text-fg-display tabular-nums">
-            {{ formatDh(movement.amount + movement.feeOffset) }} − {{ formatDh(movement.feeOffset) }} de frais = {{ formatDh(movement.amount) }} versés
+            {{ formatMoney(movement.amount + movement.feeOffset) }} − {{ formatMoney(movement.feeOffset) }} de frais = {{ formatMoney(movement.amount) }} versés
           </dd>
         </div>
         <div v-if="movement.decidedBy" class="sm:col-span-2">
           <dt class="label">{{ STATUS_LABELS[movement.status] }} par</dt>
           <dd class="text-fg-display">
-            {{ movement.decidedBy }} · {{ formatWhen(movement.decidedAt!) }}
+            {{ movement.decidedBy }} · {{ formatDateTime(movement.decidedAt!) }}
             <span v-if="movement.settlement" class="chip ml-1 bg-subtle text-fg-primary-paragraph">{{ SETTLEMENT_LABELS[movement.settlement] }}</span>
           </dd>
           <dd v-if="movement.note" class="body-two mt-1">« {{ movement.note }} »</dd>
@@ -80,7 +80,7 @@
         </div>
       </template>
       <div v-else class="flex flex-wrap gap-2">
-        <button type="button" class="btn-primary flex-1" :disabled="!isOnline" @click="handleConfirm">Confirmer {{ formatDh(movement.amount) }}</button>
+        <button type="button" class="btn-primary flex-1" :disabled="!isOnline" @click="handleConfirm">Confirmer {{ formatMoney(movement.amount) }}</button>
         <button type="button" class="btn-secondary text-fg-danger" @click="mode = 'reject'">Rejeter…</button>
       </div>
     </div>
@@ -120,19 +120,19 @@
 // imports
 import { ref, watch } from 'vue';
 
-import { formatDh } from 'dashboard/prototype/mock-home.prototype';
 import {
   METHOD_LABELS,
   PURPOSE_LABELS,
   SETTLEMENT_LABELS,
   STATUS_CLASSES,
   STATUS_LABELS,
-  formatWhen,
   proofImage,
   type IMovementPrototype,
   type Settlement,
 } from 'finance/prototype/mock-finance.prototype';
 import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
+import { formatMoney } from 'global/composables/money';
+import { formatDateTime } from 'global/composables/date';
 
 // props
 const props = defineProps<{ movement: IMovementPrototype }>();

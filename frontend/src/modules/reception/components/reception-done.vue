@@ -8,7 +8,7 @@
       <h2 class="display-md mt-1 tabular-nums">{{ formatKg(lot.netKg) }}</h2>
       <p class="body-one">{{ formatQuintals(lot.netKg) }} · {{ lot.clientName }}</p>
       <p v-if="lot.dailyPricePerKg !== null" class="body-two mt-1">
-        {{ $t('reception.done.purchase', { price: formatDh(lot.dailyPricePerKg), amount: formatDh(lot.netKg * lot.dailyPricePerKg) }) }}
+        {{ $t('reception.done.purchase', { price: formatMoney(lot.dailyPricePerKg), amount: formatMoney(lot.netKg * lot.dailyPricePerKg) }) }}
       </p>
     </div>
     <span v-if="lot.isPendingSync" class="chip bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
@@ -27,8 +27,9 @@
 import { useI18n } from 'vue-i18n';
 
 import { useToastStore } from 'global/stores/toast';
-import { formatDh, formatKg, formatQuintals } from 'reception/composables/format';
 import type { ILot } from 'lot/types/lot';
+import { formatMoney } from 'global/composables/money';
+import { formatKg, formatQuintals } from 'lot/composables/quantity';
 
 import AnimatedCheckIcon from 'global/icons/animated-check.icon.vue';
 

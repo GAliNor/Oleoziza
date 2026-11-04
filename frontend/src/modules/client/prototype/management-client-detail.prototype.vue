@@ -16,7 +16,7 @@
             <td class="px-4 py-2 font-medium whitespace-nowrap">{{ site.siteName }}</td>
             <td class="px-4 py-2 text-right whitespace-nowrap tabular-nums">{{ formatKg(site.oliveKg) }}</td>
             <td class="px-4 py-2 text-right whitespace-nowrap tabular-nums">{{ site.oilStockKg ? formatKg(site.oilStockKg) : '—' }}</td>
-            <td v-if="isFinanceShown" class="px-4 py-2 text-right whitespace-nowrap tabular-nums" :class="{ 'text-fg-warning': site.balance }">{{ site.balance ? formatDh(site.balance) : '—' }}</td>
+            <td v-if="isFinanceShown" class="px-4 py-2 text-right whitespace-nowrap tabular-nums" :class="{ 'text-fg-warning': site.balance }">{{ site.balance ? formatMoney(site.balance) : '—' }}</td>
           </tr>
         </tbody>
       </table>
@@ -43,8 +43,9 @@
 <script setup lang="ts">
 // PROTOTYPE — Management-only parts of a Client (all Sites, Lot history) for the Clients page (ticket 0030).
 // imports
-import { formatDh, formatKg } from 'dashboard/prototype/mock-home.prototype';
 import type { IManagementClientPrototype } from 'client/prototype/mock-management-clients.prototype';
+import { formatMoney } from 'global/composables/money';
+import { formatKg } from 'lot/composables/quantity';
 
 // props
 defineProps<{ client: IManagementClientPrototype; isFinanceShown: boolean }>();

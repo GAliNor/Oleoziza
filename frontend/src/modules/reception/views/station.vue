@@ -40,7 +40,7 @@
           <p class="mt-4 text-display-lg figure">{{ formatKg(lot.netKg) }}</p>
           <p class="body-two text-fg-on-action-muted tabular-nums">
             {{ formatQuintals(lot.netKg) }} · {{ $t('reception.station.weighings', lot.weighings.length) }}
-            <template v-if="lot.dailyPricePerKg !== null"> · {{ formatDh(lot.netKg * lot.dailyPricePerKg) }}</template>
+            <template v-if="lot.dailyPricePerKg !== null"> · {{ formatMoney(lot.netKg * lot.dailyPricePerKg) }}</template>
           </p>
           <div v-if="lot.announcedContainers" class="mt-4">
             <div class="flex justify-between body-two text-fg-on-action-muted">
@@ -73,7 +73,7 @@
               <span v-if="draft.source === 'scale'" class="ml-1 rounded-full bg-info-blue px-2 py-0.5 normal-case">{{ $t('reception.station.scale') }}</span>
             </p>
             <p class="mt-1 text-display-lg figure">
-              {{ (typedValue ?? 0).toLocaleString('fr-FR') }}<span class="ml-1 text-display-xs text-neutral-400">kg</span>
+              {{ formatNumber(typedValue ?? 0, 1) }}<span class="ml-1 text-display-xs text-neutral-400">kg</span>
             </p>
             <p class="mt-2 body-two text-neutral-300 tabular-nums">
               <template v-if="draft.kind === 'gross'">{{ $t('reception.station.tareLine', { tare: formatKg(draftTare) }) }} </template>
@@ -155,11 +155,14 @@ import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useLotStore } from 'lot/stores/lot';
-import { formatDh, formatKg, formatQuintals, formatTime } from 'reception/composables/format';
 import { createWeighingDraft, draftNetKg, isDraftValid, isTareOverGross, tareKg, weighedContainers } from 'reception/composables/weighing';
 import { CONTAINER_KINDS } from 'reception/constants/reception';
 import type { ILot, WeighingKind } from 'lot/types/lot';
 import type { IWeighingDraft } from 'reception/types/reception';
+import { formatMoney } from 'global/composables/money';
+import { formatNumber } from 'global/composables/number';
+import { formatKg, formatQuintals } from 'lot/composables/quantity';
+import { formatTime } from 'global/composables/date';
 
 import AppLayout from 'global/components/app-layout.vue';
 import ContainerStepper from 'reception/components/container-stepper.vue';

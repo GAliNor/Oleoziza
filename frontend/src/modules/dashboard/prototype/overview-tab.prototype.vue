@@ -24,20 +24,9 @@
 import { computed } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
-import {
-  createLots,
-  formatDelta,
-  formatLitres,
-  LOT_STATUSES,
-  olivesBars,
-  salesBars,
-  salesFigures,
-  SEASON,
-  SITE_FIGURES,
-  type ITankPrototype,
-  type LotStatus,
-} from 'dashboard/prototype/mock-home.prototype';
+import { createLots, formatDelta, LOT_STATUSES, olivesBars, salesBars, salesFigures, SEASON, SITE_FIGURES, type ITankPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 import type { IPeriodPrototype } from 'dashboard/prototype/use-period.prototype';
+import { formatLitres } from 'lot/composables/quantity';
 
 import KpiTile from 'dashboard/prototype/kpi-tile.prototype.vue';
 import LotQueueStrip from 'dashboard/prototype/lot-queue-strip.prototype.vue';

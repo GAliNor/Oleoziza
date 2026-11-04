@@ -3,13 +3,14 @@ import { useI18n } from 'vue-i18n';
 
 import { isAuthError } from 'auth/stores/auth';
 import { logDevError } from 'global/composables/with-status';
+import { formatTime } from 'global/composables/date';
 
 export const useAuthError = (): {
   errorMessage: Ref<string>;
   setError: (error: unknown) => void;
   clearError: () => void;
 } => {
-  const { t, d } = useI18n();
+  const { t } = useI18n();
   const errorMessage = ref('');
 
   const setError = (error: unknown): void => {
@@ -18,7 +19,7 @@ export const useAuthError = (): {
       errorMessage.value = t('auth.errors.network');
       return;
     }
-    const time = error.lockedUntil ? d(new Date(error.lockedUntil), { hour: '2-digit', minute: '2-digit' }) : '';
+    const time = error.lockedUntil ? formatTime(error.lockedUntil) : '';
     errorMessage.value = t(`auth.errors.${error.code}`, { time });
   };
 

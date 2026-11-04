@@ -53,8 +53,9 @@
 // imports
 import { useSiteStore } from 'site/stores/site';
 import { formatPhone } from 'global/composables/phone';
-import { formatDateTime, formatFullName } from 'user/composables/format';
+import { formatFullName } from 'user/composables/format';
 import type { IStaffUser } from 'user/types/user';
+import { formatDateTime } from 'global/composables/date';
 
 import UserAvatar from 'user/components/user-avatar.vue';
 import UserStatusChip from 'user/components/user-status-chip.vue';
