@@ -29,105 +29,9 @@
       </nav>
 
       <div class="grid gap-4 md:grid-cols-[1fr_22rem] md:items-start">
-        <div class="rounded-3xl bg-action p-5 text-fg-on-action md:col-start-1 md:row-start-1">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="eyebrow text-sm text-fg-on-action-muted">{{ $t('reception.station.eyebrow', { code: lot.code }) }}</p>
-              <p class="truncate text-lg font-semibold">{{ lot.clientName }}</p>
-              <p class="body-two text-fg-on-action-muted">{{ $t(`reception.modes.${lot.mode}`) }} · {{ lot.variety }}</p>
-            </div>
-            <span v-if="lot.isPendingSync" class="chip shrink-0 bg-surface/15 text-fg-on-action">{{ $t('reception.pendingSync') }}</span>
-          </div>
-          <p class="mt-4 text-display-lg figure">{{ formatKg(lot.netKg) }}</p>
-          <p class="body-two text-fg-on-action-muted tabular-nums">
-            {{ formatQuintals(lot.netKg) }} · {{ $t('reception.station.weighings', lot.weighings.length) }}
-            <template v-if="lot.dailyPricePerKg !== null"> · {{ formatMoney(lot.netKg * lot.dailyPricePerKg) }}</template>
-          </p>
-          <div v-if="lot.announcedContainers" class="mt-4">
-            <div class="flex justify-between body-two text-fg-on-action-muted">
-              <span>{{ $t('reception.station.containersWeighed') }}</span>
-              <span class="tabular-nums">{{ containersWeighed }} / {{ lot.announcedContainers }}</span>
-            </div>
-            <ui-progress-bar class="mt-1 h-2" :value="containerProgress" :label="$t('reception.station.containersWeighed')" bar-class="bg-highlight" track-class="bg-surface/15" />
-          </div>
-        </div>
-
-        <aside v-can="'weighing.create'" class="card flex flex-col gap-3 rounded-3xl md:sticky md:top-20 md:col-start-2 md:row-span-2 md:row-start-1">
-          <ui-segmented v-model="draft.kind" variant="tabs" is-full :options="weighingKinds" :label="$t('reception.station.kindLabel')" />
-
-          <div class="rounded-3xl bg-neutral-900 p-5 text-white">
-            <p class="eyebrow text-sm text-neutral-400">
-              {{ $t(`reception.station.${draft.kind}`) }}
-              <span v-if="draft.source === 'scale'" class="ml-1 rounded-full bg-info-blue px-2 py-0.5 normal-case">{{ $t('reception.station.scale') }}</span>
-            </p>
-            <p class="mt-1 text-display-lg figure">
-              {{ formatNumber(typedValue ?? 0, 1) }}<span class="ml-1 text-display-xs text-neutral-400">kg</span>
-            </p>
-            <p class="mt-2 body-two text-neutral-300 tabular-nums">
-              <template v-if="draft.kind === 'gross'">{{ $t('reception.station.tareLine', { tare: formatKg(draftTare) }) }} </template>
-              <span class="font-semibold text-white">{{ formatKg(draftNet) }} · {{ formatQuintals(draftNet) }}</span>
-            </p>
-          </div>
-
-          <button v-if="draft.kind === 'gross'" type="button" class="btn-secondary min-h-14 text-md" :disabled="isReading" @click="handleReadScale">
-            {{ isReading ? $t('reception.station.reading') : $t('reception.station.readScale') }}
-          </button>
-
-          <weight-pad v-model="typedValue" />
-
-          <div class="grid grid-cols-2 gap-2">
-            <container-stepper
-              v-for="kind in CONTAINER_KINDS"
-              :key="kind"
-              v-model="draft.containers[kind]"
-              :label="$t(`reception.containers.${kind}`)"
-              :tare-kg="receptionStore.settings?.containerTareKg[kind] ?? 0"
-            />
-          </div>
-          <p v-if="isTareOverGross(draft, receptionStore.settings)" class="form-error">{{ $t('reception.station.tareOverGross') }}</p>
-
-          <button type="button" class="btn-primary min-h-16 text-md" :disabled="!canAdd" @click="handleAddWeighing">
-            {{ $t('reception.station.add') }}
-          </button>
-          <div class="grid grid-cols-2 gap-2 border-t border-subtle pt-3">
-            <router-link :to="{ name: 'dashboard' }" class="btn-secondary">{{ $t('reception.station.later') }}</router-link>
-            <button
-              v-can="'reception.create'"
-              type="button"
-              class="btn-secondary border-brand text-fg-brand"
-              :disabled="!lot.weighings.length || receptionStore.isSaving"
-              :title="$t('reception.station.finishHint')"
-              @click="handleFinish"
-            >
-              {{ $t('reception.station.finish') }}
-            </button>
-          </div>
-        </aside>
-
-        <ol class="flex flex-col gap-2 md:col-start-1 md:row-start-2">
-          <li
-            v-for="(weighing, index) in reversedWeighings"
-            :key="weighing.id"
-            class="flex items-center gap-3 rounded-2xl border border-default bg-surface px-4 py-3"
-            :class="{ rise: index === 0 }"
-          >
-            <span class="round-badge h-9 w-9 bg-subtle text-fg-primary-paragraph">{{ lot.weighings.length - index }}</span>
-            <span class="min-w-0 flex-1 body-two">
-              {{ formatTime(weighing.recordedAt) }} · {{ weighing.source === 'scale' ? $t('reception.station.scale') : $t('reception.station.manual') }}
-              <template v-if="weighing.kind === 'gross' && weighing.grossKg !== null">
-                · {{ $t('reception.station.grossHint', { gross: formatKg(weighing.grossKg), tare: formatKg(weighing.grossKg - weighing.netKg) }) }}
-              </template>
-              <span class="block caption">{{ weighing.recordedBy }}</span>
-            </span>
-            <span class="flex flex-col items-end gap-1">
-              <span class="font-semibold text-fg-display tabular-nums">{{ formatKg(weighing.netKg) }}</span>
-              <span v-if="weighing.isPendingSync" class="chip bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
-            </span>
-          </li>
-          <li v-if="!lot.weighings.length" class="body-two rounded-2xl border border-dashed border-strong p-6 text-center">
-            {{ $t('reception.station.noWeighing') }}
-          </li>
-        </ol>
+        <station-lot-card :lot="lot" />
+        <weighing-panel :lot="lot" :site-id="siteId" @finish="handleFinish" />
+        <weighing-history :lot="lot" />
       </div>
     </section>
   </app-layout>
@@ -139,26 +43,19 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
+import { useLotStore } from 'lot/stores/lot';
+import { useReceptionStore } from 'reception/stores/reception';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
-import { useReceptionStore } from 'reception/stores/reception';
-import { useLotStore } from 'lot/stores/lot';
-import { createWeighingDraft, draftNetKg, isDraftValid, isTareOverGross, tareKg, weighedContainers } from 'reception/composables/weighing';
-import { CONTAINER_KINDS } from 'reception/constants/reception';
-import type { ILot, WeighingKind } from 'lot/types/lot';
-import type { IWeighingDraft } from 'reception/types/reception';
-import { formatMoney } from 'global/composables/money';
-import { formatNumber } from 'global/composables/number';
-import { formatKg, formatQuintals } from 'lot/composables/quantity';
-import { formatTime } from 'global/composables/date';
+import { formatKg } from 'lot/composables/quantity';
+import type { ILot } from 'lot/types/lot';
 
-import UiProgressBar from 'global/components/ui-progress-bar.vue';
-import UiEmptyState from 'global/components/ui-empty-state.vue';
-import UiSegmented from 'global/components/ui-segmented.vue';
 import AppLayout from 'global/components/app-layout.vue';
-import ContainerStepper from 'reception/components/container-stepper.vue';
+import UiEmptyState from 'global/components/ui-empty-state.vue';
 import ReceptionDone from 'reception/components/reception-done.vue';
-import WeightPad from 'reception/components/weight-pad.vue';
+import StationLotCard from 'reception/components/station-lot-card.vue';
+import WeighingHistory from 'reception/components/weighing-history.vue';
+import WeighingPanel from 'reception/components/weighing-panel.vue';
 
 // stores
 const { t } = useI18n();
@@ -169,36 +66,13 @@ const receptionStore = useReceptionStore();
 const lotStore = useLotStore();
 
 // variables
-const draft = ref<IWeighingDraft>(createWeighingDraft());
-const isReading = ref(false);
 const finishedLot = ref<ILot | null>(null);
 
 // computed
-const weighingKinds = computed((): { key: WeighingKind; label: string }[] => [
-  { key: 'gross', label: t('reception.station.gross') },
-  { key: 'net', label: t('reception.station.net') },
-]);
 const siteId = computed((): string => siteStore.currentSite?.id ?? '');
 const lot = computed((): ILot | undefined => {
   const found = lotStore.lotByCode(String(route.params.code));
   return found?.status === 'received' ? found : undefined;
-});
-const reversedWeighings = computed(() => [...(lot.value?.weighings ?? [])].reverse());
-const containersWeighed = computed((): number => (lot.value ? weighedContainers(lot.value) : 0));
-const containerProgress = computed((): number =>
-  Math.min(100, (containersWeighed.value / (lot.value?.announcedContainers || 1)) * 100),
-);
-const draftTare = computed((): number => tareKg(draft.value.containers, receptionStore.settings));
-const draftNet = computed((): number => draftNetKg(draft.value, receptionStore.settings));
-const canAdd = computed((): boolean => isDraftValid(draft.value, receptionStore.settings) && !receptionStore.isSaving);
-const typedValue = computed({
-  get: (): number | null => (draft.value.kind === 'gross' ? draft.value.grossKg : draft.value.netKgTyped),
-  set: (value: number | null): void => {
-    if (draft.value.kind === 'gross') {
-      draft.value.grossKg = value;
-      draft.value.source = 'manual';
-    } else draft.value.netKgTyped = value;
-  },
 });
 
 // watchers
@@ -213,36 +87,11 @@ watch(
 watch(
   () => route.params.code,
   () => {
-    draft.value = createWeighingDraft(draft.value.kind);
     finishedLot.value = null;
   },
 );
 
 // event handlers
-const handleReadScale = async (): Promise<void> => {
-  isReading.value = true;
-  const grossKg = await receptionStore.readScale(siteId.value);
-  isReading.value = false;
-  if (grossKg === null) {
-    toastStore.push(t('reception.station.scaleError'), 'danger');
-    return;
-  }
-  draft.value.grossKg = grossKg;
-  draft.value.source = 'scale';
-};
-
-const handleAddWeighing = async (): Promise<void> => {
-  if (!lot.value) return;
-  const updated = await receptionStore.addWeighing(lot.value, draft.value);
-  if (!updated) {
-    toastStore.push(t('reception.saveError'), 'danger');
-    return;
-  }
-  const last = updated.weighings[updated.weighings.length - 1];
-  toastStore.push(t('reception.station.added', { index: updated.weighings.length, net: formatKg(last.netKg) }), 'success');
-  draft.value = createWeighingDraft(draft.value.kind);
-};
-
 const handleFinish = async (): Promise<void> => {
   if (!lot.value) return;
   const updated = await receptionStore.finishReception(lot.value);
