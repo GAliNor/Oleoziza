@@ -46,8 +46,8 @@
 
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
       <div class="card min-w-0 overflow-x-auto rounded-2xl p-0 lg:col-span-3">
-        <table class="w-full min-w-130 text-sm">
-          <thead class="bg-page text-left eyebrow">
+        <table class="data-table min-w-130">
+          <thead>
             <tr>
               <th class="px-4 py-3 font-semibold">Variété</th>
               <th class="px-4 py-3 text-right font-semibold">Lots</th>

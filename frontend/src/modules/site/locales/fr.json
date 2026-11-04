@@ -10,12 +10,6 @@
     "site": "Site",
     "city": "Ville"
   },
-  "pagination": {
-    "label": "Pages",
-    "range": "{first}–{last} sur {total}",
-    "previous": "Page précédente",
-    "next": "Page suivante"
-  },
   "form": {
     "createTitle": "Nouveau site",
     "editTitle": "Modifier le site",

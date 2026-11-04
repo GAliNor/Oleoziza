@@ -9,11 +9,11 @@
     </div>
   </div>
 
-  <div class="flex min-w-0 gap-4 overflow-hidden">
-    <div class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)" :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }">
-      <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
-        <table class="w-full text-sm">
-          <thead class="bg-page text-left eyebrow">
+  <ui-master-detail :is-open="isOpen" back-label="Retour aux lots" @close="handleClose">
+    <template #list>
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
             <tr>
               <th class="px-4 py-3 font-semibold">Lot</th>
               <th class="px-4 py-3 font-semibold">Client</th>
@@ -28,7 +28,7 @@
             <tr
               v-for="lot in pageRows"
               :key="lot.id"
-              class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+              class="data-row"
               :class="{ 'bg-selected/40': lot.id === lastId }"
               tabindex="0"
               @click="handleOpen(lot.id)"
@@ -49,21 +49,14 @@
         </table>
         <ui-empty-state v-if="!rows.length" message="Aucun lot" />
       </div>
-      <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
-        <p class="body-two tabular-nums">{{ firstIndex + 1 }}–{{ firstIndex + pageRows.length }} sur {{ rows.length }}</p>
-        <div class="flex items-center gap-1">
-          <button v-for="number in pageCount" :key="number" type="button" class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums" :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'" @click="page = number">
-            {{ number }}
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <aside v-if="active" class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium)" :class="isOpen ? 'opacity-100' : 'pointer-events-none max-h-0 opacity-0'" :aria-hidden="!isOpen">
-      <button type="button" class="btn-secondary self-start" @click="handleClose">← Retour aux lots</button>
+      <ui-pagination v-model:page="page" :page-count="pageCount" :total="rows.length" :page-size="PAGE_SIZE" />
+    
+    </template>
+    <template v-if="active" #detail>
       <lot-detail :key="active.id" :lot="active" />
-    </aside>
-  </div>
+    
+    </template>
+  </ui-master-detail>
 </template>
 
 <script setup lang="ts">
@@ -71,12 +64,15 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { usePagedRows } from 'global/composables/use-paged-rows';
 import { LOT_STATUSES, STATUS_LABELS, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
 import type { ILotRecordPrototype } from 'lot/prototype/mock-lots.prototype';
 import { useLotsPrototype } from 'lot/prototype/use-lots.prototype';
 import { formatKg, formatYield } from 'lot/composables/quantity';
 import { formatDateTime } from 'global/composables/date';
 
+import UiMasterDetail from 'global/components/ui-master-detail.vue';
+import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import LotDetail from 'lot/prototype/lot-detail.prototype.vue';
 
@@ -91,7 +87,6 @@ const { scoped, find } = useLotsPrototype();
 // variables
 const PAGE_SIZE = 10;
 const status = ref<LotStatus | 'all'>('all');
-const page = ref(1);
 const lastId = ref<string | null>(null);
 
 // computed
@@ -103,9 +98,7 @@ const rows = computed((): ILotRecordPrototype[] => {
       (lot.code.toLowerCase().includes(query) || lot.client.toLowerCase().includes(query)),
   );
 });
-const pageCount = computed((): number => Math.max(1, Math.ceil(rows.value.length / PAGE_SIZE)));
-const firstIndex = computed((): number => (page.value - 1) * PAGE_SIZE);
-const pageRows = computed((): ILotRecordPrototype[] => rows.value.slice(firstIndex.value, firstIndex.value + PAGE_SIZE));
+const { page, pageCount, pageRows } = usePagedRows(rows, PAGE_SIZE);
 const openId = computed((): string | null => (typeof route.query.lot === 'string' ? route.query.lot : null));
 const isOpen = computed((): boolean => find(openId.value) !== undefined);
 const active = computed((): ILotRecordPrototype | undefined => find(openId.value ?? lastId.value));

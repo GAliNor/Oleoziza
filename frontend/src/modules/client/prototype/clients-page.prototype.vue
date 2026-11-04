@@ -11,14 +11,11 @@
       <ui-segmented v-model="stateFilter" :options="stateOptions" label="Suivi" />
     </div>
 
-    <div class="flex min-w-0 gap-4 overflow-hidden">
-      <div
-        class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)"
-        :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }"
-      >
-        <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
-          <table class="w-full text-sm">
-            <thead class="bg-page text-left eyebrow">
+    <ui-master-detail :is-open="isOpen" back-label="Retour aux clients" @close="handleClose">
+      <template #list>
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
               <tr>
                 <th class="px-4 py-3 font-semibold">Client</th>
                 <th class="hidden px-4 py-3 font-semibold sm:table-cell">Identifiant</th>
@@ -32,7 +29,7 @@
               <tr
                 v-for="(client, index) in pageRows"
                 :key="client.id"
-                class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+                class="data-row"
                 :class="{ 'bg-selected/40': client.id === lastClientId }"
                 tabindex="0"
                 @click="handleOpen(client.id)"
@@ -65,36 +62,10 @@
           <ui-empty-state v-if="!filteredRows.length" message="Aucun client" />
         </div>
 
-        <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
-          <p class="body-two tabular-nums">{{ firstIndex + 1 }}–{{ firstIndex + pageRows.length }} sur {{ filteredRows.length }}</p>
-          <div class="flex items-center gap-1">
-            <button type="button" class="icon-btn" :disabled="page === 1" aria-label="Page précédente" @click="page--">←</button>
-            <button
-              v-for="number in pageCount"
-              :key="number"
-              type="button"
-              class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums transition-colors"
-              :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'"
-              :aria-current="number === page ? 'page' : undefined"
-              @click="page = number"
-            >
-              {{ number }}
-            </button>
-            <button type="button" class="icon-btn" :disabled="page === pageCount" aria-label="Page suivante" @click="page++">→</button>
-          </div>
-        </nav>
-      </div>
-
-      <aside
-        v-if="activeClient"
-        class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium)"
-        :class="isOpen ? 'opacity-100' : 'pointer-events-none max-h-0 opacity-0'"
-        :aria-hidden="!isOpen"
-      >
-        <button type="button" class="btn-secondary inline-flex items-center gap-2 self-start" @click="handleClose">
-          <arrow-left-line-icon class="h-5 w-5" />
-          Retour aux clients
-        </button>
+        <ui-pagination v-model:page="page" :page-count="pageCount" :total="filteredRows.length" :page-size="PAGE_SIZE" />
+      
+      </template>
+      <template v-if="activeClient" #detail>
         <div :key="activeClient.id" class="stagger flex flex-col gap-4">
           <client-header :client="activeClient" />
           <div class="grid grid-cols-3 gap-2 lg:gap-3">
@@ -115,17 +86,19 @@
           </div>
           <management-client-detail :client="activeClient" :is-finance-shown="isFinanceShown" />
         </div>
-      </aside>
-    </div>
+      
+      </template>
+    </ui-master-detail>
   </section>
 </template>
 
 <script setup lang="ts">
 // PROTOTYPE — Management Clients page (ticket 0030): alphabetical paginated table; a row slides the table out and the detail in.
 // imports
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useSiteStore } from 'site/stores/site';
 import { formatPhone } from 'global/composables/phone';
 import { type IClientPrototype } from 'dashboard/prototype/mock-home.prototype';
@@ -134,12 +107,13 @@ import { formatMoney } from 'global/composables/money';
 import { formatKg } from 'lot/composables/quantity';
 
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
+import UiMasterDetail from 'global/components/ui-master-detail.vue';
+import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import ClientHeader from 'client/prototype/client-header.prototype.vue';
 import ManagementClientDetail from 'client/prototype/management-client-detail.prototype.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
-import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 
 // stores
 const siteStore = useSiteStore();
@@ -159,7 +133,6 @@ const STATE_FILTERS: { key: StateFilter; label: string }[] = [
 const KIND_LABELS: Record<IClientPrototype['kind'], string> = { individual: 'Particulier', company: 'Entreprise' };
 const search = ref('');
 const stateFilter = ref<StateFilter>('all');
-const page = ref(1);
 const lastClientId = ref<string | null>(null);
 
 // computed
@@ -183,9 +156,7 @@ const filteredRows = computed((): IManagementClientPrototype[] => {
     )
     .sort((first, second) => first.name.localeCompare(second.name, 'fr'));
 });
-const pageCount = computed((): number => Math.max(1, Math.ceil(filteredRows.value.length / PAGE_SIZE)));
-const firstIndex = computed((): number => (page.value - 1) * PAGE_SIZE);
-const pageRows = computed((): IManagementClientPrototype[] => filteredRows.value.slice(firstIndex.value, firstIndex.value + PAGE_SIZE));
+const { page, pageCount, pageRows } = usePagedRows(filteredRows, PAGE_SIZE);
 const openClientId = computed((): string | null => (typeof route.query.client === 'string' ? route.query.client : null));
 const isOpen = computed((): boolean => rows.value.some((client) => client.id === openClientId.value));
 const activeClient = computed((): IManagementClientPrototype | undefined => rows.value.find((client) => client.id === (openClientId.value ?? lastClientId.value)));
@@ -193,9 +164,6 @@ const activeClient = computed((): IManagementClientPrototype | undefined => rows
 // watchers
 watch([search, stateFilter], () => {
   page.value = 1;
-});
-watch(pageCount, (count) => {
-  if (page.value > count) page.value = count;
 });
 watch(
   openClientId,
@@ -214,12 +182,4 @@ const handleOpen = (id: string): void => {
 const handleClose = (): void => {
   router.replace({ query: { ...route.query, client: undefined } });
 };
-
-const handleKeydown = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && isOpen.value) handleClose();
-};
-
-// lifecycle
-onMounted(() => window.addEventListener('keydown', handleKeydown));
-onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
 </script>

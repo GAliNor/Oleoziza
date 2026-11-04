@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-w-0 flex-col gap-4">
-    <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
+    <div class="table-card">
       <p class="eyebrow px-4 pt-4 text-fg-secondary-paragraph">Par site · saison</p>
       <table class="w-full text-sm">
         <thead class="text-left body-three">

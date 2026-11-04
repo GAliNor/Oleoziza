@@ -1,6 +1,12 @@
 {
   "appName": "Oleoziza",
   "back": "Retour",
+  "pagination": {
+    "label": "Pages",
+    "range": "{first}–{last} sur {total}",
+    "previous": "Page précédente",
+    "next": "Page suivante"
+  },
   "units": {
     "dirham": "DH",
     "kilogram": "kg",

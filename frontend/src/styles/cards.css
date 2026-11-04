@@ -8,4 +8,20 @@
       shadow-overlay
       backdrop-blur-xl;
   }
+
+  .table-card {
+    @apply min-w-0 overflow-x-auto rounded-2xl border border-default bg-surface shadow-raised;
+  }
+
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table thead {
+    @apply bg-page text-left text-xs font-semibold tracking-wide text-fg-secondary-paragraph uppercase;
+  }
+
+  .data-row {
+    @apply cursor-pointer border-t border-subtle transition-colors hover:bg-page;
+  }
 }

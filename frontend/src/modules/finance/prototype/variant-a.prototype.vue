@@ -12,11 +12,11 @@
     </ui-segmented>
   </div>
 
-  <div class="flex min-w-0 gap-4 overflow-hidden">
-    <div class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)" :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }">
-      <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
-        <table class="w-full text-sm">
-          <thead class="bg-page text-left eyebrow">
+  <ui-master-detail :is-open="isOpen" back-label="Retour aux finances" @close="handleClose">
+    <template #list>
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
             <tr>
               <th class="px-4 py-3 font-semibold">Date</th>
               <th class="px-4 py-3 font-semibold">Client</th>
@@ -31,7 +31,7 @@
             <tr
               v-for="movement in pageRows"
               :key="movement.id"
-              class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+              class="data-row"
               :class="{ 'bg-selected/40': movement.id === lastId }"
               tabindex="0"
               @click="handleOpen(movement.id)"
@@ -57,24 +57,17 @@
         </table>
         <ui-empty-state v-if="!rows.length" :message="tab === 'pending' ? 'Rien à confirmer. Tout est à jour.' : 'Aucun mouvement sur la période'" />
       </div>
-      <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" aria-label="Pages">
-        <p class="body-two tabular-nums">{{ firstIndex + 1 }}–{{ firstIndex + pageRows.length }} sur {{ rows.length }}</p>
-        <div class="flex items-center gap-1">
-          <button v-for="number in pageCount" :key="number" type="button" class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums" :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'" @click="page = number">
-            {{ number }}
-          </button>
-        </div>
-      </nav>
-    </div>
-
-    <aside v-if="active" class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium)" :class="isOpen ? 'opacity-100' : 'pointer-events-none max-h-0 opacity-0'" :aria-hidden="!isOpen">
+      <ui-pagination v-model:page="page" :page-count="pageCount" :total="rows.length" :page-size="PAGE_SIZE" />
+    
+    </template>
+    <template v-if="active" #detail>
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" class="btn-secondary inline-flex items-center gap-2" @click="handleClose">← Retour aux finances</button>
         <button v-if="nextPendingId" type="button" class="link ml-auto" @click="handleOpen(nextPendingId)">Suivant à confirmer →</button>
       </div>
       <movement-detail :key="active.id" class="max-w-4xl" :movement="active" />
-    </aside>
-  </div>
+    
+    </template>
+  </ui-master-detail>
 </template>
 
 <script setup lang="ts">
@@ -82,11 +75,14 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
+import { usePagedRows } from 'global/composables/use-paged-rows';
 import { METHOD_LABELS, PURPOSE_LABELS, STATUS_CLASSES, STATUS_LABELS, type IMovementPrototype } from 'finance/prototype/mock-finance.prototype';
 import { useFinancePrototype } from 'finance/prototype/use-finance.prototype';
 import { formatMoney } from 'global/composables/money';
 import { formatDateTime } from 'global/composables/date';
 
+import UiMasterDetail from 'global/components/ui-master-detail.vue';
+import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import FinanceTiles from 'finance/prototype/finance-tiles.prototype.vue';
@@ -105,7 +101,6 @@ const TAB_OPTIONS = [
   { key: 'all' as const, label: TABS.all },
 ];
 const search = ref('');
-const page = ref(1);
 const lastId = ref<string | null>(null);
 
 // computed
@@ -117,9 +112,7 @@ const rows = computed((): IMovementPrototype[] => {
       [movement.client, movement.code, movement.reference ?? '', movement.label].some((value) => value.toLowerCase().includes(query)),
   );
 });
-const pageCount = computed((): number => Math.max(1, Math.ceil(rows.value.length / PAGE_SIZE)));
-const firstIndex = computed((): number => (page.value - 1) * PAGE_SIZE);
-const pageRows = computed((): IMovementPrototype[] => rows.value.slice(firstIndex.value, firstIndex.value + PAGE_SIZE));
+const { page, pageCount, pageRows } = usePagedRows(rows, PAGE_SIZE);
 const openId = computed((): string | null => (typeof route.query.movement === 'string' ? route.query.movement : null));
 const isOpen = computed((): boolean => find(openId.value) !== undefined);
 const active = computed((): IMovementPrototype | undefined => find(openId.value ?? lastId.value));

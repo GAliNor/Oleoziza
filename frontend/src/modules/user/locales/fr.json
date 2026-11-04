@@ -38,12 +38,6 @@
     "lastLogin": "Dernière connexion",
     "status": "Statut"
   },
-  "pagination": {
-    "label": "Pages",
-    "range": "{first}–{last} sur {total}",
-    "previous": "Page précédente",
-    "next": "Page suivante"
-  },
   "teams": {
     "count": "aucune personne | {n} personne | {n} personnes",
     "management": "Direction",

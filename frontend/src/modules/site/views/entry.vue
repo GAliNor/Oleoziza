@@ -16,14 +16,11 @@
         <input v-model="search" class="input md:max-w-xs" type="search" :placeholder="$t('site.searchPlaceholder')" />
       </div>
 
-      <div class="flex min-w-0 gap-4 overflow-hidden">
-        <div
-          class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)"
-          :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }"
-        >
-          <div class="card min-w-0 overflow-x-auto rounded-2xl p-0">
-            <table class="w-full text-sm">
-              <thead class="bg-page text-left eyebrow">
+      <ui-master-detail :is-open="isOpen" :back-label="$t('site.back')" @close="handleClose">
+        <template #list>
+          <div class="table-card">
+            <table class="data-table">
+              <thead>
                 <tr>
                   <th class="px-4 py-3 font-semibold">{{ $t('site.table.site') }}</th>
                   <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('site.table.city') }}</th>
@@ -33,7 +30,7 @@
                 <tr
                   v-for="site in pageRows"
                   :key="site.id"
-                  class="cursor-pointer border-t border-subtle transition-colors hover:bg-page"
+                  class="data-row"
                   :class="{ 'bg-selected/40': site.id === lastSiteId }"
                   tabindex="0"
                   @click="handleOpen(site.id)"
@@ -53,42 +50,10 @@
             <ui-empty-state v-if="!filteredRows.length" :message="$t('site.empty')" />
           </div>
 
-          <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" :aria-label="$t('site.pagination.label')">
-            <p class="body-two tabular-nums">
-              {{ $t('site.pagination.range', { first: firstIndex + 1, last: firstIndex + pageRows.length, total: filteredRows.length }) }}
-            </p>
-            <div class="flex items-center gap-1">
-              <button type="button" class="icon-btn" :disabled="page === 1" :aria-label="$t('site.pagination.previous')" @click="handlePage(page - 1)">
-                <arrow-left-line-icon class="h-4 w-4" />
-              </button>
-              <button
-                v-for="number in pageCount"
-                :key="number"
-                type="button"
-                class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums transition-colors"
-                :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'"
-                :aria-current="number === page ? 'page' : undefined"
-                @click="handlePage(number)"
-              >
-                {{ number }}
-              </button>
-              <button type="button" class="icon-btn" :disabled="page === pageCount" :aria-label="$t('site.pagination.next')" @click="handlePage(page + 1)">
-                <arrow-right-line-icon class="h-4 w-4" />
-              </button>
-            </div>
-          </nav>
-        </div>
-
-        <aside
-          v-if="isCreating || activeSite"
-          class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium)"
-          :class="isOpen ? 'opacity-100' : 'pointer-events-none max-h-0 opacity-0'"
-          :aria-hidden="!isOpen"
-        >
-          <button type="button" class="btn-secondary inline-flex items-center gap-2 self-start" @click="handleClose">
-            <arrow-left-line-icon class="h-5 w-5" />
-            {{ $t('site.back') }}
-          </button>
+          <ui-pagination v-model:page="page" :page-count="pageCount" :total="filteredRows.length" :page-size="PAGE_SIZE" />
+        
+        </template>
+        <template v-if="isCreating || activeSite" #detail>
           <div :key="activeSite?.id ?? NEW_SITE" class="stagger flex max-w-2xl flex-col gap-4">
             <header v-if="activeSite" class="flex items-center gap-3">
               <span class="round-badge h-12 w-12 bg-action text-fg-on-action"><map-pin-line-icon class="h-6 w-6" /></span>
@@ -108,29 +73,31 @@
               <ui-confirm-button :label="$t('site.delete.action')" :confirm-label="$t('site.delete.confirm')" :is-disabled="siteStore.isSaving" @confirm="handleDelete" />
             </div>
           </div>
-        </aside>
-      </div>
+        
+        </template>
+      </ui-master-detail>
     </section>
   </app-layout>
 </template>
 
 <script setup lang="ts">
 // imports
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
+import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import type { ISite } from 'site/types/site';
 
+import UiMasterDetail from 'global/components/ui-master-detail.vue';
+import UiPagination from 'global/components/ui-pagination.vue';
 import UiConfirmButton from 'global/components/ui-confirm-button.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import SiteForm from 'site/components/site-form.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
-import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
-import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 
 // stores
@@ -144,7 +111,6 @@ const router = useRouter();
 const PAGE_SIZE = 10;
 const NEW_SITE = 'new';
 const search = ref('');
-const page = ref(1);
 const lastSiteId = ref<string | null>(null);
 
 // computed
@@ -154,9 +120,7 @@ const filteredRows = computed((): ISite[] => {
     .filter((site) => site.name.toLowerCase().includes(query) || site.city.toLowerCase().includes(query))
     .sort((first, second) => first.name.localeCompare(second.name, 'fr'));
 });
-const pageCount = computed((): number => Math.max(1, Math.ceil(filteredRows.value.length / PAGE_SIZE)));
-const firstIndex = computed((): number => (page.value - 1) * PAGE_SIZE);
-const pageRows = computed((): ISite[] => filteredRows.value.slice(firstIndex.value, firstIndex.value + PAGE_SIZE));
+const { page, pageCount, pageRows, showRow } = usePagedRows(filteredRows, PAGE_SIZE);
 const openSiteId = computed((): string | null => (typeof route.query.site === 'string' ? route.query.site : null));
 const isCreating = computed((): boolean => openSiteId.value === NEW_SITE);
 const isOpen = computed((): boolean => isCreating.value || siteStore.sites.some((site) => site.id === openSiteId.value));
@@ -169,9 +133,6 @@ const activeSite = computed((): ISite | undefined => {
 watch(search, () => {
   page.value = 1;
 });
-watch(pageCount, (count) => {
-  if (page.value > count) page.value = count;
-});
 watch(
   openSiteId,
   (id) => {
@@ -183,7 +144,7 @@ watch(
 // methods
 const showPageOf = (id: string): void => {
   const index = filteredRows.value.findIndex((site) => site.id === id);
-  if (index !== -1) page.value = Math.floor(index / PAGE_SIZE) + 1;
+  showRow(index);
 };
 
 // event handlers
@@ -195,10 +156,6 @@ const handleOpen = (id: string): void => {
 const handleClose = (): void => {
   if (lastSiteId.value) showPageOf(lastSiteId.value);
   router.replace({ query: { ...route.query, site: undefined } });
-};
-
-const handlePage = (number: number): void => {
-  page.value = number;
 };
 
 const handleSaved = (site: ISite): void => {
@@ -218,12 +175,4 @@ const handleDelete = async (): Promise<void> => {
   lastSiteId.value = null;
   handleClose();
 };
-
-const handleKeydown = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && isOpen.value) handleClose();
-};
-
-// lifecycle
-onMounted(() => window.addEventListener('keydown', handleKeydown));
-onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
 </script>

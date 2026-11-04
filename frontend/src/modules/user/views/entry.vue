@@ -32,11 +32,8 @@
 
       <ui-empty-state v-if="userStore.hasError && !userStore.users.length" class="card" tone="danger" :message="$t('user.loadError')" />
 
-      <div class="flex min-w-0 gap-4 overflow-hidden">
-        <div
-          class="flex w-full shrink-0 flex-col gap-3 transition-[margin,width] duration-500 ease-(--ease-premium)"
-          :class="{ '-ml-[calc(100%+1rem)] h-0': isOpen }"
-        >
+      <ui-master-detail :is-open="isOpen" :back-label="$t('user.back')" @close="handleClose">
+        <template #list>
           <div v-if="userStore.isLoading && !userStore.users.length" class="flex flex-col gap-2">
             <div v-for="index in 4" :key="index" class="skeleton h-14 rounded-xl" />
           </div>
@@ -44,65 +41,29 @@
           <template v-else-if="view === 'list'">
             <user-table :key="`${page}-${search}-${filter}`" :users="pageRows" :highlighted-id="lastUserId" @open="handleOpen" />
 
-            <nav v-if="pageCount > 1" class="flex items-center justify-between gap-3" :aria-label="$t('user.pagination.label')">
-              <p class="body-two tabular-nums">
-                {{ $t('user.pagination.range', { first: firstIndex + 1, last: firstIndex + pageRows.length, total: filteredRows.length }) }}
-              </p>
-              <div class="flex items-center gap-1">
-                <button type="button" class="icon-btn" :disabled="page === 1" :aria-label="$t('user.pagination.previous')" @click="handlePage(page - 1)">
-                  <arrow-left-line-icon class="h-4 w-4" />
-                </button>
-                <button
-                  v-for="number in pageCount"
-                  :key="number"
-                  type="button"
-                  class="h-9 min-w-9 rounded-lg px-2 text-sm tabular-nums transition-colors"
-                  :class="number === page ? 'bg-action text-fg-on-action' : 'text-fg-primary-paragraph hover:bg-subtle'"
-                  :aria-current="number === page ? 'page' : undefined"
-                  @click="handlePage(number)"
-                >
-                  {{ number }}
-                </button>
-                <button
-                  type="button"
-                  class="icon-btn"
-                  :disabled="page === pageCount"
-                  :aria-label="$t('user.pagination.next')"
-                  @click="handlePage(page + 1)"
-                >
-                  <arrow-right-line-icon class="h-4 w-4" />
-                </button>
-              </div>
-            </nav>
+            <ui-pagination v-model:page="page" :page-count="pageCount" :total="filteredRows.length" :page-size="PAGE_SIZE" />
           </template>
 
           <user-teams v-else :users="filteredRows" :sites="teamSites" :highlighted-id="lastUserId" @open="handleOpen" />
-        </div>
-
-        <aside
-          v-if="isCreating || activeUser"
-          class="flex w-full shrink-0 flex-col gap-4 transition-opacity duration-500 ease-(--ease-premium)"
-          :class="isOpen ? 'opacity-100' : 'pointer-events-none max-h-0 opacity-0'"
-          :aria-hidden="!isOpen"
-        >
-          <button type="button" class="btn-secondary inline-flex items-center gap-2 self-start" @click="handleClose">
-            <arrow-left-line-icon class="h-5 w-5" />
-            {{ $t('user.back') }}
-          </button>
+        
+        </template>
+        <template v-if="isCreating || activeUser" #detail>
           <user-form v-if="isCreating" :key="formKey" @saved="handleSaved" @cancel="handleClose" />
           <user-detail v-else-if="activeUser" :key="activeUser.id" :user="activeUser" />
-        </aside>
-      </div>
+        
+        </template>
+      </ui-master-detail>
     </section>
   </app-layout>
 </template>
 
 <script setup lang="ts">
 // imports
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
+import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useSiteStore } from 'site/stores/site';
 import { useUserStore } from 'user/stores/user';
 import { matchesFilter } from 'user/composables/filter';
@@ -111,6 +72,8 @@ import { NEW_USER, PAGE_SIZE, USER_FILTERS, USER_VIEWS } from 'user/constants/us
 import type { ISite } from 'site/types/site';
 import type { IStaffUser, UserFilter, UserView } from 'user/types/user';
 
+import UiMasterDetail from 'global/components/ui-master-detail.vue';
+import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import AppLayout from 'global/components/app-layout.vue';
@@ -119,8 +82,6 @@ import UserForm from 'user/components/user-form.vue';
 import UserTable from 'user/components/user-table.vue';
 import UserTeams from 'user/components/user-teams.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
-import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
-import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 
 // stores
 const siteStore = useSiteStore();
@@ -132,7 +93,6 @@ const router = useRouter();
 // variables
 const search = ref('');
 const filter = ref<UserFilter>('all');
-const page = ref(1);
 const lastUserId = ref<string | null>(null);
 const formKey = ref(0);
 
@@ -164,9 +124,7 @@ const filteredRows = computed((): IStaffUser[] => {
         (digits.length > 2 && (user.phone ?? '').replace(/\D/g, '').includes(digits.replace(/^0/, '')))),
   );
 });
-const pageCount = computed((): number => Math.max(1, Math.ceil(filteredRows.value.length / PAGE_SIZE)));
-const firstIndex = computed((): number => (page.value - 1) * PAGE_SIZE);
-const pageRows = computed((): IStaffUser[] => filteredRows.value.slice(firstIndex.value, firstIndex.value + PAGE_SIZE));
+const { page, pageCount, pageRows, showRow } = usePagedRows(filteredRows, PAGE_SIZE);
 const openUserId = computed((): string | null => (typeof route.query.user === 'string' ? route.query.user : null));
 const isCreating = computed((): boolean => openUserId.value === NEW_USER);
 const isOpen = computed((): boolean => isCreating.value || userStore.findUser(openUserId.value) !== undefined);
@@ -175,9 +133,6 @@ const activeUser = computed((): IStaffUser | undefined => (isCreating.value ? un
 // watchers
 watch([search, filter, () => siteStore.currentSiteId], () => {
   page.value = 1;
-});
-watch(pageCount, (count) => {
-  if (page.value > count) page.value = count;
 });
 watch(
   openUserId,
@@ -191,7 +146,7 @@ watch(
 // methods
 const showPageOf = (id: string): void => {
   const index = filteredRows.value.findIndex((user) => user.id === id);
-  if (index !== -1) page.value = Math.floor(index / PAGE_SIZE) + 1;
+  showRow(index);
 };
 
 // event handlers
@@ -209,24 +164,14 @@ const handleView = (key: UserView): void => {
   router.replace({ query: { ...route.query, view: key === 'list' ? undefined : key } });
 };
 
-const handlePage = (number: number): void => {
-  page.value = number;
-};
-
 const handleSaved = (user: IStaffUser): void => {
   search.value = '';
   filter.value = 'all';
   handleOpen(user.id);
 };
 
-const handleKeydown = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && isOpen.value) handleClose();
-};
-
 // lifecycle
 onMounted(() => {
   userStore.fetchUsers();
-  window.addEventListener('keydown', handleKeydown);
 });
-onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
 </script>
