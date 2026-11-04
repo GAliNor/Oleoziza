@@ -1,16 +1,17 @@
 <template>
-  <div class="stagger flex min-w-0 flex-col gap-5">
-    <sales-tiles :figures="sales.figures" :period-label="period.label" />
+  <div v-if="!sales || !figures" class="skeleton h-64 rounded-2xl" />
+  <div v-else class="stagger flex min-w-0 flex-col gap-5">
+    <sales-tiles :figures="figures" :period-label="period.label" />
 
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
-      <ui-bar-chart :title="$t(sales.chartTitleKey)" :series="SALES_SERIES" :bars="chartBars" class="lg:col-span-3">
+      <ui-bar-chart :title="$t(sales.chartTitleKey)" :series="salesSeries" :bars="chartBars" class="lg:col-span-3">
         <template #tooltip="{ bar }">
-          <p>CA {{ formatMoneyRounded(bar.values.revenue) }}</p>
-          <p>Encaissé {{ formatMoneyRounded(bar.values.collected) }}</p>
+          <p>{{ $t('dashboard.management.sales.revenue', { amount: formatMoneyRounded(bar.values.revenue) }) }}</p>
+          <p>{{ $t('dashboard.management.sales.collected', { amount: formatMoneyRounded(bar.values.collected) }) }}</p>
         </template>
       </ui-bar-chart>
       <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5 lg:col-span-2">
-        <h2 class="heading-four">Encaissé par mode</h2>
+        <h2 class="heading-four">{{ $t('dashboard.management.sales.byMethod') }}</h2>
         <div class="flex flex-col items-center gap-5 sm:flex-row lg:flex-col xl:flex-row">
           <div class="relative h-40 w-40 shrink-0">
             <svg viewBox="0 0 42 42" class="h-full w-full -rotate-90">
@@ -33,8 +34,8 @@
               />
             </svg>
             <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p class="body-three">{{ hovered ? $t(`finance.methods.${hovered.key}`) : 'Encaissé' }}</p>
-              <p class="text-lg figure">{{ formatMoneyRounded(hovered ? hovered.amount : sales.figures.collected) }}</p>
+              <p class="body-three">{{ hovered ? $t(`finance.methods.${hovered.key}`) : $t('finance.salesTiles.collected') }}</p>
+              <p class="text-lg figure">{{ formatMoneyRounded(hovered ? hovered.amount : figures.collected) }}</p>
             </div>
           </div>
           <ul class="flex w-full flex-col gap-2 text-sm">
@@ -57,12 +58,12 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — "Finances" tab v2, variant A of ticket 0029: sales tiles, CA vs Encaissé bars, Encaissé by payment method as a donut.
 // imports
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { salesMock } from 'finance/constants/mock-sales';
-import { useSiteStore } from 'site/stores/site';
+import { useFinanceStore } from 'finance/stores/finance';
+import { useFinance } from 'finance/composables/use-finance';
 import { PAYMENT_METHOD_COLORS } from 'finance/constants/finance';
 import type { PaymentMethodKey } from 'finance/types/finance';
 import type { IPeriod } from 'global/types/period';
@@ -75,25 +76,28 @@ import SalesTiles from 'finance/components/sales-tiles.vue';
 import UiBarChart from 'global/components/ui-bar-chart.vue';
 
 // props
-const props = defineProps<{ period: IPeriod; scale: number }>();
+defineProps<{ period: IPeriod }>();
 
 // variables
-const SALES_SERIES: IChartSeries[] = [
-  { key: 'revenue', label: 'CA', colorClass: 'bg-primary-olive-light', hoverClass: 'bg-primary-olive-mid' },
-  { key: 'collected', label: 'Encaissé', colorClass: 'bg-primary-olive-dark' },
-];
 const hoveredKey = ref<PaymentMethodKey | null>(null);
 
 // stores
-const siteStore = useSiteStore();
+const { t } = useI18n();
+const financeStore = useFinanceStore();
+const { figures } = useFinance();
 
 // computed
-const sales = computed(() => salesMock(siteStore.currentSiteId ?? '', props.period.key));
-const chartBars = computed(() => sales.value.bars.map((bar) => ({ label: bar.label, values: { revenue: bar.revenue, collected: bar.collected }, isCurrent: bar.isCurrent })));
+const sales = computed(() => financeStore.sales);
+const salesSeries = computed((): IChartSeries[] => [
+  { key: 'revenue', label: t('dashboard.management.sales.revenueLegend'), colorClass: 'bg-primary-olive-light', hoverClass: 'bg-primary-olive-mid' },
+  { key: 'collected', label: t('finance.salesTiles.collected'), colorClass: 'bg-primary-olive-dark' },
+]);
+const chartBars = computed(() => (sales.value?.bars ?? []).map((bar) => ({ label: bar.label, values: { revenue: bar.revenue, collected: bar.collected }, isCurrent: bar.isCurrent })));
 const slices = computed(() => {
-  const total = sales.value.methods.reduce((sum, method) => sum + method.amount, 0) || 1;
+  const methods = sales.value?.methods ?? [];
+  const total = methods.reduce((sum, method) => sum + method.amount, 0) || 1;
   let offset = 0;
-  return sales.value.methods.map((method) => {
+  return methods.map((method) => {
     const pct = (method.amount / total) * 100;
     const slice = { ...method, pct, offset };
     offset += pct;

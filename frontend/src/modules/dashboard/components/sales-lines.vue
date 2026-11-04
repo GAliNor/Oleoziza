@@ -1,11 +1,11 @@
 <template>
   <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
-      <h2 class="heading-four">{{ title }} (cumulés)</h2>
+      <h2 class="heading-four">{{ $t('dashboard.management.sales.cumulative', { title }) }}</h2>
       <div class="flex items-center gap-3 body-three text-fg-primary-paragraph">
-        <span class="flex items-center gap-1.5"><span class="h-0.5 w-4 bg-primary-olive-mid" /> CA</span>
-        <span class="flex items-center gap-1.5"><span class="h-0.5 w-4 bg-primary-olive-dark" /> Encaissé</span>
-        <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-accent-rust/15" /> Écart</span>
+        <span class="flex items-center gap-1.5"><span class="h-0.5 w-4 bg-primary-olive-mid" /> {{ $t('dashboard.management.sales.revenueLegend') }}</span>
+        <span class="flex items-center gap-1.5"><span class="h-0.5 w-4 bg-primary-olive-dark" /> {{ $t('finance.salesTiles.collected') }}</span>
+        <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-accent-rust/15" /> {{ $t('dashboard.management.sales.gapLegend') }}</span>
       </div>
     </div>
     <div class="relative" @mouseleave="hoveredIndex = null">
@@ -26,9 +26,9 @@
           :style="{ left: `clamp(0px, calc(${(xOf(hoveredIndex) / 300) * 100}% - 75px), calc(100% - 160px))` }"
         >
           <p class="font-semibold">{{ series[hoveredIndex].label }}</p>
-          <p>CA {{ formatMoneyRounded(series[hoveredIndex].revenue) }}</p>
-          <p>Encaissé {{ formatMoneyRounded(series[hoveredIndex].collected) }}</p>
-          <p class="text-fg-highlight">Écart {{ formatMoneyRounded(series[hoveredIndex].revenue - series[hoveredIndex].collected) }}</p>
+          <p>{{ $t('dashboard.management.sales.revenue', { amount: formatMoneyRounded(series[hoveredIndex].revenue) }) }}</p>
+          <p>{{ $t('dashboard.management.sales.collected', { amount: formatMoneyRounded(series[hoveredIndex].collected) }) }}</p>
+          <p class="text-fg-highlight">{{ $t('dashboard.management.sales.gap', { amount: formatMoneyRounded(series[hoveredIndex].revenue - series[hoveredIndex].collected) }) }}</p>
         </div>
       </Transition>
     </div>
@@ -39,7 +39,6 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — cumulative CA and Encaissé as two lines with the gap shaded (ticket 0028, variant C).
 // imports
 import { computed, ref } from 'vue';
 

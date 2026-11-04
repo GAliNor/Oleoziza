@@ -1,7 +1,7 @@
 <template>
   <div class="card flex min-w-0 flex-col gap-4 rounded-2xl p-5">
     <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-      <h2 class="heading-four">Cuves</h2>
+      <h2 class="heading-four">{{ $t('dashboard.tanks.title') }}</h2>
       <p class="body-two tabular-nums">{{ formatKgRounded(totalFill) }} / {{ formatKgRounded(totalCapacity) }}</p>
     </div>
     <div class="grid flex-1 auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3" :class="{ 'xl:grid-cols-5': tanks.length > 3 }">
@@ -21,7 +21,7 @@
         <div class="flex flex-col gap-0.5 bg-surface px-2 py-1.5">
           <div class="flex items-center justify-between gap-1">
             <p class="truncate text-xs font-semibold text-fg-primary-paragraph">{{ tank.name }}</p>
-            <span v-if="tank.isBio" class="chip bg-success-subtle px-1.5 text-fg-success">Bio</span>
+            <span v-if="tank.isBio" class="chip bg-success-subtle px-1.5 text-fg-success">{{ $t('dashboard.tanks.bio') }}</span>
           </div>
           <p class="truncate body-three font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
           <p class="body-three tabular-nums">{{ formatKgRounded(tank.fillKg) }}</p>
@@ -32,20 +32,19 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — Tank cards that fill their block, with a liquid level rising on load, from reference 05 (ticket 0019).
 // imports
 import { computed } from 'vue';
 
-import { type ITankPrototype } from 'dashboard/prototype/mock-home.prototype';
+import type { ITank } from 'dashboard/types/dashboard';
 import { formatKgRounded } from 'lot/composables/quantity';
 
 // props
-const props = defineProps<{ tanks: ITankPrototype[] }>();
+const props = defineProps<{ tanks: ITank[] }>();
 
 // computed
 const totalFill = computed((): number => props.tanks.reduce((sum, tank) => sum + tank.fillKg, 0));
 const totalCapacity = computed((): number => props.tanks.reduce((sum, tank) => sum + tank.capacityKg, 0));
 
 // methods
-const fillRatio = (tank: ITankPrototype): number => tank.fillKg / tank.capacityKg;
+const fillRatio = (tank: ITank): number => tank.fillKg / tank.capacityKg;
 </script>

@@ -60,5 +60,87 @@
       "receiveNow": "Réceptionner maintenant",
       "later": "Plus tard"
     }
+  },
+  "management": {
+    "financeHidden": "Finances masquées (autorisation « finance.view »)",
+    "sections": "Sections",
+    "loadError": "Impossible de charger le tableau de bord.",
+    "retry": "Réessayer",
+    "yield": "Rendement moyen",
+    "vsPreviousSeason": "vs saison préc.",
+    "tabs": {
+      "overview": "Vue d’ensemble",
+      "production": "Production",
+      "finance": "Finances",
+      "tanks": "Planning cuves"
+    },
+    "overview": {
+      "production": "Production",
+      "sales": "Ventes",
+      "olives": "Olives · {period}",
+      "oil": "Huile · {period}",
+      "receptions": "{count} réceptions",
+      "tankFill": "Remplissage cuves"
+    },
+    "production": {
+      "olives": "Olives reçues · {period}",
+      "oil": "Huile produite · {period}",
+      "yieldSub": "{value} kg d’huile par quintal",
+      "wait": "Attente avant pressage",
+      "lotsPressed": "{count} lots pressés",
+      "origin": "Origine des olives",
+      "service": "Trituration à façon",
+      "purchase": "Achats",
+      "columns": {
+        "variety": "Variété",
+        "lots": "Lots",
+        "olives": "Olives",
+        "oil": "Huile",
+        "yield": "Rendement"
+      }
+    },
+    "oliveChart": {
+      "days": "Olives reçues, 7 derniers jours",
+      "monthWeeks": "Olives reçues, par semaine ce mois",
+      "seasonWeeks": "Olives reçues, par semaine de saison"
+    },
+    "queue": {
+      "title": "File des lots",
+      "now": "· maintenant",
+      "open": "Voir la file →"
+    },
+    "sales": {
+      "cumulative": "{title} (cumulés)",
+      "revenueLegend": "CA",
+      "gapLegend": "Écart",
+      "revenue": "CA {amount}",
+      "collected": "Encaissé {amount}",
+      "gap": "Écart {amount}",
+      "byMethod": "Encaissé par mode"
+    },
+    "siteTable": {
+      "site": "Site",
+      "olives": "Olives auj.",
+      "oil": "Huile auj.",
+      "queue": "File",
+      "yield": "Rendement",
+      "revenue": "CA saison",
+      "outstanding": "À encaisser"
+    }
+  },
+  "tanks": {
+    "title": "Cuves",
+    "tank": "Cuve",
+    "bio": "Bio",
+    "planning": "Planning des cuves",
+    "planningHint": "Huile stockée par lot, du pressage au retrait",
+    "previous": "Période précédente",
+    "next": "Période suivante",
+    "clientOil": "Huile d’un client",
+    "client": "Client",
+    "millStock": "Stock du moulin",
+    "ongoing": "en cours",
+    "withdrawnOn": "retiré le {date}",
+    "empty": "Vide sur la période"
   }
 }

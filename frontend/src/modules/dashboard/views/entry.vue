@@ -1,6 +1,6 @@
 <template>
   <app-layout>
-    <management-home-prototype v-if="sessionStore.session?.role === 'management'" />
+    <management-home v-if="sessionStore.session?.role === 'management'" />
     <operator-home v-else-if="sessionStore.session?.role === 'operator'" />
     <section v-else class="flex flex-col gap-6">
       <div>
@@ -54,7 +54,7 @@ import { PERMISSIONS } from 'auth/constants/permissions';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
-import ManagementHomePrototype from 'dashboard/prototype/management-home.prototype.vue';
+import ManagementHome from 'dashboard/components/management-home.vue';
 import OperatorHome from 'dashboard/components/operator-home.vue';
 
 // stores

@@ -76,8 +76,7 @@ export const useFinanceLoader = (): { reload: () => void } => {
   const load = (isForced: boolean): void => {
     const siteId = siteStore.currentSiteId;
     if (!siteId) return;
-    financeStore.fetchMovements(siteId, isForced);
-    financeStore.fetchSales(siteId, period.value.key);
+    financeStore.load(siteId, period.value.key, isForced);
   };
 
   watch([() => siteStore.currentSiteId, () => period.value.key], () => load(false), { immediate: true });

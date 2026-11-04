@@ -3,18 +3,18 @@
     <table class="data-table min-w-160">
       <thead>
         <tr>
-          <th class="px-4 py-3 font-semibold">Site</th>
-          <th class="px-4 py-3 text-right font-semibold">Olives auj.</th>
-          <th class="px-4 py-3 text-right font-semibold">Huile auj.</th>
-          <th class="px-4 py-3 text-right font-semibold">File</th>
-          <th class="px-4 py-3 text-right font-semibold">Rendement</th>
-          <th v-if="isFinanceShown" class="px-4 py-3 text-right font-semibold">CA saison</th>
-          <th v-if="isFinanceShown" class="px-4 py-3 text-right font-semibold">À encaisser</th>
+          <th class="px-4 py-3 font-semibold">{{ $t('dashboard.management.siteTable.site') }}</th>
+          <th class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.siteTable.olives') }}</th>
+          <th class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.siteTable.oil') }}</th>
+          <th class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.siteTable.queue') }}</th>
+          <th class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.siteTable.yield') }}</th>
+          <th v-if="isFinanceShown" class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.siteTable.revenue') }}</th>
+          <th v-if="isFinanceShown" class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.siteTable.outstanding') }}</th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="site in SITE_FIGURES"
+          v-for="site in sites"
           :key="site.siteId"
           class="cursor-pointer border-t border-subtle hover:bg-selected/30"
           @click="siteStore.selectSite(site.siteId)"
@@ -33,16 +33,15 @@
 </template>
 
 <script setup lang="ts">
-// PROTOTYPE — per-Site comparison table shown in "All Sites" mode; a row click switches Site (ticket 0019).
 // imports
 import { useSiteStore } from 'site/stores/site';
-import { SITE_FIGURES } from 'dashboard/prototype/mock-home.prototype';
+import type { ISiteFigures } from 'dashboard/types/dashboard';
 import { formatMoneyRounded } from 'global/composables/money';
 import { formatKgRounded } from 'lot/composables/quantity';
 import { formatNumber } from 'global/composables/number';
 
 // props
-defineProps<{ isFinanceShown: boolean }>();
+defineProps<{ sites: ISiteFigures[]; isFinanceShown: boolean }>();
 
 // stores
 const siteStore = useSiteStore();

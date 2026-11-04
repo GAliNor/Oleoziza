@@ -30,6 +30,9 @@ export const useFinanceStore = defineStore('finance', {
       const sales = await withStatus(this, 'isLoading', () => financeService.getSales(siteId, period), { errorFlag: 'hasError' });
       if (sales) this.sales = sales;
     },
+    load(siteId: string, period: PeriodKey, isForced = false): Promise<void[]> {
+      return Promise.all([this.fetchMovements(siteId, isForced), this.fetchSales(siteId, period)]);
+    },
     async decide(movement: IMovement, decision: Omit<IMovementDecision, 'by'>): Promise<IMovement | null> {
       const updated = await withStatus(this, 'isSaving', () => financeService.decideMovement(movement.id, { ...decision, by: useSessionStore().fullName }));
       if (updated) this.movements.splice(this.movements.findIndex((item) => item.id === updated.id), 1, updated);
