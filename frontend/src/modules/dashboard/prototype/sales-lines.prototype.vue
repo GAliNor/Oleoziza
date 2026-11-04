@@ -43,17 +43,17 @@
 // imports
 import { computed, ref } from 'vue';
 
-import { type ISalesBarPrototype } from 'dashboard/prototype/mock-home.prototype';
+import type { ISalesBar } from 'finance/types/finance';
 import { formatMoneyRounded } from 'global/composables/money';
 
 // props
-const props = defineProps<{ title: string; bars: ISalesBarPrototype[] }>();
+const props = defineProps<{ title: string; bars: ISalesBar[] }>();
 
 // variables
 const hoveredIndex = ref<number | null>(null);
 
 // computed
-const series = computed((): ISalesBarPrototype[] => {
+const series = computed((): ISalesBar[] => {
   let revenue = 0;
   let collected = 0;
   return props.bars.map((bar) => {

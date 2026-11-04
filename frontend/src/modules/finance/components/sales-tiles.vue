@@ -29,12 +29,12 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { formatMoneyRounded } from 'global/composables/money';
-import type { ISalesFiguresPrototype } from 'dashboard/prototype/mock-home.prototype';
+import type { ISalesFigures } from 'finance/types/finance';
 
 import UiStatTile from 'global/components/ui-stat-tile.vue';
 
 // props
-const props = withDefaults(defineProps<{ figures: ISalesFiguresPrototype; periodLabel: string; layout?: 'grid' | 'stacked'; canOpenPending?: boolean; isActive?: boolean }>(), {
+const props = withDefaults(defineProps<{ figures: ISalesFigures; periodLabel: string; layout?: 'grid' | 'stacked'; canOpenPending?: boolean; isActive?: boolean }>(), {
   layout: 'grid',
   canOpenPending: false,
   isActive: false,

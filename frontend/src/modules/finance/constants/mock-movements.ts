@@ -1,59 +1,16 @@
-// PROTOTYPE — Payments and Payouts for the Management Finances page (ticket 0034), until the Money data model exists.
-import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
-import type { PaymentMethodKey } from 'dashboard/prototype/mock-home.prototype';
+import { shiftDate, todayIso } from 'global/composables/date';
 import { formatNumber } from 'global/composables/number';
+import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
+import type { IMovement, PaymentMethodKey } from 'finance/types/finance';
 
-export type MovementKind = 'payment' | 'payout';
-
-export type MovementStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled';
-
-export type MovementPurpose = 'fee' | 'sale' | 'purchase';
-
-export type Settlement = 'credit_note' | 'refund';
-
-export interface IMovementPrototype {
-  id: string;
-  code: string;
-  kind: MovementKind;
-  purpose: MovementPurpose;
-  siteId: string;
-  client: string;
-  label: string;
-  amount: number;
-  feeOffset?: number;
-  method: PaymentMethodKey;
-  reference?: string;
-  oilKg?: number;
+interface ISeedMovement extends Omit<IMovement, 'proofUrl'> {
   hasProof: boolean;
-  status: MovementStatus;
-  recordedBy: string;
-  recordedAt: string;
-  wasOffline?: boolean;
-  decidedBy?: string;
-  decidedAt?: string;
-  note?: string;
-  settlement?: Settlement;
 }
-
-export const METHOD_LABELS: Record<PaymentMethodKey, string> = { cash: 'Espèces', cheque: 'Chèque', transfer: 'Virement', oil: 'Part d’huile' };
-
-export const STATUS_LABELS: Record<MovementStatus, string> = { pending: 'À confirmer', confirmed: 'Confirmé', rejected: 'Rejeté', cancelled: 'Annulé' };
-
-export const STATUS_CLASSES: Record<MovementStatus, string> = {
-  pending: 'bg-warning-subtle text-fg-warning',
-  confirmed: 'bg-success-subtle text-fg-success',
-  rejected: 'bg-danger-subtle text-fg-danger',
-  cancelled: 'bg-emphasis text-fg-primary-paragraph',
-};
-
-export const PURPOSE_LABELS: Record<MovementPurpose, string> = { fee: 'Frais de trituration', sale: 'Vente', purchase: 'Achat d’olives' };
-
-export const SETTLEMENT_LABELS: Record<Settlement, string> = { credit_note: 'Avoir', refund: 'Remboursement' };
 
 const O = SITE_OUJDA_ID;
 const B = SITE_BERKANE_ID;
 
-export const MOVEMENTS_MOCK: IMovementPrototype[] = [
+const SEEDS: ISeedMovement[] = [
   { id: 'm01', code: 'P-0412', kind: 'payment', purpose: 'fee', siteId: O, client: 'Said Tahiri', label: 'Frais OJ-2627-0152 · 2 050 kg × 0,50 DH', amount: 1025, method: 'cash', hasProof: false, status: 'pending', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-24T11:40:00+01:00' },
   { id: 'm02', code: 'P-0411', kind: 'payment', purpose: 'sale', siteId: O, client: 'Restaurant Al Andalous', label: 'Vente 60 L d’huile vierge', amount: 3900, method: 'cheque', reference: 'Chèque n° 4410278 · Attijariwafa bank', hasProof: true, status: 'pending', recordedBy: 'Imane Saidi', recordedAt: '2026-10-24T10:55:00+01:00' },
   { id: 'm03', code: 'V-0058', kind: 'payout', purpose: 'purchase', siteId: O, client: 'Coopérative Angad', label: 'Achat OJ-2627-0156 · 3 210 kg × 4,20 DH', amount: 12852, feeOffset: 630, method: 'transfer', reference: 'Virement réf. CIH-20261024-118', hasProof: true, status: 'pending', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-24T09:30:00+01:00' },
@@ -78,7 +35,7 @@ export const MOVEMENTS_MOCK: IMovementPrototype[] = [
 
 const PROOF_TITLES: Record<PaymentMethodKey, string> = { cash: 'REÇU', cheque: 'CHÈQUE', transfer: 'AVIS DE VIREMENT', oil: 'BON' };
 
-export const proofImage = (movement: IMovementPrototype): string => {
+const proofImage = (movement: ISeedMovement): string => {
   const amount = formatNumber(movement.amount);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="280" viewBox="0 0 480 280">
     <rect width="480" height="280" rx="14" fill="#FBF8F1" stroke="#D6D3D1"/>
@@ -95,3 +52,17 @@ export const proofImage = (movement: IMovementPrototype): string => {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
+const MOCK_DATA_TODAY = '2026-10-24';
+
+/** Keeps dated rows as recent as they were written, however long ago that was. */
+const rebaseDate = (at: string): string => {
+  const shiftInDays = Math.round((new Date(todayIso()).getTime() - new Date(MOCK_DATA_TODAY).getTime()) / 86_400_000);
+  return `${shiftDate(at.slice(0, 10), shiftInDays)}${at.slice(10)}`;
+};
+
+export const MOVEMENTS_MOCK: IMovement[] = SEEDS.map(({ hasProof, ...seed }) => ({
+  ...seed,
+  proofUrl: hasProof ? proofImage({ hasProof, ...seed }) : null,
+  recordedAt: rebaseDate(seed.recordedAt),
+  ...(seed.decidedAt ? { decidedAt: rebaseDate(seed.decidedAt) } : {}),
+}));

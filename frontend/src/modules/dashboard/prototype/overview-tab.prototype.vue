@@ -16,8 +16,8 @@
     </div>
     <div v-if="isFinanceShown" class="stagger flex min-w-0 flex-col gap-5">
       <p class="eyebrow text-fg-secondary-paragraph">Ventes</p>
-      <sales-tiles :figures="sales" :period-label="period.label" layout="stacked" class="-mt-3" />
-      <sales-lines :title="salesChart.title" :bars="salesChart.bars" />
+      <sales-tiles :figures="sales.figures" :period-label="period.label" layout="stacked" class="-mt-3" />
+      <sales-lines :title="$t(sales.chartTitleKey)" :bars="sales.bars" />
     </div>
   </div>
 </template>
@@ -29,7 +29,8 @@ import { computed } from 'vue';
 
 import { useSiteStore } from 'site/stores/site';
 import { createLots, formatDelta, LOT_STATUSES, olivesBars,
-  OLIVE_SERIES, salesBars, salesFigures, SEASON, SITE_FIGURES, type ITankPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
+  OLIVE_SERIES, SEASON, SITE_FIGURES, type ITankPrototype, type LotStatus } from 'dashboard/prototype/mock-home.prototype';
+import { salesMock } from 'finance/constants/mock-sales';
 import { MOCK_PERIOD_FACTORS } from 'global/constants/period';
 import type { IPeriod } from 'global/types/period';
 import { formatLitres } from 'lot/composables/quantity';
@@ -98,7 +99,6 @@ const queue = computed(
       ]),
     ) as Record<LotStatus, number>,
 );
-const sales = computed(() => salesFigures(factor.value));
-const salesChart = computed(() => salesBars(props.period.key, props.scale));
+const sales = computed(() => salesMock(siteStore.currentSiteId ?? '', props.period.key));
 const olivesChart = computed(() => olivesBars(props.period.key, props.scale));
 </script>

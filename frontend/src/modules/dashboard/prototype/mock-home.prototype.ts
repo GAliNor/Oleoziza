@@ -238,14 +238,6 @@ export const TANK_STORAGE: ITankStoragePrototype[] = [
 
 export const dayLabel = (offset: number): string => formatShortDate(shiftDate(todayIso(), offset));
 
-const MOCK_DATA_TODAY = '2026-10-24';
-
-/** Keeps dated mock rows as recent as they were written, however long ago that was. */
-export const rebaseMockDate = (at: string): string => {
-  const shiftInDays = Math.round((new Date(todayIso()).getTime() - new Date(MOCK_DATA_TODAY).getTime()) / 86_400_000);
-  return `${shiftDate(at.slice(0, 10), shiftInDays)}${at.slice(10)}`;
-};
-
 export const SEASON_WEEKS = [
   { week: 'S1', oliveKg: 61800, oilKg: 10900 },
   { week: 'S2', oliveKg: 88400, oilKg: 15600 },
@@ -281,83 +273,3 @@ export const olivesBars = (periodKey: string, scale: number): { title: string; b
     })),
   };
 };
-
-export type PaymentMethodKey = 'cash' | 'cheque' | 'transfer' | 'oil';
-
-export interface ISalesFiguresPrototype {
-  revenue: number;
-  collected: number;
-  pending: number;
-  outstanding: number;
-  pendingCount: number;
-}
-
-export interface ISalesBarPrototype {
-  label: string;
-  revenue: number;
-  collected: number;
-  isCurrent: boolean;
-}
-
-export const SALES_SEASON: ISalesFiguresPrototype = { revenue: 371200, collected: 289400, pending: 23850, outstanding: 57950, pendingCount: 7 };
-
-export const PAYMENT_METHODS: { key: PaymentMethodKey; label: string; amount: number; tone: string }[] = [
-  { key: 'cash', label: 'Espèces', amount: 154300, tone: '#5C6A47' },
-  { key: 'cheque', label: 'Chèque', amount: 61800, tone: '#96A586' },
-  { key: 'transfer', label: 'Virement', amount: 58700, tone: '#D4A373' },
-  { key: 'oil', label: 'Part d’huile', amount: 14600, tone: '#A66127' },
-];
-
-const DAILY_SALES = [
-  { label: 'mer.', revenue: 14200, collected: 11800 },
-  { label: 'jeu.', revenue: 18900, collected: 12400 },
-  { label: 'ven.', revenue: 9600, collected: 9100 },
-  { label: 'sam.', revenue: 22300, collected: 15700 },
-  { label: 'dim.', revenue: 6100, collected: 6100 },
-  { label: 'lun.', revenue: 16800, collected: 10200 },
-  { label: 'auj.', revenue: 12400, collected: 4300 },
-];
-
-const WEEKLY_SALES = [
-  { label: 'S1', revenue: 38400, collected: 33100 },
-  { label: 'S2', revenue: 52700, collected: 46900 },
-  { label: 'S3', revenue: 68900, collected: 58200 },
-  { label: 'S4', revenue: 79300, collected: 64800 },
-  { label: 'S5', revenue: 70200, collected: 52300 },
-  { label: 'S6', revenue: 61700, collected: 34100 },
-];
-
-export const salesFigures = (factor: number): ISalesFiguresPrototype => {
-  const revenue = SALES_SEASON.revenue * factor;
-  const span = Math.min(factor, 1);
-  const pending = revenue * (SALES_SEASON.pending / SALES_SEASON.revenue + 0.12 * (1 - span));
-  const outstanding = revenue * (SALES_SEASON.outstanding / SALES_SEASON.revenue) * (0.6 + 0.4 * span);
-  return {
-    revenue,
-    collected: revenue - pending - outstanding,
-    pending,
-    outstanding,
-    pendingCount: Math.max(1, Math.round(SALES_SEASON.pendingCount * Math.min(factor * 4, 1))),
-  };
-};
-
-export const salesBars = (periodKey: string, scale: number): { title: string; bars: ISalesBarPrototype[] } => {
-  if (periodKey === 'today' || periodKey === 'week') {
-    return {
-      title: 'CA et encaissé, 7 derniers jours',
-      bars: DAILY_SALES.map((day, index) => ({ label: day.label, revenue: day.revenue * scale, collected: day.collected * scale, isCurrent: index === DAILY_SALES.length - 1 })),
-    };
-  }
-  const weeks = periodKey === 'month' ? WEEKLY_SALES.slice(-4) : WEEKLY_SALES;
-  const factor = periodKey === 'previous' ? 1.48 * scale : scale;
-  return {
-    title: periodKey === 'month' ? 'CA et encaissé, par semaine ce mois' : 'CA et encaissé, par semaine de saison',
-    bars: weeks.map((week, index) => ({
-      label: week.label,
-      revenue: week.revenue * factor,
-      collected: week.collected * factor,
-      isCurrent: periodKey !== 'previous' && index === weeks.length - 1,
-    })),
-  };
-};
-

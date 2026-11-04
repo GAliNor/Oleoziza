@@ -7,5 +7,106 @@
     "pendingSub": "{count} paiement · voir → | {count} paiements · voir →",
     "outstanding": "Reste à encaisser",
     "share": "{percent} % du CA"
+  },
+  "page": {
+    "title": "Finances",
+    "subtitle": "{scope} · paiements reçus et versements payés",
+    "readOnly": "Tous les sites · lecture seule",
+    "loadError": "Impossible de charger les finances.",
+    "retry": "Réessayer"
+  },
+  "sales": {
+    "chart": {
+      "days": "CA et encaissé, 7 derniers jours",
+      "monthWeeks": "CA et encaissé, par semaine ce mois",
+      "seasonWeeks": "CA et encaissé, par semaine de saison"
+    }
+  },
+  "register": {
+    "search": "Client, référence ou n°",
+    "tabsLabel": "Mouvements",
+    "tabs": {
+      "pending": "À confirmer",
+      "all": "Tous les mouvements"
+    },
+    "back": "Retour aux finances",
+    "photo": "photo",
+    "emptyPending": "Rien à confirmer. Tout est à jour.",
+    "emptyAll": "Aucun mouvement sur la période",
+    "nextPending": "Suivant à confirmer →",
+    "columns": {
+      "date": "Date",
+      "client": "Client",
+      "label": "Objet",
+      "method": "Mode",
+      "recordedBy": "Saisi par",
+      "amount": "Montant",
+      "status": "Statut"
+    }
+  },
+  "methods": {
+    "cash": "Espèces",
+    "cheque": "Chèque",
+    "transfer": "Virement",
+    "oil": "Part d’huile"
+  },
+  "statuses": {
+    "pending": "À confirmer",
+    "confirmed": "Confirmé",
+    "rejected": "Rejeté",
+    "cancelled": "Annulé"
+  },
+  "purposes": {
+    "fee": "Frais de trituration",
+    "sale": "Vente",
+    "purchase": "Achat d’olives"
+  },
+  "kinds": {
+    "payment": "Paiement reçu",
+    "payout": "Versement payé"
+  },
+  "settlements": {
+    "credit_note": {
+      "label": "Avoir",
+      "hint": "à déduire d’un prochain paiement"
+    },
+    "refund": {
+      "label": "Remboursement",
+      "hint": "l’argent est rendu au Client"
+    }
+  },
+  "detail": {
+    "reference": "Référence",
+    "offline": "saisi hors ligne",
+    "site": "Site",
+    "offset": "Compensation (frais déduits)",
+    "offsetLine": "{gross} − {fee} de frais = {net} versés",
+    "decidedBy": "{status} par",
+    "proof": "Justificatif",
+    "proofAlt": "Justificatif du paiement",
+    "noProof": "Aucune photo jointe.",
+    "noProofCash": "Aucune photo jointe (espèces).",
+    "readOnly": "« Tous les sites » est en lecture seule : choisissez le Site pour confirmer ou annuler.",
+    "offlineHint": "Hors ligne : la confirmation et l’annulation reviennent avec le réseau.",
+    "rejectReason": "Motif du rejet",
+    "rejectPlaceholder": "Ex. montant absent de la caisse",
+    "oilReturns": "Les {quantity} reviennent au stock du Client.",
+    "back": "Retour",
+    "reject": "Rejeter",
+    "rejectStart": "Rejeter…",
+    "confirm": "Confirmer {amount}",
+    "cancelReason": "Motif de l’annulation",
+    "cancelPlaceholder": "Ex. chèque revenu impayé",
+    "cancel": "Annuler le paiement",
+    "cancelStart": "Annuler ce paiement…"
+  },
+  "toasts": {
+    "onlineOnly": "La confirmation se fait en ligne uniquement.",
+    "error": "L’action n’a pas abouti. Réessayez.",
+    "confirmed": "{code} confirmé · {amount}",
+    "rejected": "{code} rejeté ; le montant reste dû",
+    "rejectedOil": "{code} rejeté · {quantity} rendus au stock du Client",
+    "credit_note": "Avoir de {amount} créé pour {client}",
+    "refund": "Remboursement de {amount} à faire à {client}"
   }
 }
