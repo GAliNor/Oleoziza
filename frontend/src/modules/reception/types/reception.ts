@@ -1,48 +1,32 @@
-import type { ContainerKind, ILot, ReceptionMode, WeighingKind, WeighingSource } from 'lot/types/lot';
+import type { DiscountState, ILot, NotificationChoice, ReceptionMode } from 'lot/types/lot';
 
 export interface ISiteReceptionSettings {
-  containerTareKg: Record<ContainerKind, number>;
   dailyPricePerKg: number | null;
+  millingRatePerKg: number;
+  discountLimitPercent: number;
   boxCount: number;
   boxCapacityKg: number;
 }
 
-export interface IOpenReceptionPayload {
+export interface IReceiveLotPayload {
   id: string;
   siteId: string;
   clientId: string;
   mode: ReceptionMode;
   variety: string;
+  netKg: number;
+  millingRatePerKg: number;
+  discount: { amountDh: number; percent: number; state: DiscountState } | null;
+  notificationChoice: NotificationChoice;
+  isContactMissing: boolean;
   boxNumbers: number[];
   photoUrl?: string;
   receivedBy: string;
 }
 
-export interface IWeighingDraft {
-  id: string;
-  kind: WeighingKind;
-  grossKg: number | null;
-  netKgTyped: number | null;
-  containers: Record<ContainerKind, number>;
-  source: WeighingSource;
-}
-
-export interface IAddWeighingPayload {
-  id: string;
-  kind: WeighingKind;
-  grossKg: number | null;
-  containers: Record<ContainerKind, number>;
-  netKg: number;
-  source: WeighingSource;
-  recordedBy: string;
-}
-
 export interface IReceptionService {
   getSettings(siteId: string): Promise<ISiteReceptionSettings>;
-  openReception(payload: IOpenReceptionPayload): Promise<ILot>;
-  addWeighing(lotId: string, payload: IAddWeighingPayload): Promise<ILot>;
-  finishReception(lotId: string): Promise<ILot>;
-  readScale(siteId: string): Promise<number>;
+  receiveLot(payload: IReceiveLotPayload): Promise<ILot>;
 }
 
 export interface IReceptionStore {

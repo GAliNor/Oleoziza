@@ -8,6 +8,7 @@
           <logo-full-fill-icon class="h-10 w-auto text-fg-brand" />
           <span class="sr-only">{{ $t('global.appName') }}</span>
         </div>
+        <ui-language-switch class="w-56" />
       </header>
 
       <main class="flex flex-1 items-start py-10 md:items-center md:py-8">
@@ -31,5 +32,6 @@
 // imports
 import AuthArt from 'auth/components/auth-art.vue';
 import AppToast from 'global/components/app-toast.vue';
+import UiLanguageSwitch from 'global/components/ui-language-switch.vue';
 import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';
 </script>

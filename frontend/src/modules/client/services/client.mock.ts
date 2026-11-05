@@ -1,13 +1,14 @@
-import { mockResolve } from 'global/services/mock';
+import { mockReject, mockResolve } from 'global/services/mock';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { ACCOUNTS_MOCK, EMPTY_ACCOUNT } from 'client/constants/mock-accounts';
 import { CLIENT_RECORDS_MOCK } from 'client/constants/mock-client-records';
 import { SITES_MOCK } from 'site/constants/mock-sites';
-import type { IClient, IClientAccount, IClientRecord, IClientService, ICreateClientPayload } from 'client/types/client';
+import type { IClient, IClientAccount, IClientContact, IClientLotLine, IClientRecord, IClientService, ICreateClientPayload } from 'client/types/client';
 
 export const CLIENTS_MOCK_DB: IClient[] = structuredClone(CLIENTS_MOCK).map((client) => ({
   ...client,
   identifier: CLIENT_RECORDS_MOCK.find((record) => record.id === client.id)?.identifier ?? null,
+  email: CLIENT_RECORDS_MOCK.find((record) => record.id === client.id)?.email ?? null,
 }));
 
 const CLIENT_RECORDS_MOCK_DB: IClientRecord[] = structuredClone(CLIENT_RECORDS_MOCK);
@@ -33,7 +34,9 @@ export default class ClientMockService implements IClientService {
       kind: payload.kind,
       name: payload.name,
       phone: payload.phone,
+      email: payload.email,
       identifier: payload.identifier,
+      creditDh: 0,
       siteIds: [payload.siteId],
       isPendingSync: !navigator.onLine,
     };
@@ -49,11 +52,24 @@ export default class ClientMockService implements IClientService {
       province: payload.location.province,
       address: payload.location.address,
       email: payload.email,
-      oilStockKg: 0,
+      oilStockLitres: 0,
       balance: 0,
-      sites: [{ siteId: payload.siteId, siteName: SITES_MOCK.find((site) => site.id === payload.siteId)?.name ?? '', oilStockKg: 0, balance: 0 }],
+      sites: [{ siteId: payload.siteId, siteName: SITES_MOCK.find((site) => site.id === payload.siteId)?.name ?? '', oilStockLitres: 0, balance: 0 }],
       history: [],
     });
+    return mockResolve(client);
+  }
+
+  getHistory(clientId: string, siteId: string): Promise<IClientLotLine[]> {
+    return mockResolve(CLIENT_RECORDS_MOCK_DB.find((record) => record.id === clientId)?.history.filter((lot) => lot.siteId === siteId) ?? []);
+  }
+
+  updateContact(clientId: string, contact: IClientContact): Promise<IClient> {
+    const client = CLIENTS_MOCK_DB.find((item) => item.id === clientId);
+    if (!client) return mockReject(new Error('client_not_found'));
+    Object.assign(client, contact);
+    const record = CLIENT_RECORDS_MOCK_DB.find((item) => item.id === clientId);
+    if (record) Object.assign(record, contact);
     return mockResolve(client);
   }
 }

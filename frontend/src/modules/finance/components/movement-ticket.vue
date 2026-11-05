@@ -6,7 +6,7 @@
           <p class="body-three">{{ $t(`finance.kinds.${movement.kind}`) }} · {{ $t(`finance.purposes.${movement.purpose}`) }}</p>
           <p class="figure text-display-xs text-fg-display sm:text-display-sm">{{ movement.code }}</p>
         </div>
-        <div class="shrink-0 text-right">
+        <div class="shrink-0 text-end">
           <p class="body-three">{{ $t('finance.ticket.amount') }}</p>
           <p class="figure text-display-xs whitespace-nowrap sm:text-display-sm" :class="isPayment ? 'text-fg-brand' : 'text-fg-accent'">
             {{ isPayment ? '+' : '−' }}{{ formatMoney(movement.amount) }}
@@ -24,7 +24,7 @@
           <span class="hidden w-5 border-t border-dashed border-strong sm:block" />
           <arrow-right-line-icon class="h-4 w-4" />
         </span>
-        <div class="min-w-0 text-right">
+        <div class="min-w-0 text-end">
           <p class="body-three">{{ $t('finance.ticket.to') }}</p>
           <p class="text-xl font-semibold tracking-tight text-balance wrap-break-word" :class="to.isMissing ? 'text-fg-warning' : 'text-fg-display'">{{ to.name }}</p>
           <p v-if="to.detail" class="body-two mt-1">{{ to.detail }}</p>
@@ -63,7 +63,8 @@ import { useI18n } from 'vue-i18n';
 import { useSiteStore } from 'site/stores/site';
 import { formatDateTime } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
-import { formatOilKg } from 'lot/composables/quantity';
+import { formatOil } from 'lot/composables/quantity';
+import { movementLabel } from 'finance/composables/movement-label';
 import { MOVEMENT_STATUS_TONES } from 'finance/constants/finance';
 import type { IMovement, ITicketFact } from 'finance/types/finance';
 
@@ -90,18 +91,22 @@ const isVoid = computed((): boolean => props.movement.status === 'rejected' || p
 const siteName = computed((): string => siteStore.sites.find((site) => site.id === props.movement.siteId)?.name ?? '—');
 const clientEnd = computed((): ITicketEnd => ({ name: props.movement.client, detail: t('finance.ticket.client') }));
 const millEnd = computed((): ITicketEnd => {
-  const { method, bankAccount, oilKg } = props.movement;
+  const { method, bankAccount, oilLitres } = props.movement;
   if (method === 'cash') return { name: t('finance.ticket.cashDesk'), detail: siteName.value };
-  if (method === 'oil') return { name: t('finance.ticket.millStock'), detail: oilKg ? formatOilKg(oilKg) : siteName.value };
+  if (method === 'oil') return { name: t('finance.ticket.millStock'), detail: oilLitres ? formatOil(oilLitres) : siteName.value };
   if (!bankAccount) return { name: t('finance.ticket.noAccount'), isMissing: true };
   return { name: bankAccount.bank, detail: t('finance.ticket.account', { end: bankAccount.accountEnd }) };
 });
 const from = computed((): ITicketEnd => (isPayment.value ? clientEnd.value : millEnd.value));
 const to = computed((): ITicketEnd => (isPayment.value ? millEnd.value : clientEnd.value));
+const movementLinkFacts = (movement: IMovement): ITicketFact[] =>
+  movement.lotLinks.length
+    ? movement.lotLinks.map((link) => ({ key: `lot-${link.lotId}`, label: t('finance.ticket.lot', { code: link.lotCode }), value: formatMoney(link.amount), isWide: true }))
+    : [{ key: 'label', label: t('finance.register.columns.label'), value: movementLabel(movement), isWide: true }];
 const facts = computed((): ITicketFact[] => {
   const { movement } = props;
   const lines: ITicketFact[] = [
-    { key: 'label', label: t('finance.register.columns.label'), value: movement.label, isWide: true },
+    ...movementLinkFacts(movement),
     { key: 'method', label: t('finance.register.columns.method'), value: t(`finance.methods.${movement.method}`), isWide: !movement.reference },
   ];
   if (movement.reference) lines.push({ key: 'reference', label: t('finance.detail.reference'), value: movement.reference });

@@ -9,9 +9,16 @@ export interface IClient {
   kind: ClientKind;
   name: string;
   phone: string;
+  email: string | null;
   identifier: string | null;
+  creditDh: number;
   siteIds: string[];
   isPendingSync: boolean;
+}
+
+export interface IClientContact {
+  phone?: string;
+  email?: string;
 }
 
 export interface ICreateClientPayload {
@@ -33,7 +40,7 @@ export interface IClientAccountLine {
 
 /** Provisional until the Money and Stock data models settle: only what the screens show. */
 export interface IClientAccount {
-  oilStockKg: number;
+  oilStockLitres: number;
   dueDh: number;
   pendingDh: number;
   payoutDh: number;
@@ -45,7 +52,7 @@ export type ClientFollowUp = 'active' | 'at-risk' | 'inactive';
 export interface IClientSiteFigures {
   siteId: string;
   siteName: string;
-  oilStockKg: number;
+  oilStockLitres: number;
   balance: number;
 }
 
@@ -55,7 +62,10 @@ export interface IClientLotLine {
   siteName: string;
   status: LotStatus;
   kg: number;
-  oilKg: number;
+  oilLitres: number;
+  millingRatePerKg: number;
+  variety: string;
+  season: string;
   receivedOn: string;
 }
 
@@ -64,7 +74,7 @@ export type ClientPeriodKey = Exclude<PeriodKey, 'today'> | 'all';
 export interface IClientActivity {
   lots: number;
   oliveKg: number;
-  oilKg: number;
+  oilLitres: number;
   generatedDh: number;
 }
 
@@ -84,7 +94,7 @@ export interface IClientRecord {
   province: ProvinceId | null;
   address: string | null;
   email: string | null;
-  oilStockKg: number;
+  oilStockLitres: number;
   balance: number;
   sites: IClientSiteFigures[];
   history: IClientLotLine[];
@@ -95,12 +105,15 @@ export interface IClientService {
   getRecords(): Promise<IClientRecord[]>;
   getAccount(clientId: string): Promise<IClientAccount>;
   create(payload: ICreateClientPayload): Promise<IClient>;
+  updateContact(clientId: string, contact: IClientContact): Promise<IClient>;
+  getHistory(clientId: string, siteId: string): Promise<IClientLotLine[]>;
 }
 
 export interface IClientStore {
   clients: IClient[];
   accounts: Record<string, IClientAccount>;
   records: IClientRecord[];
+  histories: Record<string, IClientLotLine[]>;
   isLoaded: boolean;
   isLoading: boolean;
   isSaving: boolean;

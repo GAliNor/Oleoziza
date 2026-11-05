@@ -13,7 +13,7 @@
             v-for="lot in column.lots"
             :key="lot.id"
             type="button"
-            class="press-lift flex flex-col gap-1 rounded-card border border-default bg-surface p-3 text-left shadow-raised"
+            class="press-lift flex flex-col gap-1 rounded-card border border-default bg-surface p-3 text-start shadow-raised"
             @click="openLot(lot.id)"
           >
             <span class="flex items-center justify-between gap-2">
@@ -23,7 +23,7 @@
             <span class="truncate body-two text-fg-default">{{ lot.clientName }}</span>
             <span class="body-three tabular-nums">
               {{ formatQuintals(lot.netKg) }}
-              <template v-if="lot.oilKg"> · {{ formatOilKg(lot.oilKg) }} · {{ formatYield(lot.oilKg, lot.netKg) }}</template>
+              <template v-if="lot.oilLitres"> · {{ formatOil(lot.oilLitres) }} · {{ formatYield(lot.oilLitres, lot.netKg) }}</template>
             </span>
           </button>
           <p v-if="!column.lots.length" class="px-1 py-4 text-center body-two">—</p>
@@ -41,7 +41,7 @@
 import { computed } from 'vue';
 
 import { useLotRegister, useOpenLot } from 'lot/composables/use-lot-register';
-import { formatOilKg, formatQuintals, formatYield } from 'lot/composables/quantity';
+import { formatOil, formatQuintals, formatYield } from 'lot/composables/quantity';
 import { formatShortDate, formatTime, todayIso, toIsoDate } from 'global/composables/date';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import type { ILot } from 'lot/types/lot';

@@ -12,7 +12,7 @@
     </span>
     <span class="link flex shrink-0 items-center gap-1 group-hover:no-underline">
       <span class="hidden sm:inline">{{ $t('client.tag.open') }}</span>
-      <arrow-right-line-icon class="h-4 w-4 transition-transform duration-300 ease-(--ease-premium) group-hover:translate-x-0.5" />
+      <arrow-right-line-icon class="h-4 w-4 transition-transform duration-300 ease-(--ease-premium) group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
     </span>
   </router-link>
 </template>

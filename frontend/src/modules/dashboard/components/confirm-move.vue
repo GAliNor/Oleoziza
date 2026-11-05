@@ -15,13 +15,13 @@
 
     <div class="flex items-center justify-center gap-3 text-sm font-medium">
       <span class="rounded-full bg-subtle px-3 py-1.5 text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
-      <span aria-hidden="true">→</span>
+      <span aria-hidden="true">{{ $t('global.arrow') }}</span>
       <span class="rounded-full bg-action px-3 py-1.5 text-fg-on-action">{{ nextLabel }}</span>
     </div>
 
     <label v-if="lot.status === 'pressing'" class="flex flex-col gap-1">
       <span class="label">{{ $t('dashboard.operator.confirm.oil') }}</span>
-      <input v-model.number="oilKg" class="input text-display-xs font-semibold" type="number" inputmode="decimal" min="0" />
+      <input v-model.number="oilLitres" class="input text-display-xs font-semibold" type="number" inputmode="decimal" min="0" />
     </label>
 
     <ui-photo-capture v-model="photo" :label="$t('dashboard.operator.confirm.photo')" />
@@ -60,18 +60,18 @@ const emit = defineEmits<{
 const lotStore = useLotStore();
 
 // variables
-const oilKg = ref<number | null>(null);
+const oilLitres = ref<number | null>(null);
 const moveId = ref(createId());
 const photo = ref<string | null>(null);
 
 // computed
-const isDisabled = computed((): boolean => lotStore.isSaving || (props.lot.status === 'pressing' && !oilKg.value));
+const isDisabled = computed((): boolean => lotStore.isSaving || (props.lot.status === 'pressing' && !oilLitres.value));
 
 // watchers
 watch(
   () => props.lot.id,
   () => {
-    oilKg.value = null;
+    oilLitres.value = null;
     photo.value = null;
     moveId.value = createId();
   },
@@ -79,6 +79,6 @@ watch(
 
 // event handlers
 const handleConfirm = (): void => {
-  emit('confirm', props.lot, { id: moveId.value, oilKg: oilKg.value ?? undefined, photoUrl: photo.value ?? undefined });
+  emit('confirm', props.lot, { id: moveId.value, oilLitres: oilLitres.value ?? undefined, photoUrl: photo.value ?? undefined });
 };
 </script>

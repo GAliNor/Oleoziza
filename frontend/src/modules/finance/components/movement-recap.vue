@@ -25,7 +25,7 @@ import { useI18n } from 'vue-i18n';
 
 import { formatDateTime } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
-import { formatOilKg } from 'lot/composables/quantity';
+import { formatOil } from 'lot/composables/quantity';
 import type { IMovement } from 'finance/types/finance';
 
 // props
@@ -36,9 +36,9 @@ const { t } = useI18n();
 
 // computed
 const extra = computed((): { label: string; value: string } => {
-  const { reference, oilKg, recordedAt } = props.movement;
+  const { reference, oilLitres, recordedAt } = props.movement;
   if (reference) return { label: t('finance.detail.reference'), value: reference };
-  if (oilKg) return { label: t('finance.ticket.quantity'), value: formatOilKg(oilKg) };
+  if (oilLitres) return { label: t('finance.ticket.quantity'), value: formatOil(oilLitres) };
   return { label: t('finance.ticket.recordedAt'), value: formatDateTime(recordedAt) };
 });
 </script>

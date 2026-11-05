@@ -26,7 +26,7 @@
           @click="handleToggle(box)"
         >
           {{ box }}
-          <check-line-icon v-if="modelValue.includes(box)" class="check-pop absolute top-0.5 right-0.5 h-3.5 w-3.5" />
+          <check-line-icon v-if="modelValue.includes(box)" class="check-pop absolute top-0.5 inset-e-0.5 h-3.5 w-3.5" />
         </button>
       </li>
     </ul>

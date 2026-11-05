@@ -2,14 +2,15 @@ import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useFinanceStore } from 'finance/stores/finance';
+import { useLotStore } from 'lot/stores/lot';
+import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
-import { withPendingPayments } from 'finance/composables/sales-figures';
 import { formatMoney } from 'global/composables/money';
 import { toIsoDate } from 'global/composables/date';
 import { periodRange, usePeriod } from 'global/composables/use-period';
 import { useOnlineStatus } from 'global/composables/use-online-status';
-import { formatOilKg } from 'lot/composables/quantity';
+import { formatOil } from 'lot/composables/quantity';
 import type { IMovement, ISalesFigures, Settlement } from 'finance/types/finance';
 
 /** The Finances page: this Site's movements, the sales tiles, and the decisions Management can take. */
@@ -29,18 +30,22 @@ export const useFinance = () => {
     return scoped.value.filter((movement) => toIsoDate(movement.recordedAt) >= from && toIsoDate(movement.recordedAt) <= to);
   });
   const pending = computed((): IMovement[] => scoped.value.filter((movement) => movement.status === 'pending').reverse());
-  const figures = computed((): ISalesFigures | null => (financeStore.sales ? withPendingPayments(financeStore.sales.figures, financeStore.movements) : null));
+  const figures = computed((): ISalesFigures | null => financeStore.sales?.figures ?? null);
   const isReadOnly = computed((): boolean => siteStore.isAllSites);
   const canConfirm = computed((): boolean => !isReadOnly.value && siteStore.can('payment.confirm'));
   const canCancel = computed((): boolean => !isReadOnly.value && siteStore.can('payment.cancel'));
 
   // methods
-  const confirm = async (movement: IMovement): Promise<void> => {
+  const confirm = async (movement: IMovement, settlement?: Settlement): Promise<void> => {
     if (!isOnline.value) {
       toastStore.push(t('finance.toasts.onlineOnly'), 'danger');
       return;
     }
-    const updated = await financeStore.decide(movement, { status: 'confirmed' });
+    if (!useSessionStore().canValidate(movement.recordedBy)) {
+      toastStore.push(t('finance.detail.ownRecord'), 'danger');
+      return;
+    }
+    const updated = await financeStore.decide(movement, { status: 'confirmed', settlement });
     if (updated) toastStore.push(t('finance.toasts.confirmed', { code: updated.code, amount: formatMoney(updated.amount) }), 'success');
     else toastStore.push(t('finance.toasts.error'), 'danger');
   };
@@ -51,7 +56,7 @@ export const useFinance = () => {
       toastStore.push(t('finance.toasts.error'), 'danger');
       return;
     }
-    const message = updated.method === 'oil' && updated.oilKg ? t('finance.toasts.rejectedOil', { code: updated.code, quantity: formatOilKg(updated.oilKg) }) : t('finance.toasts.rejected', { code: updated.code });
+    const message = updated.method === 'oil' && updated.oilLitres ? t('finance.toasts.rejectedOil', { code: updated.code, quantity: formatOil(updated.oilLitres) }) : t('finance.toasts.rejected', { code: updated.code });
     toastStore.push(message, 'success');
   };
 
@@ -77,6 +82,7 @@ export const useFinanceLoader = (): { reload: () => void } => {
     const siteId = siteStore.currentSiteId;
     if (!siteId) return;
     financeStore.load(siteId, period.value.key, isForced);
+    useLotStore().fetchLots(siteId);
   };
 
   watch([() => siteStore.currentSiteId, () => period.value.key], () => load(false), { immediate: true });

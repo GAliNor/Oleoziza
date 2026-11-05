@@ -17,7 +17,7 @@
             </button>
             <button
               type="button"
-              class="icon-btn absolute top-1 right-1"
+              class="icon-btn absolute top-1 inset-e-1"
               :aria-label="$t('auth.switch.forget', { name: profile.firstName })"
               @click="handleForget(profile)"
             >

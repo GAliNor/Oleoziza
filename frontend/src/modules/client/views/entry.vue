@@ -1,5 +1,5 @@
 <template>
-  <app-layout v-if="sessionStore.session?.role === 'management'">
+  <app-layout v-if="sessionStore.isBackofficeView">
     <client-register />
   </app-layout>
   <search-view v-else />

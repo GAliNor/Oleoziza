@@ -30,7 +30,6 @@ import { useFinanceStore } from 'finance/stores/finance';
 import { useSiteStore } from 'site/stores/site';
 import { useFinance } from 'finance/composables/use-finance';
 import { formatDelta } from 'global/composables/number';
-import { formatLitres } from 'lot/composables/quantity';
 import type { IDashboard } from 'dashboard/types/dashboard';
 import type { IPeriod } from 'global/types/period';
 
@@ -53,20 +52,20 @@ const { figures } = useFinance();
 
 // computed
 const tankFill = computed((): number => {
-  const capacity = props.dashboard.tanks.reduce((sum, tank) => sum + tank.capacityKg, 0);
-  return capacity ? props.dashboard.tanks.reduce((sum, tank) => sum + tank.fillKg, 0) / capacity : 0;
+  const capacity = props.dashboard.tanks.reduce((sum, tank) => sum + tank.capacityLitres, 0);
+  return capacity ? props.dashboard.tanks.reduce((sum, tank) => sum + tank.fillLitres, 0) / capacity : 0;
 });
 const productionTiles = computed(() => {
   const { production, season } = props.dashboard;
   const kilogram = t('global.units.kilogram');
   return [
     { label: t('dashboard.management.overview.olives', { period: props.period.label }), value: production.oliveKg, unit: kilogram, sub: t('dashboard.management.overview.receptions', { count: production.receptions }) },
-    { label: t('dashboard.management.overview.oil', { period: props.period.label }), value: production.oilKg, unit: kilogram, sub: formatLitres(production.oilKg) },
+    { label: t('dashboard.management.overview.oil', { period: props.period.label }), value: production.oilLitres, unit: t('global.units.litre') },
     {
       label: t('dashboard.management.yield'),
-      value: production.yieldPct,
+      value: production.yieldPerQuintal,
       decimals: 1,
-      unit: '%',
+      unit: t('global.units.litrePerQuintal'),
       delta: formatDelta(season.yieldDeltaPct),
       deltaLabel: t('dashboard.management.vsPreviousSeason'),
       isDeltaGood: season.yieldDeltaPct >= 0,

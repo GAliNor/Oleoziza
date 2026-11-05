@@ -20,7 +20,7 @@
       </span>
       <button
         type="button"
-        class="flex min-h-11 min-w-0 items-center gap-2 rounded-control border border-default bg-surface pr-3 pl-1 label"
+        class="flex min-h-11 min-w-0 items-center gap-2 rounded-control border border-default bg-surface pe-3 ps-1 label"
         :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
         @click="handleSwitchOperator"
       >
@@ -28,9 +28,16 @@
         <span class="max-w-24 min-w-0 truncate">{{ operatorName }}</span>
         <user-switch-line-icon class="h-4 w-4 shrink-0 text-fg-secondary-paragraph max-[380px]:hidden" />
       </button>
-      <button type="button" class="icon-btn shrink-0" :aria-label="$t('auth.logout')" @click="handleLogout">
-        <logout-line-icon class="h-5 w-5" />
+      <button v-if="canJump" type="button" class="btn-secondary hidden shrink-0 md:inline-flex" @click="jump">
+        <sliders-line-icon class="h-5 w-5" />
+        {{ $t('global.shell.backoffice') }}
       </button>
+      <app-user-menu @logout="handleLogout">
+        <button v-if="canJump" type="button" class="inline-flex min-h-11 w-full items-center gap-2 rounded-control px-3 label hover:bg-subtle md:hidden" @click="jump">
+          <sliders-line-icon class="h-5 w-5 shrink-0" />
+          {{ $t('global.shell.backoffice') }}
+        </button>
+      </app-user-menu>
     </header>
 
     <main class="flex-1 px-4 pt-6 pb-10 md:px-8">
@@ -48,6 +55,7 @@ import { useRouter } from 'vue-router';
 
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
+import { useBackofficeJump } from 'global/composables/use-backoffice-jump';
 
 import { STAFF_AVATAR_VARIANT } from 'user/constants/user';
 import AppToast from 'global/components/app-toast.vue';
@@ -55,16 +63,18 @@ import UiAvatar from 'global/components/ui-avatar.vue';
 import AppBackButton from 'global/components/app-back-button.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
-import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
+import AppUserMenu from 'global/components/app-user-menu.vue';
 import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
 import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
+import SlidersLineIcon from 'global/icons/sliders-line.icon.vue';
 import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
 
 // stores
 const router = useRouter();
 const sessionStore = useSessionStore();
 const syncStore = useSyncStore();
+const { canJump, jump } = useBackofficeJump();
 
 // computed
 const operatorName = computed((): string => sessionStore.session?.firstName ?? '');

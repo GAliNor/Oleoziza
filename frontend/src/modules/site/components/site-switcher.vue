@@ -8,7 +8,7 @@
       <label class="sr-only" for="site-switcher">{{ $t('global.site.label') }}</label>
       <select
         id="site-switcher"
-        class="w-full appearance-none truncate rounded-lg border border-default bg-surface py-1.5 pr-8 pl-3 label
+        class="w-full appearance-none truncate rounded-lg border border-default bg-surface py-1.5 pe-8 ps-3 label
           focus-visible:outline-2 focus-visible:outline-focus"
         :value="siteStore.currentSiteId ?? ''"
         @change="handleChange"
@@ -17,7 +17,7 @@
         <option v-if="siteStore.canSelectAll" :value="ALL_SITES">{{ $t('global.site.all') }}</option>
       </select>
       <chevron-down-line-icon
-        class="pointer-events-none absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 text-fg-secondary-paragraph"
+        class="pointer-events-none absolute top-1/2 inset-e-2 h-4 w-4 -translate-y-1/2 text-fg-secondary-paragraph"
       />
     </div>
   </div>

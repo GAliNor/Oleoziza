@@ -31,7 +31,6 @@ router.beforeEach(async (to) => {
   if (authStore.mustChangeCredential && to.name !== 'auth-change-credential') {
     return { name: 'auth-change-credential', query: { redirect: to.fullPath } };
   }
-  if (to.meta.roles && !to.meta.roles.includes(sessionStore.session.role)) return { name: 'dashboard' };
   if (sessionStore.isStaff) await useSiteStore().fetchSites();
   if (to.meta.permission && !siteStore.can(to.meta.permission)) return { name: HOME_ROUTE_NAME };
   if (to.name === HOME_ROUTE_NAME) {

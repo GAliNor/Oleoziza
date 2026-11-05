@@ -6,7 +6,7 @@
         <p class="truncate font-semibold text-fg-display">{{ modelValue.name }}</p>
         <p class="body-two truncate">
           {{ formatPhone(modelValue.phone) }} · {{ $t(`reception.clientKinds.${modelValue.kind}`) }}
-          <span v-if="modelValue.isPendingSync" class="chip ml-1 bg-info-subtle text-fg-info">{{ $t('reception.clientPicker.new') }}</span>
+          <span v-if="modelValue.isPendingSync" class="chip ms-1 bg-info-subtle text-fg-info">{{ $t('reception.clientPicker.new') }}</span>
         </p>
         <p v-if="otherSites.length" class="body-two text-fg-accent">
           {{ $t('reception.clientPicker.otherSites', { sites: otherSites.join(', ') }) }}
@@ -17,11 +17,11 @@
 
     <div v-else class="flex gap-2">
       <div class="relative min-w-0 flex-1" @focusout="handleFocusOut">
-        <search-line-icon class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-fg-muted" />
+        <search-line-icon class="pointer-events-none absolute top-1/2 inset-s-4 h-5 w-5 -translate-y-1/2 text-fg-muted" />
         <input
           ref="searchInput"
           v-model="query"
-          class="input pl-12"
+          class="input ps-12"
           type="search"
           role="combobox"
           autocomplete="off"
@@ -84,7 +84,7 @@ import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 
 // props
-const props = defineProps<{ modelValue: IClient | null; siteId: string }>();
+const props = defineProps<{ modelValue: IClient | null; siteId: string; hideCreate?: boolean }>();
 
 // emits
 const emit = defineEmits<{
@@ -106,7 +106,7 @@ const activeIndex = ref(0);
 
 // computed
 const results = computed((): IClient[] => clientStore.searchClients(query.value));
-const canCreate = computed((): boolean => siteStore.can('client.create'));
+const canCreate = computed((): boolean => !props.hideCreate && siteStore.can('client.create'));
 const otherSites = computed((): string[] =>
   (props.modelValue?.siteIds ?? [])
     .filter((siteId) => siteId !== props.siteId)

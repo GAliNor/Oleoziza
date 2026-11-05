@@ -15,3 +15,15 @@
     cursor: not-allowed;
   }
 }
+
+@layer base {
+  :root:lang(ar) {
+    font-family: 'Noto Sans Arabic Variable', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Digits, phone numbers and emails read left to right, even in an Arabic form. */
+  [dir='rtl'] input:is([type='tel'], [type='number'], [type='email'], [inputmode='numeric'], [inputmode='decimal']) {
+    direction: ltr;
+    text-align: end;
+  }
+}

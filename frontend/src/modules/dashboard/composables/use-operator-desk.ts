@@ -10,8 +10,9 @@ import { useToastStore } from 'global/stores/toast';
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import { daysSince, formatTime } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
+import { clientMoney } from 'lot/composables/client-money';
 import { formatBoxes } from 'lot/composables/lot-boxes';
-import { formatKg } from 'lot/composables/quantity';
+import { formatLitres } from 'lot/composables/quantity';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import type { IClientAccount } from 'client/types/client';
 import type { AvatarVariant } from 'global/types/avatar';
@@ -59,7 +60,7 @@ export const useOperatorDesk = () => {
     name,
     avatarVariant: clientAvatarVariant(kind),
     lots: siteLots.value.filter((lot) => lot.clientId === id),
-    account: clientStore.accountOf(id),
+    account: { ...clientStore.accountOf(id), ...clientMoney(lotStore.lots, id) },
   });
 
   const searchClients = (query: string): IDeskClient[] => {
@@ -88,25 +89,19 @@ export const useOperatorDesk = () => {
       const queue = ahead ? t('dashboard.operator.stage.waitingAhead', { count: ahead }) : t('dashboard.operator.stage.waitingNext');
       return lot.boxNumbers.length ? `${queue} · ${formatBoxes(lot.boxNumbers)}` : queue;
     }
-    if (lot.status === 'pressed') return t('dashboard.operator.stage.pressed', { quantity: formatKg(lot.oilKg ?? 0) });
+    if (lot.status === 'pressed') return t('dashboard.operator.stage.pressed', { quantity: formatLitres(lot.oilLitres ?? 0) });
     return t(`dashboard.operator.stage.${lot.status}`);
   };
 
   const accountLines = (client: IDeskClient): string[] => {
     const lines: string[] = [];
-    if (client.account.oilStockKg) lines.push(t('dashboard.operator.account.oilStock', { quantity: formatKg(client.account.oilStockKg) }));
+    if (client.account.oilStockLitres) lines.push(t('dashboard.operator.account.oilStock', { quantity: formatLitres(client.account.oilStockLitres) }));
     if (client.account.dueDh) lines.push(t('dashboard.operator.account.due', { amount: formatMoney(client.account.dueDh) }));
     if (client.account.payoutDh) lines.push(t('dashboard.operator.account.payout', { amount: formatMoney(client.account.payoutDh) }));
     return lines.length ? lines : [t('dashboard.operator.account.none')];
   };
 
-  const needsConfirmation = (lot: ILot): boolean => lot.status !== 'received' && lot.status !== 'withdrawn';
-
   const nextLabel = (lot: ILot): string => t(`lot.status.${nextStatus(lot.status)}`);
-
-  const openStation = (lot: ILot): void => {
-    router.push({ name: 'reception-station', params: { code: lot.code } });
-  };
 
   const move = async (lot: ILot, lotMove: ILotMove): Promise<boolean> => {
     const from = lot.status;
@@ -129,5 +124,5 @@ export const useOperatorDesk = () => {
     router.push({ name: 'reception-new', query: clientId ? { client: clientId } : {} });
   };
 
-  return { activeLots, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, deskClientOf, needsConfirmation, nextLabel, openStation, move, receive, createClient };
+  return { activeLots, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, deskClientOf, nextLabel, move, receive, createClient };
 };

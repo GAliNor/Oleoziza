@@ -12,22 +12,12 @@
         </button>
       </header>
 
-      <div v-show="!isOpen" class="rise flex flex-col gap-3 lg:flex-row lg:items-center">
-        <input v-model="search" class="input lg:max-w-xs" type="search" :placeholder="$t('user.searchPlaceholder')" />
-        <div class="flex flex-wrap gap-2" role="group" :aria-label="$t('user.filters.label')">
-          <button
-            v-for="key in USER_FILTERS"
-            :key="key"
-            type="button"
-            class="choice-chip"
-            :class="{ 'choice-chip-active': filter === key }"
-            :aria-pressed="filter === key"
-            @click="filter = key"
-          >
-            {{ $t(`user.filters.${key}`) }} <span class="text-fg-muted tabular-nums">{{ counts[key] }}</span>
-          </button>
+      <div v-show="!isOpen" class="rise flex min-w-0 flex-col gap-3">
+        <div class="flex items-center gap-3">
+          <input v-model="search" class="input min-w-0 flex-1 md:max-w-sm" type="search" :placeholder="$t('user.searchPlaceholder')" />
+          <ui-segmented class="ms-auto shrink-0" variant="tabs" :model-value="view" :options="viewOptions" :label="$t('user.views.label')" @update:model-value="handleView" />
         </div>
-        <ui-segmented class="self-start lg:ml-auto" variant="tabs" :model-value="view" :options="viewOptions" :label="$t('user.views.label')" @update:model-value="handleView" />
+        <ui-segmented class="self-start" :model-value="filter" :options="filterOptions" :label="$t('user.filters.label')" @update:model-value="handleFilter" />
       </div>
 
       <ui-empty-state v-if="userStore.hasError && !userStore.users.length" class="card" tone="danger" :message="$t('user.loadError')" />
@@ -110,8 +100,8 @@ const scopedRows = computed((): IStaffUser[] => {
     .sort((first, second) => formatFullName(first).localeCompare(formatFullName(second), 'fr'));
 });
 const activeCount = computed((): number => scopedRows.value.filter((user) => user.status !== 'disabled').length);
-const counts = computed((): Record<UserFilter, number> =>
-  Object.fromEntries(USER_FILTERS.map((key) => [key, scopedRows.value.filter((user) => matchesFilter(user, key)).length])) as Record<UserFilter, number>,
+const filterOptions = computed(() =>
+  USER_FILTERS.map((key) => ({ key, label: t(`user.filters.${key}`), count: scopedRows.value.filter((user) => matchesFilter(user, key)).length })),
 );
 const filteredRows = computed((): IStaffUser[] => {
   const query = search.value.trim().toLowerCase();
@@ -158,6 +148,10 @@ const handleOpen = (id: string): void => {
 const handleClose = (): void => {
   if (lastUserId.value) showPageOf(lastUserId.value);
   router.replace({ query: { ...route.query, user: undefined } });
+};
+
+const handleFilter = (key: UserFilter): void => {
+  filter.value = key;
 };
 
 const handleView = (key: UserView): void => {

@@ -4,7 +4,7 @@
 
     <div class="flex flex-col gap-1.5">
       <span class="label">{{ $t('user.form.role') }}</span>
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-3 gap-2">
         <button v-for="role in STAFF_ROLES" :key="role" type="button" class="toggle-tile" :class="{ 'toggle-tile-active': form.role === role }" @click="handleRole(role)">
           {{ $t(`user.roles.${role}`) }}
         </button>
@@ -48,11 +48,11 @@
     <div class="flex flex-col gap-1.5">
       <span class="label">{{ $t('user.form.access') }}</span>
       <div class="grid gap-2 sm:grid-cols-2">
-        <button type="button" class="toggle-tile py-2 text-left" :class="{ 'toggle-tile-active': form.isInvited }" @click="form.isInvited = true">
+        <button type="button" class="toggle-tile py-2 text-start" :class="{ 'toggle-tile-active': form.isInvited }" @click="form.isInvited = true">
           <span class="block">{{ $t('user.form.invite') }}</span>
           <span class="block text-xs font-normal opacity-80">{{ $t('user.form.inviteHint') }}</span>
         </button>
-        <button type="button" class="toggle-tile py-2 text-left" :class="{ 'toggle-tile-active': !form.isInvited }" @click="form.isInvited = false">
+        <button type="button" class="toggle-tile py-2 text-start" :class="{ 'toggle-tile-active': !form.isInvited }" @click="form.isInvited = false">
           <span class="block">{{ $t('user.form.firstCode') }}</span>
           <span class="block text-xs font-normal opacity-80">{{ $t('user.form.firstCodeHint') }}</span>
         </button>

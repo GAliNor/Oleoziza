@@ -15,7 +15,6 @@
   .icon-btn,
   .nav-link,
   .pin-key,
-  .weight-key,
   .toggle-tile,
   .choice-chip {
     transition-property: background-color, border-color, color, box-shadow, opacity, translate, scale;
@@ -40,7 +39,6 @@
 
   .box-tile:not(:disabled):active,
   .btn-round:not(:disabled):active,
-  .weight-key:not(:disabled):active,
   .pin-key:not(:disabled):active {
     scale: 0.92;
     transition-duration: 0.25s, 0.25s, 0.2s, 0.1s, 0.2s, 0.1s, 0.1s;
@@ -158,7 +156,6 @@
   .icon-btn,
   .nav-link,
   .pin-key,
-  .weight-key,
   .toggle-tile,
   .choice-chip {
     translate: none !important;

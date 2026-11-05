@@ -10,7 +10,7 @@ import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { useClientStore } from 'client/stores/client';
 import type { IClient } from 'client/types/client';
 
-const client = (name: string, phone: string): IClient => ({ id: name, kind: 'individual', name, phone, identifier: null, siteIds: [], isPendingSync: false });
+const client = (name: string, phone: string): IClient => ({ id: name, kind: 'individual', name, phone, identifier: null, email: null, creditDh: 0, siteIds: [], isPendingSync: false });
 
 describe('client store searchClients', () => {
   beforeEach(() => {
@@ -74,7 +74,7 @@ describe('client store accounts', () => {
   });
 
   it('starts empty, then holds the fetched account, fetched once', async () => {
-    const getAccount = vi.spyOn(ClientMockService.prototype, 'getAccount').mockResolvedValue({ oilStockKg: 389, dueDh: 1025, pendingDh: 500, payoutDh: 0, history: [] });
+    const getAccount = vi.spyOn(ClientMockService.prototype, 'getAccount').mockResolvedValue({ oilStockLitres: 389, dueDh: 1025, pendingDh: 500, payoutDh: 0, history: [] });
     const clientStore = useClientStore();
     expect(clientStore.accountOf('c1').dueDh).toBe(0);
     await clientStore.fetchAccount('c1');
@@ -129,7 +129,7 @@ describe('client store clientByIdentifier', () => {
 
 describe('the mock Client finances', () => {
   it('owe the same on the record and on the account', () => {
-    CLIENT_RECORDS_MOCK.forEach((record) => expect([record.name, ACCOUNTS_MOCK[record.id].dueDh, ACCOUNTS_MOCK[record.id].oilStockKg]).toEqual([record.name, record.balance, record.oilStockKg]));
+    CLIENT_RECORDS_MOCK.forEach((record) => expect([record.name, ACCOUNTS_MOCK[record.id].dueDh, ACCOUNTS_MOCK[record.id].oilStockLitres]).toEqual([record.name, record.balance, record.oilStockLitres]));
   });
 
   it('never owe more than they generated', () => {
@@ -155,8 +155,8 @@ describe('the mock Client lots', () => {
       const siteIds = record.sites.map((site) => site.siteId);
       record.history.forEach((lot, index) => {
         expect(siteIds).toContain(lot.siteId);
-        expect(lot.oilKg / lot.kg).toBeGreaterThanOrEqual(0.12);
-        expect(lot.oilKg / lot.kg).toBeLessThanOrEqual(0.24);
+        expect(lot.oilLitres / lot.kg).toBeGreaterThanOrEqual(0.13);
+        expect(lot.oilLitres / lot.kg).toBeLessThanOrEqual(0.26);
         if (index) expect(lot.receivedOn <= record.history[index - 1].receivedOn).toBe(true);
       });
     });

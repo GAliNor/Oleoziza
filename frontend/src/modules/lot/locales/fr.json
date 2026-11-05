@@ -4,14 +4,12 @@
     "oil": "{quantity} d’huile"
   },
   "status": {
-    "received": "Reçu",
     "waiting": "En attente",
     "pressing": "En pressage",
     "pressed": "Pressé",
     "withdrawn": "Retiré"
   },
   "move": {
-    "received": "Peser",
     "waiting": "Lancer le pressage",
     "pressing": "Saisir l’huile",
     "pressed": "Marquer retiré"
@@ -47,8 +45,7 @@
     "recordedBy": "{variety} · saisi par {name}",
     "clientContainers": "bidons du Client",
     "notPressed": "pas encore pressé",
-    "perQuintal": "{kg} kg par quintal",
-    "expectedYield": "attendu 12–24 %",
+    "expectedYield": "attendu {min}–{max} L/q",
     "fee": "Frais",
     "feeRate": "Trituration · {rate}/kg",
     "timeline": "Parcours du lot",
@@ -56,9 +53,8 @@
   },
   "timeline": {
     "reception": "Réception",
-    "weighing": "Pesées",
-    "weighingDetail": "{net} net ({quintals})",
-    "waiting": "Réception terminée",
+    "receptionWeight": "{net} net ({quintals})",
+    "waiting": "En attente",
     "waitingDetail": "En file de pressage",
     "pressing": "Pressage lancé",
     "pressingDetail": "Ligne 1",
@@ -70,9 +66,72 @@
     "showPhoto": "Voir la photo",
     "backToStep": "Retour au parcours",
     "photoAlt": "Photo de l’étape {step}",
-    "photoUnavailable": "Photo indisponible"
+    "photoUnavailable": "Photo indisponible",
+    "discount": "Remise",
+    "notification": "Client prévenu",
+    "notificationFailed": "Notification impossible",
+    "discountStates": {
+      "applied": "{amount} ({percent} %), appliquée",
+      "pending": "{amount} ({percent} %), en attente d’approbation",
+      "approved": "{amount} ({percent} %)",
+      "refused": "{amount} ({percent} %)"
+    },
+    "notificationChannels": {
+      "sms": "SMS",
+      "email": "Email"
+    },
+    "notificationEvents": {
+      "pressed": "{channel} : huile prête",
+      "payment_confirmed": "{channel} : paiement confirmé"
+    },
+    "discountApproved": "Remise approuvée",
+    "discountRefused": "Remise refusée",
+    "discountApprovedDetail": "Les frais baissent du montant de la remise"
   },
   "box": {
     "label": "Box {numbers}"
+  },
+  "discount": {
+    "pendingChip": "Remise en attente",
+    "refusedChip": "Remise refusée",
+    "title": "Remises à décider",
+    "subtitle": "{scope} · {count} en attente | {scope} · {count} en attente | {scope} · {count} en attente",
+    "empty": "Aucune remise en attente.",
+    "readOnly": "Tous les sites : lecture seule. Choisissez un Site pour décider.",
+    "offline": "Hors ligne : les remises se décident uniquement en ligne.",
+    "loadError": "Impossible de charger les remises.",
+    "retry": "Réessayer",
+    "givenBy": "Donnée par {name}, {date}",
+    "fullFee": "Plein tarif",
+    "discount": "Remise",
+    "after": "Après remise",
+    "limit": "Limite du Site : {limit} %",
+    "overLimit": "{percent} %, au-delà de la limite",
+    "approve": "Approuver",
+    "refuse": "Refuser",
+    "reason": "Motif du refus",
+    "reasonPlaceholder": "Il sera lu par l’Opérateur",
+    "cancel": "Annuler",
+    "confirmRefuse": "Confirmer le refus",
+    "ownDiscount": "Vous avez donné cette remise : une autre personne doit la décider.",
+    "approved": "Remise approuvée pour {client}",
+    "refused": "Remise refusée pour {client}",
+    "error": "La décision n’a pas abouti, réessayez.",
+    "site": "Site : {site}"
+  },
+  "contact": {
+    "missing": {
+      "email": "Notification impossible : ce Client n’a pas d’email. Saisissez-le.",
+      "sms": "Notification impossible : ce Client n’a pas de téléphone. Saisissez-le."
+    },
+    "save": "Enregistrer le contact",
+    "saved": "Contact enregistré"
+  },
+  "payment": {
+    "unpaid": "Non payé",
+    "partial": "Partiel",
+    "to_confirm": "À confirmer",
+    "paid": "Payé",
+    "paidOf": "Payé {paid} sur {fee}"
   }
 }

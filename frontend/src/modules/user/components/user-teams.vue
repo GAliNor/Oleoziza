@@ -4,7 +4,7 @@
       <header class="flex items-center gap-2">
         <map-pin-line-icon class="h-5 w-5 shrink-0 text-fg-place" />
         <h2 class="truncate font-semibold text-fg-display">{{ site.name }}</h2>
-        <span class="body-two ml-auto shrink-0 tabular-nums">{{ $t('user.teams.count', teamOf(site.id).length) }}</span>
+        <span class="body-two ms-auto shrink-0 tabular-nums">{{ $t('user.teams.count', teamOf(site.id).length) }}</span>
       </header>
       <div v-for="role in ROLE_ORDER" :key="role" class="flex flex-col gap-2">
         <p class="eyebrow">{{ $t(`user.teams.${role}`) }}</p>
@@ -14,7 +14,7 @@
             v-for="user in teamOf(site.id, role)"
             :key="user.id"
             type="button"
-            class="press-lift flex min-w-0 items-center gap-3 rounded-card border border-default bg-surface p-3 text-left shadow-raised"
+            class="press-lift flex min-w-0 items-center gap-3 rounded-card border border-default bg-surface p-3 text-start shadow-raised"
             :class="{ 'ring-2 ring-selected': user.id === highlightedId, 'opacity-60': user.status === 'disabled' }"
             @click="emit('open', user.id)"
           >
@@ -49,7 +49,7 @@ const props = defineProps<{ users: IStaffUser[]; sites: ISite[]; highlightedId: 
 const emit = defineEmits<{ (event: 'open', id: string): void }>();
 
 // variables
-const ROLE_ORDER: StaffRole[] = ['management', 'operator'];
+const ROLE_ORDER: StaffRole[] = ['management', 'operator', 'accountant'];
 
 // methods
 const teamOf = (siteId: string, role?: StaffRole): IStaffUser[] =>

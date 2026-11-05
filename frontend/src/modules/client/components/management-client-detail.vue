@@ -11,12 +11,11 @@
         <ui-stat-tile :label="$t('client.record.olives')" :value="activity.oliveKg" :unit="$t('global.units.kilogram')" />
         <ui-stat-tile
           :label="$t('client.record.oil')"
-          :value="activity.oilKg"
-          :unit="$t('global.units.kilogram')"
-          :sub="$t('client.record.litres', { quantity: formatLitres(activity.oilKg) })"
+          :value="activity.oilLitres"
+          :unit="$t('global.units.litre')"
         />
-        <ui-stat-tile :label="$t('client.record.yield')" :value="yieldPercent" :decimals="1" unit="%" />
-        <ui-stat-tile v-if="isFinanceShown" :label="$t('client.record.generated')" :value="activity.generatedDh" :format="formatMoney" :sub="$t('lot.detail.feeRate', { rate: formatMoney(MILLING_RATE) })" />
+        <ui-stat-tile :label="$t('client.record.yield')" :value="yieldValue" :decimals="1" :unit="$t('global.units.litrePerQuintal')" />
+        <ui-stat-tile v-if="isFinanceShown" :label="$t('client.record.generated')" :value="activity.generatedDh" :format="formatMoney" />
       </template>
       <ui-stat-tile
         v-if="isFinanceShown"
@@ -48,11 +47,11 @@
             <ui-progress-bar v-if="isMultiSite" class="h-1.5" :value="site.sharePercent" :label="$t('client.record.share', { name: site.siteName })" />
             <div class="body-two flex flex-wrap justify-between gap-x-6 gap-y-1 tabular-nums">
               <span>
-                {{ $t('client.record.lotCount', site.lots) }} · {{ formatOilKg(site.oilKg) }}
+                {{ $t('client.record.lotCount', site.lots) }} · {{ formatOil(site.oilLitres) }}
                 <template v-if="isFinanceShown">· {{ $t('client.record.generatedAmount', { amount: formatMoney(site.generatedDh) }) }}</template>
               </span>
               <span>
-                {{ $t('client.record.stockNow', { quantity: site.oilStockKg ? formatKg(site.oilStockKg) : '—' }) }}
+                {{ $t('client.record.stockNow', { quantity: site.oilStockLitres ? formatLitres(site.oilStockLitres) : '—' }) }}
                 <template v-if="isFinanceShown">
                   · <span :class="{ 'text-fg-warning': site.balance }">{{ $t('client.record.owesNow', { amount: site.balance ? formatMoney(site.balance) : '—' }) }}</span>
                 </template>
@@ -68,7 +67,7 @@
           <li v-for="lot in pageRows" :key="lot.code" class="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
             <span class="flex min-w-0 flex-col gap-0.5">
               <span class="font-medium text-fg-display tabular-nums">{{ lot.code }}</span>
-              <span class="body-two">{{ lot.siteName }} · {{ formatOliveKg(lot.kg) }} · {{ formatOilKg(lot.oilKg) }}</span>
+              <span class="body-two">{{ lot.siteName }} · {{ formatOliveKg(lot.kg) }} · {{ formatOil(lot.oilLitres) }}</span>
             </span>
             <span class="flex shrink-0 flex-col items-end gap-1">
               <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
@@ -91,8 +90,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { daysSince, formatFullDate } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
 import { usePagedRows } from 'global/composables/use-paged-rows';
-import { formatKg, formatLitres, formatOilKg, formatOliveKg } from 'lot/composables/quantity';
-import { MILLING_RATE } from 'lot/constants/lot';
+import { formatKg, formatLitres, formatOil, formatOliveKg, yieldPerQuintal } from 'lot/composables/quantity';
 import { lotsInPeriod, siteConsumption, summarizeActivity } from 'client/composables/client-activity';
 import type { ClientPeriodKey, IClientActivity, IClientLotLine, IClientRecord, ISiteConsumption } from 'client/types/client';
 
@@ -124,7 +122,7 @@ const periodKey = computed((): ClientPeriodKey => CLIENT_PERIODS.find((key) => k
 const periodLots = computed((): IClientLotLine[] => lotsInPeriod(props.client.history, periodKey.value));
 const activity = computed((): IClientActivity => summarizeActivity(periodLots.value));
 const totalGeneratedDh = computed((): number => summarizeActivity(props.client.history).generatedDh);
-const yieldPercent = computed((): number => (activity.value.oliveKg ? (activity.value.oilKg / activity.value.oliveKg) * 100 : 0));
+const yieldValue = computed((): number => yieldPerQuintal(activity.value.oilLitres, activity.value.oliveKg));
 const consumption = computed((): ISiteConsumption[] => siteConsumption(periodLots.value, props.client.sites));
 const isMultiSite = computed((): boolean => props.client.sites.length > 1);
 const { page, pageCount, pageRows } = usePagedRows(periodLots, PAGE_SIZE);

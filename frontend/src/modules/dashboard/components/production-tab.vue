@@ -11,19 +11,17 @@
       />
       <ui-stat-tile
         :label="$t('dashboard.management.production.oil', { period: period.label })"
-        :value="dashboard.season.oilKg"
-        :unit="$t('global.units.kilogram')"
-        :sub="formatLitres(dashboard.season.oilKg)"
+        :value="dashboard.season.oilLitres"
+        :unit="$t('global.units.litre')"
         :delta="formatDelta(dashboard.season.oilDeltaPct)"
         :delta-label="$t('dashboard.management.vsPreviousSeason')"
         is-delta-good
       />
       <ui-stat-tile
         :label="$t('dashboard.management.yield')"
-        :value="dashboard.season.yieldPct"
+        :value="dashboard.season.yieldPerQuintal"
         :decimals="1"
-        unit="%"
-        :sub="$t('dashboard.management.production.yieldSub', { value: formatNumber(dashboard.season.yieldPct, 1, 1) })"
+        :unit="$t('global.units.litrePerQuintal')"
         :delta="formatDelta(dashboard.season.yieldDeltaPct)"
         :delta-label="$t('dashboard.management.vsPreviousSeason')"
         :is-delta-good="dashboard.season.yieldDeltaPct >= 0"
@@ -67,22 +65,22 @@
           <thead>
             <tr>
               <th class="px-4 py-3 font-semibold">{{ $t('dashboard.management.production.columns.variety') }}</th>
-              <th class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.production.columns.lots') }}</th>
-              <th class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.production.columns.olives') }}</th>
-              <th class="px-4 py-3 text-right font-semibold">{{ $t('dashboard.management.production.columns.oil') }}</th>
+              <th class="px-4 py-3 text-end font-semibold">{{ $t('dashboard.management.production.columns.lots') }}</th>
+              <th class="px-4 py-3 text-end font-semibold">{{ $t('dashboard.management.production.columns.olives') }}</th>
+              <th class="px-4 py-3 text-end font-semibold">{{ $t('dashboard.management.production.columns.oil') }}</th>
               <th class="px-4 py-3 font-semibold">{{ $t('dashboard.management.production.columns.yield') }}</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(row, index) in dashboard.varieties" :key="row.variety" class="border-t border-subtle">
               <td class="px-4 py-3 font-medium text-fg-display">{{ row.variety }}</td>
-              <td class="px-4 py-3 text-right tabular-nums">{{ row.lots }}</td>
-              <td class="px-4 py-3 text-right tabular-nums">{{ formatKgRounded(row.olivesKg) }}</td>
-              <td class="px-4 py-3 text-right tabular-nums">{{ formatKgRounded(row.oilKg) }}</td>
+              <td class="px-4 py-3 text-end tabular-nums">{{ row.lots }}</td>
+              <td class="px-4 py-3 text-end tabular-nums">{{ formatKgRounded(row.olivesKg) }}</td>
+              <td class="px-4 py-3 text-end tabular-nums">{{ formatLitresRounded(row.oilLitres) }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <ui-progress-bar class="h-1.5 w-20" :value="yieldOf(row)" :max="24" :label="$t('dashboard.management.production.columns.yield')" :delay="index * 60" />
-                  <span class="tabular-nums">{{ formatNumber(yieldOf(row), 1, 1) }} %</span>
+                  <ui-progress-bar class="h-1.5 w-20" :value="yieldPerQuintal(row.oilLitres, row.olivesKg)" :max="YIELD_EXPECTED_MAX" :label="$t('dashboard.management.production.columns.yield')" :delay="index * 60" />
+                  <span class="tabular-nums">{{ formatYield(row.oilLitres, row.olivesKg) }}</span>
                 </div>
               </td>
             </tr>
@@ -98,8 +96,9 @@
 // imports
 import { computed } from 'vue';
 
-import { formatKgRounded, formatLitres } from 'lot/composables/quantity';
-import { formatDelta, formatNumber } from 'global/composables/number';
+import { formatKgRounded, formatLitresRounded, formatYield, yieldPerQuintal } from 'lot/composables/quantity';
+import { YIELD_EXPECTED_MAX } from 'lot/constants/lot';
+import { formatDelta } from 'global/composables/number';
 import type { IDashboard } from 'dashboard/types/dashboard';
 import type { IPeriod } from 'global/types/period';
 
@@ -117,6 +116,4 @@ const servicePct = computed((): number => {
   return Math.round((serviceKg / (serviceKg + purchaseKg)) * 100);
 });
 
-// methods
-const yieldOf = (row: { olivesKg: number; oilKg: number }): number => (row.oilKg / row.olivesKg) * 100;
 </script>

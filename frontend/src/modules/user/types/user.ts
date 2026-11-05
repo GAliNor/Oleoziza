@@ -6,7 +6,7 @@ export type StaffRole = Exclude<Role, 'client'>;
 
 export type StaffStatus = 'invited' | 'active' | 'disabled';
 
-export type UserFilter = 'all' | 'management' | 'operator' | 'invited' | 'disabled';
+export type UserFilter = 'all' | 'management' | 'operator' | 'accountant' | 'invited' | 'disabled';
 
 export type UserView = 'list' | 'teams';
 

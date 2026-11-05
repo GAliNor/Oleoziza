@@ -1,11 +1,11 @@
-export type Role = 'management' | 'operator' | 'client';
+export type Role = 'management' | 'operator' | 'accountant' | 'client';
 
 export type Permission =
   | 'reception.create'
-  | 'weighing.create'
   | 'lot.update_status'
   | 'pressing.create'
   | 'withdrawal.create'
+  | 'client.view'
   | 'client.create'
   | 'client.edit'
   | 'client.manage_access'
@@ -13,6 +13,9 @@ export type Permission =
   | 'payout.record'
   | 'payment.confirm'
   | 'payment.cancel'
+  | 'document.add'
+  | 'refund.manage'
+  | 'discount.approve'
   | 'record.correct'
   | 'expense.record'
   | 'purchase.create'
@@ -26,7 +29,7 @@ export type Permission =
   | 'season.manage'
   | 'audit_trail.view'
   | 'dashboard.view'
-  | 'payment_method.manage';
+  | 'configuration.manage';
 
 export interface ISession {
   userId: string;
@@ -44,4 +47,5 @@ export interface ISessionStore {
   session: ISession | null;
   isReady: boolean;
   hasExpired: boolean;
+  isBackofficeMode: boolean;
 }

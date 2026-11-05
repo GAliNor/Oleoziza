@@ -5,6 +5,8 @@
       {{ $t('dashboard.operator.backToList') }}
     </button>
 
+    <lot-missing-contact v-if="lot.isContactMissing && lot.notificationChoice !== 'none'" :lot="lot" :channel="lot.notificationChoice" />
+
     <lot-detail :lot="lot" />
 
     <div class="flex flex-col gap-3">
@@ -29,6 +31,7 @@ import type { ILot } from 'lot/types/lot';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 import ClientTag from 'client/components/client-tag.vue';
 import LotDetail from 'lot/components/lot-detail.vue';
+import LotMissingContact from 'lot/components/lot-missing-contact.vue';
 
 // props
 defineProps<{ lot: ILot; accountLines: string[] }>();

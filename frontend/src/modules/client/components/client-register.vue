@@ -5,10 +5,7 @@
       <p class="body-two">{{ $t('client.register.subtitle', { scope: scopeName, count: rows.length }) }}</p>
     </header>
 
-    <div v-show="!isOpen" class="rise flex flex-col gap-3 md:flex-row md:items-center">
-      <input v-model="search" class="input md:max-w-xs" type="search" :placeholder="$t('client.register.search')" />
-      <ui-segmented v-model="stateFilter" :options="stateOptions" :label="$t('client.register.followUpLabel')" />
-    </div>
+    <input v-show="!isOpen" v-model="search" class="rise input md:max-w-sm" type="search" :placeholder="$t('client.register.search')" />
 
     <ui-master-detail :is-open="isOpen" :back-label="$t('client.register.back')" @close="handleClose">
       <template #list>
@@ -24,7 +21,7 @@
                 <th class="hidden px-4 py-3 font-semibold xl:table-cell">{{ $t('client.register.columns.email') }}</th>
               </tr>
             </thead>
-            <tbody :key="`${page}-${stateFilter}-${search}`" class="stagger">
+            <tbody :key="`${page}-${search}`" class="stagger">
               <tr
                 v-for="(client, index) in pageRows"
                 :key="client.id"
@@ -79,7 +76,6 @@
 <script setup lang="ts">
 // imports
 import { computed, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { usePagedRows } from 'global/composables/use-paged-rows';
@@ -87,20 +83,18 @@ import { useSiteStore } from 'site/stores/site';
 import { formatPhone } from 'global/composables/phone';
 import { useClientStore } from 'client/stores/client';
 import { useSiteScope } from 'site/composables/use-site-scope';
-import type { ClientFollowUp, IClientRecord } from 'client/types/client';
+import type { IClientRecord } from 'client/types/client';
 
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
-import UiSegmented from 'global/components/ui-segmented.vue';
 import ClientCoordinates from 'client/components/client-coordinates.vue';
 import ClientHeader from 'client/components/client-header.vue';
 import ManagementClientDetail from 'client/components/management-client-detail.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 
 // stores
-const { t } = useI18n();
 const siteStore = useSiteStore();
 const clientStore = useClientStore();
 const { scopeName } = useSiteScope();
@@ -108,11 +102,8 @@ const route = useRoute();
 const router = useRouter();
 
 // variables
-type StateFilter = ClientFollowUp | 'all';
 const PAGE_SIZE = 10;
-const STATE_FILTERS: StateFilter[] = ['all', 'at-risk', 'active', 'inactive'];
 const search = ref('');
-const stateFilter = ref<StateFilter>('all');
 const lastClientId = ref<string | null>(null);
 
 // computed
@@ -120,14 +111,10 @@ const isFinanceShown = computed((): boolean => siteStore.can('finance.view'));
 const rows = computed((): IClientRecord[] =>
   clientStore.records.filter((client) => siteStore.isAllSites || client.sites.some((site) => site.siteId === siteStore.currentSiteId)),
 );
-const stateOptions = computed(() =>
-  STATE_FILTERS.map((key) => ({ key, label: t(`client.register.followUp.${key}`), count: rows.value.filter((client) => key === 'all' || client.followUp === key).length })),
-);
 const filteredRows = computed((): IClientRecord[] => {
   const query = search.value.trim().toLowerCase();
   const digits = query.replace(/\D/g, '');
   return rows.value
-    .filter((client) => stateFilter.value === 'all' || client.followUp === stateFilter.value)
     .filter(
       (client) =>
         [client.name, client.identifier, client.email ?? ''].some((value) => value.toLowerCase().includes(query)) ||
@@ -141,7 +128,7 @@ const isOpen = computed((): boolean => rows.value.some((client) => client.id ===
 const activeClient = computed((): IClientRecord | undefined => rows.value.find((client) => client.id === (openClientId.value ?? lastClientId.value)));
 
 // watchers
-watch([search, stateFilter], () => {
+watch(search, () => {
   page.value = 1;
 });
 watch(

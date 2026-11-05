@@ -33,7 +33,6 @@
       "days": "Il y a {count} jours"
     },
     "stage": {
-      "received": "Arrivé, à peser",
       "waitingAhead": "Attend le pressage · {count} avant",
       "waitingNext": "Attend le pressage · le prochain",
       "pressing": "En train d’être pressé",
@@ -43,7 +42,7 @@
     "confirm": {
       "youWill": "Vous allez",
       "forClient": "pour",
-      "oil": "Huile obtenue (kg)",
+      "oil": "Huile obtenue (L)",
       "no": "Non",
       "yes": "Oui, c’est ça",
       "photo": "Photo de cette étape"
@@ -67,7 +66,7 @@
     },
     "overview": {
       "production": "Production",
-      "sales": "Ventes",
+      "sales": "Frais de trituration",
       "olives": "Olives · {period}",
       "oil": "Huile · {period}",
       "receptions": "{count} réceptions",
@@ -76,7 +75,6 @@
     "production": {
       "olives": "Olives reçues · {period}",
       "oil": "Huile produite · {period}",
-      "yieldSub": "{value} kg d’huile par quintal",
       "wait": "Attente avant pressage",
       "lotsPressed": "{count} lots pressés",
       "origin": "Origine des olives",

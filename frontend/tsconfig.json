@@ -27,7 +27,9 @@
       "reception/*": ["src/modules/reception/*"],
       "client/*": ["src/modules/client/*"],
       "user/*": ["src/modules/user/*"],
+      "task/*": ["src/modules/task/*"],
       "finance/*": ["src/modules/finance/*"],
+      "configuration/*": ["src/modules/configuration/*"],
       "lot/*": ["src/modules/lot/*"],
       "kit/*": ["src/modules/kit/*"],
       "territory/*": ["src/modules/territory/*"]

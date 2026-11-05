@@ -8,14 +8,14 @@ const routes: RouteRecordRaw[] = [
     path: '/clients',
     name: 'client-search',
     component: () => import('client/views/entry.vue'),
-    meta: { roles: ['operator', 'management'] },
+    meta: { permission: 'client.view' },
   },
   {
     path: '/clients/:id',
     name: 'client-page',
     component: () => import('client/views/detail.vue'),
     beforeEnter: checkParam('id', { pattern: ID_PARAM_PATTERN, fallback: { name: 'client-search' } }),
-    meta: { roles: ['operator', 'management'] },
+    meta: { permission: 'client.view' },
   },
 ];
 

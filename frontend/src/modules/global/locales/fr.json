@@ -11,16 +11,22 @@
     "dirham": "DH",
     "kilogram": "kg",
     "quintal": "q",
-    "litre": "L"
+    "litre": "L",
+    "litrePerQuintal": "L/q"
   },
   "nav": {
+    "tasks": "À faire",
     "dashboard": "Tableau de bord",
     "dashboardShort": "Accueil",
     "operations": "Opérations",
     "finances": "Finances",
     "clients": "Clients",
     "users": "Utilisateurs",
-    "sites": "Sites"
+    "sites": "Sites",
+    "configuration": "Configuration",
+    "configurationShort": "Config.",
+    "discounts": "Remises",
+    "more": "Plus"
   },
   "network": {
     "offline": "Hors ligne"
@@ -35,7 +41,11 @@
   "shell": {
     "search": "Rechercher un client",
     "pendingSync": "{count} élément à synchroniser | {count} éléments à synchroniser",
-    "switchOperator": "{name}, changer d’opérateur"
+    "switchOperator": "{name}, changer d’opérateur",
+    "menu": "Menu",
+    "backoffice": "Backoffice",
+    "backofficeMode": "Mode Backoffice",
+    "backToOperator": "Retour mode Opérateur"
   },
   "allSites": "Tous les sites",
   "period": {
@@ -68,5 +78,9 @@
     "reading": "Préparation…",
     "remove": "Retirer",
     "error": "Cette image n’a pas pu être lue. Essayez une autre photo."
+  },
+  "arrow": "→",
+  "language": {
+    "label": "Langue"
   }
 }

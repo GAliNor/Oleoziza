@@ -3,7 +3,7 @@
     <input
       :id="id"
       :value="modelValue"
-      class="input pr-12"
+      class="input pe-12"
       :type="showPassword ? 'text' : 'password'"
       :autocomplete="autocomplete"
       :placeholder="placeholder"
@@ -12,7 +12,7 @@
     />
     <button
       type="button"
-      class="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-fg-secondary-paragraph hover:text-fg-default"
+      class="absolute inset-y-0 inset-e-0 flex w-12 items-center justify-center text-fg-secondary-paragraph hover:text-fg-default"
       :aria-label="showPassword ? $t('auth.password.hide') : $t('auth.password.show')"
       @click="handleToggle"
     >

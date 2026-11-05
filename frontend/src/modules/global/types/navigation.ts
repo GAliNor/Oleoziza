@@ -1,6 +1,6 @@
 import type { Component } from 'vue';
 
-import type { Permission, Role } from 'global/types/session';
+import type { Permission } from 'global/types/session';
 
 export interface INavItem {
   name: string;
@@ -9,5 +9,4 @@ export interface INavItem {
   icon: Component;
   permission?: Permission | readonly Permission[];
   managementPermission?: Permission;
-  roles?: Role[];
 }

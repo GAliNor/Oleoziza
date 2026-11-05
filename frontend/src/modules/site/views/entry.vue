@@ -41,7 +41,7 @@
                       <map-pin-line-icon class="h-4 w-4 shrink-0 text-fg-place" />
                       <span class="truncate">{{ site.name }}</span>
                     </p>
-                    <p class="body-two truncate pl-6 md:hidden">{{ site.city }}</p>
+                    <p class="body-two truncate ps-6 md:hidden">{{ site.city }}</p>
                   </td>
                   <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph md:table-cell">{{ site.city }}</td>
                 </tr>

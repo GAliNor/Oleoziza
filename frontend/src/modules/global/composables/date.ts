@@ -1,8 +1,9 @@
-import { APP_LOCALE, APP_TIME_ZONE } from 'global/constants/locale';
+import { intlLocale } from 'global/composables/language';
+import { APP_TIME_ZONE } from 'global/constants/locale';
 
 const ISO_DATE_FORMAT = new Intl.DateTimeFormat('en-CA', { timeZone: APP_TIME_ZONE });
 
-const format = (at: string, options: Intl.DateTimeFormatOptions): string => new Date(at).toLocaleString(APP_LOCALE, { timeZone: APP_TIME_ZONE, ...options });
+const format = (at: string, options: Intl.DateTimeFormatOptions): string => new Date(at).toLocaleString(intlLocale(), { timeZone: APP_TIME_ZONE, ...options });
 
 /** The calendar day a timestamp falls on in Morocco, whatever the device's clock says. */
 export const toIsoDate = (at: string | Date): string => ISO_DATE_FORMAT.format(new Date(at));
@@ -27,3 +28,5 @@ export const formatFullDate = (at: string): string => format(at, { day: 'numeric
 export const formatDayDate = (at: string): string => format(at, { weekday: 'short', day: 'numeric', month: 'short' });
 
 export const formatDateTime = (at: string): string => format(at, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+export const formatWeekday = (at: string): string => format(`${at.slice(0, 10)}T12:00:00Z`, { weekday: 'short' });

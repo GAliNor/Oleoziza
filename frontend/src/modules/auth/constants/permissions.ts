@@ -2,10 +2,10 @@ import type { Permission, Role } from 'global/types/session';
 
 export const PERMISSIONS: readonly Permission[] = [
   'reception.create',
-  'weighing.create',
   'lot.update_status',
   'pressing.create',
   'withdrawal.create',
+  'client.view',
   'client.create',
   'client.edit',
   'client.manage_access',
@@ -13,6 +13,9 @@ export const PERMISSIONS: readonly Permission[] = [
   'payout.record',
   'payment.confirm',
   'payment.cancel',
+  'document.add',
+  'refund.manage',
+  'discount.approve',
   'record.correct',
   'expense.record',
   'purchase.create',
@@ -26,22 +29,23 @@ export const PERMISSIONS: readonly Permission[] = [
   'season.manage',
   'audit_trail.view',
   'dashboard.view',
-  'payment_method.manage',
+  'configuration.manage',
 ];
 
 export const ROLE_DEFAULT_PERMISSIONS: Record<Role, readonly Permission[]> = {
   management: PERMISSIONS,
   operator: [
     'reception.create',
-    'weighing.create',
     'lot.update_status',
     'pressing.create',
     'withdrawal.create',
+    'client.view',
     'client.create',
     'client.edit',
     'payment.record',
     'payout.record',
     'purchase.create',
   ],
+  accountant: ['finance.view', 'client.view', 'payment.record', 'payment.confirm', 'payment.cancel', 'document.add', 'refund.manage'],
   client: [],
 };

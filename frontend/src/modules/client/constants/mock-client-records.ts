@@ -12,35 +12,35 @@ interface ISeedRecord {
   siteId: string;
   seasonKg: number;
   lots: number;
-  oilStockKg: number;
+  oilStockLitres: number;
   balance: number;
   lastVisitDays: number;
   followUp: ClientFollowUp;
 }
 
 const SEEDS: ISeedRecord[] = [
-  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockKg: 0, balance: 12400, lastVisitDays: 0, followUp: 'at-risk' },
-  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 36900, lots: 8, oilStockKg: 0, balance: 4120, lastVisitDays: 0, followUp: 'active' },
-  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 5140, lots: 3, oilStockKg: 412, balance: 920, lastVisitDays: 0, followUp: 'active' },
-  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4310, lots: 2, oilStockKg: 389, balance: 1025, lastVisitDays: 0, followUp: 'active' },
-  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 2980, lots: 2, oilStockKg: 172, balance: 495, lastVisitDays: 9, followUp: 'at-risk' },
-  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockKg: 0, balance: 560, lastVisitDays: 0, followUp: 'active' },
-  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1720, lots: 2, oilStockKg: 151, balance: 430, lastVisitDays: 0, followUp: 'active' },
-  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1200, lots: 1, oilStockKg: 0, balance: 0, lastVisitDays: 21, followUp: 'inactive' },
-  { name: 'Abdelhak Bouhaddou', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 3620, lots: 2, oilStockKg: 0, balance: 0, lastVisitDays: 4, followUp: 'active' },
-  { name: 'Aicha Zerrouki', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1480, lots: 1, oilStockKg: 268, balance: 740, lastVisitDays: 12, followUp: 'at-risk' },
-  { name: 'Coopérative Ain Sfa', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 27400, lots: 7, oilStockKg: 0, balance: 6300, lastVisitDays: 1, followUp: 'active' },
-  { name: 'Brahim Lamrani', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2100, lots: 1, oilStockKg: 0, balance: 0, lastVisitDays: 26, followUp: 'inactive' },
-  { name: 'Fouzia Belkadi', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 960, lots: 1, oilStockKg: 0, balance: 0, lastVisitDays: 3, followUp: 'active' },
-  { name: 'Jamal Ouazzani', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4870, lots: 3, oilStockKg: 610, balance: 1210, lastVisitDays: 15, followUp: 'at-risk' },
-  { name: 'Huileries Triffa SARL', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 19800, lots: 5, oilStockKg: 0, balance: 0, lastVisitDays: 2, followUp: 'active' },
-  { name: 'Karim Mansouri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1350, lots: 1, oilStockKg: 0, balance: 0, lastVisitDays: 30, followUp: 'inactive' },
-  { name: 'Malika Tazi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2760, lots: 2, oilStockKg: 498, balance: 0, lastVisitDays: 5, followUp: 'active' },
-  { name: 'Noureddine Haddouchi', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 3190, lots: 2, oilStockKg: 0, balance: 1595, lastVisitDays: 18, followUp: 'at-risk' },
-  { name: 'Omar Chergui', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 840, lots: 1, oilStockKg: 0, balance: 0, lastVisitDays: 6, followUp: 'active' },
-  { name: 'Samira El Ouafi', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1920, lots: 1, oilStockKg: 0, balance: 0, lastVisitDays: 24, followUp: 'inactive' },
-  { name: 'Domaine Beni Snassen', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 22600, lots: 6, oilStockKg: 0, balance: 8150, lastVisitDays: 8, followUp: 'at-risk' },
-  { name: 'Zakaria Bensaid', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2310, lots: 2, oilStockKg: 0, balance: 0, lastVisitDays: 0, followUp: 'active' },
+  { name: 'Coopérative Angad', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 48200, lots: 12, oilStockLitres: 0, balance: 12400, lastVisitDays: 0, followUp: 'at-risk' },
+  { name: 'Domaine Zegzel', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 36900, lots: 8, oilStockLitres: 0, balance: 4120, lastVisitDays: 0, followUp: 'active' },
+  { name: 'Mohammed Benali', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 5140, lots: 3, oilStockLitres: 450, balance: 920, lastVisitDays: 0, followUp: 'active' },
+  { name: 'Said Tahiri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4310, lots: 2, oilStockLitres: 425, balance: 1025, lastVisitDays: 0, followUp: 'active' },
+  { name: 'Hassan Ziani', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 2980, lots: 2, oilStockLitres: 188, balance: 495, lastVisitDays: 9, followUp: 'at-risk' },
+  { name: 'Khadija Bouzidi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2240, lots: 2, oilStockLitres: 0, balance: 560, lastVisitDays: 0, followUp: 'active' },
+  { name: 'Latifa Berrada', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1720, lots: 2, oilStockLitres: 165, balance: 430, lastVisitDays: 0, followUp: 'active' },
+  { name: 'Rkia Hammouti', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1200, lots: 1, oilStockLitres: 0, balance: 0, lastVisitDays: 21, followUp: 'inactive' },
+  { name: 'Abdelhak Bouhaddou', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 3620, lots: 2, oilStockLitres: 0, balance: 0, lastVisitDays: 4, followUp: 'active' },
+  { name: 'Aicha Zerrouki', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1480, lots: 1, oilStockLitres: 293, balance: 740, lastVisitDays: 12, followUp: 'at-risk' },
+  { name: 'Coopérative Ain Sfa', kind: 'company', siteId: SITE_OUJDA_ID, seasonKg: 27400, lots: 7, oilStockLitres: 0, balance: 6300, lastVisitDays: 1, followUp: 'active' },
+  { name: 'Brahim Lamrani', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2100, lots: 1, oilStockLitres: 0, balance: 0, lastVisitDays: 26, followUp: 'inactive' },
+  { name: 'Fouzia Belkadi', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 960, lots: 1, oilStockLitres: 0, balance: 0, lastVisitDays: 3, followUp: 'active' },
+  { name: 'Jamal Ouazzani', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 4870, lots: 3, oilStockLitres: 666, balance: 1210, lastVisitDays: 15, followUp: 'at-risk' },
+  { name: 'Huileries Triffa SARL', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 19800, lots: 5, oilStockLitres: 0, balance: 0, lastVisitDays: 2, followUp: 'active' },
+  { name: 'Karim Mansouri', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 1350, lots: 1, oilStockLitres: 0, balance: 0, lastVisitDays: 30, followUp: 'inactive' },
+  { name: 'Malika Tazi', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2760, lots: 2, oilStockLitres: 544, balance: 0, lastVisitDays: 5, followUp: 'active' },
+  { name: 'Noureddine Haddouchi', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 3190, lots: 2, oilStockLitres: 0, balance: 1595, lastVisitDays: 18, followUp: 'at-risk' },
+  { name: 'Omar Chergui', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 840, lots: 1, oilStockLitres: 0, balance: 0, lastVisitDays: 6, followUp: 'active' },
+  { name: 'Samira El Ouafi', kind: 'individual', siteId: SITE_BERKANE_ID, seasonKg: 1920, lots: 1, oilStockLitres: 0, balance: 0, lastVisitDays: 24, followUp: 'inactive' },
+  { name: 'Domaine Beni Snassen', kind: 'company', siteId: SITE_BERKANE_ID, seasonKg: 22600, lots: 6, oilStockLitres: 0, balance: 8150, lastVisitDays: 8, followUp: 'at-risk' },
+  { name: 'Zakaria Bensaid', kind: 'individual', siteId: SITE_OUJDA_ID, seasonKg: 2310, lots: 2, oilStockLitres: 0, balance: 0, lastVisitDays: 0, followUp: 'active' },
 ];
 
 const siteNameOf = (siteId: string): string => SITES_MOCK.find((site) => site.id === siteId)?.name ?? '';
@@ -59,6 +59,8 @@ const ORIGIN_PROVINCES: Record<string, ProvinceId> = {
 
 const STREETS = ['Rue Al Massira', 'Avenue Hassan II', 'Quartier Al Qods', 'Douar Ouled Ali', 'Route de Berkane', 'Hay Al Andalous', 'Douar Ouled Sidi Ali'];
 
+const MOCK_MILLING_RATE = 0.5;
+const HISTORY_VARIETIES = ['Picholine marocaine', 'Haouzia', 'Menara', 'Picholine marocaine', 'Arbequina'];
 const CURRENT_SEASON = '2627';
 const PREVIOUS_SEASON = { code: '2526', start: '2025-10-01' };
 const OLDER_SEASON = { code: '2425', start: '2024-10-01' };
@@ -71,8 +73,8 @@ const lotSiteId = (siteIds: string[], lotIndex: number): string => siteIds[siteI
 
 const buildLot = (siteIds: string[], season: string, seedIndex: number, lotIndex: number, line: Pick<IClientLotLine, 'status' | 'kg' | 'receivedOn'>): IClientLotLine => {
   const siteId = lotSiteId(siteIds, lotIndex);
-  const yieldRate = 0.16 + ((seedIndex * 7 + lotIndex * 3) % 6) / 100;
-  return { ...line, code: lotCode(siteId, season, 100 + seedIndex * 13 + lotIndex), siteId, siteName: siteNameOf(siteId), oilKg: Math.round(line.kg * yieldRate) };
+  const litresPerKg = 0.175 + ((seedIndex * 7 + lotIndex * 3) % 6) / 100;
+  return { ...line, code: lotCode(siteId, season, 100 + seedIndex * 13 + lotIndex), siteId, siteName: siteNameOf(siteId), oilLitres: Math.round(line.kg * litresPerKg), millingRatePerKg: MOCK_MILLING_RATE, variety: HISTORY_VARIETIES[(seedIndex + lotIndex) % HISTORY_VARIETIES.length], season };
 };
 
 /** The season's lots, adding up to the seed's olives, from the last visit back towards the season's start. */
@@ -83,7 +85,7 @@ const currentSeasonLots = (seed: ISeedRecord, siteIds: string[], seedIndex: numb
   return Array.from({ length: seed.lots }, (_, lotIndex) => {
     const kg = lotIndex === seed.lots - 1 ? remainingKg : Math.round(averageKg * (lotIndex % 2 ? 0.85 : 1.15));
     remainingKg -= kg;
-    const status = lotIndex === 0 && seed.oilStockKg ? 'pressed' : 'withdrawn';
+    const status = lotIndex === 0 && seed.oilStockLitres ? 'pressed' : 'withdrawn';
     return buildLot(siteIds, CURRENT_SEASON, seedIndex, lotIndex, { status, kg, receivedOn: shiftDate(todayIso(), -(seed.lastVisitDays + lotIndex * stepDays)) });
   });
 };
@@ -142,14 +144,14 @@ export const CLIENT_RECORDS_MOCK: IClientRecord[] = SEEDS.map((seed, index) => {
     province: ORIGIN_PROVINCES[region] ?? null,
     address: `${((index * 7) % 90) + 1}, ${STREETS[index % STREETS.length]}`,
     email: emailOf(seed, index),
-    oilStockKg: seed.oilStockKg,
+    oilStockLitres: seed.oilStockLitres,
     balance: seed.balance,
     sites: siteIds.map((siteId, siteIndex) => {
       const share = siteIds.length > 1 ? (siteIndex === 0 ? 0.7 : 0.3) : 1;
       return {
         siteId,
         siteName: siteNameOf(siteId),
-        oilStockKg: Math.round(seed.oilStockKg * share),
+        oilStockLitres: Math.round(seed.oilStockLitres * share),
         balance: Math.round(seed.balance * share),
       };
     }),

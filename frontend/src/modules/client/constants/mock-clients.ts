@@ -1,7 +1,7 @@
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { IClient } from 'client/types/client';
 
-const LISTED_CLIENTS: Omit<IClient, 'identifier'>[] = [
+const LISTED_CLIENTS: Omit<IClient, 'identifier' | 'email' | 'creditDh'>[] = [
   { id: 'c0a1b2c3-0001-4000-8000-000000000001', kind: 'individual', name: 'Mohammed Benali', phone: '+212661234518', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
   { id: 'c0a1b2c3-0001-4000-8000-000000000002', kind: 'individual', name: 'Fatima Zahra El Idrissi', phone: '+212670881240', siteIds: [SITE_OUJDA_ID], isPendingSync: false },
   { id: 'c0a1b2c3-0001-4000-8000-000000000003', kind: 'company', name: 'Coopérative Angad', phone: '+212536682109', siteIds: [SITE_OUJDA_ID, SITE_BERKANE_ID], isPendingSync: false },
@@ -40,7 +40,7 @@ const EXTRA_CLIENT_NAMES = [
 
 const COMPANY_NAME_PATTERN = /coop|domaine|sarl|huilerie/i;
 
-const EXTRA_CLIENTS: Omit<IClient, 'identifier'>[] = EXTRA_CLIENT_NAMES.filter((name) => !LISTED_CLIENTS.some((client) => client.name === name)).map((name, index) => ({
+const EXTRA_CLIENTS: Omit<IClient, 'identifier' | 'email' | 'creditDh'>[] = EXTRA_CLIENT_NAMES.filter((name) => !LISTED_CLIENTS.some((client) => client.name === name)).map((name, index) => ({
   id: `c0a1b2c3-0002-4000-8000-${String(index + 1).padStart(12, '0')}`,
   kind: COMPANY_NAME_PATTERN.test(name) ? 'company' : 'individual',
   name,
@@ -49,4 +49,4 @@ const EXTRA_CLIENTS: Omit<IClient, 'identifier'>[] = EXTRA_CLIENT_NAMES.filter((
   isPendingSync: false,
 }));
 
-export const CLIENTS_MOCK: IClient[] = [...LISTED_CLIENTS, ...EXTRA_CLIENTS].map((client) => ({ ...client, identifier: null }));
+export const CLIENTS_MOCK: IClient[] = [...LISTED_CLIENTS, ...EXTRA_CLIENTS].map((client) => ({ ...client, identifier: null, email: null, creditDh: client.name === 'Malika Tazi' ? 250 : 0 }));

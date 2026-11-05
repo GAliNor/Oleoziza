@@ -1,6 +1,6 @@
 # Oleoziza
 
-Management of one owner's olive oil mills: Receptions, Weighings, Pressings, Client accounts, Payments and stock, across several Sites.
+Management of one owner's olive oil mills: Receptions, Pressings, Client accounts, Payments and stock, across several Sites.
 
 ## Repository
 

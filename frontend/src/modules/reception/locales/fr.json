@@ -7,10 +7,6 @@
     "individual": "Particulier",
     "company": "Entreprise"
   },
-  "containers": {
-    "sac": "Sacs",
-    "caisse": "Caisses"
-  },
   "pendingSync": "À synchroniser",
   "loadError": "Impossible de charger les réceptions.",
   "retry": "Réessayer",
@@ -37,34 +33,12 @@
     "missingItems": {
       "client": "le client",
       "weight": "le poids",
-      "box": "le box"
+      "box": "le box",
+      "notification": "la notification",
+      "contact": "le contact du Client",
+      "discount": "une remise valable"
     },
     "photo": "Photo des olives"
-  },
-  "station": {
-    "eyebrow": "{code} · Poste bascule",
-    "otherLots": "Lots à peser",
-    "weighings": "{count} pesée | {count} pesées",
-    "noWeighing": "Aucune pesée pour l’instant",
-    "kindLabel": "Type de pesée",
-    "gross": "Brut",
-    "net": "Net",
-    "grossHint": "brut {gross} − tare {tare}",
-    "manual": "saisie",
-    "tareLine": "− tare {tare} =",
-    "netLine": "Net {net}",
-    "tareOverGross": "La tare dépasse le poids brut.",
-    "add": "Ajouter la pesée",
-    "later": "Plus tard",
-    "finish": "Terminer la réception",
-    "finishHint": "Le poids net sera figé et le lot passera « En attente ».",
-    "notFound": "Ce lot n’est plus à peser sur ce site.",
-    "back": "Retour à l’accueil",
-    "added": "Pesée {index} : {net}",
-    "containerTare": "{kg} kg"
-  },
-  "pad": {
-    "erase": "Effacer"
   },
   "done": {
     "waiting": "En attente de pressage",
@@ -72,12 +46,11 @@
     "print": "Imprimer le ticket de réception",
     "printed": "Ticket {code} envoyé à l’imprimante",
     "again": "Nouvelle réception",
-    "home": "Accueil"
-  },
-  "weigh": {
-    "title": "Lots à peser",
-    "subtitle": "Aucun lot reçu en attente de pesée | {count} lot reçu | {count} lots reçus",
-    "empty": "Aucun lot à peser pour l’instant."
+    "home": "Accueil",
+    "fee": "Frais : {amount}",
+    "discount": "Plein tarif {full}, remise {amount}",
+    "discountPending": "Remise de {amount} en attente",
+    "credit": "Avoir déduit : {amount}"
   },
   "box": {
     "title": "Box de stockage",
@@ -106,5 +79,26 @@
     "label": "Réception ou nouveau client",
     "reception": "Réception",
     "client": "Nouveau client"
+  },
+  "fee": {
+    "line": "{weight} × {rate}/kg",
+    "add": "Ajouter une remise",
+    "remove": "Retirer la remise",
+    "title": "Remise",
+    "entryLabel": "Saisir la remise en",
+    "discount": "Remise {percent} % · {amount}",
+    "tooHigh": "La remise dépasse les frais ({fee}).",
+    "overLimit": "Au-delà de {limit} % : la réception s’enregistre, mais la remise attend une approbation et les frais restent à plein tarif."
+  },
+  "notification": {
+    "title": "Prévenir le Client",
+    "sms": "SMS",
+    "email": "Email",
+    "none": "Aucune",
+    "offline": "Hors ligne : impossible de vérifier si le Client a un email ou un téléphone.",
+    "missing": {
+      "email": "Email du Client",
+      "sms": "Téléphone du Client"
+    }
   }
 }

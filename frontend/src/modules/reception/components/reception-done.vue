@@ -8,6 +8,10 @@
       <h2 class="display-md mt-1 tabular-nums">{{ formatKg(lot.netKg) }}</h2>
       <p class="body-one">{{ formatQuintals(lot.netKg) }} · {{ lot.clientName }}</p>
       <p v-if="lot.boxNumbers.length" class="heading-two mt-3 text-fg-brand tabular-nums">{{ formatBoxes(lot.boxNumbers) }}</p>
+      <p class="body-one mt-3 tabular-nums">{{ $t('reception.done.fee', { amount: formatMoney(millingFee(lot)) }) }}</p>
+      <p v-if="lot.discount?.state === 'applied'" class="body-two tabular-nums">{{ $t('reception.done.discount', { full: formatMoney(fullFee(lot)), amount: formatMoney(lot.discount.amountDh) }) }}</p>
+      <p v-else-if="lot.discount?.state === 'pending'" class="mt-1 chip bg-warning-subtle text-fg-warning tabular-nums">{{ $t('reception.done.discountPending', { amount: formatMoney(lot.discount.amountDh) }) }}</p>
+      <p v-if="lot.creditDh" class="body-two tabular-nums">{{ $t('reception.done.credit', { amount: formatMoney(lot.creditDh) }) }}</p>
       <p v-if="lot.dailyPricePerKg !== null" class="body-two mt-1">
         {{ $t('reception.done.purchase', { price: formatMoney(lot.dailyPricePerKg), amount: formatMoney(lot.netKg * lot.dailyPricePerKg) }) }}
       </p>
@@ -30,6 +34,7 @@ import { useI18n } from 'vue-i18n';
 import { useToastStore } from 'global/stores/toast';
 import type { ILot } from 'lot/types/lot';
 import { formatMoney } from 'global/composables/money';
+import { fullFee, millingFee } from 'lot/composables/fee';
 import { formatBoxes } from 'lot/composables/lot-boxes';
 import { formatKg, formatQuintals } from 'lot/composables/quantity';
 

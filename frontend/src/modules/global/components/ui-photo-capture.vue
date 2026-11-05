@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col gap-2">
     <p class="label">
-      {{ label }} <span class="font-normal text-fg-secondary-paragraph">{{ $t('global.photo.optional') }}</span>
+      {{ label }} <span class="font-normal text-fg-secondary-paragraph">{{ isRequired ? '' : $t('global.photo.optional') }}</span>
     </p>
 
     <div v-if="modelValue" class="relative overflow-hidden rounded-card bg-subtle">
       <img class="h-52 w-full object-contain" :src="modelValue" :alt="label" />
-      <button type="button" class="btn-secondary absolute right-2 bottom-2 min-h-12 bg-surface shadow-raised hover:bg-surface" @click="emit('update:modelValue', null)">
+      <button type="button" class="btn-secondary absolute inset-e-2 bottom-2 min-h-12 bg-surface shadow-raised hover:bg-surface" @click="emit('update:modelValue', null)">
         <close-line-icon class="h-5 w-5" />
         {{ $t('global.photo.remove') }}
       </button>
@@ -40,7 +40,7 @@ import CloseLineIcon from 'global/icons/close-line.icon.vue';
 import ImageLineIcon from 'global/icons/image-line.icon.vue';
 
 // props
-defineProps<{ modelValue: string | null; label: string }>();
+defineProps<{ modelValue: string | null; label: string; isRequired?: boolean }>();
 
 // emits
 const emit = defineEmits<{ (event: 'update:modelValue', photo: string | null): void }>();

@@ -1,7 +1,7 @@
 {
   "salesTiles": {
     "revenue": "CA · {period}",
-    "revenueSub": "ventes d’huile et produits",
+    "revenueSub": "frais de trituration après remise",
     "collected": "Encaissé",
     "pending": "À confirmer",
     "pendingSub": "{count} paiement · voir → | {count} paiements · voir →",
@@ -10,7 +10,7 @@
   },
   "page": {
     "title": "Finances",
-    "subtitle": "{scope} · paiements reçus et versements payés",
+    "subtitle": "{scope} · frais de trituration et paiements",
     "readOnly": "Tous les sites · lecture seule",
     "loadError": "Impossible de charger les finances.",
     "retry": "Réessayer"
@@ -20,17 +20,18 @@
       "days": "CA et encaissé, 7 derniers jours",
       "monthWeeks": "CA et encaissé, par semaine ce mois",
       "seasonWeeks": "CA et encaissé, par semaine de saison"
-    }
+    },
+    "weekPrefix": "S"
   },
   "register": {
     "search": "Client, référence ou n°",
     "tabsLabel": "Mouvements",
     "tabs": {
       "pending": "À confirmer",
-      "all": "Tous les mouvements"
+      "all": "Tous les mouvements",
+      "refunds": "Remboursements"
     },
     "back": "Retour aux finances",
-    "photo": "photo",
     "emptyPending": "Rien à confirmer. Tout est à jour.",
     "emptyAll": "Aucun mouvement sur la période",
     "columns": {
@@ -41,7 +42,8 @@
       "recordedBy": "Saisi par",
       "amount": "Montant",
       "status": "Statut"
-    }
+    },
+    "documents": "{count} document | {count} documents"
   },
   "methods": {
     "cash": "Espèces",
@@ -67,11 +69,11 @@
   "settlements": {
     "credit_note": {
       "label": "Avoir",
-      "hint": "à déduire d’un prochain paiement"
+      "hint": "déduit automatiquement de ses prochains Lots"
     },
     "refund": {
       "label": "Remboursement",
-      "hint": "l’argent est rendu au Client"
+      "hint": "à rendre au Client, confirmé par une autre personne"
     }
   },
   "detail": {
@@ -97,7 +99,9 @@
     "cancelReason": "Motif de l’annulation",
     "cancelPlaceholder": "Ex. chèque revenu impayé",
     "cancel": "Annuler le paiement",
-    "cancelStart": "Annuler ce paiement…"
+    "cancelStart": "Annuler ce paiement…",
+    "ownRecord": "Vous avez saisi ce paiement : une autre personne doit le confirmer.",
+    "notLinked": "Ce paiement doit d’abord être lié à des Lots."
   },
   "recap": {
     "title": "Récapitulatif"
@@ -118,7 +122,8 @@
     "account": "Compte •••• {end}",
     "noAccount": "Compte non renseigné",
     "recordedAt": "Saisi le",
-    "quantity": "Quantité"
+    "quantity": "Quantité",
+    "lot": "Lot {code}"
   },
   "toasts": {
     "onlineOnly": "La confirmation se fait en ligne uniquement.",
@@ -128,5 +133,73 @@
     "rejectedOil": "{code} rejeté · {quantity} rendus au stock du Client",
     "credit_note": "Avoir de {amount} créé pour {client}",
     "refund": "Remboursement de {amount} à faire à {client}"
+  },
+  "label": {
+    "fees": "Frais {codes}",
+    "unlinked": "À lier à des Lots"
+  },
+  "form": {
+    "title": "Encaisser un paiement",
+    "lots": "Lots à payer",
+    "noLot": "Rien à payer pour ce Client sur ce Site.",
+    "discountPending": "Remise en attente",
+    "amount": "Montant",
+    "amountTooHigh": "Le montant dépasse ce que doivent les Lots cochés ({total}).",
+    "allocation": "Couvre d’abord les Lots les plus anciens.",
+    "method": "Mode de paiement",
+    "reference": {
+      "cheque": "Numéro et banque du chèque",
+      "transfer": "Référence du virement"
+    },
+    "proof": "Justificatif",
+    "proofRequired": "Le justificatif est obligatoire pour ce mode.",
+    "oilQuantity": "Soit {quantity} à {price}/L, prises sur le stock du Client.",
+    "oilTooMuch": "Le Client n’a que {quantity} en stock.",
+    "save": "Enregistrer {amount}",
+    "cancel": "Annuler",
+    "saved": "Paiement {code} enregistré, à confirmer",
+    "error": "L’enregistrement a échoué, réessayez.",
+    "print": "Imprimer le reçu",
+    "printed": "Reçu {code} envoyé à l’imprimante",
+    "pendingConfirm": "À confirmer : {amount}",
+    "credit": "Avoir de {amount} : déduit automatiquement de ses prochains Lots."
+  },
+  "documents": {
+    "title": "Documents",
+    "add": "Ajouter un document",
+    "none": "Aucun document pour l’instant.",
+    "added": "Document ajouté"
+  },
+  "direct": {
+    "open": "Enregistrer un paiement reçu",
+    "title": "Paiement reçu directement",
+    "hint": "Un virement ou un chèque arrivé sans passage au comptoir, même avant les olives.",
+    "lots": "Lots qu’il paie (à lier maintenant ou plus tard)",
+    "surplus": "{amount} au-delà de ce que doivent ces Lots : à régler à la confirmation.",
+    "noLots": "Pas encore lié : il faudra le lier à des Lots avant de le confirmer."
+  },
+  "link": {
+    "title": "Lier ce paiement à des Lots",
+    "save": "Lier",
+    "saved": "Paiement lié aux Lots"
+  },
+  "settle": {
+    "surplus": "Ce paiement dépasse de {amount} ce que doivent ses Lots. Que faire du surplus ?"
+  },
+  "refunds": {
+    "empty": "Aucun remboursement.",
+    "source": "Depuis {code} · {date}",
+    "statuses": {
+      "to_make": "À effectuer",
+      "made": "À confirmer",
+      "confirmed": "Confirmé"
+    },
+    "make": "Enregistrer le remboursement",
+    "made": "Remboursement enregistré, à confirmer par une autre personne",
+    "madeBy": "Effectué par {name} · {method} · {reference}",
+    "confirm": "Confirmer le remboursement",
+    "confirmed": "Remboursement confirmé",
+    "confirmedBy": "Confirmé par {name}, {date}",
+    "ownRecord": "Vous l’avez enregistré : une autre personne doit le confirmer."
   }
 }

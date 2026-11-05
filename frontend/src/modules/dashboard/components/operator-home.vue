@@ -5,7 +5,7 @@
     <div class="flex min-w-0 gap-4 overflow-hidden">
       <div
         class="flex w-full shrink-0 flex-col gap-5 transition-[margin] duration-500 ease-(--ease-sheet)"
-        :class="{ '-ml-[calc(100%+1rem)] h-0': isPanelOpen }"
+        :class="{ '-ms-[calc(100%+1rem)] h-0': isPanelOpen }"
         :inert="isPanelOpen"
       >
         <div class="stagger grid grid-cols-2 gap-3">
@@ -28,8 +28,8 @@
         </div>
 
         <label class="relative">
-          <search-line-icon class="pointer-events-none absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-fg-muted" />
-          <input v-model="query" class="input pl-12" type="search" :placeholder="$t('dashboard.operator.search')" />
+          <search-line-icon class="pointer-events-none absolute top-1/2 inset-s-4 h-5 w-5 -translate-y-1/2 text-fg-muted" />
+          <input v-model="query" class="input ps-12" type="search" :placeholder="$t('dashboard.operator.search')" />
         </label>
 
         <div v-if="query && searched.length" class="flex flex-col gap-2">
@@ -52,7 +52,7 @@
           <li v-for="lot in visible" :key="lot.id" class="card flex flex-col gap-4 p-3">
             <button
               type="button"
-              class="press group flex min-h-16 w-full items-center gap-3 rounded-control p-1 text-left hover:bg-subtle
+              class="press group flex min-h-16 w-full items-center gap-3 rounded-control p-1 text-start hover:bg-subtle
                 focus-visible:outline-2 focus-visible:outline-focus"
               :aria-label="$t('dashboard.operator.openLot', { client: lot.clientName, code: lot.code })"
               @click="handleOpenLot(lot)"
@@ -61,6 +61,12 @@
               <span class="min-w-0 flex-1">
                 <span class="block truncate font-semibold text-fg-display">{{ lot.clientName }}</span>
                 <span class="block body-two text-fg-primary-paragraph">{{ desk.stageSentence(lot) }}</span>
+                <span class="mt-1 flex flex-wrap gap-1">
+                  <lot-payment-chip :lot="lot" />
+                  <span v-if="lot.discount?.state === 'pending'" class="chip bg-warning-subtle text-fg-warning">{{ $t('lot.discount.pendingChip') }}</span>
+                  <span v-if="lot.discount?.state === 'refused'" class="chip bg-danger-subtle text-fg-danger">{{ $t('lot.discount.refusedChip') }}</span>
+                  <span v-if="lot.isContactMissing" class="chip bg-danger-subtle text-fg-danger">{{ $t('lot.timeline.notificationFailed') }}</span>
+                </span>
                 <span class="mt-1.5 flex items-center gap-1">
                   <span
                     v-for="(status, index) in LOT_STATUSES"
@@ -69,10 +75,10 @@
                     :class="index <= LOT_STATUSES.indexOf(lot.status) ? 'bg-action' : 'bg-emphasis'"
                     aria-hidden="true"
                   />
-                  <span class="ml-2 truncate caption">{{ desk.ageLabel(lot) }}</span>
+                  <span class="ms-2 truncate caption">{{ desk.ageLabel(lot) }}</span>
                 </span>
               </span>
-              <arrow-right-line-icon class="h-5 w-5 shrink-0 text-fg-muted transition-transform duration-300 ease-(--ease-sheet) group-hover:translate-x-0.5" />
+              <arrow-right-line-icon class="h-5 w-5 shrink-0 text-fg-muted transition-transform duration-300 ease-(--ease-sheet) group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
             </button>
             <button type="button" class="press min-h-14 w-full rounded-control px-4 text-md font-semibold" :class="LOT_MOVE_TONES[lot.status]" @click="handleMove(lot)">
               {{ $t(`lot.move.${lot.status}`) }}
@@ -130,6 +136,7 @@ import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 import ConfirmMove from 'dashboard/components/confirm-move.vue';
 import OperatorLotSheet from 'dashboard/components/operator-lot-sheet.vue';
+import LotPaymentChip from 'lot/components/lot-payment-chip.vue';
 
 type Panel = { kind: 'lot'; lotId: string } | { kind: 'move'; lotId: string; isFromSheet: boolean };
 
@@ -215,10 +222,6 @@ const handleCloseMove = (): void => {
 };
 
 const handleMove = (lot: ILot): void => {
-  if (!desk.needsConfirmation(lot)) {
-    desk.openStation(lot);
-    return;
-  }
   if (panel.value?.kind === 'lot') showPane({ kind: 'move', lotId: lot.id, isFromSheet: true }, 'pane-forward');
   else openPanel({ kind: 'move', lotId: lot.id, isFromSheet: false });
 };

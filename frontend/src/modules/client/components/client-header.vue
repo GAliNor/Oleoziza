@@ -10,12 +10,12 @@
         </p>
       </div>
     </div>
-    <dl class="flex shrink-0 gap-10 lg:text-right">
+    <dl class="flex shrink-0 gap-10 lg:text-end">
       <div class="flex flex-col gap-1">
         <dt class="eyebrow">{{ $t('client.record.oilStock') }}</dt>
-        <dd class="figure text-display-xs text-fg-display">{{ formatKg(client.oilStockKg) }}</dd>
+        <dd class="figure text-display-xs text-fg-display">{{ formatLitres(client.oilStockLitres) }}</dd>
       </div>
-      <div class="flex flex-col gap-1 border-l border-default pl-10">
+      <div class="flex flex-col gap-1 border-l border-default ps-10">
         <dt class="eyebrow">{{ $t('client.record.owes') }}</dt>
         <dd class="figure text-display-xs" :class="isFinanceShown && client.balance ? 'text-fg-warning' : 'text-fg-display'">
           {{ isFinanceShown ? formatMoney(client.balance) : '—' }}
@@ -28,7 +28,7 @@
 <script setup lang="ts">
 // imports
 import { formatMoney } from 'global/composables/money';
-import { formatKg } from 'lot/composables/quantity';
+import { formatLitres } from 'lot/composables/quantity';
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import type { ClientFollowUp, IClientRecord } from 'client/types/client';
 

@@ -68,7 +68,7 @@
         <refresh-line-icon class="h-5 w-5" />
         {{ $t('user.actions.reset') }}
       </button>
-      <p v-if="isDisableArmed" class="body-two md:flex-1 md:text-right">{{ $t('user.actions.disableHint') }}</p>
+      <p v-if="isDisableArmed" class="body-two md:flex-1 md:text-end">{{ $t('user.actions.disableHint') }}</p>
       <span v-else class="hidden flex-1 md:block" aria-hidden="true" />
       <ui-confirm-button
         v-if="user.status !== 'disabled'"
@@ -81,12 +81,13 @@
       <button v-else type="button" class="btn-secondary" :disabled="userStore.isSaving" @click="handleEnable">{{ $t('user.actions.enable') }}</button>
     </div>
 
-    <div>
-      <h3 class="heading-four">{{ $t('user.detail.rights') }}</h3>
-      <p class="body-two">{{ $t('user.detail.rightsHint') }}</p>
-    </div>
-
-    <user-site-rights v-for="siteId in assignedSiteIds" :key="siteId" :user="user" :site-id="siteId" :site-name="siteName(siteId)" />
+    <details class="flex flex-col gap-4">
+      <summary class="heading-four cursor-pointer">{{ $t('user.detail.rights') }}</summary>
+      <p class="body-two mt-1">{{ $t('user.detail.rightsHint') }}</p>
+      <div class="mt-4 flex flex-col gap-4">
+        <user-site-rights v-for="siteId in assignedSiteIds" :key="siteId" :user="user" :site-id="siteId" :site-name="siteName(siteId)" />
+      </div>
+    </details>
 
     <div v-if="canEdit(user) && unassignedSiteIds.length" class="card flex flex-wrap items-center gap-2 border-dashed">
       <span class="body-two">{{ $t('user.detail.addSite') }}</span>

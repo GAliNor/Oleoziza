@@ -4,8 +4,8 @@ export interface ITank {
   id: string;
   siteId: string;
   name: string;
-  capacityKg: number;
-  fillKg: number;
+  capacityLitres: number;
+  fillLitres: number;
   variety: string;
   isBio: boolean;
 }
@@ -15,7 +15,7 @@ export interface ITankStorage {
   lotCode: string;
   client: string;
   kind: 'client' | 'mill';
-  kg: number;
+  litres: number;
   startDay: number;
   endDay: number | null;
 }
@@ -24,9 +24,9 @@ export interface ISiteFigures {
   siteId: string;
   name: string;
   oliveKgToday: number;
-  oilKgToday: number;
+  oilLitresToday: number;
   queue: number;
-  yieldPct: number;
+  yieldPerQuintal: number;
   revenueSeason: number;
   outstanding: number;
 }
@@ -35,23 +35,23 @@ export interface IVarietyFigures {
   variety: string;
   lots: number;
   olivesKg: number;
-  oilKg: number;
+  oilLitres: number;
 }
 
 export interface IOliveBar {
   label: string;
   oliveKg: number;
-  oilKg: number;
+  oilLitres: number;
   isCurrent: boolean;
 }
 
 /** What the Management Home shows for one Site and period. Provisional until the data models settle. */
 export interface IDashboard {
-  production: { oliveKg: number; oilKg: number; receptions: number; yieldPct: number };
+  production: { oliveKg: number; oilLitres: number; receptions: number; yieldPerQuintal: number };
   season: {
     oliveKg: number;
-    oilKg: number;
-    yieldPct: number;
+    oilLitres: number;
+    yieldPerQuintal: number;
     averageWaitHours: number;
     lotsPressed: number;
     oliveDeltaPct: number;

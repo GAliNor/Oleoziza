@@ -1,6 +1,5 @@
 import { todayIso } from 'global/composables/date';
 import { periodRange } from 'global/composables/use-period';
-import { MILLING_RATE } from 'lot/constants/lot';
 import type { ClientPeriodKey, IClientActivity, IClientLotLine, IClientSiteFigures, ISiteConsumption } from 'client/types/client';
 
 export const lotsInPeriod = (lots: IClientLotLine[], key: ClientPeriodKey, today: string = todayIso()): IClientLotLine[] => {
@@ -9,10 +8,10 @@ export const lotsInPeriod = (lots: IClientLotLine[], key: ClientPeriodKey, today
   return lots.filter((lot) => lot.receivedOn >= from && lot.receivedOn <= to);
 };
 
-/** What the lots add up to. `generatedDh` is the milling fees they earned the mill: olives × the Site's rate. */
+/** What the lots add up to. `generatedDh` is the Milling Fees they earned the mill, each Lot at the rate of its Reception. */
 export const summarizeActivity = (lots: IClientLotLine[]): IClientActivity => {
   const oliveKg = lots.reduce((sum, lot) => sum + lot.kg, 0);
-  return { lots: lots.length, oliveKg, oilKg: lots.reduce((sum, lot) => sum + lot.oilKg, 0), generatedDh: oliveKg * MILLING_RATE };
+  return { lots: lots.length, oliveKg, oilLitres: lots.reduce((sum, lot) => sum + lot.oilLitres, 0), generatedDh: lots.reduce((sum, lot) => sum + lot.kg * lot.millingRatePerKg, 0) };
 };
 
 /** What the Client brought to each of their Sites over the lots given, biggest first. */

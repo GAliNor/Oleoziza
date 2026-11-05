@@ -1,6 +1,6 @@
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import FinanceMockService from 'finance/services/finance.mock';
-import type { IFinanceService, IMovement, IMovementDecision, ISales } from 'finance/types/finance';
+import type { IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
 
 class FinanceApiService extends BaseService implements IFinanceService {
@@ -17,6 +17,30 @@ class FinanceApiService extends BaseService implements IFinanceService {
       data: decision,
       headers: { 'Idempotency-Key': `decide:${id}:${decision.status}` },
     });
+  }
+
+  linkLots(id: string, lotLinks: ILotPaymentLink[]): Promise<IMovement> {
+    return this.request<IMovement>({ method: 'PUT', url: `${this._BASE_API_URL}/movements/${id}/lots`, data: lotLinks });
+  }
+
+  addDocuments(id: string, documents: IPaymentDocument[]): Promise<IMovement> {
+    return this.request<IMovement>({ method: 'POST', url: `${this._BASE_API_URL}/movements/${id}/documents`, data: documents });
+  }
+
+  getRefunds(siteId: string): Promise<IRefund[]> {
+    return this.request<IRefund[]>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/refunds` });
+  }
+
+  makeRefund(id: string, made: Pick<IRefund, 'method' | 'reference' | 'documents' | 'madeBy'>): Promise<IRefund> {
+    return this.request<IRefund>({ method: 'POST', url: `${this._BASE_API_URL}/refunds/${id}/made`, data: made, headers: { 'Idempotency-Key': `refund-made:${id}` } });
+  }
+
+  confirmRefund(id: string, by: string): Promise<IRefund> {
+    return this.request<IRefund>({ method: 'POST', url: `${this._BASE_API_URL}/refunds/${id}/confirm`, data: { by }, headers: { 'Idempotency-Key': `refund-confirm:${id}` } });
+  }
+
+  recordPayment(payload: IRecordPaymentPayload): Promise<IMovement> {
+    return this.request<IMovement>({ method: 'POST', url: `${this._BASE_API_URL}/sites/${payload.siteId}/payments`, data: payload, headers: { 'Idempotency-Key': payload.id } });
   }
 
   getSales(siteId: string, period: PeriodKey): Promise<ISales> {

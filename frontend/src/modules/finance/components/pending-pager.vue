@@ -1,5 +1,5 @@
 <template>
-  <nav class="flex items-center justify-between gap-3 rounded-full bg-subtle py-1.5 pr-1.5 pl-4 shadow-hairline" :aria-label="$t('finance.pager.label')">
+  <nav class="flex items-center justify-between gap-3 rounded-full bg-subtle py-1.5 pe-1.5 ps-4 shadow-hairline" :aria-label="$t('finance.pager.label')">
     <p class="flex items-center gap-2 text-sm whitespace-nowrap">
       <span class="h-2 w-2 rounded-full bg-warning-amber" aria-hidden="true" />
       <span class="font-medium text-fg-display">{{ $t('finance.pager.label') }}</span>

@@ -1,6 +1,6 @@
 <template>
   <app-layout>
-    <management-home v-if="sessionStore.session?.role === 'management'" />
+    <management-home v-if="sessionStore.isBackofficeView" />
     <operator-home v-else-if="sessionStore.session?.role === 'operator'" />
     <section v-else class="flex flex-col gap-6">
       <div>
@@ -20,7 +20,7 @@
             v-else
             :key="site.id"
             type="button"
-            class="card press-lift flex items-center gap-3 text-left hover:border-brand"
+            class="card press-lift flex items-center gap-3 text-start hover:border-brand"
             :class="{ 'border-brand': site.id === siteStore.currentSiteId || siteStore.isAllSites }"
             @click="handleSelectSite(site.id)"
           >

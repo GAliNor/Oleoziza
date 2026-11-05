@@ -5,7 +5,13 @@ const routes: RouteRecordRaw[] = [
     path: '/operations',
     name: 'lot',
     component: () => import('lot/views/entry.vue'),
-    meta: { roles: ['management'], permission: ['record.correct', 'audit_trail.view'] },
+    meta: { permission: ['record.correct', 'audit_trail.view'] },
+  },
+  {
+    path: '/discounts',
+    name: 'discount-queue',
+    component: () => import('lot/views/discounts.vue'),
+    meta: { permission: 'discount.approve' },
   },
 ];
 

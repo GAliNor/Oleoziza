@@ -1,6 +1,4 @@
-import type { ContainerKind } from 'lot/types/lot';
-
-export const CONTAINER_KINDS: readonly ContainerKind[] = ['sac', 'caisse'];
+import type { NotificationChoice } from 'lot/types/lot';
 
 export const OLIVE_VARIETIES: readonly { slug: string; name: string }[] = [
   { slug: 'picholine-marocaine', name: 'Picholine marocaine' },
@@ -25,6 +23,4 @@ export const ORIGIN_SUGGESTIONS: readonly string[] = [
   'Aklim',
 ];
 
-export const WEIGHT_MAX_DIGITS = 6;
-
-export const SCALE_READ_DELAY_MS = 900;
+export const NOTIFICATION_CHOICES: readonly NotificationChoice[] = ['sms', 'email', 'none'];

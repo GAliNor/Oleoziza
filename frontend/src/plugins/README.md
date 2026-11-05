@@ -6,7 +6,8 @@ One file per runtime library, and only that file imports the package (`import ty
 | --- | --- | --- |
 | `axios.ts` | axios | `http`, the shared client (credentials on, JSON); `isHttpError`. Services reach it through `BaseService.request<T>()`. |
 | `dicebear.ts` | @dicebear/core, @dicebear/styles | `renderAvatarDataUri`, `AvatarStyleName`. Styles load lazily on first use. Used by `global/composables/avatar.ts`. |
-| `i18n.ts` | vue-i18n | `install`, `i18n`. Loads every `modules/*/locales/*.json`. |
+| `fontsource.ts` | @fontsource-variable/noto-sans-arabic | Nothing: importing it declares the Arabic typeface, downloaded only when Arabic text shows. |
+| `i18n.ts` | vue-i18n | `install`, `i18n`. Loads every `modules/*/locales/*.json`, starts in the device's language and keeps `lang` and `dir` on the document in step. |
 | `jose.ts` | jose | `importJwtKey`, `verifyJwt`, `readUnverifiedJwt`, `signJwt` (ES256). Claims are read in `auth/services/token.ts`. |
 | `map.ts` | maplibre-gl, through `lib/map` | `install`. One static map; `useMap()` from `map`. MapLibre also lives in `lib/map/adapters/maplibre/` and loads on the first `<MapView>`. |
 | `pinia.ts` | pinia | `install`. |

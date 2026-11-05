@@ -5,7 +5,7 @@
       <li v-for="user in DEMO_USERS" :key="user.id">
         <button
           type="button"
-          class="flex w-full flex-col rounded-lg px-2 py-1.5 text-left hover:bg-surface"
+          class="flex w-full flex-col rounded-lg px-2 py-1.5 text-start hover:bg-surface"
           @click="handleSelect(user)"
         >
           <span class="label">

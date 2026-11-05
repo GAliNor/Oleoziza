@@ -4,7 +4,8 @@
   "roles": {
     "management": "Direction",
     "operator": "Opérateur",
-    "client": "Client"
+    "client": "Client",
+    "accountant": "Comptable"
   },
   "errors": {
     "invalid_identifier": "Saisissez un numéro marocain (06…, 07…) ou une adresse e-mail valide.",

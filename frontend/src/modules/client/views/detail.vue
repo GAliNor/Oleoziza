@@ -12,8 +12,7 @@
       <div class="stagger grid grid-cols-3 gap-2">
         <div class="card p-3">
           <p class="body-two">{{ $t('client.record.oilStock') }}</p>
-          <p class="text-xl figure">{{ formatKg(account.oilStockKg) }}</p>
-          <p class="body-two">{{ formatLitres(account.oilStockKg) }}</p>
+          <p class="text-xl figure">{{ formatLitres(account.oilStockLitres) }}</p>
         </div>
         <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': account.dueDh }">
           <p class="body-two">{{ $t('client.record.owes') }}</p>
@@ -26,12 +25,12 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+      <div v-if="actions.length" class="grid grid-cols-2 gap-2 md:grid-cols-4">
         <button
-          v-for="action in ACTIONS"
+          v-for="action in actions"
           :key="action.key"
           type="button"
-          class="press-lift flex min-h-20 flex-col items-start justify-end rounded-card p-3 text-left font-semibold"
+          class="press-lift flex min-h-20 flex-col items-start justify-end rounded-card p-3 text-start font-semibold"
           :class="[action.tone, { 'ring-4 ring-highlight': route.query.action === action.key }]"
           @click="handleAction(action.key)"
         >
@@ -40,19 +39,23 @@
         </button>
       </div>
 
-      <template v-if="!isManagement">
-        <h2 class="heading-four mt-2">{{ $t('client.page.lots') }}</h2>
-        <ul class="flex flex-col gap-2">
-          <li v-for="lot in lots" :key="lot.code" class="card flex items-center justify-between gap-3 p-3">
-            <span>
-              <span class="font-medium">{{ lot.code }}</span>
-              <span class="body-two block">{{ formatKg(lot.kg) }}</span>
-            </span>
-            <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
-          </li>
-          <li v-if="!lots.length"><ui-empty-state size="compact" :message="$t('client.page.noLot')" /></li>
-        </ul>
-      </template>
+      <p v-if="client.creditDh" class="card flex items-center justify-between gap-3 border-info-subtle bg-info-subtle p-3 text-fg-info" role="status">
+        <span class="font-medium">{{ $t('client.page.credit') }}</span>
+        <span class="figure">{{ formatMoney(client.creditDh) }}</span>
+      </p>
+
+      <payment-form
+        v-if="isPaying && client"
+        :client-id="client.id"
+        :client-name="client.name"
+        :site-id="siteStore.currentSiteId ?? ''"
+        :oil-stock-litres="account.oilStockLitres"
+        :credit-dh="client.creditDh"
+        @close="isPaying = false"
+        @saved="isPaying = false"
+      />
+
+      <client-history v-if="!isManagement && siteStore.currentSiteId" class="mt-2" :client="client" :site-id="siteStore.currentSiteId" />
 
       <template v-if="managementClient">
         <client-coordinates class="mt-6" :client="managementClient" />
@@ -68,7 +71,7 @@
 
 <script setup lang="ts">
 // imports
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -78,15 +81,19 @@ import { useToastStore } from 'global/stores/toast';
 import { useLotStore } from 'lot/stores/lot';
 import { formatPhone } from 'global/composables/phone';
 import { useClientStore } from 'client/stores/client';
-import type { IClientAccount, IClientAccountLine } from 'client/types/client';
+import type { IClientAccount } from 'client/types/client';
+import type { Permission } from 'global/types/session';
 import { formatMoney } from 'global/composables/money';
-import { formatKg, formatLitres } from 'lot/composables/quantity';
+import { clientMoney } from 'lot/composables/client-money';
+import { formatLitres } from 'lot/composables/quantity';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import AppLayout from 'global/components/app-layout.vue';
 import ClientCoordinates from 'client/components/client-coordinates.vue';
+import ClientHistory from 'client/components/client-history.vue';
 import ManagementClientDetail from 'client/components/management-client-detail.vue';
+import PaymentForm from 'finance/components/payment-form.vue';
 
 // stores
 const { t } = useI18n();
@@ -99,23 +106,21 @@ const lotStore = useLotStore();
 const clientStore = useClientStore();
 
 // variables
+const isPaying = ref(route.query.action === 'payment');
 type ClientAction = 'withdrawal' | 'payment' | 'payout' | 'reception';
-const ACTIONS: { key: ClientAction; tone: string; hint: (account: IClientAccount) => string }[] = [
-  { key: 'withdrawal', tone: 'bg-accent-subtle text-fg-accent', hint: (account) => t('client.page.hints.withdrawal', { quantity: formatKg(account.oilStockKg) }) },
-  { key: 'payment', tone: 'bg-action text-fg-on-action', hint: (account) => (account.dueDh ? t('client.page.hints.payment', { amount: formatMoney(account.dueDh) }) : t('client.page.hints.paymentNone')) },
-  { key: 'payout', tone: 'bg-subtle text-fg-display', hint: (account) => (account.payoutDh ? t('client.page.hints.payout', { amount: formatMoney(account.payoutDh) }) : t('client.page.hints.payoutNone')) },
-  { key: 'reception', tone: 'bg-selected text-fg-brand', hint: () => t('client.page.hints.reception') },
+const ACTIONS: { key: ClientAction; permission: Permission; tone: string; hint: (account: IClientAccount) => string }[] = [
+  { key: 'withdrawal', permission: 'withdrawal.create', tone: 'bg-accent-subtle text-fg-accent', hint: (account) => t('client.page.hints.withdrawal', { quantity: formatLitres(account.oilStockLitres) }) },
+  { key: 'payment', permission: 'payment.record', tone: 'bg-action text-fg-on-action', hint: (account) => (account.dueDh ? t('client.page.hints.payment', { amount: formatMoney(account.dueDh) }) : t('client.page.hints.paymentNone')) },
+  { key: 'payout', permission: 'payout.record', tone: 'bg-subtle text-fg-display', hint: (account) => (account.payoutDh ? t('client.page.hints.payout', { amount: formatMoney(account.payoutDh) }) : t('client.page.hints.payoutNone')) },
+  { key: 'reception', permission: 'reception.create', tone: 'bg-selected text-fg-brand', hint: () => t('client.page.hints.reception') },
 ];
 
 // computed
-const isManagement = computed((): boolean => sessionStore.session?.role === 'management');
+const isManagement = computed((): boolean => sessionStore.isBackofficeView);
+const actions = computed(() => ACTIONS.filter((action) => siteStore.can(action.permission)));
 const managementClient = computed(() => (isManagement.value ? clientStore.recordById(String(route.params.id)) : undefined));
 const client = computed(() => clientStore.clientById(String(route.params.id)));
-const account = computed((): IClientAccount => clientStore.accountOf(client.value?.id ?? ''));
-const lots = computed((): IClientAccountLine[] => [
-  ...lotStore.lots.filter((lot) => lot.clientId === client.value?.id).map((lot) => ({ code: lot.code, status: lot.status, kg: lot.netKg })),
-  ...account.value.history.filter((item) => !lotStore.lots.some((lot) => lot.code === item.code)),
-]);
+const account = computed((): IClientAccount => ({ ...clientStore.accountOf(client.value?.id ?? ''), ...clientMoney(lotStore.lots, client.value?.id ?? '') }));
 
 // watchers
 watch(
@@ -138,6 +143,10 @@ watch(
 const handleAction = (key: ClientAction): void => {
   if (key === 'reception') {
     router.push({ name: 'reception-new', query: { client: String(route.params.id) } });
+    return;
+  }
+  if (key === 'payment') {
+    isPaying.value = true;
     return;
   }
   const next = key === 'withdrawal' && account.value.dueDh ? t('client.page.pendingScreenNext') : '';

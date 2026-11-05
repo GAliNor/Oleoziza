@@ -1,0 +1,49 @@
+{
+  "title": "Configuration",
+  "subtitle": "{scope} · prix et règles du Site",
+  "readOnly": "Tous les sites : lecture seule. Choisissez un Site pour modifier.",
+  "offline": "Hors ligne : la configuration se modifie uniquement en ligne.",
+  "loadError": "Impossible de charger la configuration.",
+  "retry": "Réessayer",
+  "saveError": "La modification a échoué, réessayez.",
+  "saved": "Configuration enregistrée",
+  "edit": "Modifier",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "units": {
+    "perKg": "DH/kg",
+    "percent": "%",
+    "perLitre": "DH/L"
+  },
+  "values": {
+    "millingRate": {
+      "title": "Tarif de trituration",
+      "hint": "S’applique aux réceptions suivantes. Chaque Lot garde le tarif de sa réception."
+    },
+    "discountLimit": {
+      "title": "Remise maximale sans approbation",
+      "hint": "Au-delà, la remise attend une approbation. À 0 %, toute remise en a besoin."
+    },
+    "oilPrice": {
+      "title": "Prix de l’huile",
+      "hint": "Transforme des frais payés en huile en quantité d’huile."
+    }
+  },
+  "outOfRange": "Saisissez une valeur entre {min} et {max}.",
+  "methods": {
+    "title": "Modes de paiement",
+    "hint": "Un mode coupé disparaît du formulaire de paiement. Les paiements déjà saisis restent à confirmer.",
+    "enabled": "Actif",
+    "proof": "Justificatif obligatoire",
+    "lastOne": "Il faut garder au moins un mode actif."
+  },
+  "history": {
+    "title": "Historique ({count})",
+    "empty": "Aucune modification",
+    "line": "{by} · {date}",
+    "methodOn": "Actif",
+    "methodOff": "Coupé",
+    "proofOn": "justificatif obligatoire",
+    "proofOff": "justificatif facultatif"
+  }
+}

@@ -27,6 +27,11 @@
   --color-warning-amber: #b7791f;
   --color-danger-red: #c53030;
   --color-info-blue: #2b6cb0;
+  /* National flags beside each language's name: their official colours, the same in both themes. */
+  --color-flag-ma-red: #c1272d;
+  --color-flag-ma-green: #006233;
+  --color-flag-fr-blue: #000091;
+  --color-flag-fr-red: #e1000f;
 
   /* Type scale: each size carries its line height. Tailwind's default sizes are cleared, so only these exist. */
   --text-*: initial;

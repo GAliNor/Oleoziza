@@ -4,10 +4,9 @@ import ReceptionService from 'reception/services/reception';
 import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useClientStore } from 'client/stores/client';
-import { draftNetKg } from 'reception/composables/weighing';
 import { logDevError, withStatus } from 'global/composables/with-status';
 import type { ILot } from 'lot/types/lot';
-import type { IOpenReceptionPayload, IReceptionStore, IWeighingDraft } from 'reception/types/reception';
+import type { IReceiveLotPayload, IReceptionStore } from 'reception/types/reception';
 
 const receptionService = new ReceptionService();
 
@@ -35,54 +34,26 @@ export const useReceptionStore = defineStore('reception', {
       [this.settings] = loaded;
       this.loadedSiteId = siteId;
     },
-    async openReception(payload: Omit<IOpenReceptionPayload, 'receivedBy'>): Promise<ILot | null> {
+    /** Reads a new rate or limit when online; offline, the phone keeps the ones it last knew. */
+    async refreshSettings(siteId: string): Promise<void> {
+      try {
+        this.settings = await receptionService.getSettings(siteId);
+      } catch (error) {
+        logDevError(error);
+      }
+    },
+    /** Saves one Reception as a waiting Lot. The payload keeps its id, so a retry after a lost response never repeats it. */
+    async receiveLot(payload: Omit<IReceiveLotPayload, 'receivedBy'>): Promise<ILot | null> {
       return withStatus(this, 'isSaving', async () => {
-        const lot = await receptionService.openReception({
+        const lot = await receptionService.receiveLot({
           ...payload,
           boxNumbers: [...payload.boxNumbers],
           receivedBy: this.operatorName,
         });
         useLotStore().upsertLot(lot);
+        if (lot.creditDh) await useClientStore().fetchClients(true);
         return lot;
       });
-    },
-    async addWeighing(lot: ILot, draft: IWeighingDraft): Promise<ILot | null> {
-      return withStatus(this, 'isSaving', async () => {
-        const updated = await receptionService.addWeighing(lot.id, {
-          id: draft.id,
-          kind: draft.kind,
-          grossKg: draft.kind === 'gross' ? draft.grossKg : null,
-          containers: { ...draft.containers },
-          netKg: draftNetKg(draft, this.settings),
-          source: draft.source,
-          recordedBy: this.operatorName,
-        });
-        useLotStore().upsertLot(updated);
-        return updated;
-      });
-    },
-    async finishReception(lot: ILot): Promise<ILot | null> {
-      return withStatus(this, 'isSaving', async () => {
-        const updated = await receptionService.finishReception(lot.id);
-        useLotStore().upsertLot(updated);
-        return updated;
-      });
-    },
-    /** Opens, weighs and finishes one Reception. Each step keeps its own id, so a retry after a lost response never repeats one. */
-    async receiveLot(payload: Omit<IOpenReceptionPayload, 'receivedBy'>, weighing: IWeighingDraft): Promise<ILot | null> {
-      const opened = await this.openReception(payload);
-      if (!opened) return null;
-      if (opened.status !== 'received') return opened;
-      const weighed = await this.addWeighing(opened, weighing);
-      return weighed && this.finishReception(weighed);
-    },
-    async readScale(siteId: string): Promise<number | null> {
-      try {
-        return await receptionService.readScale(siteId);
-      } catch (error) {
-        logDevError(error);
-        return null;
-      }
     },
   },
 });

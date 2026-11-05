@@ -1,0 +1,42 @@
+{
+  "title": "À faire",
+  "subtitle": "{scope} · {count} en attente",
+  "since": "aujourd’hui | hier | il y a {count} jours",
+  "groups": {
+    "decide": "À décider",
+    "money": "Argent à rendre",
+    "follow": "À suivre"
+  },
+  "empty": {
+    "title": "Tout est à jour",
+    "body": "Rien n’attend votre décision pour l’instant."
+  },
+  "kinds": {
+    "discount": {
+      "title": "Remise de {percent} % à décider",
+      "detail": "Lot {code} · par {by}"
+    },
+    "payment": {
+      "title": "Paiement à confirmer",
+      "detail": "{code} · saisi par {by}"
+    },
+    "payout": {
+      "title": "Versement à confirmer",
+      "detail": "{code} · saisi par {by}"
+    },
+    "refund-make": {
+      "title": "Remboursement à effectuer",
+      "detail": "Depuis {code}"
+    },
+    "refund-confirm": {
+      "title": "Remboursement à vérifier",
+      "detail": "Fait par {by}"
+    },
+    "client-at-risk": {
+      "title": "Client à relancer"
+    },
+    "invitation": {
+      "title": "Invitation sans réponse"
+    }
+  }
+}

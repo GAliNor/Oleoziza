@@ -8,7 +8,7 @@
         <span class="flex items-center gap-1.5"><span class="h-2.5 w-4 rounded-sm bg-accent-rust/15" /> {{ $t('dashboard.management.sales.gapLegend') }}</span>
       </div>
     </div>
-    <div class="relative" @mouseleave="hoveredIndex = null">
+    <div class="relative" dir="ltr" @mouseleave="hoveredIndex = null">
       <svg :key="points.revenue" viewBox="0 0 300 120" preserveAspectRatio="none" class="h-44 w-full overflow-visible">
         <line v-for="step in 4" :key="step" x1="0" x2="300" :y1="step * 30" :y2="step * 30" class="stroke-neutral-100" stroke-width="1" vector-effect="non-scaling-stroke" />
         <polygon :points="gapArea" class="fill-accent-rust/15" />

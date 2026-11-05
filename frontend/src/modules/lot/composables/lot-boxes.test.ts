@@ -19,8 +19,8 @@ describe('boxesNeeded', () => {
 
 describe('boxOccupancy', () => {
   it('holds a Box until pressing starts', () => {
-    const occupancy = boxOccupancy([lot('received', [1]), lot('waiting', [2, 3]), lot('pressing', [4]), lot('pressed', [5]), lot('withdrawn', [6])], 'oujda');
-    expect([...occupancy.keys()]).toEqual([1, 2, 3]);
+    const occupancy = boxOccupancy([lot('waiting', [2, 3]), lot('pressing', [4]), lot('pressed', [5]), lot('withdrawn', [6])], 'oujda');
+    expect([...occupancy.keys()]).toEqual([2, 3]);
   });
 
   it('keeps each Site’s Boxes apart', () => {
@@ -64,7 +64,7 @@ describe('formatBoxes', () => {
 
 describe('the mock Lots', () => {
   it.each(Object.entries(SETTINGS_MOCK))('leave Boxes free on Site %s, each held by one Lot, with room for every Lot', (siteId, settings) => {
-    const holding = LOTS_MOCK.filter((item) => item.siteId === siteId && (item.status === 'received' || item.status === 'waiting'));
+    const holding = LOTS_MOCK.filter((item) => item.siteId === siteId && item.status === 'waiting');
     const held = holding.flatMap((item) => item.boxNumbers);
     holding.forEach((item) => expect(item.boxNumbers.length).toBeGreaterThan(0));
     expect(new Set(held).size).toBe(held.length);

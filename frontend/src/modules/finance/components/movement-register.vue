@@ -6,12 +6,21 @@
     <ui-segmented class="shrink-0 self-start md:self-auto" variant="tabs" :model-value="tab" :options="tabOptions" :label="$t('finance.register.tabsLabel')" @update:model-value="handleTab">
       <template #option="{ option }">
         {{ option.label }}
-        <span v-if="option.key === 'pending'" class="chip ml-1 bg-warning-subtle text-fg-warning">{{ pending.length }}</span>
+        <span v-if="option.key === 'pending'" class="chip ms-1 bg-warning-subtle text-fg-warning">{{ pending.length }}</span>
+        <span v-else-if="option.key === 'refunds' && refundsToHandle" class="chip ms-1 bg-warning-subtle text-fg-warning">{{ refundsToHandle }}</span>
       </template>
     </ui-segmented>
   </div>
 
-  <ui-master-detail :is-open="isOpen" :back-label="$t('finance.register.back')" @close="handleClose">
+  <direct-payment-form v-if="isRecording && siteStore.currentSiteId" v-show="!isOpen" :site-id="siteStore.currentSiteId" @close="isRecording = false" @saved="handleDirectSaved" />
+  <button v-else-if="canRecordDirect" v-show="!isOpen" type="button" class="btn-primary self-start" @click="isRecording = true">{{ $t('finance.direct.open') }}</button>
+
+  <ul v-if="tab === 'refunds' && !isOpen" class="stagger flex flex-col gap-3">
+    <li v-for="refund in financeStore.refunds" :key="refund.id"><refund-card :refund="refund" :is-read-only="siteStore.isAllSites" :is-online="isOnline" /></li>
+    <li v-if="!financeStore.refunds.length"><ui-empty-state :message="$t('finance.refunds.empty')" /></li>
+  </ul>
+
+  <ui-master-detail v-if="tab !== 'refunds' || isOpen" :is-open="isOpen" :back-label="$t('finance.register.back')" @close="handleClose">
     <template #list>
       <div class="table-card">
         <table class="data-table">
@@ -22,7 +31,7 @@
               <th class="hidden px-4 py-3 font-semibold lg:table-cell">{{ $t('finance.register.columns.label') }}</th>
               <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('finance.register.columns.method') }}</th>
               <th class="hidden px-4 py-3 font-semibold xl:table-cell">{{ $t('finance.register.columns.recordedBy') }}</th>
-              <th class="px-4 py-3 text-right font-semibold">{{ $t('finance.register.columns.amount') }}</th>
+              <th class="px-4 py-3 text-end font-semibold">{{ $t('finance.register.columns.amount') }}</th>
               <th class="hidden px-4 py-3 font-semibold sm:table-cell">{{ $t('finance.register.columns.status') }}</th>
             </tr>
           </thead>
@@ -41,13 +50,13 @@
                 <p class="font-medium text-fg-display">{{ movement.client }}</p>
                 <p class="body-two">{{ movement.code }}<span class="lg:hidden"> · {{ $t(`finance.purposes.${movement.purpose}`) }}</span></p>
               </td>
-              <td class="hidden px-4 py-3 text-fg-primary-paragraph lg:table-cell">{{ movement.label }}</td>
+              <td class="hidden px-4 py-3 text-fg-primary-paragraph lg:table-cell">{{ movementLabel(movement) }}</td>
               <td class="hidden px-4 py-3 whitespace-nowrap md:table-cell">
                 {{ $t(`finance.methods.${movement.method}`) }}
-                <span v-if="movement.proofUrl" class="chip ml-1 bg-subtle text-fg-primary-paragraph">{{ $t('finance.register.photo') }}</span>
+                <span v-if="movement.documents.length" class="chip ms-1 bg-subtle text-fg-primary-paragraph">{{ $t('finance.register.documents', movement.documents.length) }}</span>
               </td>
               <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph xl:table-cell">{{ movement.recordedBy }}</td>
-              <td class="px-4 py-3 text-right font-semibold whitespace-nowrap tabular-nums" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
+              <td class="px-4 py-3 text-end font-semibold whitespace-nowrap tabular-nums" :class="movement.kind === 'payment' ? 'text-fg-brand' : 'text-fg-accent'">
                 {{ movement.kind === 'payment' ? '+' : '−' }}{{ formatMoney(movement.amount) }}
               </td>
               <td class="hidden px-4 py-3 whitespace-nowrap sm:table-cell"><span class="chip" :class="MOVEMENT_STATUS_TONES[movement.status]">{{ $t(`finance.statuses.${movement.status}`) }}</span></td>
@@ -60,7 +69,7 @@
     
     </template>
     <template v-if="steps.total" #actions>
-      <pending-pager class="w-full sm:ml-auto sm:w-auto" :steps="steps" @open="handleOpen" />
+      <pending-pager class="w-full sm:ms-auto sm:w-auto" :steps="steps" @open="handleOpen" />
     </template>
     <template v-if="active" #detail>
       <movement-detail :key="active.id" :movement="active" />
@@ -77,7 +86,9 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useFinanceStore } from 'finance/stores/finance';
+import { useSiteStore } from 'site/stores/site';
 import { useFinance } from 'finance/composables/use-finance';
+import { movementLabel } from 'finance/composables/movement-label';
 import { pendingSteps } from 'finance/composables/pending-steps';
 import { MOVEMENT_STATUS_TONES } from 'finance/constants/finance';
 import type { IMovement, IPendingSteps } from 'finance/types/finance';
@@ -89,7 +100,9 @@ import UiPagination from 'global/components/ui-pagination.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import SalesTiles from 'finance/components/sales-tiles.vue';
+import DirectPaymentForm from 'finance/components/direct-payment-form.vue';
 import MovementDetail from 'finance/components/movement-detail.vue';
+import RefundCard from 'finance/components/refund-card.vue';
 import PendingPager from 'finance/components/pending-pager.vue';
 
 // stores
@@ -97,25 +110,34 @@ const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 const financeStore = useFinanceStore();
-const { inPeriod, pending, figures, period } = useFinance();
+const siteStore = useSiteStore();
+const { inPeriod, pending, figures, period, isOnline } = useFinance();
 
 // variables
 const PAGE_SIZE = 10;
-type RegisterTab = 'pending' | 'all';
+type RegisterTab = 'pending' | 'all' | 'refunds';
+const isRecording = ref(false);
 const search = ref('');
 const lastId = ref<string | null>(null);
 
 // computed
+const canRefund = computed((): boolean => siteStore.can('refund.manage'));
 const tabOptions = computed((): { key: RegisterTab; label: string }[] => [
   { key: 'pending', label: t('finance.register.tabs.pending') },
   { key: 'all', label: t('finance.register.tabs.all') },
+  ...(canRefund.value ? [{ key: 'refunds' as const, label: t('finance.register.tabs.refunds') }] : []),
 ]);
-const tab = computed((): RegisterTab => (route.query.tab === 'all' ? 'all' : 'pending'));
+const tab = computed((): RegisterTab => {
+  if (route.query.tab === 'refunds' && canRefund.value) return 'refunds';
+  return route.query.tab === 'all' ? 'all' : 'pending';
+});
+const refundsToHandle = computed((): number => financeStore.refunds.filter((refund) => refund.status !== 'confirmed').length);
+const canRecordDirect = computed((): boolean => !siteStore.isAllSites && siteStore.can('payment.record'));
 const rows = computed((): IMovement[] => {
   const query = search.value.trim().toLowerCase();
   return (tab.value === 'pending' ? pending.value : inPeriod.value).filter(
     (movement) =>
-      [movement.client, movement.code, movement.reference ?? '', movement.label].some((value) => value.toLowerCase().includes(query)),
+      [movement.client, movement.code, movement.reference ?? '', movementLabel(movement)].some((value) => value.toLowerCase().includes(query)),
   );
 });
 const { page, pageCount, pageRows } = usePagedRows(rows, PAGE_SIZE);
@@ -147,6 +169,11 @@ const handleTab = (key: RegisterTab): void => {
 const handleOpen = (id: string): void => {
   router.replace({ query: { ...route.query, movement: id } });
   window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const handleDirectSaved = (movement: IMovement): void => {
+  isRecording.value = false;
+  handleOpen(movement.id);
 };
 
 const handleClose = (): void => {

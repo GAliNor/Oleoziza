@@ -4,7 +4,7 @@ import ClientService from 'client/services/client';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
 import { EMPTY_ACCOUNT } from 'client/constants/mock-accounts';
-import type { IClient, IClientAccount, IClientRecord, IClientStore, ICreateClientPayload } from 'client/types/client';
+import type { IClient, IClientContact, IClientAccount, IClientRecord, IClientStore, ICreateClientPayload } from 'client/types/client';
 
 const clientService = new ClientService();
 
@@ -13,6 +13,7 @@ export const useClientStore = defineStore('client', {
     clients: [],
     accounts: {},
     records: [],
+    histories: {},
     isLoaded: false,
     isLoading: false,
     isSaving: false,
@@ -57,6 +58,21 @@ export const useClientStore = defineStore('client', {
       this.records = [];
       this.reportPending();
       return client;
+    },
+    /** Past Lots of a Client on one Site, across Seasons; loaded once per Client and Site. */
+    async fetchHistory(clientId: string, siteId: string): Promise<void> {
+      const key = `${clientId}:${siteId}`;
+      if (this.histories[key]) return;
+      const lines = await withStatus(this, 'isLoading', () => clientService.getHistory(clientId, siteId));
+      if (lines) this.histories[key] = lines;
+    },
+    async updateContact(clientId: string, contact: IClientContact): Promise<IClient | null> {
+      const updated = await withStatus(this, 'isSaving', () => clientService.updateContact(clientId, contact));
+      if (!updated) return null;
+      const index = this.clients.findIndex((client) => client.id === clientId);
+      if (index !== -1) this.clients.splice(index, 1, updated);
+      this.records = [];
+      return updated;
     },
     reportPending(): void {
       useSyncStore().setPending('clients', this.clients.filter((client) => client.isPendingSync).length);

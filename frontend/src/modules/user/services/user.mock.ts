@@ -7,11 +7,11 @@ import { MOCK_INVITATIONS_DB, MOCK_USERS_DB } from 'auth/services/users.mock-db'
 import type { LoginMethod } from 'auth/types/auth';
 import type { Permission } from 'global/types/session';
 import type { IMockUser } from 'auth/types/mock-auth';
-import type { IStaffForm, IStaffUser, IUserService, StaffStatus } from 'user/types/user';
+import type { IStaffForm, IStaffUser, IUserService, StaffRole, StaffStatus } from 'user/types/user';
 
 const toStaffUser = (user: IMockUser): IStaffUser => ({
   id: user.id,
-  role: user.role === 'management' ? 'management' : 'operator',
+  role: user.role as StaffRole,
   isOwner: user.isOwner,
   title: user.title,
   firstName: user.firstName,

@@ -213,3 +213,92 @@
     transform: none;
   }
 }
+
+/* Changing language: the old screen softens and steps back while the new one comes into focus from the side it now reads from (Arabic from the right, French from the left). */
+:root.language-switching {
+  --language-drift: -18px;
+}
+
+:root.language-switching[dir='rtl'] {
+  --language-drift: 18px;
+}
+
+:root.language-switching::view-transition {
+  background: var(--background-color-page);
+}
+
+:root.language-switching::view-transition-old(root),
+:root.language-switching::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+:root.language-switching::view-transition-old(root) {
+  animation: language-out 0.34s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+:root.language-switching::view-transition-new(root) {
+  animation: language-in 0.7s var(--ease-premium) 0.12s both;
+}
+
+/* Blurring a whole screen is more than a phone's compositor should be asked to do. */
+@media (max-width: 47.99rem) {
+  :root.language-switching::view-transition-old(root) {
+    animation-name: language-out-plain;
+  }
+
+  :root.language-switching::view-transition-new(root) {
+    animation-name: language-in-plain;
+  }
+}
+
+@keyframes language-out {
+  to {
+    opacity: 0;
+    transform: translate3d(calc(var(--language-drift) * -0.6), 0, 0) scale(0.985);
+    filter: blur(10px);
+  }
+}
+
+@keyframes language-in {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--language-drift), 0, 0) scale(1.012);
+    filter: blur(12px);
+  }
+}
+
+@keyframes language-out-plain {
+  to {
+    opacity: 0;
+    transform: translate3d(calc(var(--language-drift) * -0.6), 0, 0) scale(0.985);
+  }
+}
+
+@keyframes language-in-plain {
+  from {
+    opacity: 0;
+    transform: translate3d(var(--language-drift), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root.language-switching::view-transition-old(root) {
+    animation: language-fade-out 0.2s linear both;
+  }
+
+  :root.language-switching::view-transition-new(root) {
+    animation: language-fade-in 0.2s linear both;
+  }
+}
+
+@keyframes language-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes language-fade-in {
+  from {
+    opacity: 0;
+  }
+}

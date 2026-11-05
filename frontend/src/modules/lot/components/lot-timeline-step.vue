@@ -1,6 +1,6 @@
 <template>
   <li class="relative">
-    <span class="absolute top-2 -left-[27px] h-3 w-3 rounded-full bg-primary-olive-mid ring-4 ring-surface" />
+    <span class="absolute top-2 -inset-s-[27px] h-3 w-3 rounded-full bg-primary-olive-mid ring-4 ring-surface" />
     <div class="-mx-2 overflow-clip">
       <div
         class="flex items-start transition-transform duration-500 ease-(--ease-premium) motion-reduce:transition-none"
@@ -9,7 +9,7 @@
         <component
           :is="step.imageUrl ? 'button' : 'div'"
           ref="summary"
-          class="w-full shrink-0 px-2 py-1 text-left"
+          class="w-full shrink-0 px-2 py-1 text-start"
           :class="{ 'press group rounded-card hover:bg-subtle': step.imageUrl }"
           :type="step.imageUrl ? 'button' : undefined"
           :aria-expanded="step.imageUrl ? isImageShown : undefined"
@@ -26,7 +26,7 @@
             <span v-if="step.imageUrl" class="link flex items-center gap-1.5 group-hover:underline">
               <image-line-icon class="h-4 w-4" />
               {{ $t('lot.timeline.showPhoto') }}
-              <arrow-right-line-icon class="h-4 w-4 transition-transform duration-300 ease-(--ease-premium) group-hover:translate-x-0.5" />
+              <arrow-right-line-icon class="h-4 w-4 transition-transform duration-300 ease-(--ease-premium) group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
             </span>
           </span>
         </component>

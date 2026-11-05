@@ -4,11 +4,11 @@ import LotService from 'lot/services/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
-import type { ILot, ILotMove, ILotStore } from 'lot/types/lot';
+import type { IDiscountDecision, ILot, ILotMove, ILotStore } from 'lot/types/lot';
 
 const lotService = new LotService();
 
-/** The Lots of the current Site, read across modules; reception opens and weighs them. */
+/** The Lots of the current Site, read across modules; reception creates them. */
 export const useLotStore = defineStore('lot', {
   state: (): ILotStore => ({
     lots: [],
@@ -18,7 +18,7 @@ export const useLotStore = defineStore('lot', {
     hasError: false,
   }),
   getters: {
-    receivedLots: (state): ILot[] => state.lots.filter((lot) => lot.status === 'received'),
+    pendingDiscountLots: (state): ILot[] => state.lots.filter((lot) => lot.discount?.state === 'pending'),
     lotByCode: (state) => (code: string): ILot | undefined => state.lots.find((lot) => lot.code === code),
   },
   actions: {
@@ -32,10 +32,26 @@ export const useLotStore = defineStore('lot', {
       this.loadedSiteId = siteId;
       this.reportPending();
     },
+    /** Reads the loaded Site's Lots again after a Payment changed what they owe; a failure keeps what is shown. */
+    async reloadLoaded(): Promise<void> {
+      if (this.loadedSiteId) await withStatus(this, 'isSaving', () => this.loadLots(this.loadedSiteId as string));
+    },
     async moveLot(lot: ILot, move: ILotMove): Promise<ILot | null> {
       const updated = await withStatus(this, 'isSaving', () => lotService.moveLot(lot.id, { ...move, by: useSessionStore().fullName }));
       if (updated) this.upsertLot(updated);
       return updated;
+    },
+    /** The limit binds everyone but the Owner, and nobody but the Owner decides their own Discount. */
+    async decideDiscount(lot: ILot, decision: IDiscountDecision): Promise<ILot | null> {
+      const sessionStore = useSessionStore();
+      if (!lot.discount || !sessionStore.canValidate(lot.discount.givenBy)) return null;
+      const updated = await withStatus(this, 'isSaving', () => lotService.decideDiscount(lot.id, { ...decision, by: sessionStore.fullName }));
+      if (updated) this.upsertLot(updated);
+      return updated;
+    },
+    async clearMissingContact(lot: ILot): Promise<void> {
+      const updated = await withStatus(this, 'isSaving', () => lotService.clearMissingContact(lot.id));
+      if (updated) this.upsertLot(updated);
     },
     upsertLot(lot: ILot): void {
       const index = this.lots.findIndex((item) => item.id === lot.id);

@@ -7,7 +7,7 @@
         <span v-for="item in legend" :key="item.key" class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-sm" :class="item.colorClass" /> {{ item.label }}</span>
       </div>
     </div>
-    <div class="relative min-h-44 flex-1" @mouseleave="hoveredIndex = null">
+    <div class="relative min-h-44 flex-1" dir="ltr" @mouseleave="hoveredIndex = null">
       <div :key="barsKey" class="absolute inset-0 flex items-end gap-2">
         <div
           v-for="(bar, index) in bars"

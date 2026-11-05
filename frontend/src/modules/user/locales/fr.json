@@ -14,6 +14,7 @@
     "all": "Tous",
     "management": "Direction",
     "operator": "Opérateurs",
+    "accountant": "Comptables",
     "invited": "Invités",
     "disabled": "Désactivés"
   },
@@ -24,7 +25,8 @@
   },
   "roles": {
     "management": "Direction",
-    "operator": "Opérateur"
+    "operator": "Opérateur",
+    "accountant": "Comptable"
   },
   "status": {
     "active": "Actif",
@@ -57,7 +59,7 @@
     "loginMethods": "Façons de se connecter",
     "unreachable": "Ajoutez d’abord le contact correspondant",
     "lastLoginMethod": "Il faut garder au moins une façon de se connecter.",
-    "rights": "Sites et droits",
+    "rights": "Ajuster les droits",
     "rightsHint": "Les droits du rôle sont marqués « par défaut ». Un cadenas : vous n’avez pas ce droit sur ce Site, vous ne pouvez ni le donner ni le retirer.",
     "rightsCount": "{count} / {total} droits",
     "readOnlySite": "Hors de vos Sites, lecture seule",
@@ -110,9 +112,6 @@
     "reception": {
       "create": "Ouvrir une réception"
     },
-    "weighing": {
-      "create": "Peser"
-    },
     "lot": {
       "update_status": "Faire avancer un Lot"
     },
@@ -128,7 +127,8 @@
     "client": {
       "create": "Créer un Client",
       "edit": "Modifier un Client",
-      "manage_access": "Gérer l’accès des Clients"
+      "manage_access": "Gérer l’accès des Clients",
+      "view": "Voir les Clients"
     },
     "payment": {
       "record": "Encaisser un paiement",
@@ -143,9 +143,6 @@
     },
     "finance": {
       "view": "Voir les finances"
-    },
-    "payment_method": {
-      "manage": "Régler les modes de paiement"
     },
     "expense": {
       "record": "Saisir les dépenses"
@@ -167,6 +164,18 @@
     },
     "season": {
       "manage": "Ouvrir et clôturer la Saison"
+    },
+    "configuration": {
+      "manage": "Modifier la configuration"
+    },
+    "document": {
+      "add": "Ajouter des documents"
+    },
+    "discount": {
+      "approve": "Approuver les remises"
+    },
+    "refund": {
+      "manage": "Gérer les remboursements"
     }
   },
   "form": {

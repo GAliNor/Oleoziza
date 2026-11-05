@@ -19,7 +19,7 @@
     </div>
 
     <div class="overflow-x-auto">
-      <div :key="`${startDay}-${periodDays}`" class="min-w-190">
+      <div :key="`${startDay}-${periodDays}`" class="min-w-190" dir="ltr">
         <div class="grid border-b border-default pb-1" :style="gridStyle">
           <p class="eyebrow">{{ $t('dashboard.tanks.tank') }}</p>
           <p
@@ -33,10 +33,10 @@
         </div>
 
         <div v-for="tank in tanks" :key="tank.id" class="grid border-b border-subtle py-2" :style="gridStyle">
-          <div class="pr-2">
+          <div class="pe-2">
             <p class="label text-fg-display">{{ tank.name }}</p>
             <p class="truncate body-three font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
-            <p class="body-three tabular-nums">{{ Math.round((tank.fillKg / tank.capacityKg) * 100) }} % · {{ formatKgRounded(tank.capacityKg) }}</p>
+            <p class="body-three tabular-nums">{{ Math.round((tank.fillLitres / tank.capacityLitres) * 100) }} % · {{ formatLitresRounded(tank.capacityLitres) }}</p>
           </div>
           <div class="relative" :style="{ gridColumn: `2 / span ${periodDays}`, height: `${lanesOf(tank.id).length * 30 + 4}px` }">
             <div class="absolute inset-y-0 bg-selected/30" :style="todayStyle" />
@@ -47,9 +47,9 @@
                 class="grow-x absolute flex h-6.5 items-center overflow-hidden rounded-md px-2 text-xs font-medium whitespace-nowrap"
                 :class="barClass(entry)"
                 :style="{ ...barStyle(entry, laneIndex), animationDelay: `${(laneIndex + entryIndex) * 70}ms` }"
-                :title="`${entry.client} · ${entry.lotCode} · ${formatKgRounded(entry.kg)} · ${dayLabel(entry.startDay)} → ${entry.endDay === null ? $t('dashboard.tanks.ongoing') : dayLabel(entry.endDay)}`"
+                :title="`${entry.client} · ${entry.lotCode} · ${formatLitresRounded(entry.litres)} · ${dayLabel(entry.startDay)} ${$t('global.arrow')} ${entry.endDay === null ? $t('dashboard.tanks.ongoing') : dayLabel(entry.endDay)}`"
               >
-                {{ entry.client }} · {{ formatKgRounded(entry.kg) }}
+                {{ entry.client }} · {{ formatLitresRounded(entry.litres) }}
               </div>
             </template>
           </div>
@@ -64,7 +64,7 @@
 import { computed } from 'vue';
 
 import type { IPeriod } from 'global/types/period';
-import { formatKgRounded } from 'lot/composables/quantity';
+import { formatLitresRounded } from 'lot/composables/quantity';
 import { dayLabel, isInWindow, useTankWindow } from 'dashboard/composables/use-tank-window';
 import type { ITank, ITankStorage } from 'dashboard/types/dashboard';
 

@@ -14,7 +14,7 @@
     </map-marker>
     <span
       v-if="province && !isUnavailable"
-      class="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-surface py-1.5 pr-3.5 pl-2.5 text-xs font-semibold whitespace-nowrap text-fg-display shadow-overlay"
+      class="absolute bottom-3 inset-s-3 z-10 flex items-center gap-1.5 rounded-full bg-surface py-1.5 pe-3.5 ps-2.5 text-xs font-semibold whitespace-nowrap text-fg-display shadow-overlay"
     >
       <map-pin-line-icon class="h-4 w-4 text-fg-place" />
       {{ province.name }}

@@ -8,7 +8,7 @@
       <button
         v-else-if="canManageSite(user, siteId) && isRemovable"
         type="button"
-        class="link ml-auto"
+        class="link ms-auto"
         :class="isRemoveArmed ? 'font-semibold text-fg-danger' : 'text-fg-danger/80'"
         :disabled="userStore.isSaving"
         @click="handleRemove"
@@ -26,21 +26,13 @@
           type="button"
           role="switch"
           :aria-checked="granted.includes(permission)"
-          class="flex min-h-11 items-center gap-3 rounded-lg px-2 text-left text-sm transition-colors hover:bg-page
+          class="flex min-h-11 items-center gap-3 rounded-lg px-2 text-start text-sm transition-colors hover:bg-page
             disabled:cursor-not-allowed disabled:hover:bg-transparent"
           :disabled="!canGrant(user, siteId, permission) || pendingPermission !== null"
           :title="canEdit(user) && !canGrant(user, siteId, permission) ? $t('user.detail.locked') : undefined"
           @click="handleToggle(permission)"
         >
-          <span
-            class="relative h-6 w-10 shrink-0 rounded-full transition-colors duration-300"
-            :class="[granted.includes(permission) ? 'bg-action' : 'bg-emphasis', { 'animate-pulse': pendingPermission === permission }]"
-          >
-            <span
-              class="absolute top-1 left-1 h-4 w-4 rounded-full bg-surface shadow-raised transition-transform duration-300 ease-(--ease-premium)"
-              :class="{ 'translate-x-4': granted.includes(permission) }"
-            />
-          </span>
+          <ui-switch :is-on="granted.includes(permission)" :is-pending="pendingPermission === permission" />
           <span class="flex-1" :class="granted.includes(permission) ? 'text-fg-display' : 'text-fg-secondary-paragraph'">
             {{ $t(`user.permissions.${permission}`) }}
           </span>
@@ -65,6 +57,7 @@ import { PERMISSION_GROUPS } from 'user/constants/user';
 import type { Permission } from 'global/types/session';
 import type { IStaffUser } from 'user/types/user';
 
+import UiSwitch from 'global/components/ui-switch.vue';
 import LockLineIcon from 'global/icons/lock-line.icon.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 

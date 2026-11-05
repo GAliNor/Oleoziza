@@ -1,42 +1,73 @@
-import { shiftDate, todayIso } from 'global/composables/date';
 import { formatNumber } from 'global/composables/number';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
-import type { IBankAccount, IMovement, PaymentMethodKey } from 'finance/types/finance';
+import { LOTS_MOCK } from 'lot/constants/mock-lots';
+import { millingFee } from 'lot/composables/fee';
+import type { ILot } from 'lot/types/lot';
+import type { IBankAccount, IMovement, IRefund, MovementStatus, PaymentMethodKey } from 'finance/types/finance';
 
-interface ISeedMovement extends Omit<IMovement, 'proofUrl' | 'clientId'> {
+interface ISeedMovement extends Omit<IMovement, 'documents' | 'clientId'> {
   hasProof: boolean;
 }
 
 const O = SITE_OUJDA_ID;
-const B = SITE_BERKANE_ID;
 
-const BP_ACCOUNT: IBankAccount = { bank: 'Banque Populaire', accountEnd: '4521' };
-const CIH_ACCOUNT: IBankAccount = { bank: 'CIH Bank', accountEnd: '0837' };
-const CA_ACCOUNT: IBankAccount = { bank: 'Crédit Agricole', accountEnd: '2290' };
+const ACCOUNTS: Record<string, IBankAccount> = {
+  [O]: { bank: 'Banque Populaire', accountEnd: '4521' },
+  [SITE_BERKANE_ID]: { bank: 'Crédit Agricole', accountEnd: '2290' },
+};
+const OIL_PRICE_PER_LITRE = 40;
+const METHOD_CYCLE: PaymentMethodKey[] = ['cash', 'cash', 'transfer', 'cash', 'cheque', 'oil'];
+const REFERENCES: Partial<Record<PaymentMethodKey, string>> = { transfer: 'VIR-', cheque: 'N° ' };
 
-const SEEDS: ISeedMovement[] = [
-  { id: 'm01', code: 'P-0412', kind: 'payment', purpose: 'fee', siteId: O, client: 'Said Tahiri', label: 'Frais OJ-2627-0152 · 2 050 kg × 0,50 DH', amount: 1025, method: 'cash', hasProof: false, status: 'pending', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-24T11:40:00+01:00' },
-  { id: 'm02', code: 'P-0411', kind: 'payment', purpose: 'sale', siteId: O, client: 'Restaurant Al Andalous', label: 'Vente 60 L d’huile vierge', amount: 3900, method: 'cheque', reference: 'N° 4410278 · Attijariwafa bank', bankAccount: BP_ACCOUNT, hasProof: true, status: 'pending', recordedBy: 'Imane Saidi', recordedAt: '2026-10-24T10:55:00+01:00' },
-  { id: 'm03', code: 'V-0058', kind: 'payout', purpose: 'purchase', siteId: O, client: 'Coopérative Angad', label: 'Achat OJ-2627-0156 · 3 210 kg × 4,20 DH', amount: 12852, feeOffset: 630, method: 'transfer', reference: 'CIH-20261024-118', bankAccount: CIH_ACCOUNT, hasProof: true, status: 'pending', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-24T09:30:00+01:00' },
-  { id: 'm04', code: 'P-0410', kind: 'payment', purpose: 'fee', siteId: O, client: 'Naima Lahlou', label: 'Frais OJ-2627-0151 · 780 kg × 0,50 DH', amount: 390, method: 'oil', oilKg: 9.75, hasProof: false, status: 'pending', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-23T17:10:00+01:00', wasOffline: true },
-  { id: 'm05', code: 'P-0409', kind: 'payment', purpose: 'sale', siteId: O, client: 'Épicerie Zitouna', label: 'Vente 40 bouteilles 1 L', amount: 2400, method: 'transfer', reference: 'BP-77812', bankAccount: BP_ACCOUNT, hasProof: true, status: 'pending', recordedBy: 'Soufiane Mrabet', recordedAt: '2026-10-23T15:25:00+01:00' },
-  { id: 'm06', code: 'P-0408', kind: 'payment', purpose: 'fee', siteId: O, client: 'Driss Amrani', label: 'Frais OJ-2627-0149 · 1 300 kg × 0,50 DH', amount: 650, method: 'cash', hasProof: false, status: 'confirmed', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-23T16:05:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-23T18:30:00+01:00' },
-  { id: 'm07', code: 'P-0407', kind: 'payment', purpose: 'sale', siteId: O, client: 'Hôtel Atlas Oujda', label: 'Vente 120 L d’huile vierge extra', amount: 8400, method: 'transfer', reference: 'BMCE-552190', bankAccount: BP_ACCOUNT, hasProof: true, status: 'confirmed', recordedBy: 'Imane Saidi', recordedAt: '2026-10-22T11:20:00+01:00', decidedBy: 'Mohammed Taibi', decidedAt: '2026-10-22T19:02:00+01:00' },
-  { id: 'm08', code: 'P-0406', kind: 'payment', purpose: 'sale', siteId: O, client: 'Karim Mansouri', label: 'Vente 20 L d’huile vierge', amount: 1300, method: 'cash', hasProof: false, status: 'rejected', recordedBy: 'Soufiane Mrabet', recordedAt: '2026-10-22T10:40:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-22T18:15:00+01:00', note: 'Montant absent de la caisse du soir.' },
-  { id: 'm09', code: 'P-0405', kind: 'payment', purpose: 'sale', siteId: O, client: 'Malika Tazi', label: 'Vente 30 L d’huile vierge', amount: 1950, method: 'cheque', reference: 'N° 0098812 · Banque Populaire', bankAccount: BP_ACCOUNT, hasProof: true, status: 'cancelled', recordedBy: 'Imane Saidi', recordedAt: '2026-10-21T12:00:00+01:00', decidedBy: 'Mohammed Taibi', decidedAt: '2026-10-21T18:40:00+01:00', note: 'Chèque revenu impayé.', settlement: 'credit_note' },
-  { id: 'm10', code: 'V-0057', kind: 'payout', purpose: 'purchase', siteId: O, client: 'Abdelhak Bouhaddou', label: 'Achat OJ-2627-0146 · 1 860 kg × 4,10 DH', amount: 7626, method: 'cash', hasProof: false, status: 'confirmed', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-21T09:10:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-21T18:20:00+01:00' },
-  { id: 'm11', code: 'P-0404', kind: 'payment', purpose: 'fee', siteId: O, client: 'Jamal Ouazzani', label: 'Frais OJ-2627-0144 · 2 420 kg × 0,50 DH', amount: 1210, method: 'cash', hasProof: false, status: 'confirmed', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-20T16:45:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-20T18:50:00+01:00' },
-  { id: 'm12', code: 'P-0403', kind: 'payment', purpose: 'sale', siteId: O, client: 'Coopérative Ain Sfa', label: 'Vente 200 L d’huile vierge', amount: 12600, method: 'transfer', reference: 'CAM-310045', bankAccount: CIH_ACCOUNT, hasProof: true, status: 'confirmed', recordedBy: 'Imane Saidi', recordedAt: '2026-10-19T14:30:00+01:00', decidedBy: 'Mohammed Taibi', decidedAt: '2026-10-19T20:10:00+01:00' },
-  { id: 'm13', code: 'P-0402', kind: 'payment', purpose: 'fee', siteId: O, client: 'Omar Chergui', label: 'Frais OJ-2627-0139 · 840 kg × 0,50 DH', amount: 420, method: 'oil', oilKg: 10.5, hasProof: false, status: 'confirmed', recordedBy: 'Hamid Zerrouki', recordedAt: '2026-10-18T15:00:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-18T18:05:00+01:00' },
-  { id: 'm14', code: 'P-0401', kind: 'payment', purpose: 'sale', siteId: O, client: 'Zakaria Bensaid', label: 'Vente 10 L d’huile vierge', amount: 650, method: 'cash', hasProof: false, status: 'confirmed', recordedBy: 'Soufiane Mrabet', recordedAt: '2026-10-17T11:15:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-17T18:00:00+01:00' },
-  { id: 'm15', code: 'P-0215', kind: 'payment', purpose: 'fee', siteId: B, client: 'Hassan Ziani', label: 'Frais BK-2627-0084 · 990 kg × 0,50 DH', amount: 495, method: 'cash', hasProof: false, status: 'pending', recordedBy: 'Abdelkader Mansouri', recordedAt: '2026-10-24T12:05:00+01:00' },
-  { id: 'm16', code: 'V-0031', kind: 'payout', purpose: 'purchase', siteId: B, client: 'Domaine Zegzel', label: 'Acompte achat BK-2627-0085 · 4 120 kg', amount: 10000, method: 'cheque', reference: 'N° 7781004 · Crédit Agricole', bankAccount: CA_ACCOUNT, hasProof: true, status: 'pending', recordedBy: 'Abdelkader Mansouri', recordedAt: '2026-10-24T08:20:00+01:00' },
-  { id: 'm17', code: 'P-0214', kind: 'payment', purpose: 'sale', siteId: B, client: 'Huileries Triffa SARL', label: 'Vente 300 L d’huile vierge', amount: 18900, method: 'transfer', reference: 'SG-889120', bankAccount: CA_ACCOUNT, hasProof: true, status: 'confirmed', recordedBy: 'Mustapha Ziani', recordedAt: '2026-10-22T10:00:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-22T17:45:00+01:00' },
-  { id: 'm18', code: 'P-0213', kind: 'payment', purpose: 'fee', siteId: B, client: 'Aicha Zerrouki', label: 'Frais BK-2627-0079 · 1 480 kg × 0,50 DH', amount: 740, method: 'cash', hasProof: false, status: 'confirmed', recordedBy: 'Abdelkader Mansouri', recordedAt: '2026-10-21T16:30:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-21T18:10:00+01:00' },
-  { id: 'm19', code: 'P-0212', kind: 'payment', purpose: 'sale', siteId: B, client: 'Domaine Beni Snassen', label: 'Vente 150 L d’huile vierge extra', amount: 10500, method: 'cheque', reference: 'N° 3301987 · BMCI', bankAccount: CA_ACCOUNT, hasProof: true, status: 'confirmed', recordedBy: 'Mustapha Ziani', recordedAt: '2026-10-19T11:40:00+01:00', decidedBy: 'Mohammed Taibi', decidedAt: '2026-10-19T19:30:00+01:00' },
-  { id: 'm20', code: 'P-0211', kind: 'payment', purpose: 'fee', siteId: B, client: 'Fouzia Belkadi', label: 'Frais BK-2627-0075 · 960 kg × 0,50 DH', amount: 480, method: 'cash', hasProof: false, status: 'confirmed', recordedBy: 'Abdelkader Mansouri', recordedAt: '2026-10-18T15:20:00+01:00', decidedBy: 'Nadia Boukili', decidedAt: '2026-10-18T18:00:00+01:00' },
-];
+/** A Payment of one Lot, or part of it, made on the day it reached a step. */
+const paymentOf = (lot: ILot, index: number, status: MovementStatus, amount: number, method: PaymentMethodKey = METHOD_CYCLE[index % METHOD_CYCLE.length], extra: Partial<ISeedMovement> = {}): ISeedMovement => {
+  const lastMove = lot.moves[lot.moves.length - 1];
+  const prefix = REFERENCES[method];
+  return {
+    id: `m${String(index + 1).padStart(3, '0')}`,
+    code: `P-${String(400 + index)}`,
+    kind: 'payment',
+    purpose: 'fee',
+    siteId: lot.siteId,
+    client: lot.clientName,
+    lotLinks: [{ lotId: lot.id, lotCode: lot.code, amount }],
+    amount,
+    method,
+    hasProof: method === 'transfer' || method === 'cheque',
+    status,
+    recordedBy: lastMove.by,
+    recordedAt: lastMove.at,
+    ...(prefix ? { reference: `${prefix}${lot.code.slice(-4)}${index}`, bankAccount: ACCOUNTS[lot.siteId] } : {}),
+    ...(method === 'oil' ? { oilLitres: Math.round((amount / OIL_PRICE_PER_LITRE) * 100) / 100 } : {}),
+    ...(status === 'pending' ? {} : { decidedBy: 'Khadija Amrani', decidedAt: lastMove.at }),
+    ...extra,
+  };
+};
+
+const lotByCode = (code: string): ILot => LOTS_MOCK.find((lot) => lot.code === code) as ILot;
+
+/** Lots paid, partly paid or waiting for confirmation; the others stay unpaid. */
+const buildSeeds = (): ISeedMovement[] => {
+  const named: ISeedMovement[] = [
+    paymentOf(lotByCode('OJ-2627-0152'), 0, 'pending', millingFee(lotByCode('OJ-2627-0152')), 'cash'),
+    paymentOf(lotByCode('OJ-2627-0151'), 1, 'pending', millingFee(lotByCode('OJ-2627-0151')), 'oil'),
+    paymentOf(lotByCode('BK-2627-0084'), 2, 'pending', millingFee(lotByCode('BK-2627-0084')), 'cash'),
+    paymentOf(lotByCode('OJ-2627-0153'), 3, 'pending', 300, 'transfer'),
+    paymentOf(lotByCode('OJ-2627-0149'), 4, 'rejected', millingFee(lotByCode('OJ-2627-0149')), 'cash', { note: 'Montant absent de la caisse' }),
+    paymentOf(lotByCode('OJ-2627-0149'), 5, 'confirmed', millingFee(lotByCode('OJ-2627-0149')), 'cheque'),
+  ];
+  const withdrawn = LOTS_MOCK.filter((lot) => lot.status === 'withdrawn' && lot.code !== 'OJ-2627-0149');
+  return [
+    ...named,
+    ...withdrawn.flatMap((lot, index) => {
+      const position = named.length + index;
+      if (index % 7 === 6) return [];
+      const amount = index % 5 === 4 ? Math.round(millingFee(lot) / 2) : millingFee(lot);
+      return [paymentOf(lot, position, 'confirmed', amount)];
+    }),
+  ];
+};
 
 const PROOF_TITLES: Record<PaymentMethodKey, string> = { cash: 'REÇU', cheque: 'CHÈQUE', transfer: 'AVIS DE VIREMENT', oil: 'BON' };
 
@@ -57,18 +88,14 @@ const proofImage = (movement: ISeedMovement): string => {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
-const MOCK_DATA_TODAY = '2026-10-24';
-
-/** Keeps dated rows as recent as they were written, however long ago that was. */
-const rebaseDate = (at: string): string => {
-  const shiftInDays = Math.round((new Date(todayIso()).getTime() - new Date(MOCK_DATA_TODAY).getTime()) / 86_400_000);
-  return `${shiftDate(at.slice(0, 10), shiftInDays)}${at.slice(10)}`;
-};
-
-export const MOVEMENTS_MOCK: IMovement[] = SEEDS.map(({ hasProof, ...seed }) => ({
+export const MOVEMENTS_MOCK: IMovement[] = buildSeeds().map(({ hasProof, ...seed }) => ({
   ...seed,
   clientId: CLIENTS_MOCK.find((client) => client.name === seed.client)?.id ?? '',
-  proofUrl: hasProof ? proofImage({ hasProof, ...seed }) : null,
-  recordedAt: rebaseDate(seed.recordedAt),
-  ...(seed.decidedAt ? { decidedAt: rebaseDate(seed.decidedAt) } : {}),
+  documents: hasProof ? [{ id: `doc-${seed.id}`, name: PROOF_TITLES[seed.method], url: proofImage({ hasProof, ...seed }), isPdf: false, addedBy: seed.recordedBy, addedAt: seed.recordedAt }] : [],
 }));
+
+const cancelledMovement = MOVEMENTS_MOCK.find((movement) => movement.status === 'confirmed' && movement.method === 'cash') as IMovement;
+
+export const REFUNDS_MOCK: IRefund[] = [
+  { id: 'r001', siteId: cancelledMovement.siteId, clientId: cancelledMovement.clientId, client: cancelledMovement.client, sourceCode: 'P-0388', amount: 150, status: 'to_make', createdAt: cancelledMovement.recordedAt, documents: [] },
+];

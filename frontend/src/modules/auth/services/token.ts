@@ -15,7 +15,7 @@ export const parseAccessClaims = (payload: unknown): IAccessClaims => {
     isRecord(payload) &&
     typeof payload.sub === 'string' &&
     typeof payload.sid === 'string' &&
-    (payload.role === 'management' || payload.role === 'operator' || payload.role === 'client') &&
+    (payload.role === 'management' || payload.role === 'operator' || payload.role === 'accountant' || payload.role === 'client') &&
     typeof payload.isOwner === 'boolean' &&
     typeof payload.firstName === 'string' &&
     typeof payload.lastName === 'string' &&

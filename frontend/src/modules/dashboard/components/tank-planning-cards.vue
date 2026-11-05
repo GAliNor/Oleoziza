@@ -21,11 +21,11 @@
         <div class="flex items-baseline justify-between gap-2">
           <div class="min-w-0">
             <p class="font-semibold text-fg-display">
-              {{ tank.name }} <span v-if="tank.isBio" class="chip ml-1 bg-success-subtle text-fg-success">{{ $t('dashboard.tanks.bio') }}</span>
+              {{ tank.name }} <span v-if="tank.isBio" class="chip ms-1 bg-success-subtle text-fg-success">{{ $t('dashboard.tanks.bio') }}</span>
             </p>
             <p class="truncate label text-fg-brand">{{ tank.variety }}</p>
           </div>
-          <p class="body-two whitespace-nowrap tabular-nums">{{ formatKgRounded(tank.fillKg) }} / {{ formatKgRounded(tank.capacityKg) }}</p>
+          <p class="body-two whitespace-nowrap tabular-nums">{{ formatLitresRounded(tank.fillLitres) }} / {{ formatLitresRounded(tank.capacityLitres) }}</p>
         </div>
         <div class="flex h-2.5 overflow-hidden rounded-full bg-subtle">
           <div
@@ -33,16 +33,16 @@
             :key="entry.lotCode"
             class="grow-x h-full border-r border-surface"
             :class="entry.kind === 'mill' ? 'bg-accent-sand' : 'bg-primary-olive-mid'"
-            :style="{ width: `${(entry.kg / tank.capacityKg) * 100}%` }"
+            :style="{ width: `${(entry.litres / tank.capacityLitres) * 100}%` }"
           />
         </div>
         <ul class="flex flex-col divide-y divide-subtle">
           <li v-for="entry in entriesOf(tank.id)" :key="entry.lotCode" class="flex flex-col gap-1.5 py-2" :class="{ 'opacity-60': entry.endDay !== null }">
             <div class="flex items-baseline justify-between gap-2">
               <p class="min-w-0 truncate label text-fg-display">{{ entry.client }}</p>
-              <p class="text-sm whitespace-nowrap tabular-nums">{{ formatKgRounded(entry.kg) }}</p>
+              <p class="text-sm whitespace-nowrap tabular-nums">{{ formatLitresRounded(entry.litres) }}</p>
             </div>
-            <div class="relative h-1.5 rounded-full bg-subtle">
+            <div class="relative h-1.5 rounded-full bg-subtle" dir="ltr">
               <div class="absolute inset-y-0 rounded-full" :class="barClass(entry)" :style="rangeStyle(entry)" />
             </div>
             <p class="body-three">{{ entry.lotCode }} · {{ rangeLabel(entry) }}</p>
@@ -59,7 +59,7 @@
 import { useI18n } from 'vue-i18n';
 
 import type { IPeriod } from 'global/types/period';
-import { formatKgRounded } from 'lot/composables/quantity';
+import { formatLitresRounded } from 'lot/composables/quantity';
 import { dayLabel, isInWindow, useTankWindow } from 'dashboard/composables/use-tank-window';
 import type { ITank, ITankStorage } from 'dashboard/types/dashboard';
 
@@ -84,7 +84,7 @@ const barClass = (entry: ITankStorage): string => {
 };
 
 const rangeLabel = (entry: ITankStorage): string =>
-  `${dayLabel(entry.startDay)} → ${entry.endDay === null ? t('dashboard.tanks.ongoing') : t('dashboard.tanks.withdrawnOn', { date: dayLabel(entry.endDay) })}`;
+  `${dayLabel(entry.startDay)} ${t('global.arrow')} ${entry.endDay === null ? t('dashboard.tanks.ongoing') : t('dashboard.tanks.withdrawnOn', { date: dayLabel(entry.endDay) })}`;
 
 const rangeStyle = (entry: ITankStorage) => {
   const from = Math.max(entry.startDay, startDay.value) - startDay.value;

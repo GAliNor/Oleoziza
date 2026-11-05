@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
     path: '/finances',
     name: 'finance',
     component: () => import('finance/views/entry.vue'),
-    meta: { roles: ['management'], permission: 'finance.view' },
+    meta: { permission: 'finance.view' },
   },
 ];
 

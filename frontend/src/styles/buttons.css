@@ -46,9 +46,4 @@
       hover:bg-emphasis/70 active:bg-selected disabled:opacity-40;
   }
 
-  .weight-key {
-    @apply cursor-pointer disabled:cursor-not-allowed has-disabled:cursor-not-allowed flex h-16 items-center justify-center rounded-control bg-subtle text-display-xs font-medium text-fg-display
-      select-none hover:bg-emphasis/70
-      active:bg-selected disabled:opacity-40;
-  }
 }

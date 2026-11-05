@@ -5,9 +5,9 @@ import type { IClientLotLine, IClientSiteFigures } from 'client/types/client';
 
 const TODAY = '2026-11-04';
 
-const lot = (code: string, siteId: string, receivedOn: string, kg: number, oilKg: number): IClientLotLine => ({ code, siteId, siteName: siteId, status: 'withdrawn', kg, oilKg, receivedOn });
+const lot = (code: string, siteId: string, receivedOn: string, kg: number, oilLitres: number): IClientLotLine => ({ code, siteId, siteName: siteId, status: 'withdrawn', kg, oilLitres, millingRatePerKg: 0.5, variety: 'Haouzia', season: '2627', receivedOn });
 
-const site = (siteId: string): IClientSiteFigures => ({ siteId, siteName: siteId, oilStockKg: 0, balance: 0 });
+const site = (siteId: string): IClientSiteFigures => ({ siteId, siteName: siteId, oilStockLitres: 0, balance: 0 });
 
 const LOTS = [lot('a', 'oujda', '2026-11-01', 1000, 180), lot('b', 'berkane', '2026-10-05', 3000, 540), lot('c', 'oujda', '2025-12-10', 500, 90), lot('d', 'oujda', '2024-12-10', 500, 90)];
 
@@ -25,7 +25,7 @@ describe('lotsInPeriod', () => {
 
 describe('summarizeActivity', () => {
   it('adds up the lots', () => {
-    expect(summarizeActivity(LOTS.slice(0, 2))).toEqual({ lots: 2, oliveKg: 4000, oilKg: 720, generatedDh: 2000 });
+    expect(summarizeActivity(LOTS.slice(0, 2))).toEqual({ lots: 2, oliveKg: 4000, oilLitres: 720, generatedDh: 2000 });
   });
 });
 

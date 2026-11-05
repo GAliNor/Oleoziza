@@ -16,6 +16,44 @@ export interface IBankAccount {
   accountEnd: string;
 }
 
+/** An image or PDF a Client sent. It exists once, on the Payment, and shows under every Lot that Payment pays. */
+export interface IPaymentDocument {
+  id: string;
+  name: string;
+  url: string;
+  isPdf: boolean;
+  addedBy: string;
+  addedAt: string;
+}
+
+export type RefundStatus = 'to_make' | 'made' | 'confirmed';
+
+/** Money to give back after a surplus or a cancellation. Once paid back, a different person confirms it. */
+export interface IRefund {
+  id: string;
+  siteId: string;
+  clientId: string;
+  client: string;
+  sourceCode: string;
+  amount: number;
+  status: RefundStatus;
+  createdAt: string;
+  method?: PaymentMethodKey;
+  reference?: string;
+  documents: IPaymentDocument[];
+  madeBy?: string;
+  madeAt?: string;
+  confirmedBy?: string;
+  confirmedAt?: string;
+}
+
+/** The part of a Payment that pays one Lot's Milling Fee. */
+export interface ILotPaymentLink {
+  lotId: string;
+  lotCode: string;
+  amount: number;
+}
+
 /** A Payment received or a Payout paid. Provisional until the Money data model settles. */
 export interface IMovement {
   id: string;
@@ -25,14 +63,14 @@ export interface IMovement {
   siteId: string;
   clientId: string;
   client: string;
-  label: string;
+  lotLinks: ILotPaymentLink[];
   amount: number;
   feeOffset?: number;
   method: PaymentMethodKey;
   reference?: string;
   bankAccount?: IBankAccount;
-  oilKg?: number;
-  proofUrl: string | null;
+  oilLitres?: number;
+  documents: IPaymentDocument[];
   status: MovementStatus;
   recordedBy: string;
   recordedAt: string;
@@ -95,15 +133,38 @@ export interface IMovementDecision {
   settlement?: Settlement;
 }
 
+/** `id` is minted when the form opens, so a retry after a lost response never records it twice. */
+export interface IRecordPaymentPayload {
+  id: string;
+  siteId: string;
+  clientId: string;
+  client: string;
+  lotLinks: ILotPaymentLink[];
+  amount: number;
+  method: PaymentMethodKey;
+  reference?: string;
+  oilLitres?: number;
+  documents: IPaymentDocument[];
+  recordedBy: string;
+}
+
 export interface IFinanceService {
   getMovements(siteId: string): Promise<IMovement[]>;
   decideMovement(id: string, decision: IMovementDecision): Promise<IMovement>;
+  linkLots(id: string, lotLinks: ILotPaymentLink[]): Promise<IMovement>;
+  addDocuments(id: string, documents: IPaymentDocument[]): Promise<IMovement>;
+  getRefunds(siteId: string): Promise<IRefund[]>;
+  makeRefund(id: string, made: Pick<IRefund, 'method' | 'reference' | 'documents' | 'madeBy'>): Promise<IRefund>;
+  confirmRefund(id: string, by: string): Promise<IRefund>;
+  recordPayment(payload: IRecordPaymentPayload): Promise<IMovement>;
   getSales(siteId: string, period: PeriodKey): Promise<ISales>;
 }
 
 export interface IFinanceStore {
   movements: IMovement[];
+  refunds: IRefund[];
   sales: ISales | null;
+  salesQuery: { siteId: string; period: PeriodKey } | null;
   loadedSiteId: string | null;
   isLoading: boolean;
   isSaving: boolean;

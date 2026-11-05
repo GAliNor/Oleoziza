@@ -23,13 +23,6 @@
     "title": "Clients",
     "subtitle": "{scope} · {count} clients",
     "search": "Nom, téléphone ou identifiant",
-    "followUpLabel": "Suivi",
-    "followUp": {
-      "all": "Tous",
-      "at-risk": "À relancer",
-      "active": "Actifs",
-      "inactive": "Inactifs"
-    },
     "back": "Retour aux clients",
     "empty": "Aucun client",
     "columns": {
@@ -56,7 +49,6 @@
     "olives": "Olives apportées",
     "oil": "Huile extraite",
     "yield": "Rendement",
-    "litres": "soit {quantity}",
     "bySite": "Consommation par site",
     "lotCount": "{count} lot | {count} lots",
     "stockNow": "Stock actuel {quantity}",
@@ -91,7 +83,8 @@
       "reception": "Ouvrir un lot"
     },
     "pendingScreen": "Prototype : écran « {name} » décidé, à construire.",
-    "pendingScreenNext": " Ensuite : « Encaisser » les frais dus."
+    "pendingScreenNext": " Ensuite : « Encaisser » les frais dus.",
+    "credit": "Avoir à déduire de ses prochains Lots"
   },
   "tag": {
     "open": "Fiche client"
@@ -146,5 +139,15 @@
     "openDuplicate": "Voir sa fiche",
     "receiveDuplicate": "Réceptionner pour ce client",
     "createAnyway": "Créer quand même"
+  },
+  "history": {
+    "title": "Historique sur ce Site",
+    "otherSites": "Vient aussi à {sites} (non affiché ici).",
+    "search": "N° de lot ou date (12/03)",
+    "allSeasons": "Toutes les saisons",
+    "thisSeason": "Cette saison",
+    "noMatch": "Aucun lot ne correspond.",
+    "withdrawn": "Retiré",
+    "more": "Voir {count} de plus"
   }
 }

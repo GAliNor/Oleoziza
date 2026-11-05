@@ -13,11 +13,9 @@ export const useNavigation = () => {
 
   // methods
   const canOpen = (item: INavItem): boolean => {
-    const role = sessionStore.session?.role;
-    if (!role) return false;
-    if (item.roles && !item.roles.includes(role)) return false;
+    if (!sessionStore.session) return false;
     if (item.permission && !siteStore.can(item.permission)) return false;
-    if (item.managementPermission && role === 'management' && !siteStore.can(item.managementPermission)) return false;
+    if (item.managementPermission && sessionStore.isBackofficeView && !siteStore.can(item.managementPermission)) return false;
     return true;
   };
 

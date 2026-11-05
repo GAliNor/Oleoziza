@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatKg, formatKgRounded, formatLitres, formatOilKg, formatOliveKg, formatQuintals, formatYield, toLitres } from 'lot/composables/quantity';
+import { formatKg, formatKgRounded, formatLitres, formatLitresRounded, formatOil, formatOliveKg, formatQuintals, formatYield, yieldPerQuintal } from 'lot/composables/quantity';
 
 const clean = (text: string): string => text.replace(/\s/g, ' ');
 
@@ -17,15 +17,15 @@ describe('quantities', () => {
     expect(clean(formatQuintals(1840))).toBe('18,4 q');
   });
 
-  it('converts oil to whole litres through the density', () => {
-    expect([toLitres(916), clean(formatLitres(13971))]).toEqual([1000, '15 252 L']);
+  it('shows litres to 0,1 L, and whole litres for tiles', () => {
+    expect([formatLitres(425), formatLitres(9.75), formatLitresRounded(15252.4)].map(clean)).toEqual(['425 L', '9,8 L', '15 252 L']);
   });
 
-  it('names what the kilograms are', () => {
-    expect([formatOliveKg(620), formatOilKg(141)].map(clean)).toEqual(['620 kg d’olives', '141 kg d’huile']);
+  it('names what the quantities are', () => {
+    expect([formatOliveKg(620), formatOil(154)].map(clean)).toEqual(['620 kg d’olives', '154 L d’huile']);
   });
 
-  it('shows a yield with one decimal', () => {
-    expect(clean(formatYield(389, 2050))).toBe('19,0 %');
+  it('shows a yield in litres per quintal, with one decimal', () => {
+    expect([yieldPerQuintal(425, 2000), clean(formatYield(425, 2050)), yieldPerQuintal(10, 0)]).toEqual([21.25, '20,7 L/q', 0]);
   });
 });

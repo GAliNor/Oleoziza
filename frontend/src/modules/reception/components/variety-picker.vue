@@ -24,7 +24,7 @@
         >
           {{ variety.name }}
         </span>
-        <span v-if="modelValue === variety.name" class="check-pop absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-action text-fg-on-action shadow-raised">
+        <span v-if="modelValue === variety.name" class="check-pop absolute top-1.5 inset-e-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-action text-fg-on-action shadow-raised">
           <check-line-icon class="h-4 w-4" />
         </span>
       </button>

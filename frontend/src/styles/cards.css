@@ -18,7 +18,7 @@
   }
 
   .data-table thead {
-    @apply bg-page text-left text-xs font-semibold tracking-wide text-fg-secondary-paragraph uppercase;
+    @apply bg-page text-start text-xs font-semibold tracking-wide text-fg-secondary-paragraph uppercase;
   }
 
   .data-row {

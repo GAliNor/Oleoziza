@@ -10,7 +10,6 @@ interface IStepScene {
 
 const STEP_SCENES: Partial<Record<LotStepKey, IStepScene>> = {
   reception: { title: 'Arrivée des olives', sky: '#D2D6BD', ground: '#73835A', everyNth: 1 },
-  weighing: { title: 'Ticket de pesée', sky: '#EFE9DC', ground: '#D4A373', everyNth: 2 },
   pressed: { title: 'Sortie de presse', sky: '#E9C46A', ground: '#A66127', everyNth: 1 },
   stored: { title: 'Versement en cuve', sky: '#E7E5E4', ground: '#78716C', everyNth: 3 },
   withdrawn: { title: 'Retrait des bidons', sky: '#EFE9DC', ground: '#5C6A47', everyNth: 1 },

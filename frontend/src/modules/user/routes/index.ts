@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
     path: '/users',
     name: 'user',
     component: () => import('user/views/entry.vue'),
-    meta: { roles: ['management'], permission: 'user.manage' },
+    meta: { permission: 'user.manage' },
   },
 ];
 

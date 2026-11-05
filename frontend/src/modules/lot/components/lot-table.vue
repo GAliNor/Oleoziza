@@ -19,9 +19,9 @@
               <th class="px-4 py-3 font-semibold">{{ $t('lot.register.columns.lot') }}</th>
               <th class="px-4 py-3 font-semibold">{{ $t('lot.register.columns.client') }}</th>
               <th class="hidden px-4 py-3 font-semibold lg:table-cell">{{ $t('lot.register.columns.variety') }}</th>
-              <th class="px-4 py-3 text-right font-semibold">{{ $t('lot.register.columns.olives') }}</th>
-              <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">{{ $t('lot.register.columns.oil') }}</th>
-              <th class="hidden px-4 py-3 text-right font-semibold md:table-cell">{{ $t('lot.register.columns.yield') }}</th>
+              <th class="px-4 py-3 text-end font-semibold">{{ $t('lot.register.columns.olives') }}</th>
+              <th class="hidden px-4 py-3 text-end font-semibold md:table-cell">{{ $t('lot.register.columns.oil') }}</th>
+              <th class="hidden px-4 py-3 text-end font-semibold md:table-cell">{{ $t('lot.register.columns.yield') }}</th>
               <th class="hidden px-4 py-3 font-semibold sm:table-cell">{{ $t('lot.register.columns.status') }}</th>
             </tr>
           </thead>
@@ -41,10 +41,15 @@
               </td>
               <td class="px-4 py-3 text-fg-display">{{ lot.clientName }}</td>
               <td class="hidden px-4 py-3 text-fg-primary-paragraph lg:table-cell">{{ lot.variety }}</td>
-              <td class="px-4 py-3 text-right whitespace-nowrap tabular-nums">{{ formatKg(lot.netKg) }}</td>
-              <td class="hidden px-4 py-3 text-right whitespace-nowrap tabular-nums md:table-cell">{{ lot.oilKg ? formatKg(lot.oilKg) : '—' }}</td>
-              <td class="hidden px-4 py-3 text-right tabular-nums md:table-cell">{{ lot.oilKg ? formatYield(lot.oilKg, lot.netKg) : '—' }}</td>
-              <td class="hidden px-4 py-3 sm:table-cell"><span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span></td>
+              <td class="px-4 py-3 text-end whitespace-nowrap tabular-nums">{{ formatKg(lot.netKg) }}</td>
+              <td class="hidden px-4 py-3 text-end whitespace-nowrap tabular-nums md:table-cell">{{ lot.oilLitres ? formatLitres(lot.oilLitres) : '—' }}</td>
+              <td class="hidden px-4 py-3 text-end tabular-nums md:table-cell">{{ lot.oilLitres ? formatYield(lot.oilLitres, lot.netKg) : '—' }}</td>
+              <td class="hidden px-4 py-3 sm:table-cell">
+                <span class="flex flex-wrap gap-1">
+                  <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
+                  <lot-payment-chip :lot="lot" />
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -64,7 +69,7 @@ import { computed, ref, watch } from 'vue';
 
 import { useLotRegister, useOpenLot } from 'lot/composables/use-lot-register';
 import { usePagedRows } from 'global/composables/use-paged-rows';
-import { formatKg, formatYield } from 'lot/composables/quantity';
+import { formatKg, formatLitres, formatYield } from 'lot/composables/quantity';
 import { formatDateTime } from 'global/composables/date';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import type { ILot, LotStatus } from 'lot/types/lot';
@@ -73,6 +78,7 @@ import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import LotDetail from 'lot/components/lot-detail.vue';
+import LotPaymentChip from 'lot/components/lot-payment-chip.vue';
 
 // props
 const props = defineProps<{ search: string }>();

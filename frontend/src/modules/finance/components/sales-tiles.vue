@@ -14,7 +14,7 @@
       v-for="tile in tiles"
       :key="tile.key"
       :type="isPendingAction(tile.key) ? 'button' : undefined"
-      class="min-w-0 rounded-card text-left"
+      class="min-w-0 rounded-card text-start"
       :class="[isPendingAction(tile.key) ? 'transition hover:ring-2 hover:ring-warning/40' : '', isPendingAction(tile.key) && isActive ? 'ring-2 ring-warning/60' : '']"
       @click="isPendingAction(tile.key) && emit('pending')"
     >

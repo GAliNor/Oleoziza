@@ -31,10 +31,10 @@
           </td>
           <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph md:table-cell">
             {{ $t(`user.roles.${user.role}`) }}
-            <span v-if="user.isOwner" class="chip ml-1 bg-highlight/30 text-fg-accent">{{ $t('user.owner') }}</span>
+            <span v-if="user.isOwner" class="chip ms-1 bg-highlight/30 text-fg-accent">{{ $t('user.owner') }}</span>
           </td>
           <td class="hidden px-4 py-3 lg:table-cell">
-            <span v-for="siteId in Object.keys(user.sites)" :key="siteId" class="chip mr-1 bg-subtle text-fg-primary-paragraph">{{ siteCity(siteId) }}</span>
+            <span v-for="siteId in Object.keys(user.sites)" :key="siteId" class="chip me-1 bg-subtle text-fg-primary-paragraph">{{ siteCity(siteId) }}</span>
           </td>
           <td class="hidden px-4 py-3 whitespace-nowrap text-fg-primary-paragraph lg:table-cell">
             {{ user.lastLoginAt ? formatDateTime(user.lastLoginAt) : '—' }}

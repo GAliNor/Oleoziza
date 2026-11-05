@@ -3,7 +3,6 @@ import type { RouteLocationNormalized } from 'vue-router';
 
 import { checkParam } from 'global/composables/route-guards';
 import { ID_PARAM_PATTERN, TOKEN_PARAM_PATTERN } from 'global/constants/route-params';
-import { LOT_CODE_PARAM_PATTERN } from 'lot/constants/lot';
 
 const FALLBACK = { name: 'home' };
 
@@ -29,15 +28,5 @@ describe('checkParam', () => {
       true,
       FALLBACK,
     ]);
-  });
-});
-
-describe('LOT_CODE_PARAM_PATTERN', () => {
-  it.each(['OJ-2627-0158', 'BK-2627-0087', 'L-0001'])('accepts %s', (code) => {
-    expect(LOT_CODE_PARAM_PATTERN.test(code)).toBe(true);
-  });
-
-  it.each(['oj-2627', 'OJ--1', 'OJ 2627', ''])('rejects %j', (code) => {
-    expect(LOT_CODE_PARAM_PATTERN.test(code)).toBe(false);
   });
 });

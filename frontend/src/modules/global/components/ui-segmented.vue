@@ -94,6 +94,12 @@ const optionClass = (key: T): string[] => {
   ];
 };
 
+const isOutsideTrack = (button: HTMLElement, container: HTMLElement): boolean => {
+  const buttonBox = button.getBoundingClientRect();
+  const containerBox = container.getBoundingClientRect();
+  return buttonBox.left < containerBox.left || buttonBox.right > containerBox.right;
+};
+
 const placeIndicator = (): void => {
   if (props.variant === 'tabs') return;
   const button = buttons.get(props.modelValue);
@@ -101,8 +107,8 @@ const placeIndicator = (): void => {
   indicatorStyle.value = { left: `${button.offsetLeft}px`, width: `${button.offsetWidth}px` };
   updateFade();
   const container = track.value;
-  if (container && (button.offsetLeft < container.scrollLeft || button.offsetLeft + button.offsetWidth > container.scrollLeft + container.clientWidth)) {
-    container.scrollTo({ left: button.offsetLeft - 24, behavior: 'smooth' });
+  if (container && (isOutsideTrack(button, container))) {
+    button.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }
 };
 

@@ -2,7 +2,7 @@
   <div class="card lift flex min-w-0 flex-col gap-1.5 p-5">
     <p class="eyebrow">{{ label }}</p>
     <p class="text-display-xs figure sm:text-display-sm" :class="valueClass">
-      <span v-count-up="{ value, format: formatValue }" /><span v-if="unit" class="ml-1 text-md font-medium text-fg-secondary-paragraph">{{ unit }}</span>
+      <span v-count-up="{ value, format: formatValue }" /><span v-if="unit" class="ms-1 text-md font-medium text-fg-secondary-paragraph">{{ unit }}</span>
     </p>
     <p v-if="sub" class="body-two">{{ sub }}</p>
     <p v-if="delta" class="flex items-center gap-1 text-xs font-medium" :class="isDeltaGood ? 'text-fg-success' : 'text-fg-danger'">
