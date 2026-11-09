@@ -34,6 +34,7 @@ import { computed, watch } from 'vue';
 
 import { useConfigurationStore } from 'configuration/stores/configuration';
 import { useSiteStore } from 'site/stores/site';
+import { useLotStore } from 'lot/stores/lot';
 import { useOnlineStatus } from 'global/composables/use-online-status';
 import { useSiteScope } from 'site/composables/use-site-scope';
 import type { IConfiguration } from 'configuration/types/configuration';
@@ -45,6 +46,7 @@ import ConfigurationSite from 'configuration/components/configuration-site.vue';
 // stores
 const configurationStore = useConfigurationStore();
 const siteStore = useSiteStore();
+const lotStore = useLotStore();
 const { scopeName } = useSiteScope();
 
 // variables
@@ -62,6 +64,7 @@ const shown = computed((): { name: string; configuration: IConfiguration }[] =>
 // methods
 const load = (): void => {
   configurationStore.fetchSites(shownSites.value.map((site) => site.id));
+  if (siteStore.currentSiteId && !siteStore.isAllSites) lotStore.fetchLots(siteStore.currentSiteId);
 };
 
 // watchers

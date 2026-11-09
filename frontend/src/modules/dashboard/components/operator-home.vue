@@ -48,6 +48,12 @@
         </div>
 
         <h2 class="label">{{ $t(query ? 'dashboard.operator.found' : 'dashboard.operator.inProgress', { count: listed.length }) }}</h2>
+        <div v-if="desk.pressLines.value.length > 1" class="no-scrollbar -mx-4 -mt-2 flex gap-2 overflow-x-auto px-4">
+          <button type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': lineFilter === ALL_LINES }" @click="lineFilter = ALL_LINES">{{ $t('dashboard.operator.allLines') }}</button>
+          <button v-for="line in desk.pressLines.value" :key="line.id" type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': lineFilter === line.id }" @click="lineFilter = line.id">
+            {{ formatPressLine(line) }}
+          </button>
+        </div>
         <ul class="flex flex-col gap-3">
           <li v-for="lot in visible" :key="lot.id" class="card flex flex-col gap-4 p-3">
             <button
@@ -97,6 +103,7 @@
             class="col-start-1 row-start-1"
             :lot="panelLot"
             :account-lines="desk.accountLines(desk.deskClientOf(panelLot))"
+            :lines="desk.pressLines.value"
             @close="handleClosePanel"
             @move="handleMove"
           />
@@ -107,6 +114,8 @@
             :lot="panelLot"
             :avatar-variant="desk.avatarVariantOf(panelLot)"
             :next-label="desk.nextLabel(panelLot)"
+            :lines="desk.pressLines.value"
+            :tanks="desk.tanks.value"
             :back-label="$t(panel?.isFromSheet ? 'dashboard.operator.backToLot' : 'dashboard.operator.backToList')"
             @close="handleCloseMove"
             @confirm="handleConfirm"
@@ -126,6 +135,7 @@ import { useClientStore } from 'client/stores/client';
 import { useLotStore } from 'lot/stores/lot';
 import { useOperatorDesk } from 'dashboard/composables/use-operator-desk';
 import { LOT_MOVE_TONES, LOT_STATUSES } from 'lot/constants/lot';
+import { formatPressLine } from 'configuration/composables/equipment';
 import type { ILot, ILotMove } from 'lot/types/lot';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';
@@ -149,7 +159,9 @@ const desk = useOperatorDesk();
 // variables
 const PAGE_SIZE = 12;
 const SLIDE_MS = 500;
+const ALL_LINES = 'all';
 const query = ref('');
+const lineFilter = ref(ALL_LINES);
 const shownCount = ref(PAGE_SIZE);
 const panel = ref<Panel | null>(null);
 const isPanelOpen = ref(false);
@@ -166,13 +178,14 @@ const firstName = computed((): string => sessionStore.session?.firstName ?? '');
 const searched = computed(() => desk.searchClients(query.value));
 const listed = computed((): ILot[] => {
   const text = query.value.trim().toLowerCase();
-  return text ? desk.activeLots.value.filter((lot) => lot.clientName.toLowerCase().includes(text)) : desk.activeLots.value;
+  const onLine = lineFilter.value === ALL_LINES ? desk.activeLots.value : desk.activeLots.value.filter((lot) => lot.pressLineId === lineFilter.value);
+  return text ? onLine.filter((lot) => lot.clientName.toLowerCase().includes(text)) : onLine;
 });
 const visible = computed((): ILot[] => listed.value.slice(0, shownCount.value));
 const panelLot = computed((): ILot | undefined => lotStore.lots.find((lot) => lot.id === panel.value?.lotId));
 
 // watchers
-watch(query, () => {
+watch([query, lineFilter], () => {
   shownCount.value = PAGE_SIZE;
 });
 

@@ -21,9 +21,8 @@
         <div class="flex flex-col gap-0.5 bg-surface px-2 py-1.5">
           <div class="flex items-center justify-between gap-1">
             <p class="truncate text-xs font-semibold text-fg-primary-paragraph">{{ tank.name }}</p>
-            <span v-if="tank.isBio" class="chip bg-success-subtle px-1.5 text-fg-success">{{ $t('dashboard.tanks.bio') }}</span>
           </div>
-          <p class="truncate body-three font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
+          <p class="truncate body-three font-medium" :class="tank.variety ? 'text-fg-brand' : 'text-fg-muted'" :title="tank.variety ?? undefined">{{ tank.variety ?? $t('dashboard.tanks.emptyTank') }}</p>
           <p class="body-three tabular-nums">{{ formatLitresRounded(tank.fillLitres) }}</p>
         </div>
       </div>

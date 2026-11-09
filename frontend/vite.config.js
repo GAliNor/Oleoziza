@@ -66,6 +66,7 @@ export default defineConfig({
       lot: fromSrc('modules/lot'),
       kit: fromSrc('modules/kit'),
       territory: fromSrc('modules/territory'),
+      activity: fromSrc('modules/activity'),
     },
   },
 });

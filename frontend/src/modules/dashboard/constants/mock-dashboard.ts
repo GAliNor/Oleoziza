@@ -1,16 +1,9 @@
 import { MOCK_PERIOD_FACTORS } from 'global/constants/period';
 import { ALL_SITES } from 'site/constants/site';
 import { SITES_MOCK, SITE_BERKANE_ID, SITE_OUJDA_ID, mockSiteShare } from 'site/constants/mock-sites';
-import type { IDashboard, IOliveBar, ISiteFigures, ITank, ITankStorage } from 'dashboard/types/dashboard';
+import type { IDashboard, IOliveBar, ISiteFigures } from 'dashboard/types/dashboard';
 import type { PeriodKey } from 'global/types/period';
 
-const TANKS: ITank[] = [
-  { id: 'A1', siteId: SITE_OUJDA_ID, name: 'Cuve A1', capacityLitres: 20000, fillLitres: 15100, variety: 'Picholine marocaine', isBio: true },
-  { id: 'A2', siteId: SITE_OUJDA_ID, name: 'Cuve A2', capacityLitres: 20000, fillLitres: 8050, variety: 'Picholine marocaine', isBio: false },
-  { id: 'A3', siteId: SITE_OUJDA_ID, name: 'Cuve A3', capacityLitres: 10000, fillLitres: 9200, variety: 'Menara', isBio: false },
-  { id: 'B1', siteId: SITE_BERKANE_ID, name: 'Cuve B1', capacityLitres: 15000, fillLitres: 13800, variety: 'Picholine marocaine', isBio: false },
-  { id: 'B2', siteId: SITE_BERKANE_ID, name: 'Cuve B2', capacityLitres: 15000, fillLitres: 2250, variety: 'Arbequina', isBio: false },
-];
 
 const siteNameOf = (siteId: string): string => SITES_MOCK.find((site) => site.id === siteId)?.name ?? '';
 
@@ -49,22 +42,6 @@ const VARIETY_FIGURES = [
 
 const MODE_SPLIT = { serviceKg: 438900, purchaseKg: 173500 };
 
-const TANK_STORAGE: ITankStorage[] = [
-  { tankId: 'A1', lotCode: 'OJ-2627-0118', client: 'Achat · Coopérative Angad', kind: 'mill', litres: 6200, startDay: -18, endDay: null },
-  { tankId: 'A1', lotCode: 'OJ-2627-0131', client: 'Stock du moulin (achats)', kind: 'mill', litres: 5400, startDay: -11, endDay: null },
-  { tankId: 'A1', lotCode: 'OJ-2627-0144', client: 'Stock du moulin (achats)', kind: 'mill', litres: 3500, startDay: -4, endDay: null },
-  { tankId: 'A2', lotCode: 'OJ-2627-0109', client: 'Driss Amrani', kind: 'client', litres: 1800, startDay: -20, endDay: -9 },
-  { tankId: 'A2', lotCode: 'OJ-2627-0127', client: 'Abdellah Moussaoui', kind: 'client', litres: 2900, startDay: -13, endDay: -2 },
-  { tankId: 'A2', lotCode: 'OJ-2627-0139', client: 'Mohammed Benali', kind: 'client', litres: 450, startDay: -6, endDay: null },
-  { tankId: 'A2', lotCode: 'OJ-2627-0152', client: 'Said Tahiri', kind: 'client', litres: 425, startDay: 0, endDay: null },
-  { tankId: 'A3', lotCode: 'OJ-2627-0121', client: 'Naima Lahlou', kind: 'client', litres: 3100, startDay: -16, endDay: -1 },
-  { tankId: 'A3', lotCode: 'OJ-2627-0136', client: 'Khadija Bouzidi', kind: 'client', litres: 2600, startDay: -8, endDay: null },
-  { tankId: 'A3', lotCode: 'OJ-2627-0146', client: 'Fatima Zahra El Idrissi', kind: 'client', litres: 3500, startDay: -3, endDay: null },
-  { tankId: 'B1', lotCode: 'BK-2627-0061', client: 'Achat · Domaine Zegzel', kind: 'mill', litres: 9800, startDay: -15, endDay: null },
-  { tankId: 'B1', lotCode: 'BK-2627-0079', client: 'Latifa Berrada', kind: 'client', litres: 165, startDay: -5, endDay: null },
-  { tankId: 'B2', lotCode: 'BK-2627-0072', client: 'Hassan Ziani', kind: 'client', litres: 188, startDay: -9, endDay: null },
-  { tankId: 'B2', lotCode: 'BK-2627-0058', client: 'Youssef Kaddouri', kind: 'client', litres: 2080, startDay: -19, endDay: -7 },
-];
 
 const deltaPct = (current: number, previous: number): number => ((current - previous) / previous) * 100;
 
@@ -99,7 +76,6 @@ export const dashboardMock = (siteId: string, period: PeriodKey): IDashboard => 
   const scale = mockSiteShare(siteId);
   const factor = scale * MOCK_PERIOD_FACTORS[period];
   const sites = isAllSites ? SITE_FIGURES : SITE_FIGURES.filter((site) => site.siteId === siteId);
-  const tanks = isAllSites ? TANKS : TANKS.filter((tank) => tank.siteId === siteId);
   return {
     production: productionOf(sites, period, factor),
     season: {
@@ -116,8 +92,8 @@ export const dashboardMock = (siteId: string, period: PeriodKey): IDashboard => 
     modeSplit: { serviceKg: MODE_SPLIT.serviceKg * factor, purchaseKg: MODE_SPLIT.purchaseKg * factor },
     varieties: VARIETY_FIGURES.map((row) => ({ variety: row.variety, lots: Math.max(1, Math.round(row.lots * factor)), olivesKg: row.olivesKg * factor, oilLitres: row.oilLitres * factor })),
     oliveChart: oliveChartOf(period, scale),
-    tanks,
-    tankStorage: TANK_STORAGE.filter((entry) => tanks.some((tank) => tank.id === entry.tankId)),
+    tanks: [],
+    tankStorage: [],
     sites,
   };
 };

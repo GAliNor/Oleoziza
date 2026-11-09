@@ -49,7 +49,9 @@
     "fee": "Frais",
     "feeRate": "Trituration · {rate}/kg",
     "timeline": "Parcours du lot",
-    "by": "par {name}"
+    "by": "par {name}",
+    "plannedAt": "prévu {at}",
+    "handedOver": "Remis au Client"
   },
   "timeline": {
     "reception": "Réception",
@@ -86,7 +88,10 @@
     },
     "discountApproved": "Remise approuvée",
     "discountRefused": "Remise refusée",
-    "discountApprovedDetail": "Les frais baissent du montant de la remise"
+    "discountApprovedDetail": "Les frais baissent du montant de la remise",
+    "pressingOnLine": "Sur {line}",
+    "handedOver": "Remis au Client",
+    "storedUntil": "jusqu’au {date}"
   },
   "box": {
     "label": "Box {numbers}"
@@ -133,5 +138,53 @@
     "to_confirm": "À confirmer",
     "paid": "Payé",
     "paidOf": "Payé {paid} sur {fee}"
+  },
+  "discountForm": {
+    "title": "Remise sur {code}",
+    "due": "Reste {amount}",
+    "entryLabel": "Saisir la remise en",
+    "amountLabel": "Remise",
+    "tooHigh": "La remise dépasse ce qui reste à payer ({amount}).",
+    "figures": "Remise {percent} % · {amount}",
+    "overLimit": "Au-delà de {limit} % : la remise attend l’approbation de la Direction, et ce Lot ne s’encaisse pas d’ici là.",
+    "cancel": "Annuler",
+    "apply": "Appliquer la remise",
+    "ask": "Demander l’approbation",
+    "applied": "Remise appliquée sur {code}",
+    "asked": "Remise sur {code} envoyée pour approbation",
+    "error": "La remise n’a pas pu être enregistrée. Réessayez."
+  },
+  "schedule": {
+    "open": "Changer la chaîne ou l’heure",
+    "title": "Planifier le pressage",
+    "queue": "Aucun autre Lot en file | {count} autre Lot en file | {count} autres Lots en file",
+    "plannedStart": "Pressage prévu le",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saved": "Pressage de {code} replanifié",
+    "error": "La planification n’a pas pu être enregistrée. Réessayez."
+  },
+  "split": {
+    "label": "Où va l’huile ?",
+    "handAll": "Tout remis au Client",
+    "store": "Stocker en cuve",
+    "purchase": "Huile achetée : elle va en cuve, au stock de l’huilerie.",
+    "handed": "Remis tout de suite au Client (L)",
+    "toStore": "À stocker : {quantity}",
+    "tank": "Cuve n° {index}",
+    "litres": "Litres dans la cuve n° {index}",
+    "removeTank": "Retirer la cuve n° {index}",
+    "addTank": "Ajouter une cuve",
+    "suggest": "Répartir automatiquement",
+    "plannedUntil": "Gardé jusqu’au (facultatif)",
+    "empty": "vide",
+    "free": "{quantity} libres",
+    "otherVariety": "autre variété",
+    "problems": {
+      "variety": "Une cuve choisie contient une autre variété : une cuve ne prend qu’une variété.",
+      "space": "Pas assez de place dans une cuve choisie.",
+      "total": "Répartissez exactement {quantity} dans les cuves.",
+      "purchaseHandedOver": "L’huile achetée ne se remet pas : elle va au stock de l’huilerie."
+    }
   }
 }

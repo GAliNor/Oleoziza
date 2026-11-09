@@ -146,7 +146,26 @@ export interface IRecordPaymentPayload {
   oilLitres?: number;
   documents: IPaymentDocument[];
   recordedBy: string;
+  /** Cash taken by someone who may confirm Payments is final at once; anything else waits for confirmation. */
+  isFinal: boolean;
 }
+
+export type DebtContactKind = 'call' | 'sms' | 'visit' | 'note';
+
+/** One step of the Debt Follow-up: a contact with a Client who owes, and the date they promised to pay, if any. */
+export interface IDebtContact {
+  id: string;
+  siteId: string;
+  clientId: string;
+  kind: DebtContactKind;
+  note: string;
+  promisedOn: string | null;
+  by: string;
+  at: string;
+}
+
+/** `id` is minted when the form opens, so a retry never logs the contact twice. */
+export type IDebtContactPayload = Omit<IDebtContact, 'at'>;
 
 export interface IFinanceService {
   getMovements(siteId: string): Promise<IMovement[]>;
@@ -158,11 +177,14 @@ export interface IFinanceService {
   confirmRefund(id: string, by: string): Promise<IRefund>;
   recordPayment(payload: IRecordPaymentPayload): Promise<IMovement>;
   getSales(siteId: string, period: PeriodKey): Promise<ISales>;
+  getDebtContacts(siteId: string): Promise<IDebtContact[]>;
+  addDebtContact(payload: IDebtContactPayload): Promise<IDebtContact>;
 }
 
 export interface IFinanceStore {
   movements: IMovement[];
   refunds: IRefund[];
+  debtContacts: IDebtContact[];
   sales: ISales | null;
   salesQuery: { siteId: string; period: PeriodKey } | null;
   loadedSiteId: string | null;

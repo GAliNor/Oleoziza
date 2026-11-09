@@ -21,23 +21,23 @@
         <div class="flex items-baseline justify-between gap-2">
           <div class="min-w-0">
             <p class="font-semibold text-fg-display">
-              {{ tank.name }} <span v-if="tank.isBio" class="chip ms-1 bg-success-subtle text-fg-success">{{ $t('dashboard.tanks.bio') }}</span>
+              {{ tank.name }}
             </p>
-            <p class="truncate label text-fg-brand">{{ tank.variety }}</p>
+            <p class="truncate label" :class="tank.variety ? 'text-fg-brand' : 'text-fg-muted'">{{ tank.variety ?? $t('dashboard.tanks.emptyTank') }}</p>
           </div>
           <p class="body-two whitespace-nowrap tabular-nums">{{ formatLitresRounded(tank.fillLitres) }} / {{ formatLitresRounded(tank.capacityLitres) }}</p>
         </div>
         <div class="flex h-2.5 overflow-hidden rounded-full bg-subtle">
           <div
             v-for="entry in entriesOf(tank.id).filter((item) => item.endDay === null)"
-            :key="entry.lotCode"
+            :key="entry.id"
             class="grow-x h-full border-r border-surface"
             :class="entry.kind === 'mill' ? 'bg-accent-sand' : 'bg-primary-olive-mid'"
             :style="{ width: `${(entry.litres / tank.capacityLitres) * 100}%` }"
           />
         </div>
         <ul class="flex flex-col divide-y divide-subtle">
-          <li v-for="entry in entriesOf(tank.id)" :key="entry.lotCode" class="flex flex-col gap-1.5 py-2" :class="{ 'opacity-60': entry.endDay !== null }">
+          <li v-for="entry in entriesOf(tank.id).slice(0, MAX_ENTRIES)" :key="entry.id" class="flex flex-col gap-1.5 py-2" :class="{ 'opacity-60': entry.endDay !== null }">
             <div class="flex items-baseline justify-between gap-2">
               <p class="min-w-0 truncate label text-fg-display">{{ entry.client }}</p>
               <p class="text-sm whitespace-nowrap tabular-nums">{{ formatLitresRounded(entry.litres) }}</p>
@@ -45,8 +45,9 @@
             <div class="relative h-1.5 rounded-full bg-subtle" dir="ltr">
               <div class="absolute inset-y-0 rounded-full" :class="barClass(entry)" :style="rangeStyle(entry)" />
             </div>
-            <p class="body-three">{{ entry.lotCode }} · {{ rangeLabel(entry) }}</p>
+            <p class="body-three" :class="{ 'text-fg-warning': isOverdue(entry) }">{{ entry.lotCode }} · {{ rangeLabel(entry) }}</p>
           </li>
+          <li v-if="entriesOf(tank.id).length > MAX_ENTRIES" class="body-three py-2">{{ $t('dashboard.tanks.moreLots', { count: entriesOf(tank.id).length - MAX_ENTRIES }) }}</li>
           <li v-if="!entriesOf(tank.id).length" class="body-two py-2">{{ $t('dashboard.tanks.empty') }}</li>
         </ul>
       </div>
@@ -70,6 +71,7 @@ const props = defineProps<{ tanks: ITank[]; storage: ITankStorage[]; period: IPe
 const { t } = useI18n();
 
 // variables
+const MAX_ENTRIES = 6;
 const { offset, periodDays, startDay, endDay } = useTankWindow(() => props.period);
 
 // methods
@@ -83,8 +85,13 @@ const barClass = (entry: ITankStorage): string => {
   return entry.kind === 'mill' ? 'bg-accent-sand' : 'bg-primary-olive-mid';
 };
 
-const rangeLabel = (entry: ITankStorage): string =>
-  `${dayLabel(entry.startDay)} ${t('global.arrow')} ${entry.endDay === null ? t('dashboard.tanks.ongoing') : t('dashboard.tanks.withdrawnOn', { date: dayLabel(entry.endDay) })}`;
+const isOverdue = (entry: ITankStorage): boolean => entry.endDay === null && entry.plannedEndDay !== null && entry.plannedEndDay < 0;
+
+const rangeLabel = (entry: ITankStorage): string => {
+  if (entry.endDay !== null) return `${dayLabel(entry.startDay)} ${t('global.arrow')} ${t('dashboard.tanks.withdrawnOn', { date: dayLabel(entry.endDay) })}`;
+  if (entry.plannedEndDay === null) return `${dayLabel(entry.startDay)} ${t('global.arrow')} ${t('dashboard.tanks.ongoing')}`;
+  return `${dayLabel(entry.startDay)} ${t('global.arrow')} ${t(isOverdue(entry) ? 'dashboard.tanks.plannedPassed' : 'dashboard.tanks.plannedUntil', { date: dayLabel(entry.plannedEndDay) })}`;
+};
 
 const rangeStyle = (entry: ITankStorage) => {
   const from = Math.max(entry.startDay, startDay.value) - startDay.value;

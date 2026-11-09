@@ -4,7 +4,16 @@
 
     <p v-if="creditDh" class="rounded-control bg-info-subtle p-3 body-two text-fg-info tabular-nums" role="status">{{ $t('finance.form.credit', { amount: formatMoney(creditDh) }) }}</p>
 
-    <due-lot-picker v-model="tickedIds" :lots="dueLots" :title="$t('finance.form.lots')" />
+    <due-lot-picker v-model="tickedIds" :lots="dueLots" :title="$t('finance.form.lots')" :can-discount="siteStore.can('discount.give')" @discount="handleDiscount" />
+
+    <discount-form
+      v-if="discountLot"
+      :key="discountLot.id"
+      :lot="discountLot"
+      :limit-percent="configuration?.discountLimit ?? 0"
+      @close="discountLot = null"
+      @saved="handleDiscountSaved"
+    />
 
     <template v-if="dueLots.length">
       <ui-field v-slot="{ id }" :label="$t('finance.form.amount')">
@@ -23,6 +32,7 @@
             {{ $t(`finance.methods.${option.key}`) }}
           </button>
         </div>
+        <p v-if="method" class="body-two" role="status">{{ $t(isFinal ? 'finance.form.finalNow' : 'finance.form.waitsConfirmation') }}</p>
       </section>
 
       <ui-field v-if="method === 'cheque' || method === 'transfer'" v-slot="{ id }" :label="$t(`finance.form.reference.${method}`)">
@@ -57,6 +67,7 @@ import { useConfigurationStore } from 'configuration/stores/configuration';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
+import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { allocatePayment } from 'finance/composables/allocate-payment';
 import { createId } from 'global/composables/crypto';
@@ -68,6 +79,7 @@ import type { PaymentMethodKey } from 'finance/types/finance';
 import type { ILot } from 'lot/types/lot';
 
 import DueLotPicker from 'finance/components/due-lot-picker.vue';
+import DiscountForm from 'lot/components/discount-form.vue';
 import UiField from 'global/components/ui-field.vue';
 import UiPhotoCapture from 'global/components/ui-photo-capture.vue';
 
@@ -86,6 +98,7 @@ const configurationStore = useConfigurationStore();
 const financeStore = useFinanceStore();
 const lotStore = useLotStore();
 const sessionStore = useSessionStore();
+const siteStore = useSiteStore();
 const toastStore = useToastStore();
 
 // variables
@@ -95,6 +108,7 @@ const amount = ref<number | ''>('');
 const method = ref<PaymentMethodKey | null>(null);
 const reference = ref('');
 const proofUrl = ref<string | null>(null);
+const discountLot = ref<ILot | null>(null);
 
 // computed
 const configuration = computed((): IConfiguration | undefined => configurationStore.bySite[props.siteId]);
@@ -112,6 +126,7 @@ const isAmountTooHigh = computed((): boolean => typedAmount.value > tickedTotal.
 const isPartial = computed((): boolean => typedAmount.value > 0 && typedAmount.value < tickedTotal.value);
 const needsProof = computed((): boolean => enabledMethods.value.find((item) => item.key === method.value)?.needsProof ?? false);
 const oilLitres = computed((): number => (oilPrice.value ? Math.round((typedAmount.value / oilPrice.value) * 100) / 100 : 0));
+const isFinal = computed((): boolean => method.value === 'cash' && siteStore.can('payment.confirm'));
 const isOilTooMuch = computed((): boolean => method.value === 'oil' && oilLitres.value > props.oilStockLitres);
 const canSave = computed((): boolean =>
   !!method.value &&
@@ -136,6 +151,16 @@ watch(
 );
 
 // event handlers
+const handleDiscount = (lot: ILot): void => {
+  discountLot.value = lot;
+};
+
+/** A Discount over the limit waits for Management, and its Lot can't be paid meanwhile. */
+const handleDiscountSaved = (lot: ILot): void => {
+  discountLot.value = null;
+  if (lot.discount?.state === 'pending') tickedIds.value = tickedIds.value.filter((id) => id !== lot.id);
+};
+
 const handleSave = async (): Promise<void> => {
   if (!canSave.value || !method.value) return;
   const movement = await financeStore.recordPayment({
@@ -154,7 +179,7 @@ const handleSave = async (): Promise<void> => {
     toastStore.push(t('finance.form.error'), 'danger');
     return;
   }
-  toastStore.push(t('finance.form.saved', { code: movement.code }), 'success');
+  toastStore.push(t(movement.status === 'confirmed' ? 'finance.form.savedFinal' : 'finance.form.saved', { code: movement.code }), 'success');
   emit('saved');
 };
 </script>

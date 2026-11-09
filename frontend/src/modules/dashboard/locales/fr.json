@@ -25,7 +25,8 @@
       "oilStock": "Huile en stock : {quantity}",
       "due": "Reste à payer : {amount}",
       "payout": "Le moulin lui doit : {amount}",
-      "none": "Rien à payer, rien en stock"
+      "none": "Rien à payer, rien en stock",
+      "unpaid": "{count} Lot non payé · passer à la caisse | {count} Lot non payé · passer à la caisse | {count} Lots non payés · passer à la caisse"
     },
     "age": {
       "today": "Aujourd’hui {time}",
@@ -37,7 +38,10 @@
       "waitingNext": "Attend le pressage · le prochain",
       "pressing": "En train d’être pressé",
       "pressed": "Huile prête · {quantity}",
-      "withdrawn": "Huile retirée"
+      "withdrawn": "Huile retirée",
+      "noLine": "Sans chaîne",
+      "planned": "prévu {at}",
+      "late": "prévu {at} · en retard"
     },
     "confirm": {
       "youWill": "Vous allez",
@@ -45,11 +49,16 @@
       "oil": "Huile obtenue (L)",
       "no": "Non",
       "yes": "Oui, c’est ça",
-      "photo": "Photo de cette étape"
+      "photo": "Photo de cette étape",
+      "unpaid": "Non payé : passer à la caisse. Le retrait reste permis.",
+      "line": "Sur quelle chaîne ?",
+      "lineBusy": "Presse déjà le Lot de {client}",
+      "lineFree": "Libre"
     },
     "backToLot": "Retour au lot",
     "openLot": "Voir le lot {code} de {client}",
-    "accountTitle": "Le client"
+    "accountTitle": "Le client",
+    "allLines": "Toutes les chaînes"
   },
   "management": {
     "financeHidden": "Finances masquées (autorisation « finance.view »)",
@@ -120,7 +129,6 @@
   "tanks": {
     "title": "Cuves",
     "tank": "Cuve",
-    "bio": "Bio",
     "planning": "Planning des cuves",
     "planningHint": "Huile stockée par lot, du pressage au retrait",
     "previous": "Période précédente",
@@ -130,6 +138,11 @@
     "millStock": "Stock du moulin",
     "ongoing": "en cours",
     "withdrawnOn": "retiré le {date}",
-    "empty": "Vide sur la période"
+    "empty": "Vide sur la période",
+    "millOwner": "Stock de l’huilerie",
+    "emptyTank": "vide",
+    "plannedUntil": "prévu jusqu’au {date}",
+    "plannedPassed": "prévu jusqu’au {date} · dépassé",
+    "moreLots": "+ {count} autre Lot dans cette cuve | + {count} autre Lot dans cette cuve | + {count} autres Lots dans cette cuve"
   }
 }

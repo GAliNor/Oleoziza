@@ -6,11 +6,12 @@ export interface ITank {
   name: string;
   capacityLitres: number;
   fillLitres: number;
-  variety: string;
-  isBio: boolean;
+  variety: string | null;
 }
 
+/** One Storage as the Tank planning draws it: days counted from today, negative in the past. */
 export interface ITankStorage {
+  id: string;
   tankId: string;
   lotCode: string;
   client: string;
@@ -18,6 +19,7 @@ export interface ITankStorage {
   litres: number;
   startDay: number;
   endDay: number | null;
+  plannedEndDay: number | null;
 }
 
 export interface ISiteFigures {

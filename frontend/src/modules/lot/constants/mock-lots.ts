@@ -4,7 +4,8 @@ import { shiftDate, todayIso } from 'global/composables/date';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import { mockStepPhotos } from 'lot/constants/mock-step-photos';
 import { boxesNeeded } from 'lot/composables/lot-boxes';
-import { SETTINGS_MOCK } from 'reception/constants/mock-reception';
+import { suggestPours, tankStates } from 'lot/composables/storage';
+import { CONFIGURATIONS_MOCK } from 'configuration/constants/mock-configuration';
 import type { ILot, ILotDiscount, ILotMoveRecord, ILotNotification, LotStatus, NotificationChoice, ReceptionMode } from 'lot/types/lot';
 
 const MOCK_MILLING_RATE = 0.5;
@@ -26,7 +27,6 @@ interface ISeedLot {
   oilLitres: number | null;
   receivedAt: string;
   operator: string;
-  tankName?: string;
   isPendingSync?: boolean;
   discount?: ILotDiscount;
   notificationChoice?: NotificationChoice;
@@ -52,8 +52,6 @@ const seedMoves = (seed: ISeedLot): ILotMoveRecord[] => {
   });
 };
 
-const defaultTank = (siteId: string): string => (siteId === SITE_OUJDA_ID ? 'Cuve A2' : 'Cuve B1');
-
 const toLot = (seed: ISeedLot): ILot => ({
   dailyPricePerKg: null,
   millingRatePerKg: MOCK_MILLING_RATE,
@@ -74,9 +72,11 @@ const toLot = (seed: ISeedLot): ILot => ({
   status: seed.status,
   netKg: seed.netKg,
   oilLitres: seed.oilLitres,
-  tankName: seed.oilLitres ? (seed.tankName ?? defaultTank(seed.siteId)) : null,
   withdrawnLitres: seed.status === 'withdrawn' ? (seed.oilLitres ?? 0) : 0,
   boxNumbers: [],
+  pressLineId: null,
+  plannedStartAt: null,
+  storages: [],
   moves: seedMoves(seed),
   stepPhotos: mockStepPhotos(seed.code, ['reception', ...seedMoves(seed).map((move) => move.status), ...(seed.oilLitres ? (['stored'] as const) : [])]),
   receivedAt: seed.receivedAt,
@@ -120,7 +120,6 @@ const RECENT_SEEDS: ISeedLot[] = Array.from({ length: 22 }, (_, index) => {
     oilLitres: Math.round(netKg * (0.165 + ((index * 7) % 9) / 100)),
     receivedAt: daysAgoAt(1 + Math.floor(index / 2), `0${7 + (index % 3)}:${String(10 + index).padStart(2, '0')}`),
     operator: siteId === SITE_OUJDA_ID ? (index % 2 ? 'Imane' : 'Hamid') : 'Abdelkader',
-    tankName: siteId === SITE_OUJDA_ID ? (index % 2 ? 'Cuve A1' : 'Cuve A2') : 'Cuve B1',
   };
 });
 
@@ -154,7 +153,7 @@ const withBoxes = (lots: ILot[]): ILot[] => {
   const nextBox: Record<string, number> = {};
   const lotsPlaced: Record<string, number> = {};
   return lots.map((lot) => {
-    const { boxCount, boxCapacityKg } = SETTINGS_MOCK[lot.siteId];
+    const { boxCount, boxCapacityKg } = CONFIGURATIONS_MOCK[lot.siteId];
     const count = Math.max(1, boxesNeeded(lot.netKg, boxCapacityKg));
     if (lot.status !== 'waiting') {
       const first = Number(lot.code.slice(-4)) % (boxCount - count + 1);
@@ -168,4 +167,68 @@ const withBoxes = (lots: ILot[]): ILot[] => {
   });
 };
 
-export const LOTS_MOCK: ILot[] = withBoxes([...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot));
+const HOUR_MS = 3_600_000;
+
+/** Each Site's Lots get a Press Line: the pressing ones one per Line, the waiting ones shared out in queue order an hour apart, the older ones round the Lines. */
+const withSchedule = (lots: ILot[]): ILot[] => {
+  const firstFreeHour = Math.ceil(Date.now() / HOUR_MS) * HOUR_MS;
+  const cursors: Record<string, number> = {};
+  const counters: Record<string, number> = {};
+  const byQueue = [...lots].sort((first, second) => first.receivedAt.localeCompare(second.receivedAt));
+  const scheduled = new Map<string, Pick<ILot, 'pressLineId' | 'plannedStartAt'>>();
+  ['pressing', 'waiting', 'pressed', 'withdrawn'].forEach((status) => {
+    byQueue
+      .filter((lot) => lot.status === status)
+      .forEach((lot) => {
+        const lines = CONFIGURATIONS_MOCK[lot.siteId].pressLines;
+        const index = counters[lot.siteId] ?? 0;
+        counters[lot.siteId] = index + 1;
+        const line = lines[index % lines.length];
+        if (status !== 'waiting') {
+          scheduled.set(lot.id, { pressLineId: line.id, plannedStartAt: lot.moves.find((move) => move.status === 'pressing')?.at ?? lot.receivedAt });
+          return;
+        }
+        const at = Math.max(cursors[line.id] ?? firstFreeHour, firstFreeHour);
+        cursors[line.id] = at + HOUR_MS;
+        scheduled.set(lot.id, { pressLineId: line.id, plannedStartAt: new Date(at).toISOString() });
+      });
+    if (status === 'pressing') Object.keys(counters).forEach((siteId) => (counters[siteId] = 0));
+  });
+  return lots.map((lot) => ({ ...lot, ...scheduled.get(lot.id) }));
+};
+
+const HANDED_OVER_AT_ONCE = new Set(['OJ-2627-0149']);
+
+/** Where a Lot stood in the Tanks at an instant: the Storages begun by then and not yet ended. */
+const asAt = (lot: ILot, at: string): ILot => ({ ...lot, storages: lot.storages.filter((storage) => storage.from <= at && (!storage.endedAt || storage.endedAt > at)).map((storage) => ({ ...storage, endedAt: null })) });
+
+/**
+ * Pours each pressed Lot's oil into its Site's Tanks, in the order it was pressed, as the Operator would have:
+ * every Lot still holding oil is stored; some withdrawn ones were stored a while, others handed over at once.
+ */
+const withStorages = (lots: ILot[]): ILot[] => {
+  const placed: ILot[] = [];
+  const pressedAt = (lot: ILot): string => lot.moves.find((move) => move.status === 'pressed')?.at ?? lot.receivedAt;
+  const byPressing = lots.filter((lot) => lot.oilLitres && (lot.status === 'pressed' || lot.status === 'withdrawn')).sort((first, second) => pressedAt(first).localeCompare(pressedAt(second)));
+  byPressing.forEach((lot, index) => {
+    const at = pressedAt(lot);
+    const withdrawnAt = lot.moves.find((move) => move.status === 'withdrawn')?.at ?? null;
+    if (HANDED_OVER_AT_ONCE.has(lot.code) || (withdrawnAt && index % 2)) return;
+    const states = tankStates(CONFIGURATIONS_MOCK[lot.siteId].tanks, placed.filter((other) => other.siteId === lot.siteId).map((other) => asAt(other, at)));
+    const plannedUntil = withdrawnAt ? null : index % 7 === 0 ? shiftDate(at.slice(0, 10), 3) : index % 3 === 0 ? shiftDate(at.slice(0, 10), 30) : null;
+    lot.storages = suggestPours(states, lot.variety, lot.oilLitres ?? 0).map((pour, part) => ({
+      id: `storage-${lot.code}-${part + 1}`,
+      tankId: pour.tankId,
+      litres: pour.litres,
+      withdrawnLitres: withdrawnAt ? pour.litres : 0,
+      from: at,
+      plannedUntil,
+      endedAt: withdrawnAt,
+      by: lot.moves.find((move) => move.status === 'pressed')?.by ?? lot.receivedBy,
+    }));
+    placed.push(lot);
+  });
+  return lots;
+};
+
+export const LOTS_MOCK: ILot[] = withStorages(withSchedule(withBoxes([...TODAY_SEEDS, ...RECENT_SEEDS, ...OLDER_SEEDS].map(toLot))));

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { areSideBySide, boxesNeeded, boxOccupancy, formatBoxes, suggestBoxes } from 'lot/composables/lot-boxes';
 import { LOTS_MOCK } from 'lot/constants/mock-lots';
-import { SETTINGS_MOCK } from 'reception/constants/mock-reception';
+import { CONFIGURATIONS_MOCK } from 'configuration/constants/mock-configuration';
 import type { ILot } from 'lot/types/lot';
 
 const lot = (status: ILot['status'], boxNumbers: number[], siteId = 'oujda'): ILot => ({ status, boxNumbers, siteId }) as ILot;
@@ -63,7 +63,7 @@ describe('formatBoxes', () => {
 });
 
 describe('the mock Lots', () => {
-  it.each(Object.entries(SETTINGS_MOCK))('leave Boxes free on Site %s, each held by one Lot, with room for every Lot', (siteId, settings) => {
+  it.each(Object.entries(CONFIGURATIONS_MOCK))('leave Boxes free on Site %s, each held by one Lot, with room for every Lot', (siteId, settings) => {
     const holding = LOTS_MOCK.filter((item) => item.siteId === siteId && item.status === 'waiting');
     const held = holding.flatMap((item) => item.boxNumbers);
     holding.forEach((item) => expect(item.boxNumbers.length).toBeGreaterThan(0));

@@ -9,6 +9,11 @@
 
     <lot-detail :lot="lot" />
 
+    <template v-if="lot.status === 'waiting' && lines.length">
+      <lot-schedule-form v-if="isScheduling" :key="lot.id" :lot="lot" :lines="lines" @close="isScheduling = false" />
+      <button v-else type="button" class="btn-secondary min-h-14" @click="isScheduling = true">{{ $t('lot.schedule.open') }}</button>
+    </template>
+
     <div class="flex flex-col gap-3">
       <h3 class="label">{{ $t('dashboard.operator.accountTitle') }}</h3>
       <client-tag :client-id="lot.clientId" :name="lot.clientName" />
@@ -25,20 +30,27 @@
 
 <script setup lang="ts">
 // imports
+import { ref } from 'vue';
+
 import { LOT_MOVE_TONES } from 'lot/constants/lot';
+import type { IPressLineSetting } from 'configuration/types/configuration';
 import type { ILot } from 'lot/types/lot';
 
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 import ClientTag from 'client/components/client-tag.vue';
 import LotDetail from 'lot/components/lot-detail.vue';
 import LotMissingContact from 'lot/components/lot-missing-contact.vue';
+import LotScheduleForm from 'lot/components/lot-schedule-form.vue';
 
 // props
-defineProps<{ lot: ILot; accountLines: string[] }>();
+defineProps<{ lot: ILot; accountLines: string[]; lines: IPressLineSetting[] }>();
 
 // emits
 const emit = defineEmits<{
   (event: 'close'): void;
   (event: 'move', lot: ILot): void;
 }>();
+
+// variables
+const isScheduling = ref(false);
 </script>

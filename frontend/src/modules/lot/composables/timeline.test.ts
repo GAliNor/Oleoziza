@@ -6,7 +6,9 @@ import type { ILot } from 'lot/types/lot';
 const clean = (text: string): string => text.replace(/\s/g, ' ');
 
 const lot = (changes: Partial<ILot>): ILot =>
-  ({ clientName: 'Said Tahiri', variety: 'Haouzia', netKg: 2050, oilLitres: null, tankName: null, withdrawnLitres: 0, receivedAt: '2026-11-04T07:45:00+01:00', receivedBy: 'Hamid', moves: [], stepPhotos: {}, boxNumbers: [], discount: null, notifications: [], ...changes }) as ILot;
+  ({ clientName: 'Said Tahiri', variety: 'Haouzia', netKg: 2050, oilLitres: null, storages: [], withdrawnLitres: 0, receivedAt: '2026-11-04T07:45:00+01:00', receivedBy: 'Hamid', moves: [], stepPhotos: {}, boxNumbers: [], discount: null, notifications: [], ...changes }) as ILot;
+
+const storage = (fields: Partial<ILot['storages'][number]>): ILot['storages'][number] => ({ id: 's1', tankId: '3', litres: 425, withdrawnLitres: 0, from: '2026-11-04T12:00:00+01:00', plannedUntil: null, endedAt: null, by: 'Abdelkader', ...fields });
 
 const move = (status: ILot['status']): ILot['moves'][number] => ({ status, at: '2026-11-04T12:00:00+01:00', by: 'Abdelkader' });
 
@@ -17,11 +19,21 @@ describe('buildLotTimeline', () => {
     expect(clean(steps[0].detail)).toBe('Said Tahiri · Haouzia · 2 050 kg net (20,5 q)');
   });
 
-  it('adds each move, and the Tank once the oil is stored', () => {
-    const steps = buildLotTimeline(lot({ oilLitres: 425, tankName: 'Cuve A2', moves: [move('waiting'), move('pressing'), move('pressed')] }));
+  it('adds each move, and each Tank the oil is stored in, with its planned end', () => {
+    const steps = buildLotTimeline(
+      lot({ oilLitres: 425, storages: [storage({ plannedUntil: '2026-12-15' })], moves: [move('waiting'), move('pressing'), move('pressed')] }),
+      { lineLabel: 'Chaîne 2', tankLabel: (tankId) => `Cuve ${tankId}` },
+    );
     expect(steps.map((step) => step.key)).toEqual(['reception', 'waiting', 'pressing', 'pressed', 'stored']);
+    expect(steps[2].detail).toBe('Sur Chaîne 2');
     expect(clean(steps[3].detail)).toBe('425 L d’huile · rendement 20,7 L/q');
-    expect(steps[4].detail).toBe('Cuve A2');
+    expect(clean(steps[4].detail)).toBe('Cuve 3 · 425 L · jusqu’au 15 déc. 2026');
+  });
+
+  it('shows what was handed over at once when only part is stored', () => {
+    const steps = buildLotTimeline(lot({ oilLitres: 425, withdrawnLitres: 125, storages: [storage({ litres: 300 })], moves: [move('pressed')] }));
+    expect(steps.map((step) => step.key)).toEqual(['reception', 'pressed', 'withdrawn', 'stored']);
+    expect(clean(steps[2].detail)).toBe('125 L');
   });
 
   it('says which Box the olives wait in', () => {
@@ -34,7 +46,7 @@ describe('buildLotTimeline', () => {
   });
 
   it('gives a step its photo, and leaves the others without', () => {
-    const steps = buildLotTimeline(lot({ oilLitres: 425, tankName: 'Cuve A2', moves: [move('pressed')], stepPhotos: { reception: 'olives.jpg', stored: 'tank.jpg' } }));
+    const steps = buildLotTimeline(lot({ oilLitres: 425, storages: [storage({})], moves: [move('pressed')], stepPhotos: { reception: 'olives.jpg', stored: 'tank.jpg' } }));
     expect(steps.map((step) => [step.key, step.imageUrl])).toEqual([
       ['reception', 'olives.jpg'],
       ['pressed', null],

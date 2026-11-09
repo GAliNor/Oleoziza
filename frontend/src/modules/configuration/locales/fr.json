@@ -45,5 +45,44 @@
     "methodOff": "Coupé",
     "proofOn": "justificatif obligatoire",
     "proofOff": "justificatif facultatif"
+  },
+  "equipmentTitle": "Box, chaînes et cuves",
+  "boxes": {
+    "title": "Box",
+    "hint": "Les contenants où l’on vide les sacs d’un Client pour suivre son Lot jusqu’au pressage.",
+    "count": "Nombre de Box",
+    "capacity": "Capacité d’un Box (kg)",
+    "summary": "{count} Box · {capacity} chacun",
+    "inUse": "Le Box {number} contient des olives : gardez au moins {number} Box.",
+    "invalid": "Entre 1 et 500 Box, de 50 à 5 000 kg chacun."
+  },
+  "tanks": {
+    "title": "Cuves",
+    "hint": "Les cuves qui gardent l’huile stockée ; chacune ne prend qu’une variété, fixée par le premier versement.",
+    "label": "Cuve {number}",
+    "capacity": "Capacité de la cuve {number}",
+    "summary": "{count} cuve · {total} | {count} cuve · {total} | {count} cuves · {total}",
+    "inUse": "Contient de l’huile : ne peut pas être retirée",
+    "inUseShort": "occupée",
+    "lockedNote": "{count} cuve contient de l’huile et ne peut pas être retirée. | {count} cuve contient de l’huile et ne peut pas être retirée. | {count} cuves contiennent de l’huile et ne peuvent pas être retirées.",
+    "remove": "Retirer la cuve {number}",
+    "add": "Ajouter une cuve",
+    "invalid": "Chaque cuve tient entre 100 et 200 000 L.",
+    "saveError": "Enregistrement impossible : une cuve retirée contient de l’huile, ou le réseau a coupé."
+  },
+  "pressLines": {
+    "title": "Chaînes de production",
+    "hint": "Chaque chaîne presse un Lot à la fois ; chaque Lot est planifié sur une chaîne.",
+    "label": "Chaîne {number}",
+    "name": "Nom de la chaîne {number}",
+    "namePlaceholder": "Nom (facultatif)",
+    "summary": "{count} chaîne | {count} chaîne | {count} chaînes",
+    "inUse": "Un Lot y est planifié ou en pressage : ne peut pas être retirée",
+    "inUseShort": "occupée",
+    "lockedNote": "{count} chaîne a un Lot planifié et ne peut pas être retirée. | {count} chaîne a un Lot planifié et ne peut pas être retirée. | {count} chaînes ont un Lot planifié et ne peuvent pas être retirées.",
+    "remove": "Retirer la chaîne {number}",
+    "add": "Ajouter une chaîne",
+    "invalid": "Gardez au moins une chaîne.",
+    "saveError": "Enregistrement impossible : une chaîne retirée a un Lot planifié, ou le réseau a coupé."
   }
 }

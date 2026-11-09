@@ -11,6 +11,8 @@ import { fullFee, millingFee } from 'lot/composables/fee';
 import { createId } from 'global/composables/crypto';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
+import { pressingOn } from 'lot/composables/press-schedule';
+import { CONFIGURATIONS_MOCK } from 'configuration/constants/mock-configuration';
 import type { ILot } from 'lot/types/lot';
 
 const lot = (id: string, status: ILot['status'], isPendingSync = false): ILot => ({ id, code: `L-${id}`, status, isPendingSync }) as ILot;
@@ -63,10 +65,11 @@ describe('a Reception seen through the lot store', () => {
       variety: 'Haouzia',
       netKg: 250,
       millingRatePerKg: 0.5,
-      discount: null,
       notificationChoice: 'none',
       isContactMissing: false,
       boxNumbers: [3],
+      pressLineId: 'oj-line-1',
+      plannedStartAt: '2026-11-09T14:00:00.000Z',
     });
     expect(lotStore.lots[0].id).toBe(received?.id);
     expect([lotStore.lots[0].status, lotStore.lots[0].netKg]).toEqual(['waiting', 250]);
@@ -91,16 +94,54 @@ describe('moving a Lot', () => {
     return found;
   };
 
-  it('moves a waiting Lot into pressing', async () => {
+  /** A Press Line presses one Lot at a time: a free one, after finishing a Lot if every Line is busy. */
+  const freeLine = async (): Promise<string> => {
+    const lines = CONFIGURATIONS_MOCK[SITE_OUJDA_ID].pressLines.map((line) => line.id);
+    const free = lines.find((lineId) => !pressingOn(LOTS_MOCK_DB, lineId));
+    if (free) return free;
+    const pressing = useLotStore().lots.find((item) => item.status === 'pressing') as ILot;
+    await useLotStore().moveLot(pressing, { id: createId(), oilLitres: 100 });
+    return pressing.pressLineId as string;
+  };
+
+  /** A Lot in pressing, started on a free Line when the earlier tests have finished them all. */
+  const pressingLot = async (): Promise<ILot> => {
+    const found = useLotStore().lots.find((item) => item.status === 'pressing');
+    if (found) return found;
+    return (await useLotStore().moveLot(lotAt('waiting'), { id: createId(), pressLineId: await freeLine() })) as ILot;
+  };
+
+  it('moves a waiting Lot into pressing, on a free Press Line', async () => {
     const lotStore = useLotStore();
-    const updated = await lotStore.moveLot(lotAt('waiting'), { id: createId() });
+    const pressLineId = await freeLine();
+    const updated = await lotStore.moveLot(lotAt('waiting'), { id: createId(), pressLineId });
+    expect(updated?.pressLineId).toBe(pressLineId);
     expect(updated?.status).toBe('pressing');
     expect(lotStore.lotByCode(updated?.code ?? '')?.status).toBe('pressing');
   });
 
-  it('records the oil when pressing ends', async () => {
-    const updated = await useLotStore().moveLot(lotAt('pressing'), { id: createId(), oilLitres: 300 });
-    expect([updated?.status, updated?.oilLitres]).toEqual(['pressed', 300]);
+  it('records the oil when pressing ends, and a Lot handed over whole is withdrawn at once', async () => {
+    const updated = await useLotStore().moveLot(await pressingLot(), { id: createId(), oilLitres: 300 });
+    expect([updated?.status, updated?.oilLitres, updated?.withdrawnLitres, updated?.storages]).toEqual(['withdrawn', 300, 300, []]);
+  });
+
+  it('stores what is not handed over, in a Tank of the same variety, until the planned date', async () => {
+    const pressing = await pressingLot();
+    const tankId = CONFIGURATIONS_MOCK[pressing.siteId].tanks.at(-1)?.id as string;
+    const free = !LOTS_MOCK_DB.some((other) => other.siteId === pressing.siteId && other.storages.some((storage) => storage.tankId === tankId && !storage.endedAt && other.variety !== pressing.variety));
+    expect(free).toBe(true);
+    const updated = await useLotStore().moveLot(pressing, { id: createId(), oilLitres: 300, handedLitres: 100, pours: [{ tankId, litres: 200 }], plannedUntil: '2026-12-15' });
+    expect([updated?.status, updated?.withdrawnLitres]).toEqual(['pressed', 100]);
+    expect(updated?.storages).toMatchObject([{ tankId, litres: 200, withdrawnLitres: 0, plannedUntil: '2026-12-15', endedAt: null }]);
+    const withdrawn = await useLotStore().moveLot(updated as ILot, { id: createId() });
+    expect(withdrawn?.storages[0]).toMatchObject({ withdrawnLitres: 200 });
+    expect(withdrawn?.storages[0].endedAt).not.toBeNull();
+  });
+
+  it('refuses a split that loses litres', async () => {
+    const pressing = await pressingLot();
+    const tankId = CONFIGURATIONS_MOCK[pressing.siteId].tanks.at(-1)?.id as string;
+    expect(await useLotStore().moveLot(pressing, { id: createId(), oilLitres: 300, handedLitres: 50, pours: [{ tankId, litres: 200 }] })).toBeNull();
   });
 
   it('records what left when the oil is withdrawn', async () => {
@@ -111,7 +152,7 @@ describe('moving a Lot', () => {
 
   it('tells the Client the oil is ready, or shows it could not, when pressing ends', async () => {
     const lotStore = useLotStore();
-    const lot = lotAt('pressing');
+    const lot = await pressingLot();
     lot.notificationChoice = 'sms';
     LOTS_MOCK_DB.find((item) => item.id === lot.id)!.notificationChoice = 'sms';
     const updated = await lotStore.moveLot(lot, { id: createId(), oilLitres: 300 });
@@ -123,7 +164,7 @@ describe('moving a Lot', () => {
     const lotStore = useLotStore();
     await lotStore.fetchLots(SITE_OUJDA_ID, true);
     const lot = lotStore.lots.find((item) => item.status === 'waiting') as ILot;
-    const moved = await lotStore.moveLot(lot, { id: createId(), photoUrl: 'press.jpg' });
+    const moved = await lotStore.moveLot(lot, { id: createId(), photoUrl: 'press.jpg', pressLineId: await freeLine() });
     expect([moved?.status, moved?.stepPhotos.pressing]).toEqual(['pressing', 'press.jpg']);
   });
 
@@ -135,10 +176,15 @@ describe('moving a Lot', () => {
     });
     const lotStore = useLotStore();
     const lot = lotAt('waiting');
-    const move = { id: createId() };
+    const move = { id: createId(), pressLineId: await freeLine() };
     expect(await lotStore.moveLot(lot, move)).toBeNull();
     const retried = await lotStore.moveLot(lot, move);
     expect(retried?.status).toBe('pressing');
+  });
+
+  it('refuses to start a Lot on a Press Line already pressing another', async () => {
+    const pressing = useLotStore().lots.find((item) => item.status === 'pressing') as ILot;
+    expect(await useLotStore().moveLot(lotAt('waiting'), { id: createId(), pressLineId: pressing.pressLineId as string })).toBeNull();
   });
 
   it('refuses to move a Lot past withdrawn', async () => {

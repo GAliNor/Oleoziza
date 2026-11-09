@@ -38,6 +38,20 @@ export interface ILotNotification {
   isFailed: boolean;
 }
 
+export type StorageOwnerKind = 'client' | 'mill';
+
+/** Some of a Lot's oil kept in one Tank for its owner, from a date and optionally until a planned one; it ends once all withdrawn. */
+export interface ILotStorage {
+  id: string;
+  tankId: string;
+  litres: number;
+  withdrawnLitres: number;
+  from: string;
+  plannedUntil: string | null;
+  endedAt: string | null;
+  by: string;
+}
+
 export interface ILotStep {
   key: LotStepKey;
   label: string;
@@ -58,9 +72,11 @@ export interface ILot {
   status: LotStatus;
   netKg: number;
   oilLitres: number | null;
-  tankName: string | null;
   withdrawnLitres: number;
   boxNumbers: number[];
+  pressLineId: string | null;
+  plannedStartAt: string | null;
+  storages: ILotStorage[];
   dailyPricePerKg: number | null;
   millingRatePerKg: number;
   discount: ILotDiscount | null;
@@ -78,10 +94,31 @@ export interface ILot {
 }
 
 /** One step of a Lot along its statuses; `id` is minted once per user intent, so a retry never moves it twice. */
+/** One share of a Lot's oil going into one Tank. */
+export interface ITankPour {
+  tankId: string;
+  litres: number;
+}
+
+/** At the end of a Pressing the oil splits: some handed over at once into the Client's containers, the rest stored in Tanks. */
 export interface ILotMove {
   id: string;
   oilLitres?: number;
   photoUrl?: string;
+  pressLineId?: string;
+  handedLitres?: number;
+  pours?: ITankPour[];
+  plannedUntil?: string | null;
+}
+
+/** How the Operator splits a Lot's oil at the end of its Pressing, and whether that split can be saved. */
+export type IOilSplit = Required<Pick<ILotMove, 'handedLitres' | 'pours' | 'plannedUntil'>> & { isValid: boolean };
+
+/** `id` is minted when the change starts, so a retry never moves the Lot twice. */
+export interface ILotSchedule {
+  id: string;
+  pressLineId: string;
+  plannedStartAt: string;
 }
 
 export interface ILotMovePayload extends ILotMove {
@@ -95,11 +132,21 @@ export interface IDiscountDecision {
   reason?: string;
 }
 
+/** `id` is minted when the form opens, so a retry never gives the Discount twice. */
+export interface IDiscountGift {
+  id: string;
+  amountDh: number;
+  percent: number;
+  isOverLimit: boolean;
+}
+
 export interface ILotService {
   getLots(siteId: string): Promise<ILot[]>;
   moveLot(lotId: string, move: ILotMovePayload): Promise<ILot>;
   clearMissingContact(lotId: string): Promise<ILot>;
   decideDiscount(lotId: string, decision: IDiscountDecision & { by: string }): Promise<ILot>;
+  giveDiscount(lotId: string, gift: IDiscountGift & { by: string }): Promise<ILot>;
+  scheduleLot(lotId: string, schedule: ILotSchedule): Promise<ILot>;
 }
 
 export interface ILotStore {

@@ -1,4 +1,8 @@
 import type { MovementStatus, PaymentMethodKey } from 'finance/types/finance';
+import type { Permission } from 'global/types/session';
+
+/** Holding any of these shows amounts; without them a person sees a Lot's Payment State only, as an Operator does. */
+export const AMOUNT_PERMISSIONS: readonly Permission[] = ['finance.view', 'payment.record', 'discount.give', 'debt.follow'];
 
 export const MOVEMENT_STATUS_TONES: Record<MovementStatus, string> = {
   pending: 'bg-warning-subtle text-fg-warning',

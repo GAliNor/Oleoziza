@@ -17,8 +17,8 @@ const nextLotCode = (siteId: string): string => {
 
 export default class ReceptionMockService implements IReceptionService {
   getSettings(siteId: string): Promise<ISiteReceptionSettings> {
-    const { millingRate, discountLimit } = configurationOf(siteId);
-    return mockResolve({ ...(SETTINGS_MOCK[siteId] ?? { dailyPricePerKg: null, boxCount: 24, boxCapacityKg: 1000 }), millingRatePerKg: millingRate, discountLimitPercent: discountLimit });
+    const { millingRate, discountLimit, boxCount, boxCapacityKg, pressLines, tanks } = configurationOf(siteId);
+    return mockResolve({ dailyPricePerKg: SETTINGS_MOCK[siteId]?.dailyPricePerKg ?? null, boxCount, boxCapacityKg, pressLines, tanks, millingRatePerKg: millingRate, discountLimitPercent: discountLimit });
   }
 
   receiveLot(payload: IReceiveLotPayload): Promise<ILot> {
@@ -26,7 +26,7 @@ export default class ReceptionMockService implements IReceptionService {
     if (existing) return mockResolve(existing);
     const client = CLIENTS_MOCK_DB.find((option) => option.id === payload.clientId);
     if (!client) return mockReject(new Error('client_not_found'));
-    const { photoUrl, discount, ...fields } = payload;
+    const { photoUrl, ...fields } = payload;
     const receivedAt = new Date().toISOString();
     const lot: ILot = {
       ...fields,
@@ -34,10 +34,10 @@ export default class ReceptionMockService implements IReceptionService {
       clientName: client.name,
       status: 'waiting',
       oilLitres: null,
-      tankName: null,
+      storages: [],
       withdrawnLitres: 0,
       dailyPricePerKg: payload.mode === 'purchase' ? (SETTINGS_MOCK[payload.siteId]?.dailyPricePerKg ?? null) : null,
-      discount: discount && { ...discount, givenBy: payload.receivedBy, givenAt: receivedAt },
+      discount: null,
       notifications: [],
       paidDh: 0,
       pendingDh: 0,

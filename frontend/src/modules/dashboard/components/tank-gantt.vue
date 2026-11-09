@@ -35,19 +35,20 @@
         <div v-for="tank in tanks" :key="tank.id" class="grid border-b border-subtle py-2" :style="gridStyle">
           <div class="pe-2">
             <p class="label text-fg-display">{{ tank.name }}</p>
-            <p class="truncate body-three font-medium text-fg-brand" :title="tank.variety">{{ tank.variety }}</p>
+            <p class="truncate body-three font-medium" :class="tank.variety ? 'text-fg-brand' : 'text-fg-muted'" :title="tank.variety ?? undefined">{{ tank.variety ?? $t('dashboard.tanks.emptyTank') }}</p>
             <p class="body-three tabular-nums">{{ Math.round((tank.fillLitres / tank.capacityLitres) * 100) }} % · {{ formatLitresRounded(tank.capacityLitres) }}</p>
           </div>
-          <div class="relative" :style="{ gridColumn: `2 / span ${periodDays}`, height: `${lanesOf(tank.id).length * 30 + 4}px` }">
+          <div class="relative" :style="{ gridColumn: `2 / span ${periodDays}`, height: `${lanesOf(tank.id).shown.length * 30 + (lanesOf(tank.id).hidden ? 24 : 4)}px` }">
             <div class="absolute inset-y-0 bg-selected/30" :style="todayStyle" />
-            <template v-for="(lane, laneIndex) in lanesOf(tank.id)" :key="laneIndex">
+            <p v-if="lanesOf(tank.id).hidden" class="absolute inset-x-0 bottom-0 px-2 body-three">{{ $t('dashboard.tanks.moreLots', { count: lanesOf(tank.id).hidden }) }}</p>
+            <template v-for="(lane, laneIndex) in lanesOf(tank.id).shown" :key="laneIndex">
               <div
                 v-for="(entry, entryIndex) in lane"
-                :key="entry.lotCode"
+                :key="entry.id"
                 class="grow-x absolute flex h-6.5 items-center overflow-hidden rounded-md px-2 text-xs font-medium whitespace-nowrap"
                 :class="barClass(entry)"
                 :style="{ ...barStyle(entry, laneIndex), animationDelay: `${(laneIndex + entryIndex) * 70}ms` }"
-                :title="`${entry.client} · ${entry.lotCode} · ${formatLitresRounded(entry.litres)} · ${dayLabel(entry.startDay)} ${$t('global.arrow')} ${entry.endDay === null ? $t('dashboard.tanks.ongoing') : dayLabel(entry.endDay)}`"
+                :title="`${entry.client} · ${entry.lotCode} · ${formatLitresRounded(entry.litres)} · ${dayLabel(entry.startDay)} ${$t('global.arrow')} ${endLabel(entry)}`"
               >
                 {{ entry.client }} · {{ formatLitresRounded(entry.litres) }}
               </div>
@@ -62,6 +63,7 @@
 <script setup lang="ts">
 // imports
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import type { IPeriod } from 'global/types/period';
 import { formatLitresRounded } from 'lot/composables/quantity';
@@ -71,7 +73,11 @@ import type { ITank, ITankStorage } from 'dashboard/types/dashboard';
 // props
 const props = defineProps<{ tanks: ITank[]; storage: ITankStorage[]; period: IPeriod }>();
 
+// stores
+const { t } = useI18n();
+
 // variables
+const MAX_LANES = 6;
 const { offset, periodDays, startDay, endDay } = useTankWindow(() => props.period);
 
 // computed
@@ -84,7 +90,13 @@ const todayStyle = computed(() => {
 });
 
 // methods
-const lanesOf = (tankId: string): ITankStorage[][] => {
+/** Lanes packed so Storages that don't overlap share one; past the cap, the rest is counted, so a busy Tank stays readable. */
+const lanesOf = (tankId: string): { shown: ITankStorage[][]; hidden: number } => {
+  const lanes = packLanes(tankId);
+  return { shown: lanes.slice(0, MAX_LANES), hidden: lanes.slice(MAX_LANES).reduce((sum, lane) => sum + lane.length, 0) };
+};
+
+const packLanes = (tankId: string): ITankStorage[][] => {
   const visible = props.storage.filter((entry) => entry.tankId === tankId && isInWindow(entry, startDay.value, endDay.value)).sort((first, second) => first.startDay - second.startDay);
   const lanes: ITankStorage[][] = [];
   visible.forEach((entry) => {
@@ -105,8 +117,17 @@ const barStyle = (entry: ITankStorage, laneIndex: number) => {
   };
 };
 
+const isOverdue = (entry: ITankStorage): boolean => entry.endDay === null && entry.plannedEndDay !== null && entry.plannedEndDay < 0;
+
+const endLabel = (entry: ITankStorage): string => {
+  if (entry.endDay !== null) return dayLabel(entry.endDay);
+  if (entry.plannedEndDay === null) return t('dashboard.tanks.ongoing');
+  return t(isOverdue(entry) ? 'dashboard.tanks.plannedPassed' : 'dashboard.tanks.plannedUntil', { date: dayLabel(entry.plannedEndDay) });
+};
+
 const barClass = (entry: ITankStorage): string => {
   if (entry.endDay !== null) return 'border border-dashed border-strong bg-subtle text-fg-secondary-paragraph';
+  if (isOverdue(entry)) return 'bg-warning-subtle text-fg-warning';
   return entry.kind === 'mill' ? 'bg-accent-sand text-neutral-900' : 'bg-primary-olive-mid text-neutral-900';
 };
 

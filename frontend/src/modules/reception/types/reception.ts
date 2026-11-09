@@ -1,4 +1,5 @@
-import type { DiscountState, ILot, NotificationChoice, ReceptionMode } from 'lot/types/lot';
+import type { IPressLineSetting, ITankSetting } from 'configuration/types/configuration';
+import type { ILot, NotificationChoice, ReceptionMode } from 'lot/types/lot';
 
 export interface ISiteReceptionSettings {
   dailyPricePerKg: number | null;
@@ -6,6 +7,8 @@ export interface ISiteReceptionSettings {
   discountLimitPercent: number;
   boxCount: number;
   boxCapacityKg: number;
+  pressLines: IPressLineSetting[];
+  tanks: ITankSetting[];
 }
 
 export interface IReceiveLotPayload {
@@ -16,10 +19,11 @@ export interface IReceiveLotPayload {
   variety: string;
   netKg: number;
   millingRatePerKg: number;
-  discount: { amountDh: number; percent: number; state: DiscountState } | null;
   notificationChoice: NotificationChoice;
   isContactMissing: boolean;
   boxNumbers: number[];
+  pressLineId: string;
+  plannedStartAt: string;
   photoUrl?: string;
   receivedBy: string;
 }

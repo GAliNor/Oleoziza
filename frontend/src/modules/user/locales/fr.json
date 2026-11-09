@@ -172,10 +172,14 @@
       "add": "Ajouter des documents"
     },
     "discount": {
-      "approve": "Approuver les remises"
+      "approve": "Approuver les remises",
+      "give": "Donner une remise"
     },
     "refund": {
       "manage": "Gérer les remboursements"
+    },
+    "debt": {
+      "follow": "Suivre le recouvrement"
     }
   },
   "form": {

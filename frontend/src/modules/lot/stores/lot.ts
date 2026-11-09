@@ -4,7 +4,7 @@ import LotService from 'lot/services/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
-import type { IDiscountDecision, ILot, ILotMove, ILotStore } from 'lot/types/lot';
+import type { IDiscountDecision, IDiscountGift, ILot, ILotMove, ILotSchedule, ILotStore } from 'lot/types/lot';
 
 const lotService = new LotService();
 
@@ -46,6 +46,16 @@ export const useLotStore = defineStore('lot', {
       const sessionStore = useSessionStore();
       if (!lot.discount || !sessionStore.canValidate(lot.discount.givenBy)) return null;
       const updated = await withStatus(this, 'isSaving', () => lotService.decideDiscount(lot.id, { ...decision, by: sessionStore.fullName }));
+      if (updated) this.upsertLot(updated);
+      return updated;
+    },
+    async giveDiscount(lot: ILot, gift: IDiscountGift): Promise<ILot | null> {
+      const updated = await withStatus(this, 'isSaving', () => lotService.giveDiscount(lot.id, { ...gift, by: useSessionStore().fullName }));
+      if (updated) this.upsertLot(updated);
+      return updated;
+    },
+    async scheduleLot(lot: ILot, schedule: ILotSchedule): Promise<ILot | null> {
+      const updated = await withStatus(this, 'isSaving', () => lotService.scheduleLot(lot.id, { ...schedule }));
       if (updated) this.upsertLot(updated);
       return updated;
     },

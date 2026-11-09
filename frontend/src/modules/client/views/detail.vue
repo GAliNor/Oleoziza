@@ -9,17 +9,22 @@
         </div>
       </header>
 
-      <div class="stagger grid grid-cols-3 gap-2">
+      <div class="stagger grid gap-2" :class="isAmountShown ? 'grid-cols-3' : 'grid-cols-2'">
         <div class="card p-3">
           <p class="body-two">{{ $t('client.record.oilStock') }}</p>
           <p class="text-xl figure">{{ formatLitres(account.oilStockLitres) }}</p>
         </div>
-        <div class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': account.dueDh }">
+        <div v-if="!isAmountShown" class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': unpaidCount }">
+          <p class="body-two">{{ $t('client.page.unpaidLots') }}</p>
+          <p class="text-xl figure" :class="{ 'text-fg-warning': unpaidCount }">{{ unpaidCount }}</p>
+          <p v-if="unpaidCount" class="body-two text-fg-warning">{{ $t('client.page.toCashDesk') }}</p>
+        </div>
+        <div v-if="isAmountShown" class="card p-3" :class="{ 'border-warning-subtle bg-warning-subtle': account.dueDh }">
           <p class="body-two">{{ $t('client.record.owes') }}</p>
           <p class="text-xl figure" :class="{ 'text-fg-warning': account.dueDh }">{{ formatMoney(account.dueDh) }}</p>
           <p v-if="account.pendingDh" class="body-two text-fg-warning">{{ $t('client.page.pending', { amount: formatMoney(account.pendingDh) }) }}</p>
         </div>
-        <div class="card p-3">
+        <div v-if="isAmountShown" class="card p-3">
           <p class="body-two">{{ $t('client.page.millOwes') }}</p>
           <p class="text-xl figure">{{ formatMoney(account.payoutDh) }}</p>
         </div>
@@ -39,7 +44,7 @@
         </button>
       </div>
 
-      <p v-if="client.creditDh" class="card flex items-center justify-between gap-3 border-info-subtle bg-info-subtle p-3 text-fg-info" role="status">
+      <p v-if="client.creditDh && isAmountShown" class="card flex items-center justify-between gap-3 border-info-subtle bg-info-subtle p-3 text-fg-info" role="status">
         <span class="font-medium">{{ $t('client.page.credit') }}</span>
         <span class="figure">{{ formatMoney(client.creditDh) }}</span>
       </p>
@@ -86,6 +91,8 @@ import type { Permission } from 'global/types/session';
 import { formatMoney } from 'global/composables/money';
 import { clientMoney } from 'lot/composables/client-money';
 import { formatLitres } from 'lot/composables/quantity';
+import { paymentStateOf } from 'lot/composables/fee';
+import { AMOUNT_PERMISSIONS } from 'finance/constants/finance';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
@@ -109,7 +116,7 @@ const clientStore = useClientStore();
 const isPaying = ref(route.query.action === 'payment');
 type ClientAction = 'withdrawal' | 'payment' | 'payout' | 'reception';
 const ACTIONS: { key: ClientAction; permission: Permission; tone: string; hint: (account: IClientAccount) => string }[] = [
-  { key: 'withdrawal', permission: 'withdrawal.create', tone: 'bg-accent-subtle text-fg-accent', hint: (account) => t('client.page.hints.withdrawal', { quantity: formatLitres(account.oilStockLitres) }) },
+  { key: 'withdrawal', permission: 'withdrawal.create', tone: 'bg-accent-subtle text-fg-accent', hint: (account) => t(unpaidCount.value ? 'client.page.hints.withdrawalUnpaid' : 'client.page.hints.withdrawal', { quantity: formatLitres(account.oilStockLitres) }) },
   { key: 'payment', permission: 'payment.record', tone: 'bg-action text-fg-on-action', hint: (account) => (account.dueDh ? t('client.page.hints.payment', { amount: formatMoney(account.dueDh) }) : t('client.page.hints.paymentNone')) },
   { key: 'payout', permission: 'payout.record', tone: 'bg-subtle text-fg-display', hint: (account) => (account.payoutDh ? t('client.page.hints.payout', { amount: formatMoney(account.payoutDh) }) : t('client.page.hints.payoutNone')) },
   { key: 'reception', permission: 'reception.create', tone: 'bg-selected text-fg-brand', hint: () => t('client.page.hints.reception') },
@@ -117,6 +124,8 @@ const ACTIONS: { key: ClientAction; permission: Permission; tone: string; hint: 
 
 // computed
 const isManagement = computed((): boolean => sessionStore.isBackofficeView);
+const isAmountShown = computed((): boolean => siteStore.can(AMOUNT_PERMISSIONS));
+const unpaidCount = computed((): number => lotStore.lots.filter((lot) => lot.clientId === client.value?.id && ['unpaid', 'partial'].includes(paymentStateOf(lot))).length);
 const actions = computed(() => ACTIONS.filter((action) => siteStore.can(action.permission)));
 const managementClient = computed(() => (isManagement.value ? clientStore.recordById(String(route.params.id)) : undefined));
 const client = computed(() => clientStore.clientById(String(route.params.id)));
@@ -149,7 +158,7 @@ const handleAction = (key: ClientAction): void => {
     isPaying.value = true;
     return;
   }
-  const next = key === 'withdrawal' && account.value.dueDh ? t('client.page.pendingScreenNext') : '';
+  const next = key === 'withdrawal' && unpaidCount.value ? t('client.page.pendingScreenNext') : '';
   toastStore.push(`${t('client.page.pendingScreen', { name: t(`client.page.actions.${key}`) })}${next}`, 'info');
 };
 

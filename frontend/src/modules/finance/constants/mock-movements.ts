@@ -4,7 +4,8 @@ import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { LOTS_MOCK } from 'lot/constants/mock-lots';
 import { millingFee } from 'lot/composables/fee';
 import type { ILot } from 'lot/types/lot';
-import type { IBankAccount, IMovement, IRefund, MovementStatus, PaymentMethodKey } from 'finance/types/finance';
+import type { IBankAccount, IDebtContact, IMovement, IRefund, MovementStatus, PaymentMethodKey } from 'finance/types/finance';
+import { shiftDate, todayIso } from 'global/composables/date';
 
 interface ISeedMovement extends Omit<IMovement, 'documents' | 'clientId'> {
   hasProof: boolean;
@@ -99,3 +100,24 @@ const cancelledMovement = MOVEMENTS_MOCK.find((movement) => movement.status === 
 export const REFUNDS_MOCK: IRefund[] = [
   { id: 'r001', siteId: cancelledMovement.siteId, clientId: cancelledMovement.clientId, client: cancelledMovement.client, sourceCode: 'P-0388', amount: 150, status: 'to_make', createdAt: cancelledMovement.recordedAt, documents: [] },
 ];
+
+const contactDay = (daysAgo: number, time: string): string => `${shiftDate(todayIso(), -daysAgo)}T${time}:00+01:00`;
+
+/** A few Clients who owe on each Site already have a follow-up: one promise passed, one still ahead, one note. */
+const buildDebtContacts = (): IDebtContact[] => {
+  const owing = [...LOTS_MOCK]
+    .filter((lot) => lot.clientId && lot.mode === 'service' && lot.status !== 'waiting')
+    .sort((first, second) => first.receivedAt.localeCompare(second.receivedAt));
+  const firstClients = (siteId: string): string[] => [...new Set(owing.filter((lot) => lot.siteId === siteId).map((lot) => lot.clientId))].slice(0, 3);
+  return [O, SITE_BERKANE_ID].flatMap((siteId) => {
+    const [first, second, third] = firstClients(siteId);
+    const by = 'Khadija Amrani';
+    return [
+      { id: `debt-${siteId}-1`, siteId, clientId: first, kind: 'call', note: 'Promet de passer régler après la vente de son huile.', promisedOn: shiftDate(todayIso(), -2), by, at: contactDay(6, '10:20') },
+      { id: `debt-${siteId}-2`, siteId, clientId: second, kind: 'sms', note: 'Rappel envoyé, réponse : virement en fin de semaine.', promisedOn: shiftDate(todayIso(), 3), by, at: contactDay(2, '16:05') },
+      { id: `debt-${siteId}-3`, siteId, clientId: third, kind: 'visit', note: 'Passé au moulin, attend la paie de la coopérative.', promisedOn: null, by, at: contactDay(1, '11:40') },
+    ].filter((item): item is IDebtContact => !!item.clientId);
+  });
+};
+
+export const DEBT_CONTACTS_MOCK: IDebtContact[] = buildDebtContacts();

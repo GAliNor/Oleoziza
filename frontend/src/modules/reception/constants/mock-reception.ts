@@ -6,7 +6,7 @@ export const LAST_LOT_NUMBER_MOCK: Record<string, { prefix: string; number: numb
   [SITE_BERKANE_ID]: { prefix: 'BK-2627', number: 87 },
 };
 
-export const SETTINGS_MOCK: Record<string, Omit<ISiteReceptionSettings, 'millingRatePerKg' | 'discountLimitPercent'>> = {
-  [SITE_OUJDA_ID]: { dailyPricePerKg: 7.2, boxCount: 24, boxCapacityKg: 1000 },
-  [SITE_BERKANE_ID]: { dailyPricePerKg: null, boxCount: 16, boxCapacityKg: 1000 },
+export const SETTINGS_MOCK: Record<string, Pick<ISiteReceptionSettings, 'dailyPricePerKg'>> = {
+  [SITE_OUJDA_ID]: { dailyPricePerKg: 7.2 },
+  [SITE_BERKANE_ID]: { dailyPricePerKg: null },
 };

@@ -40,15 +40,6 @@
       <p v-else-if="netKg" class="body-two tabular-nums">{{ formatQuintals(netKg) }}</p>
     </ui-field>
 
-    <reception-fee
-      v-if="netKg && settings"
-      :key="`fee-${receptionId}`"
-      :net-kg="netKg"
-      :rate-per-kg="settings.millingRatePerKg"
-      :limit-percent="settings.discountLimitPercent"
-      @update:discount="discount = $event"
-    />
-
     <div v-if="receptionStore.isLoading || !settings" class="skeleton h-48" />
     <box-picker
       v-else
@@ -58,6 +49,15 @@
       :capacity-kg="settings.boxCapacityKg"
       :net-kg="netKg"
       :occupancy="occupancy"
+    />
+
+    <line-picker
+      v-if="settings && settings.pressLines.length"
+      :key="`line-${receptionId}`"
+      v-model:line="pressLineId"
+      v-model:start="plannedStartAt"
+      :lines="settings.pressLines"
+      :lots="siteLots"
     />
 
     <notification-choice-field v-model="notificationChoice" v-model:contact="contactTyped" :is-contact-missing="isContactMissing" :is-unchecked="isContactUnchecked" />
@@ -87,7 +87,6 @@ import { useLotStore } from 'lot/stores/lot';
 import { createId } from 'global/composables/crypto';
 import { normalizePhone } from 'global/composables/phone';
 import { useOnlineStatus } from 'global/composables/use-online-status';
-import type { IDiscountFigures } from 'lot/composables/discount';
 import { boxOccupancy } from 'lot/composables/lot-boxes';
 import { formatKg, formatQuintals } from 'lot/composables/quantity';
 import { OLIVE_VARIETIES, RECEPTION_MAX_KG } from 'reception/constants/reception';
@@ -100,9 +99,9 @@ import UiField from 'global/components/ui-field.vue';
 import UiPhotoCapture from 'global/components/ui-photo-capture.vue';
 import BoxPicker from 'reception/components/box-picker.vue';
 import ClientPicker from 'reception/components/client-picker.vue';
+import LinePicker from 'reception/components/line-picker.vue';
 import NotificationChoiceField from 'reception/components/notification-choice.vue';
 import ReceptionDone from 'reception/components/reception-done.vue';
-import ReceptionFee from 'reception/components/reception-fee.vue';
 import VarietyPicker from 'reception/components/variety-picker.vue';
 
 // emits
@@ -129,14 +128,16 @@ const variety = ref(OLIVE_VARIETIES[0].name);
 const weightTyped = ref<number | ''>('');
 const boxNumbers = ref<number[]>([]);
 const photo = ref<string | null>(null);
-const discount = ref<IDiscountFigures | null>(null);
 const notificationChoice = ref<NotificationChoice | null>(null);
 const contactTyped = ref('');
 const finishedLot = ref<ILot | null>(null);
+const pressLineId = ref('');
+const plannedStartAt = ref('');
 
 // computed
 const siteId = computed((): string => siteStore.currentSite?.id ?? '');
 const settings = computed((): ISiteReceptionSettings | null => receptionStore.settings);
+const siteLots = computed((): ILot[] => lotStore.lots.filter((lot) => lot.siteId === siteId.value));
 const occupancy = computed((): Map<number, ILot> => boxOccupancy(lotStore.lots, siteId.value));
 const isWeightTooHigh = computed((): boolean => typeof weightTyped.value === 'number' && weightTyped.value > RECEPTION_MAX_KG);
 const netKg = computed((): number => {
@@ -155,9 +156,9 @@ const missing = computed((): string[] =>
     { isMissing: !client.value, key: 'client' },
     { isMissing: !netKg.value, key: 'weight' },
     { isMissing: !boxNumbers.value.length, key: 'box' },
+    { isMissing: !pressLineId.value || !plannedStartAt.value, key: 'line' },
     { isMissing: !notificationChoice.value, key: 'notification' },
     { isMissing: isContactRequired.value && !isContactValid.value, key: 'contact' },
-    { isMissing: !!discount.value?.isTooHigh, key: 'discount' },
   ]
     .filter((item) => item.isMissing)
     .map((item) => t(`reception.open.missingItems.${item.key}`)),
@@ -208,10 +209,11 @@ const handleSave = async (): Promise<void> => {
     variety: variety.value,
     netKg: netKg.value,
     millingRatePerKg: settings.value?.millingRatePerKg ?? 0,
-    discount: discount.value && { amountDh: discount.value.amountDh, percent: discount.value.percent, state: discount.value.isOverLimit ? 'pending' : 'applied' },
     notificationChoice: notificationChoice.value,
     isContactMissing: isContactMissing.value && !isContactRequired.value,
     boxNumbers: boxNumbers.value,
+    pressLineId: pressLineId.value,
+    plannedStartAt: plannedStartAt.value,
     photoUrl: photo.value ?? undefined,
   });
   if (!lot) {
@@ -231,9 +233,10 @@ const handleAgain = (): void => {
   weightTyped.value = '';
   boxNumbers.value = [];
   photo.value = null;
-  discount.value = null;
   notificationChoice.value = null;
   contactTyped.value = '';
+  pressLineId.value = '';
+  plannedStartAt.value = '';
   emit('finished', false);
 };
 </script>

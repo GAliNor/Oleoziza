@@ -31,7 +31,8 @@ export const useConfigurationStore = defineStore('configuration', {
     },
     /** A change applies at once to later Receptions: the Reception settings are read again. */
     async update(siteId: string, update: IConfigurationUpdate): Promise<IConfiguration | null> {
-      const updated = await withStatus(this, 'isSaving', () => configurationService.update(siteId, { ...update, by: useSessionStore().fullName }));
+      const plain = { ...update, boxes: update.boxes && { ...update.boxes }, tanks: update.tanks?.map((tank) => ({ ...tank })), pressLines: update.pressLines?.map((line) => ({ ...line })) };
+      const updated = await withStatus(this, 'isSaving', () => configurationService.update(siteId, { ...plain, by: useSessionStore().fullName }));
       if (!updated) return null;
       this.bySite[siteId] = updated;
       useReceptionStore().loadedSiteId = null;

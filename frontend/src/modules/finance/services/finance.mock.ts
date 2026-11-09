@@ -2,17 +2,19 @@ import { mockReject, mockResolve } from 'global/services/mock';
 import { LOTS_MOCK_DB, notifyClient, syncLotPayments } from 'lot/services/lot.mock';
 import { CLIENTS_MOCK_DB } from 'client/services/client.mock';
 import { surplusOf } from 'finance/composables/settle';
-import { MOVEMENTS_MOCK, REFUNDS_MOCK } from 'finance/constants/mock-movements';
+import { DEBT_CONTACTS_MOCK, MOVEMENTS_MOCK, REFUNDS_MOCK } from 'finance/constants/mock-movements';
 import { millingSales } from 'finance/composables/milling-figures';
 import { formatWeekday, todayIso } from 'global/composables/date';
 import { i18n } from '~/plugins/i18n';
 import { ALL_SITES } from 'site/constants/site';
-import type { IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales, Settlement } from 'finance/types/finance';
+import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales, Settlement } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
 
 export const MOVEMENTS_DB: IMovement[] = structuredClone(MOVEMENTS_MOCK);
 
-const REFUNDS_DB: IRefund[] = structuredClone(REFUNDS_MOCK);
+export const REFUNDS_DB: IRefund[] = structuredClone(REFUNDS_MOCK);
+
+export const DEBT_CONTACTS_DB: IDebtContact[] = structuredClone(DEBT_CONTACTS_MOCK);
 
 let lastCode = 400 + MOVEMENTS_DB.length;
 
@@ -95,17 +97,21 @@ export default class FinanceMockService implements IFinanceService {
   recordPayment(payload: IRecordPaymentPayload): Promise<IMovement> {
     const existing = MOVEMENTS_DB.find((movement) => movement.id === payload.id);
     if (existing) return mockResolve(existing);
+    const { isFinal, ...fields } = payload;
+    const recordedAt = new Date().toISOString();
     const movement: IMovement = {
-      ...payload,
+      ...fields,
       code: `P-${String(lastCode++)}`,
       kind: 'payment',
       purpose: 'fee',
-      status: 'pending',
-      recordedAt: new Date().toISOString(),
+      status: isFinal ? 'confirmed' : 'pending',
+      recordedAt,
       wasOffline: !navigator.onLine,
+      ...(isFinal ? { decidedBy: payload.recordedBy, decidedAt: recordedAt } : {}),
     };
     MOVEMENTS_DB.unshift(movement);
     syncLotPayments(MOVEMENTS_DB);
+    if (isFinal) tellClient(movement);
     return mockResolve(movement);
   }
 
@@ -113,5 +119,17 @@ export default class FinanceMockService implements IFinanceService {
     const lots = siteId === ALL_SITES ? LOTS_MOCK_DB : LOTS_MOCK_DB.filter((lot) => lot.siteId === siteId);
     const movements = siteId === ALL_SITES ? MOVEMENTS_DB : MOVEMENTS_DB.filter((movement) => movement.siteId === siteId);
     return mockResolve(millingSales(lots, movements, period, todayIso(), formatWeekday, i18n.global.t('finance.sales.weekPrefix')));
+  }
+
+  getDebtContacts(siteId: string): Promise<IDebtContact[]> {
+    return mockResolve(siteId === ALL_SITES ? DEBT_CONTACTS_DB : DEBT_CONTACTS_DB.filter((contact) => contact.siteId === siteId));
+  }
+
+  addDebtContact(payload: IDebtContactPayload): Promise<IDebtContact> {
+    const existing = DEBT_CONTACTS_DB.find((contact) => contact.id === payload.id);
+    if (existing) return mockResolve(existing);
+    const contact: IDebtContact = { ...payload, at: new Date().toISOString() };
+    DEBT_CONTACTS_DB.unshift(contact);
+    return mockResolve(contact);
   }
 }

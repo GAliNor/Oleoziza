@@ -26,7 +26,10 @@
     "configuration": "Configuration",
     "configurationShort": "Config.",
     "discounts": "Remises",
-    "more": "Plus"
+    "more": "Plus",
+    "cashDesk": "Caisse",
+    "debts": "Recouvrement",
+    "activity": "Journal du jour"
   },
   "network": {
     "offline": "Hors ligne"

@@ -1,6 +1,6 @@
 import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
 import FinanceMockService from 'finance/services/finance.mock';
-import type { IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales } from 'finance/types/finance';
+import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
 
 class FinanceApiService extends BaseService implements IFinanceService {
@@ -45,6 +45,14 @@ class FinanceApiService extends BaseService implements IFinanceService {
 
   getSales(siteId: string, period: PeriodKey): Promise<ISales> {
     return this.request<ISales>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/sales`, params: { period } });
+  }
+
+  getDebtContacts(siteId: string): Promise<IDebtContact[]> {
+    return this.request<IDebtContact[]>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/debt-contacts` });
+  }
+
+  addDebtContact(payload: IDebtContactPayload): Promise<IDebtContact> {
+    return this.request<IDebtContact>({ method: 'POST', url: `${this._BASE_API_URL}/sites/${payload.siteId}/debt-contacts`, data: payload, headers: { 'Idempotency-Key': payload.id } });
   }
 }
 

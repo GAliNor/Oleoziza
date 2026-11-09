@@ -36,7 +36,7 @@
       "box": "le box",
       "notification": "la notification",
       "contact": "le contact du Client",
-      "discount": "une remise valable"
+      "line": "la chaîne et l’heure prévue"
     },
     "photo": "Photo des olives"
   },
@@ -80,16 +80,6 @@
     "reception": "Réception",
     "client": "Nouveau client"
   },
-  "fee": {
-    "line": "{weight} × {rate}/kg",
-    "add": "Ajouter une remise",
-    "remove": "Retirer la remise",
-    "title": "Remise",
-    "entryLabel": "Saisir la remise en",
-    "discount": "Remise {percent} % · {amount}",
-    "tooHigh": "La remise dépasse les frais ({fee}).",
-    "overLimit": "Au-delà de {limit} % : la réception s’enregistre, mais la remise attend une approbation et les frais restent à plein tarif."
-  },
   "notification": {
     "title": "Prévenir le Client",
     "sms": "SMS",
@@ -100,5 +90,11 @@
       "email": "Email du Client",
       "sms": "Téléphone du Client"
     }
+  },
+  "line": {
+    "title": "Chaîne de production",
+    "queue": "Aucun Lot en file | {count} Lot en file | {count} Lots en file",
+    "suggested": "Proposée",
+    "plannedStart": "Pressage prévu le"
   }
 }

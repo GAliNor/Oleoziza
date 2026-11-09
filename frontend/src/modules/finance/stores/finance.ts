@@ -4,8 +4,9 @@ import FinanceService from 'finance/services/finance';
 import { useClientStore } from 'client/stores/client';
 import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
+import { useSiteStore } from 'site/stores/site';
 import { withStatus } from 'global/composables/with-status';
-import type { IFinanceStore, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund } from 'finance/types/finance';
+import type { IDebtContact, IDebtContactPayload, IFinanceStore, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
 
 const financeService = new FinanceService();
@@ -18,6 +19,7 @@ export const useFinanceStore = defineStore('finance', {
   state: (): IFinanceStore => ({
     movements: [],
     refunds: [],
+    debtContacts: [],
     sales: null,
     salesQuery: null,
     loadedSiteId: null,
@@ -41,6 +43,15 @@ export const useFinanceStore = defineStore('finance', {
     async fetchRefunds(siteId: string): Promise<void> {
       const refunds = await withStatus(this, 'isLoading', () => financeService.getRefunds(siteId));
       if (refunds) this.refunds = refunds;
+    },
+    async fetchDebtContacts(siteId: string): Promise<void> {
+      const contacts = await withStatus(this, 'isLoading', () => financeService.getDebtContacts(siteId));
+      if (contacts) this.debtContacts = contacts;
+    },
+    async addDebtContact(payload: Omit<IDebtContactPayload, 'by'>): Promise<IDebtContact | null> {
+      const contact = await withStatus(this, 'isSaving', () => financeService.addDebtContact({ ...payload, by: useSessionStore().fullName }));
+      if (contact && !this.debtContacts.some((item) => item.id === contact.id)) this.debtContacts.unshift(contact);
+      return contact;
     },
     load(siteId: string, period: PeriodKey, isForced = false): Promise<void[]> {
       return Promise.all([this.fetchMovements(siteId, isForced), this.fetchSales(siteId, period), this.fetchRefunds(siteId)]);
@@ -87,10 +98,14 @@ export const useFinanceStore = defineStore('finance', {
       }
       return updated;
     },
-    async recordPayment(payload: Omit<IRecordPaymentPayload, 'recordedBy'>): Promise<IMovement | null> {
-      const movement = await withStatus(this, 'isSaving', () => financeService.recordPayment({ ...payload, lotLinks: plainList(payload.lotLinks), documents: plainList(payload.documents), recordedBy: useSessionStore().fullName }));
+    /** Cash taken by someone who may confirm Payments is final at once: the money is in their hands. */
+    async recordPayment(payload: Omit<IRecordPaymentPayload, 'recordedBy' | 'isFinal'>): Promise<IMovement | null> {
+      const isFinal = payload.method === 'cash' && useSiteStore().can('payment.confirm');
+      const movement = await withStatus(this, 'isSaving', () =>
+        financeService.recordPayment({ ...payload, lotLinks: plainList(payload.lotLinks), documents: plainList(payload.documents), recordedBy: useSessionStore().fullName, isFinal }),
+      );
       if (!movement) return null;
-      if (!this.movements.some((item) => item.id === movement.id)) this.movements.unshift(movement);
+      this.replaceMovement(movement);
       await Promise.all([useLotStore().reloadLoaded(), this.refreshSales()]);
       return movement;
     },

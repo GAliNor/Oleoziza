@@ -162,7 +162,13 @@
     "print": "Imprimer le reçu",
     "printed": "Reçu {code} envoyé à l’imprimante",
     "pendingConfirm": "À confirmer : {amount}",
-    "credit": "Avoir de {amount} : déduit automatiquement de ses prochains Lots."
+    "credit": "Avoir de {amount} : déduit automatiquement de ses prochains Lots.",
+    "finalNow": "Espèces reçues en main : le paiement est définitif tout de suite.",
+    "waitsConfirmation": "Restera « à confirmer » jusqu’à ce que l’argent soit bien arrivé.",
+    "savedFinal": "Paiement {code} encaissé",
+    "giveDiscount": "Remise",
+    "giveDiscountFor": "Donner une remise sur {code}",
+    "discountApplied": "Remise −{amount}"
   },
   "documents": {
     "title": "Documents",
@@ -201,5 +207,59 @@
     "confirmed": "Remboursement confirmé",
     "confirmedBy": "Confirmé par {name}, {date}",
     "ownRecord": "Vous l’avez enregistré : une autre personne doit le confirmer."
+  },
+  "cashDesk": {
+    "title": "Caisse",
+    "subtitle": "{scope} · encaisser les frais des Clients",
+    "pickSite": "Choisissez un Site pour encaisser.",
+    "cashToday": "Espèces aujourd’hui",
+    "cashTodaySub": "encaissées sur ce Site",
+    "toConfirm": "À confirmer",
+    "toConfirmSub": "chèques et virements · voir →",
+    "search": "Chercher un Client par nom ou téléphone",
+    "noResult": "Aucun Client pour « {query} »",
+    "toCollect": "Clients à encaisser ({count})",
+    "nothing": "Aucun frais à encaisser sur ce Site.",
+    "lots": "{count} Lot | {count} Lot | {count} Lots",
+    "lastMove": "dernier mouvement {date}",
+    "more": "Voir {count} de plus"
+  },
+  "debts": {
+    "title": "Recouvrement",
+    "subtitle": "{scope} · {amount} restent à encaisser chez {count} Client | {scope} · {amount} restent à encaisser chez {count} Client | {scope} · {amount} restent à encaisser chez {count} Clients",
+    "pickSite": "Choisissez un Site pour suivre ses impayés.",
+    "filters": {
+      "all": "Tous ({count})",
+      "overdue": "Promesse dépassée ({count})",
+      "untouched": "Jamais relancés ({count})"
+    },
+    "none": "Aucun impayé sur ce Site.",
+    "noMatch": "Aucun Client dans ce filtre.",
+    "age": "dette depuis {count} jour | dette depuis {count} jour | dette depuis {count} jours",
+    "promiseOverdue": "Promis pour le {date} · dépassé",
+    "promised": "Promis pour le {date}",
+    "noContact": "Jamais relancé",
+    "lastContact": "Relancé le {date}",
+    "unpaidLots": "Lots à payer",
+    "collect": "Encaisser à la caisse",
+    "log": "Suivi ({count})",
+    "noContactYet": "Aucune relance pour l’instant.",
+    "by": "{name} · {date}",
+    "promisedLine": "Promet de payer le {date}",
+    "kinds": {
+      "call": "Appel",
+      "sms": "SMS",
+      "visit": "Visite",
+      "note": "Note"
+    },
+    "form": {
+      "title": "Noter une relance",
+      "note": "Ce qui a été dit",
+      "notePlaceholder": "Ex. : passera régler samedi matin",
+      "promisedOn": "Date promise pour payer (facultatif)",
+      "save": "Enregistrer la relance",
+      "saved": "Relance enregistrée",
+      "error": "La relance n’a pas pu être enregistrée. Réessayez."
+    }
   }
 }

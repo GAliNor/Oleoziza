@@ -38,7 +38,6 @@
         <div v-else class="flex flex-col items-center gap-1">
           <movement-link-lots v-if="!isReadOnly && (!movement.lotLinks.length || surplus > 0)" class="w-full" :movement="movement" :is-online="isOnline" />
           <p v-if="!movement.lotLinks.length" class="body-two rounded-card bg-warning-subtle p-4 text-center text-fg-warning">{{ $t('finance.detail.notLinked') }}</p>
-          <p v-else-if="!sessionStore.canValidate(movement.recordedBy)" class="body-two rounded-card bg-surface/70 p-4 text-center shadow-hairline">{{ $t('finance.detail.ownRecord') }}</p>
           <template v-else>
             <div v-if="surplus > 0" class="flex w-full flex-col gap-2 rounded-card bg-surface p-4 shadow-hairline">
               <p class="label">{{ $t('finance.settle.surplus', { amount: formatMoney(surplus) }) }}</p>
