@@ -84,5 +84,47 @@
     "add": "Ajouter une chaîne",
     "invalid": "Gardez au moins une chaîne.",
     "saveError": "Enregistrement impossible : une chaîne retirée a un Lot planifié, ou le réseau a coupé."
+  },
+  "season": {
+    "tabsLabel": "Saisons",
+    "prepare": "+ Préparer {label}",
+    "prepared": "{label} préparée : ses prix reprennent ceux de la saison en cours.",
+    "open": "Ouvrir cette saison",
+    "openConfirm": "Confirmer : {current} sera clôturée",
+    "openConfirmAlone": "Confirmer l’ouverture",
+    "opened": "{label} est ouverte.",
+    "close": "Clôturer la saison",
+    "closeConfirm": "Confirmer la clôture",
+    "closed": "{label} est clôturée.",
+    "noSeason": "Aucune saison pour l’instant. Préparez la première.",
+    "readOnlyClosed": "Saison clôturée : ses prix se consultent, ils ne changent plus.",
+    "art": {
+      "light": "Illustration",
+      "dark": "Illustration sombre",
+      "uploaded": "Illustration enregistrée.",
+      "uploadError": "Envoi impossible : une image WebP, PNG ou JPEG de 5 Mo au plus."
+    }
+  },
+  "agenda": {
+    "title": "Agenda des prix",
+    "legend": "Rayé : programmé, pas encore en vigueur",
+    "schedule": "Programmer un changement",
+    "newPrice": "Nouveau prix",
+    "from": "À partir du",
+    "submit": "Enregistrer",
+    "saved": "Prix enregistré.",
+    "scheduled": "Changement programmé.",
+    "today": "Aujourd’hui",
+    "segment": "{value} depuis le {date}",
+    "by": "par {name}",
+    "scheduledInfo": "Programmé : {value} à partir du {date}",
+    "cancelChange": "Annuler ce changement",
+    "cancelConfirm": "Confirmer l’annulation",
+    "cancelled": "Changement annulé.",
+    "dateRange": "Choisissez une date entre le {min} et le {max}."
+  },
+  "site": {
+    "title": "Réglages du moulin",
+    "hint": "Ce qui ne change pas avec la saison : modes de paiement, Box, chaînes et cuves."
   }
 }

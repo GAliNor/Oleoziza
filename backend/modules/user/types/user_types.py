@@ -1,4 +1,8 @@
+from datetime import datetime
 from enum import StrEnum
+from uuid import UUID
+
+from core.types import CamelModel
 
 
 class Role(StrEnum):
@@ -92,3 +96,69 @@ class UserStatus(StrEnum):
     INVITED = "invited"
     ACTIVE = "active"
     DISABLED = "disabled"
+
+
+class StaffRole(StrEnum):
+    """
+    The Roles Management can give when creating a staff User.
+    """
+
+    MANAGEMENT = "management"
+    OPERATOR = "operator"
+    ACCOUNTANT = "accountant"
+
+
+class StaffStatusChange(StrEnum):
+    """
+    The statuses Management can set on a staff User; invited only comes from creation.
+    """
+
+    ACTIVE = "active"
+    DISABLED = "disabled"
+
+
+class LocationOut(CamelModel):
+    province: str | None
+    city: str
+    address: str
+
+
+class StaffUserOut(CamelModel):
+    id: UUID
+    role: Role
+    is_owner: bool
+    title: Title | None
+    first_name: str
+    last_name: str
+    phone: str | None
+    email: str | None
+    location: LocationOut | None
+    login_methods: list[LoginMethod]
+    status: UserStatus
+    sites: dict[str, list[Permission]]
+    last_login_at: datetime | None
+    invited_at: datetime | None
+
+
+class StaffUserCreateIn(CamelModel):
+    role: StaffRole
+    first_name: str
+    last_name: str
+    phone: str | None = None
+    email: str | None = None
+    location: LocationOut | None = None
+    sites: dict[UUID, list[Permission]]
+    is_invited: bool
+    first_secret: str | None = None
+
+
+class SitePermissionsIn(CamelModel):
+    permissions: list[Permission]
+
+
+class LoginMethodsIn(CamelModel):
+    login_methods: list[LoginMethod]
+
+
+class StatusIn(CamelModel):
+    status: StaffStatusChange

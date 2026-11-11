@@ -7,10 +7,14 @@ FastAPI API, laid out like the Maroc Voyages backend and following the fastapi-b
 | `main.py` | App creation: models, CORS, exception handlers, routers |
 | `core/` | `config` (settings from the environment), `database` (engine, `Base`, `get_db`), `app_init` (model and router discovery, CORS, error answers), `security` (ES256 tokens, `get_current_user`), `model_mixins` (shared columns) |
 | `core/integrations/celery/` | Celery app on Redis (task modules discovered from `modules/*/tasks/*_tasks.py`) and `publish_task`, which never fails a request when the broker is down |
-| `modules/auth/` | Stateless login: `login-options`, `login` (phone + PIN, email + password), `refresh`, `logout`, credential change and skip |
+| `modules/auth/` | Stateless login: `login-options`, `login` (phone + PIN, email + password), `refresh`, `logout`, credential change (current secret required unless forced) and skip; Invitations (`invitations/{token}`, `accept`) sent by the `auth.send_invitation` task |
+| `modules/site/` | Seasons at `/api/site/seasons`: list, prepare the next one (prices carried over), open, close, and upload its banners to RustFS (`PUT …/{id}/illustration?variant=light\|dark`) |
+| `modules/configuration/` | `GET/PATCH /api/configuration/{site_id}` (`?seasonId=` for another Season): prices with their dated and scheduled changes, cancel a scheduled one (`DELETE …/price-changes/{id}`), Payment Methods, Boxes, Tanks, Press Lines; each change is an Audit Event, which is also the page's history |
+| `modules/user/` | `/api/user`: staff list, creation (first secret or Invitation), Permissions per Site, login methods, status, invitation, reset |
+| `core/integrations/mail/`, `core/integrations/sms/` | SMTP client (MailHog in development) and a simulated SMS gateway that writes each SMS to the worker log |
 | `modules/<business>/models/` | The SQLAlchemy models of the [data model](../docs/data-model.md) |
 | `modules/health/` | `GET /api/health`, and the `health.ping` task |
-| `seeds/` | `python -m seeds reference` (Provinces with their outlines from `seeds/fixtures/oriental-provinces.json`, towns, olive varieties), `demo` (the front mocks' Sites, Season, Clients and Users, same ids; refused in production), `owner` (first Owner from `SEED_OWNER_*`) |
+| `seeds/` | `python -m seeds reference` (Provinces with their outlines from `seeds/fixtures/oriental-provinces.json`, towns, olive varieties), `demo` (Oujda, the open 2026-2027 Season, Oujda's Configuration with the front mock's Tank and Press Line ids, and the Owner; refused in production), `owner` (first Owner from `SEED_OWNER_*`) |
 | `alembic/` | Migrations (`alembic revision --autogenerate -m "..."`, `alembic upgrade head`) |
 | `tests/` | pytest, mirroring the source tree; auth tests run on the dev database inside a rolled-back transaction and skip when it is unreachable |
 

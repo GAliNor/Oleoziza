@@ -63,6 +63,7 @@ export default defineConfig({
       task: fromSrc('modules/task'),
       finance: fromSrc('modules/finance'),
       configuration: fromSrc('modules/configuration'),
+      season: fromSrc('modules/season'),
       lot: fromSrc('modules/lot'),
       kit: fromSrc('modules/kit'),
       territory: fromSrc('modules/territory'),

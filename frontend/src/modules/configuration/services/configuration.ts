@@ -5,14 +5,18 @@ import type { IConfiguration, IConfigurationService, IConfigurationUpdatePayload
 class ConfigurationApiService extends BaseService implements IConfigurationService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
-  getOne(siteId: string): Promise<IConfiguration> {
-    return this.request<IConfiguration>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/configuration` });
+  getOne(siteId: string, seasonId?: string): Promise<IConfiguration> {
+    return this.request<IConfiguration>({ method: 'GET', url: `${this._BASE_API_URL}/configuration/${siteId}`, params: seasonId ? { seasonId } : undefined });
+  }
+
+  cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration> {
+    return this.request<IConfiguration>({ method: 'DELETE', url: `${this._BASE_API_URL}/configuration/${siteId}/price-changes/${changeId}` });
   }
 
   update(siteId: string, update: IConfigurationUpdatePayload): Promise<IConfiguration> {
     return this.request<IConfiguration>({
       method: 'PATCH',
-      url: `${this._BASE_API_URL}/sites/${siteId}/configuration`,
+      url: `${this._BASE_API_URL}/configuration/${siteId}`,
       data: update,
       headers: { 'Idempotency-Key': update.id },
     });

@@ -1,0 +1,10 @@
+{
+  "status": {
+    "planned": "Préparée",
+    "open": "En cours",
+    "closed": "Clôturée"
+  },
+  "art": {
+    "sketch": "Esquisse : l’illustration de la saison prendra sa place"
+  }
+}

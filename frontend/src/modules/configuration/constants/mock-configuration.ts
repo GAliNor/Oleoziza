@@ -1,18 +1,28 @@
 import { shiftDate, todayIso } from 'global/composables/date';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
+import { SEASON_CURRENT_ID } from 'season/constants/mock-seasons';
 import type { IConfiguration, IConfigurationChange, IPressLineSetting, ITankSetting } from 'configuration/types/configuration';
 
 const daysAgo = (days: number): string => `${shiftDate(todayIso(), -days)}T09:00:00+01:00`;
 
 const change = (id: string, key: IConfigurationChange['key'], value: number, days: number, by = 'Mohammed Taibi'): IConfigurationChange => ({ id, key, value, method: null, by, at: daysAgo(days) });
 
-const tanks = (prefix: string, capacities: number[]): ITankSetting[] => capacities.map((capacityLitres, index) => ({ id: `${prefix}-tank-${index + 1}`, number: index + 1, capacityLitres }));
+/** Fixed UUIDs shared with the backend demo seed, so mocked Lots and the real Configuration point at the same Tanks and Press Lines. */
+const SITE_EQUIPMENT_KEYS: Record<string, string> = { oj: '0001', bk: '0002' };
 
-const lines = (prefix: string, names: string[]): IPressLineSetting[] => names.map((name, index) => ({ id: `${prefix}-line-${index + 1}`, number: index + 1, name }));
+const equipmentId = (kind: '7a4c0000' | '11e00000', prefix: string, index: number): string => `${kind}-${SITE_EQUIPMENT_KEYS[prefix]}-4000-8000-${String(index + 1).padStart(12, '0')}`;
+
+const tanks = (prefix: string, capacities: number[]): ITankSetting[] => capacities.map((capacityLitres, index) => ({ id: equipmentId('7a4c0000', prefix, index), number: index + 1, capacityLitres }));
+
+const lines = (prefix: string, names: string[]): IPressLineSetting[] => names.map((name, index) => ({ id: equipmentId('11e00000', prefix, index), number: index + 1, name }));
 
 export const CONFIGURATIONS_MOCK: Record<string, IConfiguration> = {
   [SITE_OUJDA_ID]: {
     siteId: SITE_OUJDA_ID,
+    seasonId: SEASON_CURRENT_ID,
+    seasonLabel: 'Saison 2026-2027',
+    seasonStatus: 'open',
+    priceChanges: [],
     millingRate: 0.5,
     discountLimit: 10,
     oilPrice: 40,
@@ -36,6 +46,10 @@ export const CONFIGURATIONS_MOCK: Record<string, IConfiguration> = {
   },
   [SITE_BERKANE_ID]: {
     siteId: SITE_BERKANE_ID,
+    seasonId: SEASON_CURRENT_ID,
+    seasonLabel: 'Saison 2026-2027',
+    seasonStatus: 'open',
+    priceChanges: [],
     millingRate: 0.5,
     discountLimit: 5,
     oilPrice: 40,
@@ -58,6 +72,10 @@ export const CONFIGURATIONS_MOCK: Record<string, IConfiguration> = {
 };
 
 export const DEFAULT_CONFIGURATION: Omit<IConfiguration, 'siteId'> = {
+  seasonId: SEASON_CURRENT_ID,
+  seasonLabel: 'Saison 2026-2027',
+  seasonStatus: 'open',
+  priceChanges: [],
   millingRate: 0.5,
   discountLimit: 0,
   oilPrice: 40,

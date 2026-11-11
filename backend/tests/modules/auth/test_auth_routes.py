@@ -1,18 +1,12 @@
 import json
-from collections.abc import Iterator
 
 import jwt
-import pytest
 from fastapi.testclient import TestClient
 from jwt.algorithms import ECAlgorithm
-from sqlalchemy import text
-from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 from core.config import get_settings
-from core.database import engine, get_db
 from core.security import get_signing_key
-from main import app
 from modules.auth.business.auth_secrets import hash_secret
 from modules.auth.business.auth_tokens import build_refresh_token
 from modules.auth.helpers.auth_cookies import build_refresh_cookie_name
@@ -31,48 +25,6 @@ PHONE = "+212669990001"
 EMAIL = "test.auth@oleoziza.ma"
 
 API_URL = "/api/auth"
-
-
-@pytest.fixture
-def db() -> Iterator[Session]:
-    """
-    Open a session on the dev database inside a transaction that is rolled back afterwards, so commits leave nothing behind.
-
-    Returns:
-        Iterator[Session]: Session whose commits become savepoints.
-    """
-    try:
-        connection = engine.connect()
-        connection.execute(text("SELECT 1 FROM users LIMIT 1"))
-        connection.rollback()
-    except OperationalError:
-        pytest.skip("database unreachable")
-    transaction = connection.begin()
-    session = Session(bind=connection, join_transaction_mode="create_savepoint")
-    try:
-        yield session
-    finally:
-        session.close()
-        transaction.rollback()
-        connection.close()
-
-
-@pytest.fixture
-def client(db: Session) -> Iterator[TestClient]:
-    """
-    Serve the app with its database dependency bound to the rolled-back session.
-
-    Args:
-        db (Session): Test session.
-
-    Returns:
-        Iterator[TestClient]: Client keeping cookies between calls.
-    """
-    app.dependency_overrides[get_db] = lambda: db
-    try:
-        yield TestClient(app)
-    finally:
-        app.dependency_overrides.clear()
 
 
 def create_user(db: Session, role: Role = Role.OPERATOR, status: UserStatus = UserStatus.ACTIVE) -> User:
@@ -192,7 +144,7 @@ def test_changing_the_credential_revokes_older_refresh_tokens(client: TestClient
     access_token = log_in(client)["accessToken"]
     old_refresh_token = build_refresh_token(user, get_signing_key(), 60)
 
-    change = client.put(f"{API_URL}/credential", json={"kind": "pin", "secret": "8765"}, headers={"Authorization": f"Bearer {access_token}"})
+    change = client.put(f"{API_URL}/credential", json={"kind": "pin", "secret": "8765", "currentSecret": PIN}, headers={"Authorization": f"Bearer {access_token}"})
     current_device = client.post(f"{API_URL}/refresh", json={"userId": str(user.id)})
     client.cookies.set(build_refresh_cookie_name(user.id), old_refresh_token)
     other_device = client.post(f"{API_URL}/refresh", json={"userId": str(user.id)})
@@ -254,3 +206,34 @@ def test_a_refresh_token_is_not_accepted_as_an_access_token(client: TestClient, 
     response = client.post(f"{API_URL}/credential/skip", headers={"Authorization": f"Bearer {refresh_token}"})
 
     assert response.json() == {"code": "session_expired"}
+
+
+def test_a_voluntary_change_needs_the_current_secret(client: TestClient, db: Session) -> None:
+    """
+    Outside a forced change, a new secret is refused without a correct current one.
+    """
+    create_user(db)
+    access_token = log_in(client)["accessToken"]
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    missing = client.put(f"{API_URL}/credential", json={"kind": "password", "secret": "Nouveau2026"}, headers=headers)
+    wrong = client.put(f"{API_URL}/credential", json={"kind": "password", "secret": "Nouveau2026", "currentSecret": "0000"}, headers=headers)
+    right = client.put(f"{API_URL}/credential", json={"kind": "password", "secret": "Nouveau2026", "currentSecret": PIN}, headers=headers)
+
+    assert missing.json() == {"code": "invalid_credential"}
+    assert wrong.json() == {"code": "invalid_credential"}
+    assert right.status_code == 204
+
+
+def test_a_forced_change_needs_no_current_secret(client: TestClient, db: Session) -> None:
+    """
+    A User whose first secret was set by Management changes it without typing it again.
+    """
+    user = create_user(db)
+    user.must_change_credential = True
+    db.commit()
+    access_token = log_in(client)["accessToken"]
+
+    response = client.put(f"{API_URL}/credential", json={"kind": "pin", "secret": "8765"}, headers={"Authorization": f"Bearer {access_token}"})
+
+    assert response.status_code == 204

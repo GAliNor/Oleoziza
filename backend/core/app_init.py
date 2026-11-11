@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from core.config import get_settings
-from core.exceptions import AuthError
+from core.exceptions import AuthError, RefusedError, StorageError
 
 
 MODULES_DIRECTORY = Path(__file__).resolve().parent.parent / "modules"
@@ -60,12 +60,14 @@ def setup_cors(app: FastAPI) -> None:
 
 def setup_exception_handlers(app: FastAPI) -> None:
     """
-    Answer every refused authentication with its status and a {"code": ...} body the front reads.
+    Answer every refused authentication or business rule with its status and a {"code": ...} body the front reads.
 
     Args:
         app (FastAPI): Application receiving the handlers.
     """
     app.add_exception_handler(AuthError, build_auth_error_response)
+    app.add_exception_handler(RefusedError, build_refused_error_response)
+    app.add_exception_handler(StorageError, build_storage_error_response)
 
 
 def build_auth_error_response(request: Request, error: AuthError) -> JSONResponse:
@@ -84,3 +86,31 @@ def build_auth_error_response(request: Request, error: AuthError) -> JSONRespons
         content["lockedUntil"] = error.locked_until.isoformat()
     headers = {"WWW-Authenticate": "Bearer"} if error.status_code == 401 else None
     return JSONResponse(status_code=error.status_code, content=content, headers=headers)
+
+
+def build_refused_error_response(request: Request, error: RefusedError) -> JSONResponse:
+    """
+    Turn a broken business rule into its JSON answer.
+
+    Args:
+        request (Request): Request that failed.
+        error (RefusedError): Refusal raised by a service.
+
+    Returns:
+        JSONResponse: The error status with {"code": ...}.
+    """
+    return JSONResponse(status_code=error.status_code, content={"code": error.code})
+
+
+def build_storage_error_response(request: Request, error: StorageError) -> JSONResponse:
+    """
+    Answer a failed file storage call with 503, so the front can say to try again.
+
+    Args:
+        request (Request): Request that failed.
+        error (StorageError): Storage failure.
+
+    Returns:
+        JSONResponse: 503 with {"code": "storage_unavailable"}.
+    """
+    return JSONResponse(status_code=503, content={"code": "storage_unavailable"})

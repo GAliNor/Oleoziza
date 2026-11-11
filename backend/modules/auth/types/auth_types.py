@@ -1,9 +1,9 @@
 from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
-from pydantic.alias_generators import to_camel
+from pydantic import BaseModel
 
+from core.types import CamelModel
 from modules.user.types.user_types import LoginMethod
 
 
@@ -32,14 +32,6 @@ class MessageChannel(StrEnum):
 
     SMS = "sms"
     EMAIL = "email"
-
-
-class CamelModel(BaseModel):
-    """
-    Pydantic base reading and writing camelCase JSON, as the front speaks it.
-    """
-
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
 
 class LoginOptionsIn(CamelModel):
@@ -75,6 +67,19 @@ class AccessTokenOut(CamelModel):
 
 class CredentialChangeIn(CamelModel):
     kind: CredentialKind
+    secret: str
+    current_secret: str | None = None
+
+
+class InvitationOut(CamelModel):
+    first_name: str
+    last_name: str
+    invited_by: str
+    credential_kind: CredentialKind
+    identifier: str
+
+
+class InvitationAcceptIn(CamelModel):
     secret: str
 
 

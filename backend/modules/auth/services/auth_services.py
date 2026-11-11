@@ -101,10 +101,23 @@ class AuthService:
             self._record_failed_login(user, now)
         user.failed_login_attempts = 0
         user.locked_until = None
-        user.last_login_at = now
+        return self.open_session(user, payload.method)
+
+    def open_session(self, user: User, method: LoginMethod | None) -> IssuedLogin:
+        """
+        Stamp a User's login and issue their token pair with what the front must do next.
+
+        Args:
+            user (User): User logging in.
+            method (LoginMethod | None): Method used, None after accepting an Invitation.
+
+        Returns:
+            IssuedLogin: The login result for the front and the token pair.
+        """
+        user.last_login_at = datetime.now(timezone.utc)
         self.db.commit()
         tokens = self._issue_tokens(user)
-        return IssuedLogin(result=self._build_login_result(user, payload.method, tokens.access_token), tokens=tokens)
+        return IssuedLogin(result=self._build_login_result(user, method, tokens.access_token), tokens=tokens)
 
     def refresh(self, user_id: UUID, refresh_token: str | None) -> IssuedTokens:
         """
@@ -130,23 +143,26 @@ class AuthService:
             raise AuthError(DISABLED_CODE, 403)
         return self._issue_tokens(user)
 
-    def change_credential(self, user_id: UUID, kind: CredentialKind, secret: str) -> IssuedTokens:
+    def change_credential(self, user_id: UUID, kind: CredentialKind, secret: str, current_secret: str | None) -> IssuedTokens:
         """
-        Set a User's new PIN or password, revoke their refresh tokens on every other device, and issue a new pair for this one.
+        Set a User's new PIN or password, revoke their refresh tokens on every other device, and issue a new pair for this one; outside a forced change, the current secret is checked first.
 
         Args:
             user_id (UUID): Signed-in User.
             kind (CredentialKind): PIN or password.
             secret (str): New plain secret.
+            current_secret (str | None): One of the User's current secrets, required unless the change is forced.
 
         Returns:
             IssuedTokens: New token pair for the current device.
 
         Raises:
-            AuthError: session_expired if the User is gone; invalid_credential if the secret is too weak.
+            AuthError: session_expired if the User is gone; invalid_credential if the current secret is wrong or the new one too weak.
         """
         user = self._get_active_user(user_id)
-        if not self._is_secret_strong_enough(kind, secret):
+        if not user.must_change_credential and not self._is_current_secret(user.id, current_secret):
+            raise AuthError(INVALID_CREDENTIAL_CODE, 400)
+        if not self.is_secret_strong_enough(kind, secret):
             raise AuthError(INVALID_CREDENTIAL_CODE, 400)
         credential = self._get_credential(user.id, kind) or Credential(user_id=user.id, kind=kind, created_by_id=user.id)
         credential.hash = hash_secret(secret)
@@ -305,7 +321,23 @@ class AuthService:
         self.db.commit()
         raise AuthError(INVALID_CREDENTIAL_CODE)
 
-    def _is_secret_strong_enough(self, kind: CredentialKind, secret: str) -> bool:
+    def _is_current_secret(self, user_id: UUID, current_secret: str | None) -> bool:
+        """
+        Tell whether a secret matches one of the User's stored PIN or password.
+
+        Args:
+            user_id (UUID): User to check.
+            current_secret (str | None): Secret typed as the current one.
+
+        Returns:
+            bool: True when it matches a stored Credential.
+        """
+        if not current_secret:
+            return False
+        credentials = self.db.scalars(select(Credential).where(Credential.user_id == user_id)).all()
+        return any(is_secret_valid(current_secret, credential.hash) for credential in credentials)
+
+    def is_secret_strong_enough(self, kind: CredentialKind, secret: str) -> bool:
         """
         Check a new secret against the rules the front enforces: a 4-digit PIN, a password of 8 characters or more.
 
@@ -320,13 +352,13 @@ class AuthService:
             return len(secret) == PIN_LENGTH and secret.isdigit()
         return len(secret) >= PASSWORD_MIN_LENGTH
 
-    def _build_login_result(self, user: User, method: LoginMethod, access_token: str) -> LoginOut:
+    def _build_login_result(self, user: User, method: LoginMethod | None, access_token: str) -> LoginOut:
         """
         Tell the front what follows a login: a forced credential change, whether a Client may skip it, and which secret to set.
 
         Args:
             user (User): User who logged in.
-            method (LoginMethod): Method used.
+            method (LoginMethod | None): Method used, None after accepting an Invitation.
             access_token (str): Access token just issued.
 
         Returns:
@@ -376,7 +408,9 @@ class AuthService:
             IssuedTokens: The pair, with the User's id for the cookie name.
         """
         signing_key = get_signing_key()
-        access_token = build_access_token(user, self._build_permissions_by_site(user), signing_key, self.settings.AUTH_ACCESS_TOKEN_EXPIRY_IN_SECONDS)
+        login_methods = self._get_login_methods(user)
+        credential_kinds = [kind.value for method, kind in CREDENTIAL_KIND_BY_METHOD.items() if method in login_methods]
+        access_token = build_access_token(user, self._build_permissions_by_site(user), signing_key, self.settings.AUTH_ACCESS_TOKEN_EXPIRY_IN_SECONDS, credential_kinds)
         refresh_token = build_refresh_token(user, signing_key, self.settings.AUTH_REFRESH_TOKEN_EXPIRY_IN_SECONDS)
         return IssuedTokens(user_id=user.id, access_token=access_token, refresh_token=refresh_token)
 

@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     AUTH_REFRESH_COOKIE_SECURE: bool = True
     AUTH_MAX_FAILED_LOGIN_ATTEMPTS: int = 5
     AUTH_LOCK_DURATION_IN_SECONDS: int = 900
+    AUTH_INVITATION_EXPIRY_IN_SECONDS: int = 604_800
+
+    FRONT_BASE_URL: str = "http://localhost:32501"
 
     SEED_OWNER_EMAIL: str = ""
     SEED_OWNER_PASSWORD: str = ""

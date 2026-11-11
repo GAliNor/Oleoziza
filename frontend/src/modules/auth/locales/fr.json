@@ -125,7 +125,17 @@
     "saved": {
       "pin": "Code PIN modifié.",
       "password": "Mot de passe modifié."
-    }
+    },
+    "menu": "Changer mon mot de passe",
+    "voluntarySubtitle": "{firstName}, choisissez un nouveau secret. Vos autres appareils seront déconnectés.",
+    "current": "Mot de passe ou code PIN actuel",
+    "currentRequired": "Saisissez d’abord votre mot de passe ou code PIN actuel.",
+    "kindLabel": "Que voulez-vous changer ?",
+    "kind": {
+      "pin": "Code PIN",
+      "password": "Mot de passe"
+    },
+    "back": "Retour"
   },
   "switch": {
     "action": "Changer d'opérateur",

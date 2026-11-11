@@ -42,6 +42,7 @@ export interface ISession {
   title?: string;
   firstName: string;
   lastName: string;
+  credentialKinds?: ('pin' | 'password')[];
   expiresAt: number;
 }
 

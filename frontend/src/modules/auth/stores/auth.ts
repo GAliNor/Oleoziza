@@ -36,6 +36,7 @@ const toSession = (claims: IAccessClaims): ISession => ({
   title: claims.title,
   firstName: claims.firstName,
   lastName: claims.lastName,
+  credentialKinds: claims.credentialKinds ?? [],
   expiresAt: claims.exp * 1000,
 });
 
@@ -144,8 +145,8 @@ export const useAuthStore = defineStore('auth', {
       this.credentialKind = kind;
       writeStorage(STORAGE_KEYS.credentialChange, mustChange ? { mustChangeCredential: mustChange, canSkipCredentialChange: canSkip, credentialKind: kind } : null);
     },
-    async changeCredential(kind: CredentialKind, secret: string): Promise<void> {
-      await authService.changeCredential(kind, secret);
+    async changeCredential(kind: CredentialKind, secret: string, currentSecret?: string): Promise<void> {
+      await authService.changeCredential(kind, secret, currentSecret);
       this.setCredentialChange(false, false, null);
       if (kind === 'pin') await useDeviceProfileStore().save(secret);
     },

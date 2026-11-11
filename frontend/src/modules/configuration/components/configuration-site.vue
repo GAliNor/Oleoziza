@@ -1,16 +1,10 @@
 <template>
   <section class="flex flex-col gap-3">
-    <h2 v-if="title" class="heading-four">{{ title }}</h2>
+    <div class="flex flex-col gap-1">
+      <h2 class="heading-four">{{ title ?? $t('configuration.site.title') }}</h2>
+      <p class="body-two">{{ $t('configuration.site.hint') }}</p>
+    </div>
     <div class="grid gap-3 lg:grid-cols-2">
-      <configuration-value
-        v-for="setting in CONFIGURATION_VALUES"
-        :key="setting.key"
-        :setting="setting"
-        :site-id="configuration.siteId"
-        :value="configuration[setting.key]"
-        :changes="configuration.history.filter((change) => change.key === setting.key)"
-        :is-read-only="isReadOnly"
-      />
       <configuration-methods
         :site-id="configuration.siteId"
         :methods="configuration.methods"
@@ -52,14 +46,12 @@
 import { computed } from 'vue';
 
 import { useLotStore } from 'lot/stores/lot';
-import { CONFIGURATION_VALUES } from 'configuration/constants/configuration';
 import { equipmentInUse, type IEquipmentInUse } from 'configuration/composables/equipment';
 import type { IConfiguration } from 'configuration/types/configuration';
 
 import ConfigurationBoxes from 'configuration/components/configuration-boxes.vue';
 import ConfigurationEquipmentList from 'configuration/components/configuration-equipment-list.vue';
 import ConfigurationMethods from 'configuration/components/configuration-methods.vue';
-import ConfigurationValue from 'configuration/components/configuration-value.vue';
 
 // props
 const props = defineProps<{ configuration: IConfiguration; title?: string; isReadOnly: boolean }>();

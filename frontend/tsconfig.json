@@ -30,6 +30,7 @@
       "task/*": ["src/modules/task/*"],
       "finance/*": ["src/modules/finance/*"],
       "configuration/*": ["src/modules/configuration/*"],
+      "season/*": ["src/modules/season/*"],
       "lot/*": ["src/modules/lot/*"],
       "kit/*": ["src/modules/kit/*"],
       "territory/*": ["src/modules/territory/*"],

@@ -1,0 +1,77 @@
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Query
+
+from core.security import get_current_user
+from core.types import CurrentUser
+from modules.configuration.services.configuration_services import ConfigurationService, get_configuration_service
+from modules.configuration.types.configuration_types import ConfigurationOut, ConfigurationUpdateIn
+
+
+router = APIRouter(tags=["configuration"])
+
+
+@router.get("/{site_id}", response_model=ConfigurationOut)
+def get_configuration(
+    site_id: UUID,
+    season_id: UUID | None = Query(default=None, alias="seasonId"),
+    current_user: CurrentUser = Depends(get_current_user),
+    configuration_service: ConfigurationService = Depends(get_configuration_service),
+) -> ConfigurationOut:
+    """
+    Read a Site's Configuration: prices of one Season (the open one by default) with their dated changes, Payment Methods, equipment and history.
+
+    Args:
+        site_id (UUID): Site to read.
+        season_id (UUID | None): Season to read, the open one when omitted.
+        current_user (CurrentUser): User from the access token.
+        configuration_service (ConfigurationService): Injected configuration service.
+
+    Returns:
+        ConfigurationOut: The Configuration.
+    """
+    return configuration_service.get_configuration(site_id, current_user, season_id)
+
+
+@router.patch("/{site_id}", response_model=ConfigurationOut)
+def update_configuration(
+    site_id: UUID,
+    payload: ConfigurationUpdateIn,
+    current_user: CurrentUser = Depends(get_current_user),
+    configuration_service: ConfigurationService = Depends(get_configuration_service),
+) -> ConfigurationOut:
+    """
+    Apply one change to a Site's Configuration.
+
+    Args:
+        site_id (UUID): Site to change.
+        payload (ConfigurationUpdateIn): One change with its front-minted id.
+        current_user (CurrentUser): User from the access token.
+        configuration_service (ConfigurationService): Injected configuration service.
+
+    Returns:
+        ConfigurationOut: The Configuration after the change.
+    """
+    return configuration_service.update_configuration(site_id, payload, current_user)
+
+
+@router.delete("/{site_id}/price-changes/{change_id}", response_model=ConfigurationOut)
+def cancel_price_change(
+    site_id: UUID,
+    change_id: UUID,
+    current_user: CurrentUser = Depends(get_current_user),
+    configuration_service: ConfigurationService = Depends(get_configuration_service),
+) -> ConfigurationOut:
+    """
+    Cancel a scheduled price change before it takes effect.
+
+    Args:
+        site_id (UUID): Site of the change.
+        change_id (UUID): Scheduled price version.
+        current_user (CurrentUser): User from the access token.
+        configuration_service (ConfigurationService): Injected configuration service.
+
+    Returns:
+        ConfigurationOut: The Configuration of the change's Season.
+    """
+    return configuration_service.cancel_price_change(site_id, change_id, current_user)

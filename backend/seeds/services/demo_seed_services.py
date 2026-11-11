@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from sqlalchemy import delete, select
@@ -6,14 +5,37 @@ from sqlalchemy.orm import Session
 
 from core.config import Settings
 from core.exceptions import SeedRefusedError
+from core.helpers import get_local_midnight
 from modules.auth.business.auth_secrets import hash_secret
 from modules.auth.models.auth_models import Credential
 from modules.auth.types.auth_types import CredentialKind
-from modules.client.models.client_models import Client, ClientContact
+from modules.configuration.models.configuration_models import Box, PaymentMethodSetting, PressLine, SiteSetting, Tank
 from modules.site.models.site_models import Season, Site
+from modules.site.types.site_types import SeasonStatus
 from modules.territory.models.territory_models import Province
 from modules.user.models.user_models import SiteAssignment, SiteAssignmentPermission, User, UserLoginMethod
-from seeds.constants.demo_seed_constants import CLIENTS, COMPANY_CONTACT_JOB_TITLE, SEASON_CODE, SEASON_ID, SEASON_LABEL, SEASON_STARTS_ON, SITES, USERS
+from seeds.constants.demo_seed_constants import (
+    BOX_CAPACITY_IN_KG,
+    BOX_COUNT,
+    OWNER,
+    PAST_PRICE_CHANGES,
+    PAST_SEASON_CODE,
+    PAST_SEASON_ENDS_ON,
+    PAST_SEASON_ID,
+    PAST_SEASON_LABEL,
+    PAST_SEASON_STARTS_ON,
+    PAYMENT_METHODS,
+    PRESS_LINES,
+    PRICES,
+    SEASON_CODE,
+    SEASON_ENDS_ON,
+    SEASON_ID,
+    SEASON_LABEL,
+    SEASON_STARTS_ON,
+    SITE_OUJDA_ID,
+    SITES,
+    TANKS,
+)
 from seeds.types.seed_types import UserSeed
 
 
@@ -34,7 +56,7 @@ class DemoSeedService:
 
     def run(self) -> dict[str, int]:
         """
-        Load or refresh the demo Sites, Season, Clients and Users, with the ids, secrets and Permissions the front mocks use.
+        Load or refresh the Oujda mill, the closed 2025-2026 and open 2026-2027 Seasons, Oujda's Configuration, and the Owner; every other User is created from the app.
 
         Returns:
             dict[str, int]: Count of each kind of row written.
@@ -47,67 +69,51 @@ class DemoSeedService:
         if self.db.scalar(select(Province.id).limit(1)) is None:
             raise SeedRefusedError("reference_missing")
         self._seed_sites_and_season()
-        self._seed_clients()
-        for user_seed in USERS:
-            self._seed_user(user_seed)
+        self._seed_configuration(UUID(SITE_OUJDA_ID))
+        self._seed_user(OWNER)
         self.db.commit()
-        return {"sites": len(SITES), "seasons": 1, "clients": len(CLIENTS), "users": len(USERS)}
+        return {"sites": len(SITES), "seasons": 2, "boxes": BOX_COUNT, "tanks": len(TANKS), "press lines": len(PRESS_LINES), "users": 1}
 
     def _seed_sites_and_season(self) -> None:
         """
-        Write the two demo mills and the open 2026-2027 Season.
+        Write the demo mill, the closed 2025-2026 Season and the open 2026-2027 one.
         """
         for site in SITES:
             self.db.merge(Site(id=UUID(site.id), code=site.code, name=site.name, province_id=site.province_id, city=site.city, address=site.address))
-        self.db.merge(Season(id=UUID(SEASON_ID), code=SEASON_CODE, label=SEASON_LABEL, starts_on=SEASON_STARTS_ON))
+        closed_at = get_local_midnight(PAST_SEASON_ENDS_ON)
+        self.db.merge(Season(id=UUID(PAST_SEASON_ID), code=PAST_SEASON_CODE, label=PAST_SEASON_LABEL, starts_on=PAST_SEASON_STARTS_ON, ends_on=PAST_SEASON_ENDS_ON, status=SeasonStatus.CLOSED, closed_at=closed_at))
+        self.db.flush()
+        self.db.merge(Season(id=UUID(SEASON_ID), code=SEASON_CODE, label=SEASON_LABEL, starts_on=SEASON_STARTS_ON, ends_on=SEASON_ENDS_ON, status=SeasonStatus.OPEN))
         self.db.flush()
 
-    def _seed_clients(self) -> None:
+    def _seed_configuration(self, site_id: UUID) -> None:
         """
-        Write the three Clients the demo client Users speak for, and the Company's contact person.
+        Write a Site's prices for the open Season, its Payment Methods, Boxes, Tanks and Press Lines, with the ids the front mocks use.
+
+        Args:
+            site_id (UUID): Site configured.
         """
-        now = datetime.now(timezone.utc)
-        for client in CLIENTS:
-            self.db.merge(
-                Client(
-                    id=UUID(client.id),
-                    kind=client.kind,
-                    title=client.title,
-                    first_name=client.first_name,
-                    last_name=client.last_name,
-                    legal_name=client.legal_name,
-                    phone=client.phone,
-                    province_id=client.province_id,
-                    city=client.city,
-                    address=client.address,
-                    first_site_id=UUID(client.first_site_id),
-                    entered_at=now,
-                )
-            )
-        self.db.flush()
-        for user_seed in USERS:
-            if user_seed.is_client_contact and user_seed.client_id:
-                self.db.merge(
-                    ClientContact(
-                        id=build_contact_id(user_seed.id),
-                        client_id=UUID(user_seed.client_id),
-                        title=user_seed.title,
-                        first_name=user_seed.first_name,
-                        last_name=user_seed.last_name,
-                        job_title=COMPANY_CONTACT_JOB_TITLE,
-                        phone=user_seed.phone,
-                        email=user_seed.email,
-                        is_primary=True,
-                    )
-                )
+        season_start = get_local_midnight(SEASON_STARTS_ON)
+        for key, value, day in PAST_PRICE_CHANGES:
+            self.db.merge(SiteSetting(id=build_seed_id("site-setting", site_id, f"{PAST_SEASON_CODE}:{key.value}:{day}"), site_id=site_id, season_id=UUID(PAST_SEASON_ID), key=key, value=value, effective_from=get_local_midnight(day)))
+        for key, value in PRICES.items():
+            self.db.merge(SiteSetting(id=build_seed_id("site-setting", site_id, key.value), site_id=site_id, season_id=UUID(SEASON_ID), key=key, value=value, effective_from=season_start))
+        for method, (is_enabled, is_proof_required) in PAYMENT_METHODS.items():
+            self.db.merge(PaymentMethodSetting(id=build_seed_id("payment-method", site_id, method.value), site_id=site_id, method=method, is_enabled=is_enabled, is_proof_required=is_proof_required, effective_from=season_start))
+        for number in range(1, BOX_COUNT + 1):
+            self.db.merge(Box(id=build_seed_id("box", site_id, str(number)), site_id=site_id, number=number, capacity_in_kg=BOX_CAPACITY_IN_KG, retired_at=None))
+        for tank_id, number, capacity in TANKS:
+            self.db.merge(Tank(id=UUID(tank_id), site_id=site_id, number=number, capacity_in_litres=capacity, retired_at=None))
+        for line_id, number, name in PRESS_LINES:
+            self.db.merge(PressLine(id=UUID(line_id), site_id=site_id, number=number, name=name, retired_at=None))
         self.db.flush()
 
     def _seed_user(self, user_seed: UserSeed) -> None:
         """
-        Write one demo User and rebuild their Login Methods, Credentials and Site Assignments from scratch.
+        Write one User and rebuild their Login Methods, Credentials and Site Assignments from scratch.
 
         Args:
-            user_seed (UserSeed): Demo User to write.
+            user_seed (UserSeed): User to write.
         """
         user_id = UUID(user_seed.id)
         self.db.merge(
@@ -115,16 +121,11 @@ class DemoSeedService:
                 id=user_id,
                 role=user_seed.role,
                 is_owner=user_seed.is_owner,
-                client_id=UUID(user_seed.client_id) if user_seed.client_id else None,
-                client_contact_id=build_contact_id(user_seed.id) if user_seed.is_client_contact else None,
                 title=user_seed.title,
                 first_name=user_seed.first_name,
                 last_name=user_seed.last_name,
                 phone=user_seed.phone,
                 email=user_seed.email,
-                province_id=user_seed.province_id,
-                city=user_seed.city,
-                address=user_seed.address,
                 status=user_seed.status,
                 must_change_credential=user_seed.must_change_credential,
                 failed_login_attempts=0,
@@ -147,10 +148,10 @@ class DemoSeedService:
 
     def _clear_user_children(self, user_id: UUID) -> None:
         """
-        Remove a demo User's Login Methods, Credentials and Site Assignments before writing them again.
+        Remove a User's Login Methods, Credentials and Site Assignments before writing them again.
 
         Args:
-            user_id (UUID): Demo User to clear.
+            user_id (UUID): User to clear.
         """
         assignment_ids = select(SiteAssignment.id).where(SiteAssignment.user_id == user_id)
         self.db.execute(delete(SiteAssignmentPermission).where(SiteAssignmentPermission.site_assignment_id.in_(assignment_ids)))
@@ -159,14 +160,16 @@ class DemoSeedService:
         self.db.execute(delete(Credential).where(Credential.user_id == user_id))
 
 
-def build_contact_id(user_id: str) -> UUID:
+def build_seed_id(kind: str, site_id: UUID, key: str) -> UUID:
     """
-    Derive a stable Client Contact id from the demo User who speaks for the Company.
+    Derive a stable id for a seeded row, so re-running the seed updates it instead of adding a copy.
 
     Args:
-        user_id (str): Demo User id.
+        kind (str): Kind of row.
+        site_id (UUID): Site it belongs to.
+        key (str): What tells it apart within the Site.
 
     Returns:
         UUID: The same UUID on every run.
     """
-    return uuid5(NAMESPACE_URL, f"oleoziza:client-contact:{user_id}")
+    return uuid5(NAMESPACE_URL, f"oleoziza:{kind}:{site_id}:{key}")

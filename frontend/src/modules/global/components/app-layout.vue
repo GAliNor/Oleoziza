@@ -32,6 +32,10 @@
           <user-switch-line-icon class="h-5 w-5" />
           {{ $t('auth.switch.action') }}
         </button>
+        <router-link :to="{ name: 'auth-change-credential', query: { redirect: route.fullPath } }" class="nav-link">
+          <lock-line-icon class="h-5 w-5" />
+          {{ $t('auth.changeCredential.menu') }}
+        </router-link>
         <button type="button" class="nav-link" @click="handleLogout">
           <logout-line-icon class="h-5 w-5" />
           {{ $t('auth.logout') }}
@@ -139,6 +143,7 @@ import AppBackButton from 'global/components/app-back-button.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
+import LockLineIcon from 'global/icons/lock-line.icon.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import MoreLineIcon from 'global/icons/more-line.icon.vue';
 import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';

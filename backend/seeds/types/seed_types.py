@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from enum import StrEnum
 
-from modules.client.types.client_types import ClientKind
 from modules.user.types.user_types import LoginMethod, Permission, Role, Title, UserStatus
 
 
@@ -44,25 +43,6 @@ class SiteSeed:
 
 
 @dataclass(frozen=True)
-class ClientSeed:
-    """
-    One demo Client a demo client User speaks for.
-    """
-
-    id: str
-    kind: ClientKind
-    phone: str
-    province_id: str
-    city: str
-    address: str
-    first_site_id: str
-    title: Title | None = None
-    first_name: str | None = None
-    last_name: str | None = None
-    legal_name: str | None = None
-
-
-@dataclass(frozen=True)
 class UserSeed:
     """
     One demo User, keyed by the id the front mocks use, with their secrets and Permissions per Site.
@@ -81,8 +61,6 @@ class UserSeed:
     status: UserStatus = UserStatus.ACTIVE
     is_owner: bool = False
     must_change_credential: bool = False
-    client_id: str | None = None
-    is_client_contact: bool = False
     province_id: str | None = None
     city: str | None = None
     address: str | None = None

@@ -32,11 +32,14 @@ class Site(IdMixin, AuditMixin, LocationMixin, Base):
 
 class Season(IdMixin, AuditMixin, Base):
     """
-    One harvest campaign shared by every Site, opened by created_by and closed by Management.
+    One harvest campaign shared by every Site, prepared ahead, opened, then closed by Management; ends_on is the planned end, closed_at the actual one.
     """
 
     __tablename__ = "seasons"
-    __table_args__ = (Index("uq_seasons_single_open", "status", unique=True, postgresql_where=text("status = 'open'")),)
+    __table_args__ = (
+        Index("uq_seasons_single_open", "status", unique=True, postgresql_where=text("status = 'open'")),
+        Index("uq_seasons_single_planned", "status", unique=True, postgresql_where=text("status = 'planned'")),
+    )
 
     code: Mapped[str] = mapped_column(String(SEASON_CODE_LENGTH), unique=True)
     label: Mapped[str] = mapped_column(String(NAME_LENGTH))
@@ -45,6 +48,8 @@ class Season(IdMixin, AuditMixin, Base):
     status: Mapped[SeasonStatus] = mapped_column(build_enum_type(SeasonStatus, "season_status"), default=SeasonStatus.OPEN, server_default=SeasonStatus.OPEN.value)
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     closed_by_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    illustration_file_id: Mapped[UUID | None] = mapped_column(ForeignKey("files.id"))
+    illustration_dark_file_id: Mapped[UUID | None] = mapped_column(ForeignKey("files.id"))
 
 
 class CodeSequence(IdMixin, TimestampMixin, Base):

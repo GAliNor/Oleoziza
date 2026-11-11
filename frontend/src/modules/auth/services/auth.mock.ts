@@ -43,6 +43,7 @@ const signAccessToken = async (user: IMockUser): Promise<string> => {
   const claims = {
     role: user.role,
     isOwner: user.isOwner,
+    credentialKinds: [...(user.loginMethods.includes('phone_pin') ? ['pin'] : []), ...(user.loginMethods.includes('email_password') ? ['password'] : [])],
     sites: user.sites,
     title: user.title,
     firstName: user.firstName,
@@ -146,9 +147,10 @@ export default class AuthMockService implements IAuthService {
     return mockResolve(undefined);
   }
 
-  changeCredential(kind: CredentialKind, secret: string): Promise<void> {
+  changeCredential(kind: CredentialKind, secret: string, currentSecret?: string): Promise<void> {
     const user = currentUser();
     if (!user) return fail('session_expired');
+    if (!user.mustChangeCredential && currentSecret !== user.pin && currentSecret !== user.password) return fail('invalid_credential');
     setSecret(user, kind, secret);
     return mockResolve(undefined);
   }

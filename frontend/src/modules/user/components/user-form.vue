@@ -67,7 +67,7 @@
         :type="isPin ? 'tel' : 'text'"
         :inputmode="isPin ? 'numeric' : 'text'"
         autocomplete="off"
-        :maxlength="isPin ? 6 : undefined"
+        :maxlength="isPin ? PIN_LENGTH : undefined"
       />
     </ui-field>
 
@@ -95,6 +95,7 @@ import { formatPhone, normalizePhone } from 'global/composables/phone';
 import { normalizeIdentifier } from 'auth/composables/normalize-identifier';
 import { formatFullName } from 'user/composables/format';
 import { STAFF_ROLES } from 'user/constants/user';
+import { PIN_LENGTH } from 'auth/constants/auth';
 import { isLocationComplete, trimmedLocation } from 'territory/composables/location';
 import { EMPTY_LOCATION } from 'territory/constants/provinces';
 import type { IStaffUser, StaffRole } from 'user/types/user';
@@ -116,7 +117,7 @@ const { t } = useI18n();
 const { manageableSiteIds, defaultsFor } = useUserRights();
 
 // variables
-const PIN_PATTERN = /^\d{4,6}$/;
+const PIN_PATTERN = new RegExp(`^\\d{${PIN_LENGTH}}$`);
 const MIN_PASSWORD_LENGTH = 8;
 const initialSiteId = manageableSiteIds.value.includes(siteStore.currentSiteId ?? '') ? siteStore.currentSiteId : manageableSiteIds.value[0];
 const form = reactive({
@@ -127,7 +128,7 @@ const form = reactive({
   email: '',
   location: { ...EMPTY_LOCATION },
   siteIds: initialSiteId ? [initialSiteId] : ([] as string[]),
-  isInvited: true,
+  isInvited: false,
   secret: '',
 });
 const error = ref('');

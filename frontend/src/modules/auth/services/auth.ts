@@ -38,8 +38,8 @@ class AuthApiService extends BaseService implements IAuthService {
     return this.call({ method: 'POST', path: '/logout', data: { userId } });
   }
 
-  changeCredential(kind: CredentialKind, secret: string): Promise<void> {
-    return this.call({ method: 'PUT', path: '/credential', data: { kind, secret } });
+  changeCredential(kind: CredentialKind, secret: string, currentSecret?: string): Promise<void> {
+    return this.call({ method: 'PUT', path: '/credential', data: { kind, secret, currentSecret } });
   }
 
   skipCredentialChange(): Promise<void> {

@@ -32,6 +32,7 @@ export interface IAccessClaims {
   title?: string;
   firstName: string;
   lastName: string;
+  credentialKinds?: CredentialKind[];
   exp: number;
   iat?: number;
 }
@@ -96,7 +97,7 @@ export interface IAuthService {
   login(payload: ILoginPayload): Promise<ILoginResult>;
   refresh(userId: string): Promise<string>;
   logout(userId: string): Promise<void>;
-  changeCredential(kind: CredentialKind, secret: string): Promise<void>;
+  changeCredential(kind: CredentialKind, secret: string, currentSecret?: string): Promise<void>;
   skipCredentialChange(): Promise<void>;
   getInvitation(token: string): Promise<IInvitation>;
   acceptInvitation(token: string, secret: string): Promise<ILoginResult>;

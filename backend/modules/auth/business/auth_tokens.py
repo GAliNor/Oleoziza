@@ -8,15 +8,23 @@ from core.security import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, TOKEN_ALGORITHM
 from modules.user.models.user_models import User
 
 
-def build_access_token(user: User, permissions_by_site: dict[str, list[str]], signing_key: EllipticCurvePrivateKey, expiry_in_seconds: int, now: datetime | None = None) -> str:
+def build_access_token(
+    user: User,
+    permissions_by_site: dict[str, list[str]],
+    signing_key: EllipticCurvePrivateKey,
+    expiry_in_seconds: int,
+    credential_kinds: list[str] | None = None,
+    now: datetime | None = None,
+) -> str:
     """
-    Sign a short-lived access token with what the front needs to guard screens offline: Role, Owner flag, Permissions per Site and names.
+    Sign a short-lived access token with what the front needs offline: Role, Owner flag, Permissions per Site, names, and the secrets the User logs in with.
 
     Args:
         user (User): Signed-in User.
         permissions_by_site (dict[str, list[str]]): Permission keys per Site id.
         signing_key (EllipticCurvePrivateKey): ES256 private key.
         expiry_in_seconds (int): Lifetime of the token.
+        credential_kinds (list[str] | None): pin and/or password, from the User's Login Methods.
         now (datetime | None): Issue time, the current time when omitted.
 
     Returns:
@@ -34,6 +42,7 @@ def build_access_token(user: User, permissions_by_site: dict[str, list[str]], si
         "sites": permissions_by_site,
         "firstName": user.first_name,
         "lastName": user.last_name,
+        "credentialKinds": credential_kinds or [],
     }
     if user.title is not None:
         claims["title"] = user.title.value

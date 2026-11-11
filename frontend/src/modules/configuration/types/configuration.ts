@@ -1,4 +1,5 @@
 import type { PaymentMethodKey } from 'finance/types/finance';
+import type { SeasonStatus } from 'season/types/season';
 
 export type ConfigurationValueKey = 'millingRate' | 'discountLimit' | 'oilPrice';
 
@@ -49,8 +50,21 @@ export interface IConfigurationChange {
   at: string;
 }
 
+export interface IPriceChange {
+  id: string;
+  key: ConfigurationValueKey;
+  value: number;
+  effectiveFrom: string;
+  by: string;
+  isScheduled: boolean;
+}
+
 export interface IConfiguration extends IConfigurationValues {
   siteId: string;
+  seasonId: string;
+  seasonLabel: string;
+  seasonStatus: SeasonStatus;
+  priceChanges: IPriceChange[];
   methods: IPaymentMethodSetting[];
   boxCount: number;
   boxCapacityKg: number;
@@ -62,7 +76,8 @@ export interface IConfiguration extends IConfigurationValues {
 /** `id` is minted when the change starts, so a retry after a lost response never records it twice. */
 export interface IConfigurationUpdate {
   id: string;
-  value?: { key: ConfigurationValueKey; amount: number };
+  seasonId?: string;
+  value?: { key: ConfigurationValueKey; amount: number; effectiveOn?: string };
   method?: IPaymentMethodSetting;
   boxes?: { count: number; capacityKg: number };
   tanks?: ITankSetting[];
@@ -74,12 +89,14 @@ export interface IConfigurationUpdatePayload extends IConfigurationUpdate {
 }
 
 export interface IConfigurationService {
-  getOne(siteId: string): Promise<IConfiguration>;
+  getOne(siteId: string, seasonId?: string): Promise<IConfiguration>;
   update(siteId: string, update: IConfigurationUpdatePayload): Promise<IConfiguration>;
+  cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration>;
 }
 
 export interface IConfigurationStore {
   bySite: Record<string, IConfiguration>;
+  bySeason: Record<string, IConfiguration>;
   isLoading: boolean;
   isSaving: boolean;
   hasError: boolean;

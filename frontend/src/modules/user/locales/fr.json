@@ -206,7 +206,7 @@
     "contactInvalid": "Le téléphone (marocain) ou l’e-mail n’est pas valide.",
     "contactRequired": "Un téléphone ou un e-mail est nécessaire pour se connecter.",
     "siteRequired": "Choisissez au moins un Site.",
-    "pinInvalid": "Le code PIN compte 4 à 6 chiffres.",
+    "pinInvalid": "Le code PIN compte 4 chiffres.",
     "passwordInvalid": "Le mot de passe compte au moins 8 caractères.",
     "error": "Impossible de créer l’utilisateur ; le téléphone ou l’e-mail est peut-être déjà utilisé.",
     "created": "{name} est créé ; il changera son code à sa première connexion.",

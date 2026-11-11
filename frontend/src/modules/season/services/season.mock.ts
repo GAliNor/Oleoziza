@@ -1,0 +1,54 @@
+import { mockReject, mockResolve } from 'global/services/mock';
+import { createId } from 'global/composables/crypto';
+import { SEASONS_MOCK } from 'season/constants/mock-seasons';
+import type { ISeason, ISeasonService, SeasonArtVariant } from 'season/types/season';
+
+/** The mock Seasons, read by the configuration mock to date its prices. */
+export const SEASONS_MOCK_DB: ISeason[] = structuredClone(SEASONS_MOCK);
+
+export default class SeasonMockService implements ISeasonService {
+  getAll(): Promise<ISeason[]> {
+    return mockResolve([...SEASONS_MOCK_DB].sort((a, b) => a.startsOn.localeCompare(b.startsOn)));
+  }
+
+  prepareNext(): Promise<ISeason> {
+    if (SEASONS_MOCK_DB.some((season) => season.status === 'planned')) return mockReject({ code: 'season_already_planned' });
+    const latest = [...SEASONS_MOCK_DB].sort((a, b) => b.startsOn.localeCompare(a.startsOn))[0];
+    const year = Number(latest.startsOn.slice(0, 4)) + 1;
+    const season: ISeason = {
+      id: createId(),
+      code: `${String(year).slice(2)}${String(year + 1).slice(2)}`,
+      label: `Saison ${year}-${year + 1}`,
+      startsOn: `${year}-11-01`,
+      endsOn: `${year + 1}-01-31`,
+      status: 'planned',
+      closedAt: null,
+      illustrationUrl: null,
+      illustrationDarkUrl: null,
+    };
+    SEASONS_MOCK_DB.push(season);
+    return mockResolve(season);
+  }
+
+  open(id: string): Promise<ISeason> {
+    const season = SEASONS_MOCK_DB.find((item) => item.id === id);
+    if (!season || season.status !== 'planned') return mockReject({ code: 'season_not_planned' });
+    SEASONS_MOCK_DB.filter((item) => item.status === 'open').forEach((item) => Object.assign(item, { status: 'closed', closedAt: new Date().toISOString() }));
+    season.status = 'open';
+    return mockResolve(season);
+  }
+
+  close(id: string): Promise<ISeason> {
+    const season = SEASONS_MOCK_DB.find((item) => item.id === id);
+    if (!season || season.status !== 'open') return mockReject({ code: 'season_not_open' });
+    Object.assign(season, { status: 'closed', closedAt: new Date().toISOString() });
+    return mockResolve(season);
+  }
+
+  uploadIllustration(id: string, variant: SeasonArtVariant, file: File): Promise<ISeason> {
+    const season = SEASONS_MOCK_DB.find((item) => item.id === id);
+    if (!season) return mockReject({ code: 'season_not_found' });
+    season[variant === 'dark' ? 'illustrationDarkUrl' : 'illustrationUrl'] = URL.createObjectURL(file);
+    return mockResolve(season);
+  }
+}

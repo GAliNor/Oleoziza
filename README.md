@@ -42,10 +42,10 @@ First start, after `docker compose up -d --build` (the backend runs `alembic upg
 
 ```bash
 docker compose exec oleoziza_backend python -m seeds reference   # Provinces, towns, olive varieties
-docker compose exec oleoziza_backend python -m seeds demo        # dev only: the front mocks' Sites, Season, Clients and Users (same logins)
+docker compose exec oleoziza_backend python -m seeds demo        # dev only: Oujda, the open Season, its Configuration and the Owner (m.taibi@oleoziza.ma / Oleoziza2026, or 0661100001 + PIN 1234)
 ```
 
-The front's `VITE_API_MODULES` (in `env_files/<env>/frontend.env`) lists the modules served by the backend; `auth` is plugged, the rest stays on mocks. In production, create the first Owner with `python -m seeds owner` (`SEED_OWNER_*` settings).
+The front's `VITE_API_MODULES` (in `env_files/<env>/frontend.env`) lists the modules served by the backend; `auth`, `configuration`, `season` and `user` are plugged, the rest stays on mocks. Every other User is created from the Users page: with a first password (default) or an Invitation, whose email lands in MailHog and whose SMS is written to the worker log (`docker compose logs oleoziza_worker`). In production, create the first Owner with `python -m seeds owner` (`SEED_OWNER_*` settings).
 
 Backend deps are managed with uv (`uv add --bounds exact <pkg>`, then rebuild). Run Alembic and the tests inside the container: `docker compose exec oleoziza_backend alembic revision --autogenerate -m "..."`, `docker compose exec oleoziza_backend pytest`.
 
@@ -59,6 +59,6 @@ cd rustfs && docker compose up -d
 
 S3 API on http://localhost:32590 (`http://oleoziza-rustfs:9000` from the backend), console on http://localhost:32591/rustfs/console/ (login with `RUSTFS_ACCESS_KEY` / `RUSTFS_SECRET_KEY`).
 
-The backend uses it through `core/integrations/rustfs/rustfs_client.py`. It needs two buckets, created from the console: `RUSTFS_PRIVATE_BUCKET` (`oleoziza-private`: Payment Proofs, served through signed URLs) and `RUSTFS_PUBLIC_BUCKET` (`oleoziza-public`: future images, set to public read). `RUSTFS_PUBLIC_ENDPOINT_URL` is the address browsers use to open files.
+The backend uses it through `core/integrations/rustfs/rustfs_client.py`. It needs two buckets, created from the console: `RUSTFS_PRIVATE_BUCKET` (`oleoziza-private`: Payment Proofs, served through signed URLs) and `RUSTFS_PUBLIC_BUCKET` (`oleoziza-public`: Season banners and future images, set to public read, i.e. a bucket policy allowing anonymous `s3:GetObject`). `RUSTFS_PUBLIC_ENDPOINT_URL` is the address browsers use to open files.
 
 `docker-compose-deploy.yml` runs the registry image (`<REGISTRY>` and `<APP_VERSION>` are filled in at deploy).

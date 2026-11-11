@@ -8,35 +8,61 @@ import type { IConfiguration, IConfigurationStore, IConfigurationUpdate } from '
 
 const configurationService = new ConfigurationService();
 
+export const seasonKey = (siteId: string, seasonId: string): string => `${siteId}:${seasonId}`;
+
 export const useConfigurationStore = defineStore('configuration', {
   state: (): IConfigurationStore => ({
     bySite: {},
+    bySeason: {},
     isLoading: false,
     isSaving: false,
     hasError: false,
   }),
   actions: {
+    /** Loads each Site's Configuration for the open Season, the one Reception, Payments and equipment pickers read. */
     async fetchSites(siteIds: string[]): Promise<void> {
       await withStatus(
         this,
         'isLoading',
         async () => {
           const loaded = await Promise.all(siteIds.map((siteId) => configurationService.getOne(siteId)));
-          loaded.forEach((configuration) => {
-            this.bySite[configuration.siteId] = configuration;
-          });
+          loaded.forEach((configuration) => this.keep(configuration));
         },
         { errorFlag: 'hasError' },
       );
     },
-    /** A change applies at once to later Receptions: the Reception settings are read again. */
+    /** Loads each Site's prices for one Season, for the Configuration page's agenda. */
+    async fetchSeason(siteIds: string[], seasonId: string): Promise<void> {
+      await withStatus(
+        this,
+        'isLoading',
+        async () => {
+          const loaded = await Promise.all(siteIds.map((siteId) => configurationService.getOne(siteId, seasonId)));
+          loaded.forEach((configuration) => this.keep(configuration));
+        },
+        { errorFlag: 'hasError' },
+      );
+    },
+    /** A change applies to later Receptions: the Reception settings are read again. */
     async update(siteId: string, update: IConfigurationUpdate): Promise<IConfiguration | null> {
-      const plain = { ...update, boxes: update.boxes && { ...update.boxes }, tanks: update.tanks?.map((tank) => ({ ...tank })), pressLines: update.pressLines?.map((line) => ({ ...line })) };
+      const plain = { ...update, value: update.value && { ...update.value }, boxes: update.boxes && { ...update.boxes }, tanks: update.tanks?.map((tank) => ({ ...tank })), pressLines: update.pressLines?.map((line) => ({ ...line })) };
       const updated = await withStatus(this, 'isSaving', () => configurationService.update(siteId, { ...plain, by: useSessionStore().fullName }));
       if (!updated) return null;
-      this.bySite[siteId] = updated;
+      this.keep(updated);
       useReceptionStore().loadedSiteId = null;
       return updated;
+    },
+    async cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration | null> {
+      const updated = await withStatus(this, 'isSaving', () => configurationService.cancelPriceChange(siteId, changeId));
+      if (updated) this.keep(updated);
+      return updated;
+    },
+    /** Files a Configuration under its Season, and as the Site's current one when its Season is open; Site settings are shared by every Season. */
+    keep(configuration: IConfiguration): void {
+      this.bySeason[seasonKey(configuration.siteId, configuration.seasonId)] = configuration;
+      const current = this.bySite[configuration.siteId];
+      if (configuration.seasonStatus === 'open' || !current) this.bySite[configuration.siteId] = configuration;
+      else this.bySite[configuration.siteId] = { ...current, methods: configuration.methods, boxCount: configuration.boxCount, boxCapacityKg: configuration.boxCapacityKg, tanks: configuration.tanks, pressLines: configuration.pressLines, history: configuration.history };
     },
   },
 });

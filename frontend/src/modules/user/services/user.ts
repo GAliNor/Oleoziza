@@ -5,7 +5,7 @@ import type { Permission } from 'global/types/session';
 import type { IStaffForm, IStaffUser, IUserService, StaffStatus } from 'user/types/user';
 
 class UserApiService extends BaseService implements IUserService {
-  private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/users';
+  private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/user';
 
   getAll(): Promise<IStaffUser[]> {
     return this.request<IStaffUser[]>({ method: 'GET', url: this._BASE_API_URL });

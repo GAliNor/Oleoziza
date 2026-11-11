@@ -41,3 +41,27 @@ class SeedRefusedError(Exception):
         """
         super().__init__(code)
         self.code = code
+
+
+class RefusedError(Exception):
+    """
+    A write broke a business rule, carrying the code the front shows and the HTTP status it maps to.
+    """
+
+    def __init__(self, code: str, status_code: int = 409) -> None:
+        """
+        Keep the refusal code and its HTTP status.
+
+        Args:
+            code (str): Front-facing error code (for example tank_in_use, identifier_taken).
+            status_code (int): HTTP status returned to the caller.
+        """
+        super().__init__(code)
+        self.code = code
+        self.status_code = status_code
+
+
+class MessageDeliveryError(Exception):
+    """
+    An email or SMS could not be handed to its gateway; the Celery task retries.
+    """
