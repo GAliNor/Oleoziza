@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from enum import StrEnum
 from uuid import UUID
 
@@ -20,6 +21,20 @@ SLUG_LENGTH = 64
 HUMAN_CODE_LENGTH = 20
 
 DEVICE_LABEL_LENGTH = 120
+
+NAME_LENGTH = 120
+
+PHONE_LENGTH = 20
+
+EMAIL_LENGTH = 254
+
+ADDRESS_LENGTH = 255
+
+REFERENCE_LENGTH = 100
+
+HASH_LENGTH = 255
+
+COORDINATE = Numeric(9, 6)
 
 
 def build_enum_type(enum_class: type[StrEnum], name: str) -> Enum:
@@ -86,6 +101,26 @@ class HumanCodeMixin:
     """
 
     code: Mapped[str | None] = mapped_column(String(HUMAN_CODE_LENGTH), unique=True)
+
+
+class LocationMixin:
+    """
+    Adds a required place in the Oriental (Province, city, address) and an optional map position.
+    """
+
+    province_id: Mapped[str] = mapped_column(ForeignKey("provinces.id"))
+    city: Mapped[str] = mapped_column(String(NAME_LENGTH))
+    address: Mapped[str] = mapped_column(String(ADDRESS_LENGTH))
+    latitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
+    longitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
+
+
+class RetiredMixin:
+    """
+    Adds retired_at, set when equipment leaves service instead of being deleted.
+    """
+
+    retired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class ActiveMixin:
