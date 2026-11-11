@@ -1,12 +1,12 @@
 import type { NotificationChoice } from 'lot/types/lot';
 
 export const OLIVE_VARIETIES: readonly { slug: string; name: string }[] = [
-  { slug: 'picholine-marocaine', name: 'Picholine marocaine' },
+  { slug: 'moroccan-picholine', name: 'Picholine marocaine' },
   { slug: 'haouzia', name: 'Haouzia' },
   { slug: 'menara', name: 'Menara' },
   { slug: 'arbequina', name: 'Arbequina' },
   { slug: 'picual', name: 'Picual' },
-  { slug: 'autre', name: 'Autre' },
+  { slug: 'other', name: 'Autre' },
 ];
 
 export const RECEPTION_MAX_KG = 99_999.9;

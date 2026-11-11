@@ -33,6 +33,16 @@ def test_client_phone_and_location_are_required_and_records_offline_entry() -> N
     assert clients.c.was_recorded_offline.nullable is False
 
 
+def test_identifiers_have_english_names() -> None:
+    """
+    The Moroccan CIN and ICE are stored under English column names.
+    """
+    client_columns = set(get_registered_table("clients").c.keys())
+
+    assert {"national_id_number", "company_identifier"} <= client_columns
+    assert not {"cin", "ice"} & client_columns
+
+
 def test_display_name_reads_the_kind() -> None:
     """
     The display name is the legal name of a Company, or the title and names of an Individual.

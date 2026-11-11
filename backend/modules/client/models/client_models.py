@@ -9,9 +9,9 @@ from modules.client.types.client_types import ClientKind, ClientStatus
 from modules.user.types.user_types import Title
 
 
-CIN_LENGTH = 10
+NATIONAL_ID_NUMBER_LENGTH = 10
 
-ICE_LENGTH = 15
+COMPANY_IDENTIFIER_LENGTH = 15
 
 
 class Client(IdMixin, AuditMixin, OfflineEntryMixin, LocationMixin, Base):
@@ -29,9 +29,9 @@ class Client(IdMixin, AuditMixin, OfflineEntryMixin, LocationMixin, Base):
     title: Mapped[Title | None] = mapped_column(build_enum_type(Title, "client_title"))
     first_name: Mapped[str | None] = mapped_column(String(NAME_LENGTH))
     last_name: Mapped[str | None] = mapped_column(String(NAME_LENGTH))
-    cin: Mapped[str | None] = mapped_column(String(CIN_LENGTH))
+    national_id_number: Mapped[str | None] = mapped_column(String(NATIONAL_ID_NUMBER_LENGTH))
     legal_name: Mapped[str | None] = mapped_column(String(NAME_LENGTH))
-    ice: Mapped[str | None] = mapped_column(String(ICE_LENGTH))
+    company_identifier: Mapped[str | None] = mapped_column(String(COMPANY_IDENTIFIER_LENGTH))
     phone: Mapped[str] = mapped_column(String(PHONE_LENGTH))
     email: Mapped[str | None] = mapped_column(String(EMAIL_LENGTH))
     status: Mapped[ClientStatus] = mapped_column(build_enum_type(ClientStatus, "client_status"), default=ClientStatus.ACTIVE, server_default=ClientStatus.ACTIVE.value)

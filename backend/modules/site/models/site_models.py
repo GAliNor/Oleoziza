@@ -25,7 +25,7 @@ class Site(IdMixin, AuditMixin, LocationMixin, Base):
     name: Mapped[str] = mapped_column(String(NAME_LENGTH))
     phone: Mapped[str | None] = mapped_column(String(PHONE_LENGTH))
     tax_identifier: Mapped[str | None] = mapped_column(String(REFERENCE_LENGTH))
-    ice_number: Mapped[str | None] = mapped_column(String(REFERENCE_LENGTH))
+    company_identifier: Mapped[str | None] = mapped_column(String(REFERENCE_LENGTH))
     onssa_authorisation: Mapped[str | None] = mapped_column(String(REFERENCE_LENGTH))
     status: Mapped[SiteStatus] = mapped_column(build_enum_type(SiteStatus, "site_status"), default=SiteStatus.ACTIVE, server_default=SiteStatus.ACTIVE.value)
 

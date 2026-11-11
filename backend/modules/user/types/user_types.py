@@ -53,14 +53,14 @@ class Permission(StrEnum):
 
 class Title(StrEnum):
     """
-    The courtesy title printed before a person's name.
+    The courtesy title printed before a person's name; the front turns each value into its French or Arabic label (counsel stands for Maître).
     """
 
-    M = "m"
-    MME = "mme"
+    MR = "mr"
+    MRS = "mrs"
     DR = "dr"
-    PR = "pr"
-    ME = "me"
+    PROF = "prof"
+    COUNSEL = "counsel"
     HAJJ = "hajj"
     HAJJA = "hajja"
 
