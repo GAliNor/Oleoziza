@@ -1,4 +1,7 @@
+import json
 from decimal import Decimal
+from pathlib import Path
+from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from sqlalchemy.orm import Session
@@ -7,6 +10,9 @@ from modules.configuration.models.configuration_models import OliveVariety
 from modules.territory.models.territory_models import City, Province
 from modules.territory.types.territory_types import ProvinceKind
 from seeds.constants.reference_seed_constants import OLIVE_VARIETIES, PROVINCES
+
+
+PROVINCE_BOUNDARIES_FILE = Path(__file__).resolve().parent.parent / "fixtures" / "oriental-provinces.json"
 
 
 class ReferenceSeedService:
@@ -21,11 +27,21 @@ class ReferenceSeedService:
 
     def run(self) -> None:
         """
-        Load or refresh the eight Provinces of the Oriental with their towns, and the olive varieties.
+        Load or refresh the eight Provinces of the Oriental with their outlines and towns, and the olive varieties.
         """
+        boundaries = read_province_boundaries()
         for province in PROVINCES:
             kind = ProvinceKind.PREFECTURE if province.is_prefecture else ProvinceKind.PROVINCE
-            self.db.merge(Province(id=province.id, name=province.name, kind=kind, latitude=Decimal(province.latitude), longitude=Decimal(province.longitude)))
+            self.db.merge(
+                Province(
+                    id=province.id,
+                    name=province.name,
+                    kind=kind,
+                    latitude=Decimal(province.latitude),
+                    longitude=Decimal(province.longitude),
+                    boundary=boundaries[province.id],
+                )
+            )
         self.db.flush()
         for province in PROVINCES:
             for city_name in province.cities:
@@ -47,3 +63,21 @@ def build_city_id(province_id: str, city_name: str) -> UUID:
         UUID: The same UUID for the same town on every run.
     """
     return uuid5(NAMESPACE_URL, f"oleoziza:city:{province_id}:{city_name}")
+
+
+def read_province_boundaries() -> dict[str, dict[str, Any]]:
+    """
+    Read the simplified Province outlines the front draws (geoBoundaries ADM2, OpenStreetMap, ODbL), keyed by Province slug.
+
+    Returns:
+        dict[str, dict[str, Any]]: GeoJSON geometry of each Province.
+
+    Raises:
+        KeyError: If a Province of the seed has no outline in the file.
+    """
+    collection = json.loads(PROVINCE_BOUNDARIES_FILE.read_text(encoding="utf-8"))
+    boundaries = {feature["properties"]["id"]: feature["geometry"] for feature in collection["features"]}
+    missing_ids = [province.id for province in PROVINCES if province.id not in boundaries]
+    if missing_ids:
+        raise KeyError(f"No outline for {', '.join(missing_ids)} in {PROVINCE_BOUNDARIES_FILE.name}")
+    return boundaries

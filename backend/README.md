@@ -10,7 +10,7 @@ FastAPI API, laid out like the Maroc Voyages backend and following the fastapi-b
 | `modules/auth/` | Stateless login: `login-options`, `login` (phone + PIN, email + password), `refresh`, `logout`, credential change and skip |
 | `modules/<business>/models/` | The SQLAlchemy models of the [data model](../docs/data-model.md) |
 | `modules/health/` | `GET /api/health`, and the `health.ping` task |
-| `seeds/` | `python -m seeds reference` (Provinces, towns, olive varieties), `demo` (the front mocks' Sites, Season, Clients and Users, same ids; refused in production), `owner` (first Owner from `SEED_OWNER_*`) |
+| `seeds/` | `python -m seeds reference` (Provinces with their outlines from `seeds/fixtures/oriental-provinces.json`, towns, olive varieties), `demo` (the front mocks' Sites, Season, Clients and Users, same ids; refused in production), `owner` (first Owner from `SEED_OWNER_*`) |
 | `alembic/` | Migrations (`alembic revision --autogenerate -m "..."`, `alembic upgrade head`) |
 | `tests/` | pytest, mirroring the source tree; auth tests run on the dev database inside a rolled-back transaction and skip when it is unreachable |
 

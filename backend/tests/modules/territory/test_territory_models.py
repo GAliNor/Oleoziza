@@ -24,3 +24,15 @@ def test_city_name_is_unique_within_its_province() -> None:
     The same city name cannot appear twice in one Province.
     """
     assert {"province_id", "name"} in get_unique_column_sets("cities")
+
+
+def test_province_and_city_carry_an_optional_outline_and_position() -> None:
+    """
+    Provinces and towns may hold a GeoJSON outline for the map, and towns a position like Provinces.
+    """
+    provinces = get_registered_table("provinces")
+    cities = get_registered_table("cities")
+
+    assert provinces.c.boundary.nullable is True
+    assert {"latitude", "longitude", "boundary"} <= set(cities.c.keys())
+    assert cities.c.boundary.nullable is True

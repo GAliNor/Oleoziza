@@ -3,7 +3,8 @@ from decimal import Decimal
 from enum import StrEnum
 from uuid import UUID
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Numeric, String, Uuid, func
+from sqlalchemy import JSON, DateTime, Enum, ForeignKey, Numeric, String, Uuid, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from uuid_utils.compat import uuid7
 
@@ -35,6 +36,8 @@ REFERENCE_LENGTH = 100
 HASH_LENGTH = 255
 
 COORDINATE = Numeric(9, 6)
+
+GEOJSON = JSON().with_variant(JSONB(), "postgresql")
 
 
 def build_enum_type(enum_class: type[StrEnum], name: str) -> Enum:
