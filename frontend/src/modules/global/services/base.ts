@@ -2,8 +2,15 @@ import { http, isHttpError } from '~/plugins/axios';
 import { getAccessToken, refreshAccessToken } from 'global/services/access-token';
 import type { IAPICallConfig } from 'global/types/api';
 
-export const DATA_SOURCE = import.meta.env.VITE_DATA_SOURCE === 'api' ? 'api' : 'mock';
-export const IS_MOCK_DATA_SOURCE = DATA_SOURCE === 'mock';
+/** Modules served by the backend (VITE_API_MODULES=auth,site); every other module runs on its mock service. */
+export const API_MODULES: readonly string[] = (import.meta.env.VITE_API_MODULES ?? '')
+  .split(',')
+  .map((module) => module.trim())
+  .filter(Boolean);
+
+export const isMockModule = (module: string): boolean => !API_MODULES.includes(module);
+
+export const DATA_SOURCE_LABEL = API_MODULES.length ? `api (${API_MODULES.join(', ')})` : 'mock';
 
 const isUnauthorized = (error: unknown): boolean => isHttpError(error) && error.response?.status === 401;
 

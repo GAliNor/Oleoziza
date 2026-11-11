@@ -37,7 +37,7 @@
         </p>
       </div>
 
-      <p class="body-two">{{ $t('dashboard.dataSource', { source: DATA_SOURCE }) }}</p>
+      <p class="body-two">{{ $t('dashboard.dataSource', { source: DATA_SOURCE_LABEL }) }}</p>
     </section>
   </app-layout>
 </template>
@@ -48,7 +48,7 @@ import { computed } from 'vue';
 
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
-import { DATA_SOURCE } from 'global/services/base';
+import { DATA_SOURCE_LABEL } from 'global/services/base';
 import { PERMISSIONS } from 'auth/constants/permissions';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';

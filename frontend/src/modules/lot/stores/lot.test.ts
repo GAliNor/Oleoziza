@@ -209,7 +209,7 @@ describe('deciding a Discount', () => {
   const pendingLot = (): ILot => useLotStore().pendingDiscountLots[0];
 
   const signIn = (firstName: string, lastName: string, isOwner = false): void =>
-    useSessionStore().setSession({ userId: 'u', sid: 's', role: 'management', isOwner, sites: {}, firstName, lastName, expiresAt: 0 });
+    useSessionStore().setSession({ userId: 'u', role: 'management', isOwner, sites: {}, firstName, lastName, expiresAt: 0 });
 
   it('lowers the fee when approved', async () => {
     signIn('Dr', 'Taibi');

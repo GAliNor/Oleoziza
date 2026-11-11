@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import ActivityMockService from 'activity/services/activity.mock';
 import type { IActivity, IActivityService } from 'activity/types/activity';
 
@@ -10,4 +10,4 @@ class ActivityApiService extends BaseService implements IActivityService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? ActivityMockService : ActivityApiService;
+export default isMockModule('activity') ? ActivityMockService : ActivityApiService;

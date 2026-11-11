@@ -7,7 +7,7 @@ import { MOCK_SIGNING_JWK } from 'auth/constants/mock-auth';
 
 const signMockToken = async (): Promise<string> => {
   const expiresAt = Math.floor(Date.now() / 1000) + 60;
-  const claims = { sid: 's1', role: 'operator', isOwner: false, sites: { oujda: ['reception.create'] }, firstName: 'Hamid', lastName: 'Ziani' };
+  const claims = { role: 'operator', isOwner: false, sites: { oujda: ['reception.create'] }, firstName: 'Hamid', lastName: 'Ziani' };
   return signJwt(claims, 'u1', expiresAt, await importJwtKey(MOCK_SIGNING_JWK));
 };
 
@@ -19,7 +19,7 @@ describe('TokenService.verify', () => {
 
   it('reads the claims of a token signed with the dev key', async () => {
     const claims = await new TokenService().verify(await signMockToken());
-    expect(claims).toMatchObject({ sub: 'u1', sid: 's1', role: 'operator', firstName: 'Hamid', sites: { oujda: ['reception.create'] } });
+    expect(claims).toMatchObject({ sub: 'u1', role: 'operator', firstName: 'Hamid', sites: { oujda: ['reception.create'] } });
   });
 
   it('rejects a tampered token', async () => {
@@ -30,7 +30,7 @@ describe('TokenService.verify', () => {
 });
 
 describe('parseAccessClaims', () => {
-  const VALID = { sub: 'u1', sid: 's1', role: 'operator', isOwner: false, sites: { oujda: ['reception.create'] }, firstName: 'Hamid', lastName: 'Ziani', exp: 1 };
+  const VALID = { sub: 'u1', role: 'operator', isOwner: false, sites: { oujda: ['reception.create'] }, firstName: 'Hamid', lastName: 'Ziani', exp: 1 };
 
   it('accepts claims of the expected shape, with or without Sites', () => {
     const { sites: _sites, ...clientClaims } = VALID;

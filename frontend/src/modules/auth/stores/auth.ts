@@ -30,7 +30,6 @@ let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
 const toSession = (claims: IAccessClaims): ISession => ({
   userId: claims.sub,
-  sid: claims.sid,
   role: claims.role,
   isOwner: claims.isOwner,
   sites: claims.sites ?? {},
@@ -107,7 +106,7 @@ export const useAuthStore = defineStore('auth', {
       const session = useSessionStore().session;
       if (!session) return;
       try {
-        await this.applyToken(await authService.refresh(session.sid));
+        await this.applyToken(await authService.refresh(session.userId));
         useDeviceProfileStore().updateToken();
       } catch (error) {
         if (isSessionGone(error)) this.clearSession(true);
@@ -167,7 +166,7 @@ export const useAuthStore = defineStore('auth', {
       const session = useSessionStore().session;
       if (session) {
         try {
-          await authService.logout(session.sid);
+          await authService.logout(session.userId);
         } catch (error) {
           logDevError(error);
         }

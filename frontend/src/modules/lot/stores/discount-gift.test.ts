@@ -12,7 +12,7 @@ describe('giving a Discount at the counter', () => {
   beforeEach(async () => {
     setActivePinia(createPinia());
     vi.stubGlobal('navigator', { onLine: true });
-    useSessionStore().setSession({ userId: 'k', sid: 's', role: 'accountant', isOwner: false, sites: {}, firstName: 'Khadija', lastName: 'Amrani', expiresAt: 0 });
+    useSessionStore().setSession({ userId: 'k', role: 'accountant', isOwner: false, sites: {}, firstName: 'Khadija', lastName: 'Amrani', expiresAt: 0 });
     await useLotStore().fetchLots(SITE_OUJDA_ID, true);
   });
 

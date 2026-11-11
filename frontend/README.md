@@ -22,7 +22,7 @@ npm run dev
 
 ## Mock vs backend
 
-`VITE_DATA_SOURCE=mock|api` in `.env`. Each service file exports either its mock class (reading constants) or its API class, behind the same interface, so stores and views never change. See `src/modules/global/services/site.ts` for the pattern.
+`VITE_API_MODULES` in `.env` lists the modules served by the backend (for example `auth`); every other module runs on its mock. Each service file exports either its mock class (reading constants) or its API class with `isMockModule('<module>')`, behind the same interface, so stores and views never change. See `src/modules/site/services/site.ts` for the pattern.
 
 ## Project map
 

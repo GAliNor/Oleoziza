@@ -6,7 +6,7 @@ import { useDeviceProfileStore } from 'auth/stores/device-profile';
 import { useSessionStore } from 'global/stores/session';
 import type { ISession, Role } from 'global/types/session';
 
-const session = (role: Role): ISession => ({ userId: 'u1', sid: 's1', role, isOwner: false, sites: {}, firstName: 'Hamid', lastName: 'Zerrouki', expiresAt: Date.now() + 60_000 });
+const session = (role: Role): ISession => ({ userId: 'u1', role, isOwner: false, sites: {}, firstName: 'Hamid', lastName: 'Zerrouki', expiresAt: Date.now() + 60_000 });
 
 describe('device profiles', () => {
   beforeEach(() => {

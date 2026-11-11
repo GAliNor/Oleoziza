@@ -3,6 +3,7 @@ import type { Permission, Role } from 'global/types/session';
 export const PERMISSIONS: readonly Permission[] = [
   'reception.create',
   'lot.update_status',
+  'lot.set_price',
   'pressing.create',
   'withdrawal.create',
   'client.view',

@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import SiteMockService from 'site/services/site.mock';
 import type { ISite, ISiteForm, ISiteService } from 'site/types/site';
 
@@ -22,4 +22,4 @@ class SiteApiService extends BaseService implements ISiteService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? SiteMockService : SiteApiService;
+export default isMockModule('site') ? SiteMockService : SiteApiService;

@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { useSessionStore } from 'global/stores/session';
 import type { ISession, Role } from 'global/types/session';
 
-const session = (role: Role, isOwner = false, userId = 'u1'): ISession => ({ userId, sid: 's', role, isOwner, sites: {}, firstName: 'Khadija', lastName: 'Amrani', expiresAt: 0 });
+const session = (role: Role, isOwner = false, userId = 'u1'): ISession => ({ userId, role, isOwner, sites: {}, firstName: 'Khadija', lastName: 'Amrani', expiresAt: 0 });
 
 describe('the session', () => {
   beforeEach(() => {

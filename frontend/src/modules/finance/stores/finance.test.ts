@@ -183,7 +183,7 @@ describe('a Payment received directly', () => {
   it('turns a surplus into a Refund, which someone else must confirm', async () => {
     const lot = unpaidLot();
     const store = useFinanceStore();
-    useSessionStore().setSession({ userId: 'k', sid: 's', role: 'accountant', isOwner: false, sites: {}, firstName: 'Khadija', lastName: 'Amrani', expiresAt: 0 });
+    useSessionStore().setSession({ userId: 'k', role: 'accountant', isOwner: false, sites: {}, firstName: 'Khadija', lastName: 'Amrani', expiresAt: 0 });
     const movement = (await store.recordPayment({ ...unlinked(lot, 300), lotLinks: [{ lotId: lot.id, lotCode: lot.code, amount: 100 }] })) as IMovement;
     await store.decide(movement, { status: 'confirmed', settlement: 'refund' });
     const refund = store.refunds.find((item) => item.sourceCode === movement.code) as IRefund;
@@ -191,7 +191,7 @@ describe('a Payment received directly', () => {
     const made = (await store.makeRefund(refund, { method: 'cash', reference: 'R1', documents: [] })) as IRefund;
     expect(made.status).toBe('made');
     expect(await store.confirmRefund(made)).toBeNull();
-    useSessionStore().setSession({ userId: 'o', sid: 's', role: 'management', isOwner: true, sites: {}, firstName: 'Dr', lastName: 'Taibi', expiresAt: 0 });
+    useSessionStore().setSession({ userId: 'o', role: 'management', isOwner: true, sites: {}, firstName: 'Dr', lastName: 'Taibi', expiresAt: 0 });
     expect((await store.confirmRefund(made))?.status).toBe('confirmed');
   });
 

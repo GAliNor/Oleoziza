@@ -5,7 +5,7 @@ from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.database import Base
-from core.model_mixins import DEVICE_LABEL_LENGTH, EMAIL_LENGTH, HASH_LENGTH, AuditMixin, IdMixin, TimestampMixin, build_enum_type
+from core.model_mixins import EMAIL_LENGTH, HASH_LENGTH, AuditMixin, IdMixin, TimestampMixin, build_enum_type
 from modules.auth.types.auth_types import CredentialKind, MessageChannel, OneTimeCodePurpose
 
 
@@ -51,17 +51,3 @@ class Invitation(IdMixin, AuditMixin, Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-
-class UserSession(IdMixin, TimestampMixin, Base):
-    """
-    A login open on one device, renewed by its refresh token; its id is the token's sid.
-    """
-
-    __tablename__ = "user_sessions"
-
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    device_label: Mapped[str | None] = mapped_column(String(DEVICE_LABEL_LENGTH))
-    refresh_token_hash: Mapped[str] = mapped_column(String(HASH_LENGTH), unique=True)
-    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

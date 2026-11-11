@@ -6,7 +6,7 @@ import { useAuthStore } from 'auth/stores/auth';
 import { useSessionStore } from 'global/stores/session';
 import type { ISession } from 'global/types/session';
 
-const SESSION: ISession = { userId: 'u1', sid: 's1', role: 'operator', isOwner: false, sites: {}, firstName: 'Hamid', lastName: 'Ziani', expiresAt: 0 };
+const SESSION: ISession = { userId: 'u1', role: 'operator', isOwner: false, sites: {}, firstName: 'Hamid', lastName: 'Ziani', expiresAt: 0 };
 
 describe('auth store refresh', () => {
   beforeEach(() => {

@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import UserMockService from 'user/services/user.mock';
 import type { LoginMethod } from 'auth/types/auth';
 import type { Permission } from 'global/types/session';
@@ -39,4 +39,4 @@ class UserApiService extends BaseService implements IUserService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? UserMockService : UserApiService;
+export default isMockModule('user') ? UserMockService : UserApiService;

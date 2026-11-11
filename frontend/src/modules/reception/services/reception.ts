@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import ReceptionMockService from 'reception/services/reception.mock';
 import type { ILot } from 'lot/types/lot';
 import type { IReceiveLotPayload, IReceptionService, ISiteReceptionSettings } from 'reception/types/reception';
@@ -20,4 +20,4 @@ class ReceptionApiService extends BaseService implements IReceptionService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? ReceptionMockService : ReceptionApiService;
+export default isMockModule('reception') ? ReceptionMockService : ReceptionApiService;

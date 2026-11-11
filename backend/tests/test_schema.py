@@ -2,7 +2,7 @@ from core.app_init import init_models
 from core.database import Base
 
 
-EXPECTED_TABLE_COUNT = 40
+EXPECTED_TABLE_COUNT = 39
 
 
 def test_every_foreign_key_points_at_a_registered_table() -> None:
@@ -18,7 +18,7 @@ def test_every_foreign_key_points_at_a_registered_table() -> None:
 
 def test_the_schema_holds_the_validated_entities() -> None:
     """
-    The 39 entities of the data model plus the code sequence counter are all registered.
+    The entities of the data model, the code sequence counter included, are all registered; auth keeps no session table.
     """
     init_models()
 

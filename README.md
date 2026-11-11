@@ -34,6 +34,18 @@ docker build -f docker/backend/Dockerfile-deploy -t oleoziza-backend .
 | Postgres 16.2 | `localhost:32509` | db `oleoziza`, user/password `root`/`root`; host `oleoziza_db_backend` inside the network |
 | pgAdmin | http://localhost:32520 | desktop mode, no login |
 | MailHog | http://localhost:32586 | backend sends to `oleoziza_mailhog:1025` |
+| Redis | inside the network only | Celery broker (DB 0) and results (DB 1), host `oleoziza_redis` |
+| Celery worker | — | `oleoziza_worker`, reloads on Python changes |
+| Flower | http://localhost:32555 | Celery monitoring, login `admin` / `admin` (`FLOWER_BASIC_AUTH`) |
+
+First start, after `docker compose up -d --build` (the backend runs `alembic upgrade head` on start):
+
+```bash
+docker compose exec oleoziza_backend python -m seeds reference   # Provinces, towns, olive varieties
+docker compose exec oleoziza_backend python -m seeds demo        # dev only: the front mocks' Sites, Season, Clients and Users (same logins)
+```
+
+The front's `VITE_API_MODULES` (in `env_files/<env>/frontend.env`) lists the modules served by the backend; `auth` is plugged, the rest stays on mocks. In production, create the first Owner with `python -m seeds owner` (`SEED_OWNER_*` settings).
 
 Backend deps are managed with uv (`uv add --bounds exact <pkg>`, then rebuild). Run Alembic and the tests inside the container: `docker compose exec oleoziza_backend alembic revision --autogenerate -m "..."`, `docker compose exec oleoziza_backend pytest`.
 

@@ -3,7 +3,7 @@ import { importJwtKey, readUnverifiedJwt, signJwt } from '~/plugins/jose';
 import { mockReject, mockResolve } from 'global/services/mock';
 import { getAccessToken } from 'global/services/access-token';
 import { readStorage, writeStorage } from 'global/composables/storage';
-import { createId, hasWebCrypto } from 'global/composables/crypto';
+import { hasWebCrypto } from 'global/composables/crypto';
 import { isEmail } from 'auth/composables/normalize-identifier';
 import {
   MOCK_ACCESS_TOKEN_TTL_S,
@@ -39,9 +39,8 @@ const readRefreshSessions = (): Record<string, { userId: string; expiresAt: numb
 
 const writeRefreshSessions = (sessions: Record<string, { userId: string; expiresAt: number }>): void => writeStorage(REFRESH_STORAGE_KEY, sessions);
 
-const signAccessToken = async (user: IMockUser, sid: string): Promise<string> => {
+const signAccessToken = async (user: IMockUser): Promise<string> => {
   const claims = {
-    sid,
     role: user.role,
     isOwner: user.isOwner,
     sites: user.sites,
@@ -55,15 +54,14 @@ const signAccessToken = async (user: IMockUser, sid: string): Promise<string> =>
 };
 
 const openSession = async (user: IMockUser, method: LoginMethod | null): Promise<ILoginResult> => {
-  const sid = createId();
-  writeRefreshSessions({ ...readRefreshSessions(), [sid]: { userId: user.id, expiresAt: Date.now() + REFRESH_TTL_MS } });
+  writeRefreshSessions({ ...readRefreshSessions(), [user.id]: { userId: user.id, expiresAt: Date.now() + REFRESH_TTL_MS } });
   failedTries.delete(user.id);
   user.status = 'active';
   user.lastLoginAt = new Date().toISOString();
   const credentialKind: CredentialKind | null =
     method === 'email_password' ? 'password' : user.loginMethods.includes('phone_pin') ? 'pin' : null;
   return {
-    accessToken: await signAccessToken(user, sid),
+    accessToken: await signAccessToken(user),
     mustChangeCredential: user.mustChangeCredential && credentialKind !== null,
     canSkipCredentialChange: user.role === 'client' && !skippedCredentialChange.has(user.id),
     credentialKind,
@@ -128,22 +126,22 @@ export default class AuthMockService implements IAuthService {
     return mockResolve(await openSession(user, method));
   }
 
-  async refresh(sid: string): Promise<string> {
+  async refresh(userId: string): Promise<string> {
     const sessions = readRefreshSessions();
-    const session = sessions[sid];
+    const session = sessions[userId];
     const user = session && users.find((candidate) => candidate.id === session.userId);
     if (!session || session.expiresAt < Date.now() || !user || user.status !== 'active') {
-      delete sessions[sid];
+      delete sessions[userId];
       writeRefreshSessions(sessions);
       return fail('session_expired');
     }
-    writeRefreshSessions({ ...sessions, [sid]: { userId: user.id, expiresAt: Date.now() + REFRESH_TTL_MS } });
-    return mockResolve(await signAccessToken(user, sid));
+    writeRefreshSessions({ ...sessions, [userId]: { userId: user.id, expiresAt: Date.now() + REFRESH_TTL_MS } });
+    return mockResolve(await signAccessToken(user));
   }
 
-  logout(sid: string): Promise<void> {
+  logout(userId: string): Promise<void> {
     const sessions = readRefreshSessions();
-    delete sessions[sid];
+    delete sessions[userId];
     writeRefreshSessions(sessions);
     return mockResolve(undefined);
   }

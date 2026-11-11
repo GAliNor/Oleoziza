@@ -3,6 +3,7 @@ export type Role = 'management' | 'operator' | 'accountant' | 'client';
 export type Permission =
   | 'reception.create'
   | 'lot.update_status'
+  | 'lot.set_price'
   | 'pressing.create'
   | 'withdrawal.create'
   | 'client.view'
@@ -35,7 +36,6 @@ export type Permission =
 
 export interface ISession {
   userId: string;
-  sid: string;
   role: Role;
   isOwner: boolean;
   sites: Record<string, Permission[]>;

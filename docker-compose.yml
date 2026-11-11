@@ -22,6 +22,8 @@ services:
     depends_on:
       oleoziza_db_backend:
         condition: service_healthy
+      oleoziza_redis:
+        condition: service_healthy
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile
@@ -89,6 +91,63 @@ services:
     networks:
       - app-network
 
+  oleoziza_redis:
+    image: redis:${REDIS_VERSION:-8.10.3-alpine}
+    container_name: oleoziza_redis_${CURRENT_ENV:-development}
+    restart: always
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+  oleoziza_worker:
+    container_name: oleoziza_worker_${CURRENT_ENV:-development}
+    depends_on:
+      oleoziza_db_backend:
+        condition: service_healthy
+      oleoziza_redis:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    restart: always
+    entrypoint: ['watchfiles', '--filter', 'python', 'celery -A core.integrations.celery.celery_app worker --loglevel=INFO --concurrency=2', '/app']
+    env_file:
+      - ./env_files/development/backend.env
+    environment:
+      CURRENT_ENV: ${CURRENT_ENV:-development}
+    volumes:
+      - ./backend:/app
+    networks:
+      - app-network
+
+  oleoziza_flower:
+    container_name: oleoziza_flower_${CURRENT_ENV:-development}
+    depends_on:
+      oleoziza_redis:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    restart: always
+    entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'flower', '--port=5555']
+    env_file:
+      - ./env_files/development/backend.env
+    environment:
+      CURRENT_ENV: ${CURRENT_ENV:-development}
+    volumes:
+      - ./backend:/app
+    ports:
+      - '${PORT_FLOWER:-32555}:5555'
+    networks:
+      - app-network
+
 networks:
   app-network:
     name: network-oleoziza_${CURRENT_ENV:-development}
@@ -97,3 +156,4 @@ networks:
 volumes:
   db_backend:
   pgadmin:
+  redis_data:

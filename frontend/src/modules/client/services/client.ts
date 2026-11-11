@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import ClientMockService from 'client/services/client.mock';
 import type { IClient, IClientAccount, IClientRecord, IClientService, IClientContact, IClientLotLine, ICreateClientPayload } from 'client/types/client';
 
@@ -30,4 +30,4 @@ class ClientApiService extends BaseService implements IClientService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? ClientMockService : ClientApiService;
+export default isMockModule('client') ? ClientMockService : ClientApiService;

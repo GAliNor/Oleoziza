@@ -1,7 +1,7 @@
 import { importJwtKey, readUnverifiedJwt, verifyJwt } from '~/plugins/jose';
 import type { JwtKey } from '~/plugins/jose';
 
-import { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import { isMockModule } from 'global/services/base';
 import { hasWebCrypto } from 'global/composables/crypto';
 import type { IAccessClaims } from 'auth/types/auth';
 
@@ -14,7 +14,6 @@ export const parseAccessClaims = (payload: unknown): IAccessClaims => {
   const isValid =
     isRecord(payload) &&
     typeof payload.sub === 'string' &&
-    typeof payload.sid === 'string' &&
     (payload.role === 'management' || payload.role === 'operator' || payload.role === 'accountant' || payload.role === 'client') &&
     typeof payload.isOwner === 'boolean' &&
     typeof payload.firstName === 'string' &&
@@ -34,7 +33,7 @@ export default class TokenService {
   }
 
   async verify(token: string): Promise<IAccessClaims> {
-    if (IS_MOCK_DATA_SOURCE && !hasWebCrypto()) return parseAccessClaims(readUnverifiedJwt(token));
+    if (isMockModule('auth') && !hasWebCrypto()) return parseAccessClaims(readUnverifiedJwt(token));
     return parseAccessClaims(await verifyJwt(token, await this.getPublicKey()));
   }
 }

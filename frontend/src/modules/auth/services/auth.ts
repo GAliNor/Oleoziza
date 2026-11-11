@@ -1,6 +1,6 @@
 import { isHttpError } from '~/plugins/axios';
 
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import AuthMockService from 'auth/services/auth.mock';
 import type { CredentialKind, IAuthError, IAuthService, IInvitation, ILoginOptions, ILoginPayload, ILoginResult, IResetPayload, IResetRequest } from 'auth/types/auth';
 import type { IAPICallConfig } from 'global/types/api';
@@ -29,13 +29,13 @@ class AuthApiService extends BaseService implements IAuthService {
     return this.call({ method: 'POST', path: '/login', data: payload });
   }
 
-  async refresh(sid: string): Promise<string> {
-    const { accessToken } = await this.call<{ accessToken: string }>({ method: 'POST', path: '/refresh', data: { sid } });
+  async refresh(userId: string): Promise<string> {
+    const { accessToken } = await this.call<{ accessToken: string }>({ method: 'POST', path: '/refresh', data: { userId } });
     return accessToken;
   }
 
-  logout(sid: string): Promise<void> {
-    return this.call({ method: 'POST', path: '/logout', data: { sid } });
+  logout(userId: string): Promise<void> {
+    return this.call({ method: 'POST', path: '/logout', data: { userId } });
   }
 
   changeCredential(kind: CredentialKind, secret: string): Promise<void> {
@@ -63,4 +63,4 @@ class AuthApiService extends BaseService implements IAuthService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? AuthMockService : AuthApiService;
+export default isMockModule('auth') ? AuthMockService : AuthApiService;

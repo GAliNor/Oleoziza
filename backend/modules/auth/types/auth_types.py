@@ -1,4 +1,10 @@
 from enum import StrEnum
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
+
+from modules.user.types.user_types import LoginMethod
 
 
 class CredentialKind(StrEnum):
@@ -26,3 +32,66 @@ class MessageChannel(StrEnum):
 
     SMS = "sms"
     EMAIL = "email"
+
+
+class CamelModel(BaseModel):
+    """
+    Pydantic base reading and writing camelCase JSON, as the front speaks it.
+    """
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+
+class LoginOptionsIn(CamelModel):
+    identifier: str
+
+
+class LoginOptionsOut(CamelModel):
+    identifier: str
+    login_methods: list[LoginMethod]
+
+
+class LoginIn(CamelModel):
+    identifier: str
+    method: LoginMethod
+    secret: str
+
+
+class LoginOut(CamelModel):
+    access_token: str
+    must_change_credential: bool
+    can_skip_credential_change: bool
+    credential_kind: CredentialKind | None
+    can_offer_pin: bool
+
+
+class SessionIn(CamelModel):
+    user_id: UUID
+
+
+class AccessTokenOut(CamelModel):
+    access_token: str
+
+
+class CredentialChangeIn(CamelModel):
+    kind: CredentialKind
+    secret: str
+
+
+class IssuedTokens(BaseModel):
+    """
+    A signed token pair: the access token for the body, the refresh token for the User's cookie.
+    """
+
+    user_id: UUID
+    access_token: str
+    refresh_token: str
+
+
+class IssuedLogin(BaseModel):
+    """
+    The outcome of a successful login: the body for the front and the refresh token for the cookie.
+    """
+
+    result: LoginOut
+    tokens: IssuedTokens

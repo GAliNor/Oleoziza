@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import ConfigurationMockService from 'configuration/services/configuration.mock';
 import type { IConfiguration, IConfigurationService, IConfigurationUpdatePayload } from 'configuration/types/configuration';
 
@@ -19,4 +19,4 @@ class ConfigurationApiService extends BaseService implements IConfigurationServi
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? ConfigurationMockService : ConfigurationApiService;
+export default isMockModule('configuration') ? ConfigurationMockService : ConfigurationApiService;

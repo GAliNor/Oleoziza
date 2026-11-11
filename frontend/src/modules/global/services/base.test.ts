@@ -67,3 +67,22 @@ describe('BaseService.request', () => {
     expect(refresher).not.toHaveBeenCalled();
   });
 });
+
+describe('isMockModule', () => {
+  it('keeps every module on its mock when no module is listed', async () => {
+    vi.stubEnv('VITE_API_MODULES', '');
+    vi.resetModules();
+    const { isMockModule } = await import('global/services/base');
+    expect(isMockModule('auth')).toBe(true);
+    vi.unstubAllEnvs();
+  });
+
+  it('sends only the listed modules to the backend', async () => {
+    vi.stubEnv('VITE_API_MODULES', 'auth, site');
+    vi.resetModules();
+    const { isMockModule, DATA_SOURCE_LABEL } = await import('global/services/base');
+    expect([isMockModule('auth'), isMockModule('site'), isMockModule('lot')]).toEqual([false, false, true]);
+    expect(DATA_SOURCE_LABEL).toBe('api (auth, site)');
+    vi.unstubAllEnvs();
+  });
+});

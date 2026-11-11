@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import LotMockService from 'lot/services/lot.mock';
 import type { IDiscountDecision, IDiscountGift, ILot, ILotMovePayload, ILotSchedule, ILotService } from 'lot/types/lot';
 
@@ -30,4 +30,4 @@ class LotApiService extends BaseService implements ILotService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? LotMockService : LotApiService;
+export default isMockModule('lot') ? LotMockService : LotApiService;

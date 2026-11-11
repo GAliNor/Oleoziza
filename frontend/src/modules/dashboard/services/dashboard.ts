@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import DashboardMockService from 'dashboard/services/dashboard.mock';
 import type { IDashboard, IDashboardService } from 'dashboard/types/dashboard';
 import type { PeriodKey } from 'global/types/period';
@@ -11,4 +11,4 @@ class DashboardApiService extends BaseService implements IDashboardService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? DashboardMockService : DashboardApiService;
+export default isMockModule('dashboard') ? DashboardMockService : DashboardApiService;

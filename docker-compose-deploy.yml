@@ -24,6 +24,8 @@ services:
     depends_on:
       oleoziza_db_backend:
         condition: service_healthy
+      oleoziza_redis:
+        condition: service_healthy
     restart: always
     env_file:
       - ./env_files/${CURRENT_ENV}/backend.env
@@ -86,6 +88,38 @@ services:
     networks:
       - app-network
 
+  oleoziza_redis:
+    image: redis:${REDIS_VERSION}
+    container_name: oleoziza_redis_${CURRENT_ENV}
+    restart: always
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
+  oleoziza_worker:
+    image: <REGISTRY>/oleoziza/oleoziza-backend:<APP_VERSION>
+    container_name: oleoziza_worker_${CURRENT_ENV}
+    depends_on:
+      oleoziza_db_backend:
+        condition: service_healthy
+      oleoziza_redis:
+        condition: service_healthy
+    restart: always
+    entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'worker', '--loglevel=INFO', '--concurrency=2']
+    env_file:
+      - ./env_files/${CURRENT_ENV}/backend.env
+    environment:
+      CURRENT_ENV: ${CURRENT_ENV}
+    networks:
+      - app-network
+
 networks:
   app-network:
     name: network-oleoziza_${CURRENT_ENV}
@@ -94,3 +128,4 @@ networks:
 volumes:
   db_backend:
   pgadmin:
+  redis_data:

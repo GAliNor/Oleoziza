@@ -15,7 +15,7 @@ export const LOGIN_METHODS: LoginMethod[] = ['phone_pin', 'email_password', 'pho
 
 export const PERMISSION_GROUPS: IPermissionGroup[] = [
   { key: 'follow', permissions: ['dashboard.view', 'stock.view', 'audit_trail.view'] },
-  { key: 'production', permissions: ['reception.create', 'lot.update_status', 'pressing.create', 'withdrawal.create', 'purchase.create'] },
+  { key: 'production', permissions: ['reception.create', 'lot.update_status', 'lot.set_price', 'pressing.create', 'withdrawal.create', 'purchase.create'] },
   { key: 'clients', permissions: ['client.view', 'client.create', 'client.edit', 'client.manage_access'] },
   { key: 'counter', permissions: ['payment.record', 'payout.record', 'discount.give', 'debt.follow', 'sale.create'] },
   { key: 'finance', permissions: ['finance.view', 'payment.confirm', 'payment.cancel', 'document.add', 'refund.manage', 'discount.approve', 'expense.record'] },

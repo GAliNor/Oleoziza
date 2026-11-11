@@ -51,7 +51,7 @@ import { useAuthStore, isAuthError } from 'auth/stores/auth';
 import { useToastStore } from 'global/stores/toast';
 import { useAuthError } from 'auth/composables/use-auth-error';
 import { normalizeIdentifier } from 'auth/composables/normalize-identifier';
-import { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import { isMockModule } from 'global/services/base';
 import { OTP_LENGTH } from 'auth/constants/auth';
 import { MOCK_RESET_LINK_TOKEN, MOCK_SMS_CODE } from 'auth/constants/mock-auth';
 import type { CredentialKind } from 'auth/types/auth';
@@ -99,7 +99,7 @@ const requestReset = async (): Promise<void> => {
     identifier.value = normalized;
     credentialKind.value = request.credentialKind;
     step.value = request.channel === 'sms' ? 'code' : 'emailSent';
-    if (IS_MOCK_DATA_SOURCE) {
+    if (isMockModule('auth')) {
       toastStore.push(
         request.channel === 'sms'
           ? t('auth.dev.smsCode', { code: MOCK_SMS_CODE })

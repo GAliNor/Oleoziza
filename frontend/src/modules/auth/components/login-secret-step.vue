@@ -50,7 +50,7 @@ import { useAuthStore } from 'auth/stores/auth';
 import { useToastStore } from 'global/stores/toast';
 import { formatPhone } from 'global/composables/phone';
 import { isEmail } from 'auth/composables/normalize-identifier';
-import { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import { isMockModule } from 'global/services/base';
 import { OTP_LENGTH, PIN_LENGTH } from 'auth/constants/auth';
 import { MOCK_SMS_CODE } from 'auth/constants/mock-auth';
 import type { LoginMethod, SecretStep } from 'auth/types/auth';
@@ -101,7 +101,7 @@ const sendCode = async (): Promise<void> => {
   try {
     await authStore.requestCode(props.identifier);
     startResendTimer();
-    if (IS_MOCK_DATA_SOURCE) toastStore.push(t('auth.dev.smsCode', { code: MOCK_SMS_CODE }), 'dev');
+    if (isMockModule('auth')) toastStore.push(t('auth.dev.smsCode', { code: MOCK_SMS_CODE }), 'dev');
   } catch (error) {
     emit('error', error);
   }

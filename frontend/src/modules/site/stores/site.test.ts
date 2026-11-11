@@ -12,7 +12,7 @@ const BERKANE = 'site-berkane';
 const TAOURIRT = 'site-taourirt';
 
 const signIn = (sites: Record<string, Permission[]>, isOwner = false): void => {
-  const session: ISession = { userId: 'u1', sid: 's1', role: 'management', isOwner, sites, firstName: 'Ali', lastName: 'Guedda', expiresAt: 0 };
+  const session: ISession = { userId: 'u1', role: 'management', isOwner, sites, firstName: 'Ali', lastName: 'Guedda', expiresAt: 0 };
   useSessionStore().session = session;
 };
 

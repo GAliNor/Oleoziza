@@ -36,6 +36,7 @@ class User(IdMixin, AuditMixin, Base):
     locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     disabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    token_version: Mapped[int] = mapped_column(default=0, server_default="0")
 
 
 class UserLoginMethod(IdMixin, AuditMixin, Base):

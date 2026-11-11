@@ -1,4 +1,4 @@
-import BaseService, { IS_MOCK_DATA_SOURCE } from 'global/services/base';
+import BaseService, { isMockModule } from 'global/services/base';
 import FinanceMockService from 'finance/services/finance.mock';
 import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
@@ -56,4 +56,4 @@ class FinanceApiService extends BaseService implements IFinanceService {
   }
 }
 
-export default IS_MOCK_DATA_SOURCE ? FinanceMockService : FinanceApiService;
+export default isMockModule('finance') ? FinanceMockService : FinanceApiService;

@@ -26,7 +26,6 @@ export interface IAuthError {
 
 export interface IAccessClaims {
   sub: string;
-  sid: string;
   role: Role;
   isOwner: boolean;
   sites: Record<string, Permission[]>;
@@ -95,8 +94,8 @@ export interface IAuthService {
   getLoginOptions(identifier: string): Promise<ILoginOptions>;
   requestCode(identifier: string): Promise<void>;
   login(payload: ILoginPayload): Promise<ILoginResult>;
-  refresh(sid: string): Promise<string>;
-  logout(sid: string): Promise<void>;
+  refresh(userId: string): Promise<string>;
+  logout(userId: string): Promise<void>;
   changeCredential(kind: CredentialKind, secret: string): Promise<void>;
   skipCredentialChange(): Promise<void>;
   getInvitation(token: string): Promise<IInvitation>;
