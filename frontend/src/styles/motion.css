@@ -302,3 +302,56 @@
     opacity: 0;
   }
 }
+
+/* Journal day change: the figures and list slide a little in the direction of time, so going back reads as going back. */
+:root {
+  --day-shift: 12px;
+}
+
+[dir='rtl'] {
+  --day-shift: -12px;
+}
+
+.day-earlier-enter-active,
+.day-later-enter-active {
+  transition:
+    opacity 0.24s var(--ease-premium),
+    transform 0.24s var(--ease-premium);
+}
+
+.day-earlier-leave-active,
+.day-later-leave-active {
+  transition:
+    opacity 0.12s ease-in,
+    transform 0.12s ease-in;
+}
+
+.day-later-enter-from,
+.day-earlier-leave-to {
+  opacity: 0;
+  transform: translateX(var(--day-shift));
+}
+
+.day-earlier-enter-from,
+.day-later-leave-to {
+  opacity: 0;
+  transform: translateX(calc(var(--day-shift) * -1));
+}
+
+/* Rows added by « Voir plus » settle in; rows replaced by a filter leave at once. */
+.row-in-enter-active {
+  transition: opacity 0.22s var(--ease-premium);
+}
+
+.row-in-enter-from {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-earlier-enter-from,
+  .day-earlier-leave-to,
+  .day-later-enter-from,
+  .day-later-leave-to {
+    transform: none;
+  }
+}

@@ -4,10 +4,14 @@ import { CLIENTS_MOCK_DB } from 'client/services/client.mock';
 import { surplusOf } from 'finance/composables/settle';
 import { DEBT_CONTACTS_MOCK, MOVEMENTS_MOCK, REFUNDS_MOCK } from 'finance/constants/mock-movements';
 import { millingSales } from 'finance/composables/milling-figures';
-import { formatWeekday, todayIso } from 'global/composables/date';
+import { formatWeekday, toIsoDate, todayIso } from 'global/composables/date';
 import { i18n } from '~/plugins/i18n';
 import { ALL_SITES } from 'site/constants/site';
-import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales, Settlement } from 'finance/types/finance';
+import { movementLabel } from 'finance/composables/movement-label';
+import { periodRange } from 'global/composables/use-period';
+import { slicePage } from 'global/composables/page';
+import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IMovementListQuery, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales, Settlement } from 'finance/types/finance';
+import type { IPage, IPageQuery } from 'global/types/page';
 import type { PeriodKey } from 'global/types/period';
 
 export const MOVEMENTS_DB: IMovement[] = structuredClone(MOVEMENTS_MOCK);
@@ -73,6 +77,19 @@ export default class FinanceMockService implements IFinanceService {
     const known = new Set(movement.documents.map((document) => document.id));
     movement.documents.push(...documents.filter((document) => !known.has(document.id)));
     return mockResolve(movement);
+  }
+
+  getMovementPage(query: IMovementListQuery, page: IPageQuery): Promise<IPage<IMovement>> {
+    const text = query.search.trim().toLowerCase();
+    const { from, to } = periodRange(query.period);
+    const ofSite = MOVEMENTS_DB.filter((movement) => query.siteId === ALL_SITES || movement.siteId === query.siteId).sort((first, second) => second.recordedAt.localeCompare(first.recordedAt));
+    const listed = query.list === 'pending' ? ofSite.filter((movement) => movement.status === 'pending').reverse() : ofSite.filter((movement) => toIsoDate(movement.recordedAt) >= from && toIsoDate(movement.recordedAt) <= to);
+    const found = text ? listed.filter((movement) => [movement.client, movement.code, movement.reference ?? '', movementLabel(movement)].some((value) => value.toLowerCase().includes(text))) : listed;
+    return mockResolve(slicePage(found, page));
+  }
+
+  getRefundPage(siteId: string, page: IPageQuery): Promise<IPage<IRefund>> {
+    return mockResolve(slicePage(siteId === ALL_SITES ? REFUNDS_DB : REFUNDS_DB.filter((refund) => refund.siteId === siteId), page));
   }
 
   getRefunds(siteId: string): Promise<IRefund[]> {

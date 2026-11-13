@@ -1,4 +1,5 @@
 import type { PeriodKey } from 'global/types/period';
+import type { IPage, IPageQuery, IPagedList } from 'global/types/page';
 
 export type PaymentMethodKey = 'cash' | 'cheque' | 'transfer' | 'oil';
 
@@ -9,6 +10,16 @@ export type MovementStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled';
 export type MovementPurpose = 'fee' | 'sale' | 'purchase';
 
 export type Settlement = 'credit_note' | 'refund';
+
+/** The register's two lists: what waits for a decision (oldest first, any date), and everything recorded in the period (newest first). */
+export type MovementList = 'pending' | 'all';
+
+export interface IMovementListQuery {
+  siteId: string;
+  list: MovementList;
+  search: string;
+  period: PeriodKey;
+}
 
 /** The mill's account money lands on or leaves from. Stands in until the bank account library exists. */
 export interface IBankAccount {
@@ -169,6 +180,8 @@ export type IDebtContactPayload = Omit<IDebtContact, 'at'>;
 
 export interface IFinanceService {
   getMovements(siteId: string): Promise<IMovement[]>;
+  getMovementPage(query: IMovementListQuery, page: IPageQuery): Promise<IPage<IMovement>>;
+  getRefundPage(siteId: string, page: IPageQuery): Promise<IPage<IRefund>>;
   decideMovement(id: string, decision: IMovementDecision): Promise<IMovement>;
   linkLots(id: string, lotLinks: ILotPaymentLink[]): Promise<IMovement>;
   addDocuments(id: string, documents: IPaymentDocument[]): Promise<IMovement>;
@@ -184,6 +197,8 @@ export interface IFinanceService {
 export interface IFinanceStore {
   movements: IMovement[];
   refunds: IRefund[];
+  registerList: IPagedList<IMovement, IMovementListQuery>;
+  refundList: IPagedList<IRefund, { siteId: string }>;
   debtContacts: IDebtContact[];
   sales: ISales | null;
   salesQuery: { siteId: string; period: PeriodKey } | null;

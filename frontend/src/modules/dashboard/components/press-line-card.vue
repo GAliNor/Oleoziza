@@ -9,8 +9,8 @@
 
     <template v-for="(entry, index) in board.slots" :key="entry.lot.id">
       <hr v-if="index" class="border-default" />
-      <line-slot :entry="entry" @open="emit('open', $event)" @move="emit('move', $event)" />
-      <p v-if="entry.kind === 'next' && !entry.canMove && board.line" class="-mt-2 body-two">{{ $t('dashboard.operator.line.afterCurrent') }}</p>
+      <line-slot :entry="entry" :is-read-only="isReadOnly" @open="emit('open', $event)" @move="emit('move', $event)" />
+      <p v-if="entry.kind === 'next' && !entry.canMove && board.line && !isReadOnly" class="-mt-2 body-two">{{ $t('dashboard.operator.line.afterCurrent') }}</p>
     </template>
 
     <p v-if="!board.slots.length" class="body-two">{{ $t('dashboard.operator.line.empty') }}</p>
@@ -23,13 +23,13 @@
 import { computed } from 'vue';
 
 import { formatPressLine } from 'configuration/composables/equipment';
-import type { ILineBoard } from 'dashboard/composables/use-operator-desk';
+import type { ILineBoard } from 'dashboard/composables/use-line-boards';
 import type { ILot } from 'lot/types/lot';
 
 import LineSlot from 'dashboard/components/line-slot.vue';
 
 // props
-const props = defineProps<{ board: ILineBoard }>();
+const props = defineProps<{ board: ILineBoard; isReadOnly?: boolean }>();
 
 // emits
 const emit = defineEmits<{

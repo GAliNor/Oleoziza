@@ -9,19 +9,6 @@ export interface ITank {
   variety: string | null;
 }
 
-/** One Storage as the Tank planning draws it: days counted from today, negative in the past. */
-export interface ITankStorage {
-  id: string;
-  tankId: string;
-  lotCode: string;
-  client: string;
-  kind: 'client' | 'mill';
-  litres: number;
-  startDay: number;
-  endDay: number | null;
-  plannedEndDay: number | null;
-}
-
 export interface ISiteFigures {
   siteId: string;
   name: string;
@@ -38,6 +25,17 @@ export interface IVarietyFigures {
   lots: number;
   olivesKg: number;
   oilLitres: number;
+}
+
+/** One Press Line's work in a period: the Lots whose Pressing ended in it. */
+export interface IPressLineFigures {
+  pressLineId: string;
+  siteId: string;
+  name: string;
+  lots: number;
+  olivesKg: number;
+  oilLitres: number;
+  pressingHours: number;
 }
 
 export interface IOliveBar {
@@ -63,9 +61,9 @@ export interface IDashboard {
   };
   modeSplit: { serviceKg: number; purchaseKg: number };
   varieties: IVarietyFigures[];
+  pressLines: IPressLineFigures[];
   oliveChart: { titleKey: string; bars: IOliveBar[] };
   tanks: ITank[];
-  tankStorage: ITankStorage[];
   sites: ISiteFigures[];
 }
 

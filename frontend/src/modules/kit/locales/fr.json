@@ -63,6 +63,8 @@
     "retry": "Réessayer",
     "back": "Retour",
     "open": "Ouvrir le détail",
-    "detail": "Le détail remplace la liste."
+    "detail": "Le détail remplace la liste.",
+    "day": "Jour",
+    "start": "Début prévu"
   }
 }

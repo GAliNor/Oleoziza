@@ -21,7 +21,7 @@
       <arrow-right-line-icon class="h-5 w-5 shrink-0 text-fg-muted transition-transform duration-300 ease-(--ease-sheet) group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" />
     </button>
     <button
-      v-if="entry.canMove"
+      v-if="entry.canMove && !isReadOnly"
       type="button"
       class="press min-h-14 w-full rounded-control px-4 text-md font-semibold"
       :class="LOT_MOVE_TONES[entry.lot.status]"
@@ -35,7 +35,7 @@
 <script setup lang="ts">
 // imports
 import { LOT_MOVE_TONES } from 'lot/constants/lot';
-import type { ILineSlot } from 'dashboard/composables/use-operator-desk';
+import type { ILineSlot } from 'dashboard/composables/use-line-boards';
 import type { ILot } from 'lot/types/lot';
 
 import UiAvatar from 'global/components/ui-avatar.vue';
@@ -43,7 +43,7 @@ import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 import LotPaymentChip from 'lot/components/lot-payment-chip.vue';
 
 // props
-defineProps<{ entry: ILineSlot }>();
+defineProps<{ entry: ILineSlot; isReadOnly?: boolean }>();
 
 // emits
 const emit = defineEmits<{

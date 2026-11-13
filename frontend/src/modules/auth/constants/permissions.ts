@@ -35,18 +35,21 @@ export const PERMISSIONS: readonly Permission[] = [
   'configuration.manage',
 ];
 
+/** The only Permissions an Operator can hold: everything else opens the Backoffice, which an Operator never enters. */
+export const OPERATOR_WORKSPACE_PERMISSIONS: readonly Permission[] = [
+  'reception.create',
+  'lot.update_status',
+  'pressing.create',
+  'withdrawal.create',
+  'client.view',
+  'client.create',
+  'client.edit',
+  'purchase.create',
+];
+
 export const ROLE_DEFAULT_PERMISSIONS: Record<Role, readonly Permission[]> = {
   management: PERMISSIONS,
-  operator: [
-    'reception.create',
-    'lot.update_status',
-    'pressing.create',
-    'withdrawal.create',
-    'client.view',
-    'client.create',
-    'client.edit',
-    'purchase.create',
-  ],
+  operator: OPERATOR_WORKSPACE_PERMISSIONS,
   accountant: ['finance.view', 'client.view', 'payment.record', 'payment.confirm', 'payment.cancel', 'document.add', 'refund.manage', 'discount.give', 'debt.follow'],
   client: [],
 };

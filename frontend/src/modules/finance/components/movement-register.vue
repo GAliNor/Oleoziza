@@ -15,10 +15,16 @@
   <direct-payment-form v-if="isRecording && siteStore.currentSiteId" v-show="!isOpen" :site-id="siteStore.currentSiteId" @close="isRecording = false" @saved="handleDirectSaved" />
   <button v-else-if="canRecordDirect" v-show="!isOpen" type="button" class="btn-primary self-start" @click="isRecording = true">{{ $t('finance.direct.open') }}</button>
 
-  <ul v-if="tab === 'refunds' && !isOpen" class="stagger flex flex-col gap-3">
-    <li v-for="refund in financeStore.refunds" :key="refund.id"><refund-card :refund="refund" :is-read-only="siteStore.isAllSites" :is-online="isOnline" /></li>
-    <li v-if="!financeStore.refunds.length"><ui-empty-state :message="$t('finance.refunds.empty')" /></li>
-  </ul>
+  <template v-if="tab === 'refunds' && !isOpen">
+    <div v-if="refundList.isLoading && !refundList.items.length" class="flex flex-col gap-3">
+      <div v-for="index in 3" :key="index" class="skeleton h-28 rounded-card" />
+    </div>
+    <TransitionGroup v-else tag="ul" name="row-in" class="flex flex-col gap-3">
+      <li v-for="refund in refundList.items" :key="refund.id"><refund-card :refund="refund" :is-read-only="siteStore.isAllSites" :is-online="isOnline" /></li>
+      <li v-if="!refundList.items.length" key="empty"><ui-empty-state :message="$t('finance.refunds.empty')" /></li>
+    </TransitionGroup>
+    <ui-load-more :shown="refundList.items.length" :total="refundList.total" :is-loading="refundList.isLoadingMore" @more="financeStore.fetchMoreRefunds()" />
+  </template>
 
   <ui-master-detail v-if="tab !== 'refunds' || isOpen" :is-open="isOpen" :back-label="$t('finance.register.back')" @close="handleClose">
     <template #list>
@@ -35,9 +41,9 @@
               <th class="hidden px-4 py-3 font-semibold sm:table-cell">{{ $t('finance.register.columns.status') }}</th>
             </tr>
           </thead>
-          <tbody :key="`${tab}-${page}-${search}`" class="stagger">
+          <TransitionGroup tag="tbody" name="row-in" class="transition-opacity duration-200" :class="{ 'opacity-50': registerList.isLoading && registerList.items.length }">
             <tr
-              v-for="movement in pageRows"
+              v-for="movement in registerList.items"
               :key="movement.id"
               class="data-row"
               :class="{ 'bg-selected/40': movement.id === lastId }"
@@ -61,12 +67,14 @@
               </td>
               <td class="hidden px-4 py-3 whitespace-nowrap sm:table-cell"><span class="chip" :class="MOVEMENT_STATUS_TONES[movement.status]">{{ $t(`finance.statuses.${movement.status}`) }}</span></td>
             </tr>
-          </tbody>
+          </TransitionGroup>
         </table>
-        <ui-empty-state v-if="!rows.length" :message="$t(tab === 'pending' ? 'finance.register.emptyPending' : 'finance.register.emptyAll')" />
+        <div v-if="registerList.isLoading && !registerList.items.length" class="flex flex-col gap-2 p-3">
+          <div v-for="index in 5" :key="index" class="skeleton h-12 rounded-control" />
+        </div>
+        <ui-empty-state v-else-if="!registerList.items.length" :message="$t(tab === 'pending' ? 'finance.register.emptyPending' : 'finance.register.emptyAll')" />
       </div>
-      <ui-pagination v-model:page="page" :page-count="pageCount" :total="rows.length" :page-size="PAGE_SIZE" />
-    
+      <ui-load-more :shown="registerList.items.length" :total="registerList.total" :is-loading="registerList.isLoadingMore" @more="financeStore.fetchMoreRegister()" />
     </template>
     <template v-if="steps.total" #actions>
       <pending-pager class="w-full sm:ms-auto sm:w-auto" :steps="steps" @open="handleOpen" />
@@ -84,19 +92,18 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
-import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useSiteStore } from 'site/stores/site';
 import { useFinance } from 'finance/composables/use-finance';
 import { movementLabel } from 'finance/composables/movement-label';
 import { pendingSteps } from 'finance/composables/pending-steps';
 import { MOVEMENT_STATUS_TONES } from 'finance/constants/finance';
-import type { IMovement, IPendingSteps } from 'finance/types/finance';
+import type { IMovement, IPendingSteps, MovementList } from 'finance/types/finance';
 import { formatMoney } from 'global/composables/money';
 import { formatDateTime } from 'global/composables/date';
 
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
-import UiPagination from 'global/components/ui-pagination.vue';
+import UiLoadMore from 'global/components/ui-load-more.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import SalesTiles from 'finance/components/sales-tiles.vue';
@@ -111,13 +118,15 @@ const router = useRouter();
 const { t } = useI18n();
 const financeStore = useFinanceStore();
 const siteStore = useSiteStore();
-const { inPeriod, pending, figures, period, isOnline } = useFinance();
+const { pending, figures, period, isOnline } = useFinance();
 
 // variables
-const PAGE_SIZE = 10;
-type RegisterTab = 'pending' | 'all' | 'refunds';
+type RegisterTab = MovementList | 'refunds';
+const SEARCH_DELAY_MS = 250;
 const isRecording = ref(false);
 const search = ref('');
+const searched = ref('');
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
 const lastId = ref<string | null>(null);
 
 // computed
@@ -133,23 +142,31 @@ const tab = computed((): RegisterTab => {
 });
 const refundsToHandle = computed((): number => financeStore.refunds.filter((refund) => refund.status !== 'confirmed').length);
 const canRecordDirect = computed((): boolean => !siteStore.isAllSites && siteStore.can('payment.record'));
-const rows = computed((): IMovement[] => {
-  const query = search.value.trim().toLowerCase();
-  return (tab.value === 'pending' ? pending.value : inPeriod.value).filter(
-    (movement) =>
-      [movement.client, movement.code, movement.reference ?? '', movementLabel(movement)].some((value) => value.toLowerCase().includes(query)),
-  );
-});
-const { page, pageCount, pageRows } = usePagedRows(rows, PAGE_SIZE);
+const registerList = computed(() => financeStore.registerList);
+const refundList = computed(() => financeStore.refundList);
 const openId = computed((): string | null => (typeof route.query.movement === 'string' ? route.query.movement : null));
 const isOpen = computed((): boolean => find(openId.value) !== undefined);
 const active = computed((): IMovement | undefined => find(openId.value ?? lastId.value));
 const steps = computed((): IPendingSteps => pendingSteps(pending.value, find(openId.value)));
 
 // watchers
-watch([search, tab], () => {
-  page.value = 1;
+watch(search, (value) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    searched.value = value.trim();
+  }, SEARCH_DELAY_MS);
 });
+
+/** Each tab loads only once it is opened, and again when the Site, the period or the search changes. */
+watch(
+  [() => siteStore.currentSiteId, tab, searched, () => period.value.key],
+  ([siteId, currentTab, text, periodKey]) => {
+    if (!siteId) return;
+    if (currentTab === 'refunds') financeStore.fetchRefundPage(siteId);
+    else financeStore.fetchRegister({ siteId, list: currentTab, search: text, period: periodKey });
+  },
+  { immediate: true },
+);
 watch(
   openId,
   (id) => {

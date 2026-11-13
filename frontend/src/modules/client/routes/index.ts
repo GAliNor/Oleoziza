@@ -15,7 +15,7 @@ const routes: RouteRecordRaw[] = [
     name: 'client-page',
     component: () => import('client/views/detail.vue'),
     beforeEnter: checkParam('id', { pattern: ID_PARAM_PATTERN, fallback: { name: 'client-search' } }),
-    meta: { permission: 'client.view' },
+    meta: { permission: 'client.view', parent: 'client-search' },
   },
 ];
 

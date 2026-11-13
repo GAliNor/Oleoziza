@@ -4,6 +4,7 @@ import SiteService from 'site/services/site';
 import { withStatus } from 'global/composables/with-status';
 import { readStorage, writeStorage } from 'global/composables/storage';
 import { useSessionStore } from 'global/stores/session';
+import { OPERATOR_WORKSPACE_PERMISSIONS } from 'auth/constants/permissions';
 import { ALL_SITES, LAST_SITE_STORAGE_KEY } from 'site/constants/site';
 import type { Permission } from 'global/types/session';
 import type { ISite, ISiteForm, ISiteStore } from 'site/types/site';
@@ -27,6 +28,7 @@ export const useSiteStore = defineStore('site', {
         const sites = session?.sites ?? {};
         if (!siteId) return false;
         if (session?.isOwner) return true;
+        if (session?.role === 'operator' && !OPERATOR_WORKSPACE_PERMISSIONS.includes(permission)) return false;
         if (siteId === ALL_SITES) {
           const siteIds = Object.keys(sites);
           return siteIds.length > 0 && siteIds.every((id) => sites[id].includes(permission));

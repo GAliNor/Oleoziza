@@ -3,7 +3,7 @@
     <header class="flex flex-wrap items-center gap-3">
       <map-pin-line-icon class="h-5 w-5 text-fg-place" />
       <h4 class="font-semibold text-fg-display">{{ siteName }}</h4>
-      <span class="body-two tabular-nums">{{ $t('user.detail.rightsCount', { count: granted.length, total: PERMISSIONS.length }) }}</span>
+      <span class="body-two tabular-nums">{{ $t('user.detail.rightsCount', { count: grantedOffered.length, total: offered.length }) }}</span>
       <span v-if="!canManageSite(user, siteId) && canEdit(user)" class="chip bg-subtle text-fg-primary-paragraph">{{ $t('user.detail.readOnlySite') }}</span>
       <button
         v-else-if="canManageSite(user, siteId) && isRemovable"
@@ -18,7 +18,7 @@
     </header>
 
     <div class="grid gap-4 md:grid-cols-2">
-      <section v-for="group in PERMISSION_GROUPS" :key="group.key" class="flex flex-col gap-1">
+      <section v-for="group in groups" :key="group.key" class="flex flex-col gap-1">
         <p class="eyebrow">{{ $t(`user.groups.${group.key}`) }}</p>
         <button
           v-for="permission in group.permissions"
@@ -52,10 +52,9 @@ import { useI18n } from 'vue-i18n';
 import { useUserStore } from 'user/stores/user';
 import { useToastStore } from 'global/stores/toast';
 import { useUserRights } from 'user/composables/use-user-rights';
-import { PERMISSIONS } from 'auth/constants/permissions';
 import { PERMISSION_GROUPS } from 'user/constants/user';
 import type { Permission } from 'global/types/session';
-import type { IStaffUser } from 'user/types/user';
+import type { IPermissionGroup, IStaffUser } from 'user/types/user';
 
 import UiSwitch from 'global/components/ui-switch.vue';
 import LockLineIcon from 'global/icons/lock-line.icon.vue';
@@ -68,7 +67,7 @@ const props = defineProps<{ user: IStaffUser; siteId: string; siteName: string }
 const userStore = useUserStore();
 const toastStore = useToastStore();
 const { t } = useI18n();
-const { canEdit, canManageSite, canGrant, isDefault } = useUserRights();
+const { canEdit, canManageSite, canGrant, isDefault, offeredFor } = useUserRights();
 
 // variables
 const pendingPermission = ref<Permission | null>(null);
@@ -76,6 +75,11 @@ const isRemoveArmed = ref(false);
 
 // computed
 const granted = computed((): Permission[] => props.user.sites[props.siteId] ?? []);
+const offered = computed((): readonly Permission[] => offeredFor(props.user.role));
+const grantedOffered = computed((): Permission[] => granted.value.filter((permission) => offered.value.includes(permission)));
+const groups = computed((): IPermissionGroup[] =>
+  PERMISSION_GROUPS.map((group) => ({ ...group, permissions: group.permissions.filter((permission) => offered.value.includes(permission)) })).filter((group) => group.permissions.length),
+);
 const isRemovable = computed((): boolean => Object.keys(props.user.sites).length > 1);
 
 // watchers

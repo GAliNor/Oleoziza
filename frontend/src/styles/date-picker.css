@@ -1,0 +1,75 @@
+/* The date picker (@vuepic/vue-datepicker) painted with our semantic tokens, so it follows light, dark and RTL like the rest. */
+:root {
+  --dp-font-family: inherit;
+  --dp-font-size: 1rem;
+  --dp-preview-font-size: 0.875rem;
+  --dp-border-radius: var(--radius-control);
+  --dp-cell-border-radius: var(--radius-control);
+  --dp-cell-size: 2.5rem;
+  --dp-button-height: 2.5rem;
+  --dp-month-year-row-height: 2.75rem;
+  --dp-month-year-row-button-size: 2.25rem;
+  --dp-menu-min-width: 18.5rem;
+  --dp-menu-padding: 0.5rem;
+  --dp-action-button-height: 2.25rem;
+  --dp-action-buttons-padding: 0 0.875rem;
+  --dp-action-row-padding: 0.75rem;
+  --dp-input-padding: 0.75rem 2.75rem 0.75rem 1rem;
+  --dp-input-icon-padding: 2.75rem;
+  --dp-common-transition: all 0.15s var(--ease-premium);
+  --dp-animation-duration: 0.15s;
+}
+
+[dir='rtl'] {
+  --dp-direction: rtl;
+}
+
+:root .dp--theme-light,
+:root .dp--theme-dark {
+  --dp-background-color: var(--background-color-surface);
+  --dp-text-color: var(--text-color-fg-default);
+  --dp-hover-color: var(--background-color-subtle);
+  --dp-hover-text-color: var(--text-color-fg-display);
+  --dp-hover-icon-color: var(--text-color-fg-brand);
+  --dp-primary-color: var(--background-color-action);
+  --dp-primary-disabled-color: var(--background-color-selected);
+  --dp-primary-text-color: var(--text-color-fg-on-action);
+  --dp-secondary-color: var(--text-color-fg-muted);
+  --dp-border-color: var(--border-color-default);
+  --dp-menu-border-color: var(--border-color-default);
+  --dp-border-color-hover: var(--border-color-strong);
+  --dp-border-color-focus: var(--border-color-brand);
+  --dp-disabled-color: var(--background-color-subtle);
+  --dp-disabled-color-text: var(--text-color-fg-muted);
+  --dp-scroll-bar-background: var(--background-color-subtle);
+  --dp-scroll-bar-color: var(--border-color-strong);
+  --dp-success-color: var(--background-color-action);
+  --dp-success-color-disabled: var(--background-color-selected);
+  --dp-icon-color: var(--text-color-fg-secondary-paragraph);
+  --dp-danger-color: var(--text-color-fg-danger);
+  --dp-marker-color: var(--text-color-fg-accent);
+  --dp-tooltip-color: var(--background-color-surface);
+  --dp-highlight-color: var(--background-color-selected);
+  --dp-range-between-dates-background-color: var(--background-color-selected);
+  --dp-range-between-dates-text-color: var(--text-color-fg-display);
+  --dp-range-between-border-color: var(--background-color-selected);
+}
+
+@layer components {
+  .ui-date-picker .dp--input {
+    @apply min-h-13 bg-page/60 transition-[border-color,box-shadow,background-color] duration-300 ease-(--ease-premium)
+      placeholder:text-fg-muted hover:border-strong;
+  }
+
+  .ui-date-picker .dp--input-focus {
+    @apply border-brand bg-surface shadow-[0_0_0_4px] shadow-primary-olive-light/70;
+  }
+
+  .dp--menu {
+    @apply shadow-overlay;
+  }
+
+  .dp--action-select {
+    @apply font-semibold;
+  }
+}

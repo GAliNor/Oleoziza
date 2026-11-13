@@ -1,11 +1,11 @@
 <template>
-  <div class="card flex min-w-0 flex-col gap-4 rounded-card p-5">
+  <div class="card flex min-w-0 flex-col gap-4 rounded-card p-4 sm:p-5">
     <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
       <h2 class="heading-four">{{ $t('dashboard.tanks.title') }}</h2>
       <p class="body-two tabular-nums">{{ formatLitresRounded(totalFill) }} / {{ formatLitresRounded(totalCapacity) }}</p>
     </div>
-    <div class="grid flex-1 auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3" :class="{ 'xl:grid-cols-5': tanks.length > 3 }">
-      <div v-for="(tank, index) in tanks" :key="tank.id" class="lift flex min-h-32 min-w-0 flex-col overflow-hidden rounded-card border border-default">
+    <div class="grid flex-1 auto-rows-fr grid-cols-[repeat(auto-fit,minmax(5.75rem,1fr))] gap-2 sm:grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] sm:gap-3">
+      <div v-for="(tank, index) in tanks" :key="tank.id" class="lift flex min-h-32 min-w-0 sm:min-h-40 flex-col overflow-hidden rounded-card border border-default">
         <div class="relative flex-1 overflow-hidden bg-subtle">
           <div
             class="grow-y absolute inset-x-0 bottom-0"

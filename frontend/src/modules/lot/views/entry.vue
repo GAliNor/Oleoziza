@@ -6,15 +6,13 @@
           <h1 class="heading-one">{{ $t('lot.register.title') }}</h1>
           <p class="body-two">{{ $t('lot.register.subtitle', { scope: scopeName, period: period.noun, count: scoped.length }) }}</p>
         </div>
-        <ui-segmented
-          v-show="!isLotOpen"
-          class="shrink-0 self-start md:self-auto"
-          variant="tabs"
-          :model-value="view"
-          :options="viewOptions"
-          :label="$t('lot.register.viewLabel')"
-          @update:model-value="handleView"
-        />
+        <div v-show="!isLotOpen" class="flex shrink-0 flex-wrap items-center gap-2 self-start md:self-auto">
+          <router-link v-if="canReceive" :to="{ name: 'reception-new' }" class="btn-primary">
+            <add-line-icon class="h-5 w-5" />
+            {{ $t('lot.register.newReception') }}
+          </router-link>
+          <ui-segmented class="shrink-0" variant="tabs" :model-value="view" :options="viewOptions" :label="$t('lot.register.viewLabel')" @update:model-value="handleView" />
+        </div>
       </header>
       <div v-show="!isLotOpen" class="rise flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <input v-model="search" class="input lg:max-w-xs" type="search" :placeholder="$t('lot.register.search')" />
@@ -48,6 +46,7 @@ import { usePeriod } from 'global/composables/use-period';
 import { useSiteScope } from 'site/composables/use-site-scope';
 
 import AppLayout from 'global/components/app-layout.vue';
+import AddLineIcon from 'global/icons/add-line.icon.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import LotBoard from 'lot/components/lot-board.vue';
@@ -75,6 +74,7 @@ const viewOptions = computed((): { key: RegisterView; label: string }[] => [
 ]);
 const view = computed((): RegisterView => (route.query.view === 'board' ? 'board' : 'table'));
 const isLotOpen = computed((): boolean => typeof route.query.lot === 'string');
+const canReceive = computed((): boolean => !siteStore.isAllSites && siteStore.can('reception.create'));
 
 // watchers
 watch(

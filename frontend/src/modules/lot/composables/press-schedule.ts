@@ -2,6 +2,7 @@ import type { IPressLineSetting } from 'configuration/types/configuration';
 import type { ILot } from 'lot/types/lot';
 
 const HOUR_MS = 3_600_000;
+const MINUTE_MS = 60_000;
 
 const isQueued = (lot: Pick<ILot, 'status'>): boolean => lot.status === 'waiting' || lot.status === 'pressing';
 
@@ -22,6 +23,15 @@ export const suggestStart = (lots: readonly ILot[], lineId: string, now: Date): 
     .reduce((latest, at) => Math.max(latest, at), 0);
   const from = Math.max(planned, now.getTime());
   return new Date(Math.ceil(from / HOUR_MS) * HOUR_MS).toISOString();
+};
+
+/** A start that puts a Lot ahead of every other Lot waiting on the Line (a VIP): now, or a minute before the earliest planned start when that is sooner. */
+export const firstStart = (lots: readonly ILot[], lineId: string, lotId: string, now: Date): string => {
+  const earliest = lineQueue(lots, lineId)
+    .filter((lot) => lot.id !== lotId && lot.status === 'waiting' && lot.plannedStartAt)
+    .reduce((soonest, lot) => Math.min(soonest, new Date(lot.plannedStartAt as string).getTime()), Infinity);
+  const start = Math.min(Math.floor(now.getTime() / MINUTE_MS) * MINUTE_MS, earliest - MINUTE_MS);
+  return new Date(start).toISOString();
 };
 
 /** The Lot pressing on a Line right now, if any: a Line presses one Lot at a time. */

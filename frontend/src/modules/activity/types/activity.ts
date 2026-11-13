@@ -1,5 +1,7 @@
 import type { RouteLocationRaw } from 'vue-router';
 
+import type { IPage, IPageQuery } from 'global/types/page';
+
 export type ActivityGroup = 'production' | 'storage' | 'discount' | 'payment' | 'follow' | 'configuration';
 
 export type ActivityKind =
@@ -37,13 +39,43 @@ export interface IActivity {
   to: RouteLocationRaw | null;
 }
 
+/** Which events of the day to list: Money events only for those who see the finances (the backend reads it from the session). */
+export interface IActivityFilter {
+  group: ActivityGroup | null;
+  person: string | null;
+  includeMoney: boolean;
+}
+
+/** A day's figures and counts, read apart from the list, which loads a page at a time. */
+export interface IActivityDaySummary {
+  receptions: number;
+  receivedKg: number;
+  storedLitres: number;
+  discounts: number;
+  discountDh: number;
+  collectedDh: number;
+  total: number;
+  groupCounts: Record<ActivityGroup, number>;
+  people: string[];
+}
+
 export interface IActivityService {
-  getDay(siteId: string, day: string): Promise<IActivity[]>;
+  getDaySummary(siteId: string, day: string, includeMoney: boolean): Promise<IActivityDaySummary>;
+  getDayPage(siteId: string, day: string, filter: IActivityFilter, page: IPageQuery): Promise<IPage<IActivity>>;
+}
+
+export interface IActivityQuery extends IActivityFilter {
+  siteId: string;
+  day: string;
 }
 
 export interface IActivityStore {
+  summary: IActivityDaySummary | null;
   items: IActivity[];
-  query: { siteId: string; day: string } | null;
+  total: number;
+  query: IActivityQuery | null;
+  loadedDay: string | null;
   isLoading: boolean;
+  isLoadingMore: boolean;
   hasError: boolean;
 }

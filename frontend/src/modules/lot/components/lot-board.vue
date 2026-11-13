@@ -32,6 +32,7 @@
     </template>
     <template v-if="active" #detail>
       <lot-detail :key="active.id" :lot="active" />
+      <lot-actions :key="`actions-${active.id}`" :lot="active" />
     </template>
   </ui-master-detail>
 </template>
@@ -48,6 +49,7 @@ import type { ILot } from 'lot/types/lot';
 
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import LotDetail from 'lot/components/lot-detail.vue';
+import LotActions from 'lot/components/lot-actions.vue';
 
 // props
 const props = defineProps<{ search: string }>();

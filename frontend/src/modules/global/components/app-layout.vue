@@ -28,6 +28,10 @@
         <p class="truncate px-3 label">{{ sessionStore.fullName }}</p>
         <p v-if="sessionStore.session" class="px-3 body-two">{{ $t(`auth.roles.${sessionStore.session.role}`) }}</p>
         <ui-language-switch class="mt-2" />
+        <button v-if="canWorkAsOperator" type="button" class="nav-link text-start" @click="workAsOperator">
+          <scale-line-icon class="h-5 w-5" />
+          {{ $t('global.shell.workAsOperator') }}
+        </button>
         <router-link :to="{ name: 'auth-change-credential', query: { redirect: route.fullPath } }" class="nav-link">
           <lock-line-icon class="h-5 w-5" />
           {{ $t('auth.changeCredential.menu') }}
@@ -40,16 +44,8 @@
     </aside>
 
     <div class="flex min-w-0 flex-1 flex-col">
-      <div class="sticky top-0 z-40">
-        <div v-if="isJumped" class="flex items-center justify-between gap-3 bg-accent-brown px-4 py-2 text-white md:px-8" role="status">
-          <span class="min-w-0 truncate text-sm font-semibold">{{ $t('global.shell.backofficeMode') }}</span>
-          <button type="button" class="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 text-sm font-semibold hover:bg-white/25" @click="returnToOperator">
-            <arrow-left-line-icon class="h-4 w-4" />
-            {{ $t('global.shell.backToOperator') }}
-          </button>
-        </div>
       <header
-        class="flex items-center gap-3 border-b border-default bg-surface/90 px-4 py-3
+        class="sticky top-0 z-40 flex items-center gap-3 border-b border-default bg-surface/90 px-4 py-3
           backdrop-blur md:px-8"
       >
         <logo-mark-fill-icon class="h-7 w-7 shrink-0 text-fg-brand md:hidden" />
@@ -58,9 +54,13 @@
         <slot name="header" />
         <span class="ms-auto" aria-hidden="true" />
         <app-network-badge class="shrink-0" />
-        <app-user-menu class="md:hidden" @logout="handleLogout" />
+        <app-user-menu class="md:hidden" @logout="handleLogout">
+          <button v-if="canWorkAsOperator" type="button" class="inline-flex min-h-11 w-full items-center gap-2 rounded-control px-3 label hover:bg-subtle" @click="workAsOperator">
+            <scale-line-icon class="h-5 w-5 shrink-0" />
+            {{ $t('global.shell.workAsOperator') }}
+          </button>
+        </app-user-menu>
       </header>
-      </div>
 
       <main class="flex-1 px-4 pt-6 pb-24 md:px-8 md:pb-8">
         <slot />
@@ -119,7 +119,7 @@ import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useNavigation } from 'global/composables/use-navigation';
-import { useBackofficeJump } from 'global/composables/use-backoffice-jump';
+import { useOperatorMode } from 'global/composables/use-operator-mode';
 import { HOME_ROUTE_NAME } from 'global/constants/navigation';
 import { useTasks } from 'task/composables/use-tasks';
 import { TASK_ROUTE_NAME } from 'task/constants/task';
@@ -129,10 +129,10 @@ import AppToast from 'global/components/app-toast.vue';
 import AppBackButton from 'global/components/app-back-button.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
-import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 import LockLineIcon from 'global/icons/lock-line.icon.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import MoreLineIcon from 'global/icons/more-line.icon.vue';
+import ScaleLineIcon from 'global/icons/scale-line.icon.vue';
 import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';
 import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
 import AppOperatorShell from 'global/components/app-operator-shell.vue';
@@ -147,7 +147,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const { visibleNavItems, canOpenHome, getLandingRoute } = useNavigation();
-const { canJump, isJumped, returnToOperator } = useBackofficeJump();
+const { canWorkAsOperator, workAsOperator } = useOperatorMode();
 const { tasks, load: loadTasks } = useTasks();
 
 // variables
@@ -158,7 +158,7 @@ const isMoreOpen = ref(false);
 const barItems = computed((): INavItem[] => (visibleNavItems.value.length > BAR_ITEM_LIMIT ? visibleNavItems.value.slice(0, BAR_ITEM_LIMIT - 1) : visibleNavItems.value));
 const moreItems = computed((): INavItem[] => visibleNavItems.value.slice(barItems.value.length));
 const isMoreActive = computed((): boolean => moreItems.value.some((item) => item.name === route.name));
-const isOperatorShell = computed((): boolean => sessionStore.session?.role === 'operator' && !sessionStore.isBackofficeMode);
+const isOperatorShell = computed((): boolean => sessionStore.isOperatorView);
 const hasTaskItem = computed((): boolean => visibleNavItems.value.some((item) => item.name === TASK_ROUTE_NAME));
 const badgeCounts = computed((): Record<string, number> => ({ [TASK_ROUTE_NAME]: hasTaskItem.value ? tasks.value.length : 0 }));
 
@@ -188,10 +188,6 @@ watch(
   },
   { immediate: true },
 );
-
-watch(canJump, (canStillJump) => {
-  if (isJumped.value && !canStillJump) returnToOperator();
-});
 
 // event handlers
 const handleMoreFocusOut = (event: FocusEvent): void => {

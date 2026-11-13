@@ -74,7 +74,7 @@ class UserService:
             StaffUserOut: The new User.
 
         Raises:
-            RefusedError: names_required, contact_invalid, contact_required, identifier_taken, location_required, site_required, or a rights or secret refusal.
+            RefusedError: names_required, contact_invalid, contact_required, identifier_taken, site_required, or a rights or secret refusal.
         """
         first_name, last_name = payload.first_name.strip(), payload.last_name.strip()
         if not first_name or not last_name:
@@ -85,8 +85,6 @@ class UserService:
             raise RefusedError("contact_required", 422)
         self._check_identifiers_free(phone, email)
         location = payload.location
-        if payload.role == StaffRole.OPERATOR and not (location and location.province and location.city.strip() and location.address.strip()):
-            raise RefusedError("location_required", 422)
         if not payload.sites:
             raise RefusedError("site_required", 422)
         for site_id, permissions in payload.sites.items():
@@ -103,9 +101,9 @@ class UserService:
             last_name=last_name,
             phone=phone,
             email=email,
-            province_id=location.province if location else None,
-            city=location.city.strip() if location else None,
-            address=location.address.strip() if location else None,
+            province_id=(location.province or None) if location else None,
+            city=(location.city.strip() or None) if location else None,
+            address=(location.address.strip() or None) if location else None,
             status=UserStatus.INVITED if payload.is_invited else UserStatus.ACTIVE,
             must_change_credential=not payload.is_invited,
             created_by_id=self.current_user.id,

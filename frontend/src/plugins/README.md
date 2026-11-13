@@ -6,6 +6,7 @@ One file per runtime library, and only that file imports the package (`import ty
 | --- | --- | --- |
 | `barcode-detector.ts` | barcode-detector, zxing-wasm | `getQrDetector()`: the browser's `BarcodeDetector` when it reads QR codes, else the ZXing WASM ponyfill, loaded on first scan with its `.wasm` served by the app. Used by `global/composables/use-qr-scanner.ts`. |
 | `axios.ts` | axios | `http`, the shared client (credentials on, JSON); `isHttpError`. Services reach it through `BaseService.request<T>()`. |
+| `date-fns.ts` | date-fns | `DATE_FNS_LOCALES`: the fr and ar (Morocco) date-fns locales, for the date picker. |
 | `dicebear.ts` | @dicebear/core, @dicebear/styles | `renderAvatarDataUri`, `AvatarStyleName`. Styles load lazily on first use. Used by `global/composables/avatar.ts`. |
 | `fontsource.ts` | @fontsource-variable/noto-sans-arabic | Nothing: importing it declares the Arabic typeface, downloaded only when Arabic text shows. |
 | `i18n.ts` | vue-i18n | `install`, `i18n`. Loads every `modules/*/locales/*.json`, starts in the device's language and keeps `lang` and `dir` on the document in step. |
@@ -13,3 +14,4 @@ One file per runtime library, and only that file imports the package (`import ty
 | `lean-qr.ts` | lean-qr | `renderQrSvg(text)`: a QR code as one SVG path. Used by `global/components/ui-qr-code.vue`. |
 | `map.ts` | maplibre-gl, through `lib/map` | `install`. One static map; `useMap()` from `map`. MapLibre also lives in `lib/map/adapters/maplibre/` and loads on the first `<MapView>`. |
 | `pinia.ts` | pinia | `install`. |
+| `vuepic.ts` | @vuepic/vue-datepicker | `install`: registers `<VueDatePicker>` and its stylesheet. Only `global/components/ui-date-picker.vue` uses it; the theme maps to our tokens in `styles/date-picker.css`. |

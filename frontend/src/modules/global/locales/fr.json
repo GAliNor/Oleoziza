@@ -25,18 +25,20 @@
     "sites": "Sites",
     "configuration": "Configuration",
     "configurationShort": "Config.",
-    "discounts": "Remises",
     "more": "Plus",
     "cashDesk": "Caisse",
     "debts": "Recouvrement",
-    "activity": "Journal du jour"
+    "activity": "Journal du jour",
+    "activityShort": "Journal"
   },
   "network": {
     "offline": "Hors ligne"
   },
   "site": {
     "label": "Site",
-    "all": "Tous les sites"
+    "all": "Tous les sites",
+    "switchTo": "Changer de site",
+    "allDetail": "{count} sites ensemble"
   },
   "toast": {
     "close": "Fermer"
@@ -46,9 +48,9 @@
     "pendingSync": "{count} élément à synchroniser | {count} éléments à synchroniser",
     "profileMenu": "{name}, menu du compte",
     "menu": "Menu",
-    "backoffice": "Backoffice",
-    "backofficeMode": "Mode Backoffice",
-    "backToOperator": "Retour mode Opérateur"
+    "workAsOperator": "Travailler comme opérateur",
+    "operatorMode": "Mode opérateur",
+    "backToManagement": "Retour à la gestion"
   },
   "allSites": "Tous les sites",
   "period": {
@@ -96,5 +98,15 @@
       "denied": "La caméra est refusée. Autorisez-la dans le navigateur, ou tapez le numéro du lot.",
       "unavailable": "Pas de caméra utilisable ici. Tapez le numéro du lot."
     }
+  },
+  "datePicker": {
+    "today": "Maintenant",
+    "select": "Valider",
+    "cancel": "Annuler"
+  },
+  "loadMore": {
+    "more": "Voir {count} de plus",
+    "range": "{shown} sur {total}",
+    "all": "{total} élément | {total} élément | Les {total} éléments sont affichés"
   }
 }

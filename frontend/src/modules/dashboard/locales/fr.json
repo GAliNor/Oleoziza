@@ -83,8 +83,7 @@
     "tabs": {
       "overview": "Vue d’ensemble",
       "production": "Production",
-      "finance": "Finances",
-      "tanks": "Planning cuves"
+      "finance": "Finances"
     },
     "overview": {
       "production": "Production",
@@ -107,18 +106,18 @@
         "lots": "Lots",
         "olives": "Olives",
         "oil": "Huile",
-        "yield": "Rendement"
-      }
+        "yield": "Rendement",
+        "line": "Chaîne",
+        "hours": "Pressage"
+      },
+      "byLine": "Par chaîne",
+      "hours": "{hours} h",
+      "byVariety": "Par variété"
     },
     "oliveChart": {
       "days": "Olives reçues, 7 derniers jours",
       "monthWeeks": "Olives reçues, par semaine ce mois",
       "seasonWeeks": "Olives reçues, par semaine de saison"
-    },
-    "queue": {
-      "title": "File des lots",
-      "now": "· maintenant",
-      "open": "Voir la file →"
     },
     "sales": {
       "cumulative": "{title} (cumulés)",
@@ -137,25 +136,15 @@
       "yield": "Rendement",
       "revenue": "CA saison",
       "outstanding": "À encaisser"
+    },
+    "lines": {
+      "title": "Chaînes",
+      "open": "Voir les opérations →",
+      "none": "Aucune chaîne configurée sur ce site."
     }
   },
   "tanks": {
     "title": "Cuves",
-    "tank": "Cuve",
-    "planning": "Planning des cuves",
-    "planningHint": "Huile stockée par lot, du pressage au retrait",
-    "previous": "Période précédente",
-    "next": "Période suivante",
-    "clientOil": "Huile d’un client",
-    "client": "Client",
-    "millStock": "Stock du moulin",
-    "ongoing": "en cours",
-    "withdrawnOn": "retiré le {date}",
-    "empty": "Vide sur la période",
-    "millOwner": "Stock de l’huilerie",
-    "emptyTank": "vide",
-    "plannedUntil": "prévu jusqu’au {date}",
-    "plannedPassed": "prévu jusqu’au {date} · dépassé",
-    "moreLots": "+ {count} autre Lot dans cette cuve | + {count} autre Lot dans cette cuve | + {count} autres Lots dans cette cuve"
+    "emptyTank": "vide"
   }
 }

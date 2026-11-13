@@ -93,7 +93,7 @@ export const dashboardMock = (siteId: string, period: PeriodKey): IDashboard => 
     varieties: VARIETY_FIGURES.map((row) => ({ variety: row.variety, lots: Math.max(1, Math.round(row.lots * factor)), olivesKg: row.olivesKg * factor, oilLitres: row.oilLitres * factor })),
     oliveChart: oliveChartOf(period, scale),
     tanks: [],
-    tankStorage: [],
+    pressLines: [],
     sites,
   };
 };

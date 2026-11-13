@@ -50,6 +50,7 @@ export interface IUserService {
   updateSitePermissions(id: string, siteId: string, permissions: Permission[] | null): Promise<IStaffUser>;
   updateLoginMethods(id: string, loginMethods: LoginMethod[]): Promise<IStaffUser>;
   updateStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<IStaffUser>;
+  updateLocation(id: string, location: ILocation | null): Promise<IStaffUser>;
   sendInvitation(id: string): Promise<IStaffUser>;
   resetCredential(id: string): Promise<void>;
 }

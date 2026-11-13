@@ -32,7 +32,7 @@
       </div>
 
       <ui-field v-slot="{ id }" :label="$t('lot.split.plannedUntil')">
-        <input :id="id" v-model="plannedUntil" class="input" type="date" :min="todayIso()" />
+        <ui-date-picker :id="id" v-model="plannedUntil" :min="todayIso()" :label="$t('lot.split.plannedUntil')" is-clearable />
       </ui-field>
       <p v-if="problem" class="form-error" role="alert">{{ $t(`lot.split.problems.${problem}`, { quantity: formatLitres(toStore) }) }}</p>
     </template>
@@ -51,6 +51,7 @@ import { canTake, checkPours, suggestPours, tankStates, type ITankState, type Po
 import type { ITankSetting } from 'configuration/types/configuration';
 import type { ILot, IOilSplit, ITankPour } from 'lot/types/lot';
 
+import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiField from 'global/components/ui-field.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';

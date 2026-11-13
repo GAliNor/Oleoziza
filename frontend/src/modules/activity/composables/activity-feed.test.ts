@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildActivityFeed, daySummary } from 'activity/composables/activity-feed';
+import { buildActivityFeed, daySummary, filterFeed } from 'activity/composables/activity-feed';
 import type { IMovement } from 'finance/types/finance';
 import type { ILot } from 'lot/types/lot';
 
@@ -44,6 +44,18 @@ describe('buildActivityFeed', () => {
   });
 
   it('sums up what came in, what was stored, given off and collected', () => {
-    expect(daySummary(buildActivityFeed(sources, DAY))).toEqual({ receptions: 1, receivedKg: 1000, storedLitres: 200, discounts: 1, discountDh: 50, collectedDh: 750 });
+    expect(daySummary(buildActivityFeed(sources, DAY))).toMatchObject({ receptions: 1, receivedKg: 1000, storedLitres: 200, discounts: 1, discountDh: 50, collectedDh: 750 });
+  });
+
+  it('counts the day per group and lists who acted, so the list can load a page at a time', () => {
+    const feed = buildActivityFeed(sources, DAY);
+    const summary = daySummary(filterFeed(feed, { group: null, person: null, includeMoney: false }));
+    expect([summary.total, summary.groupCounts.payment, summary.groupCounts.production, summary.people]).toEqual([feed.length - 3, 0, 3, ['Abdelkader', 'Hamid']]);
+  });
+
+  it('keeps only the group, the person and the Money events a filter asks for', () => {
+    const feed = buildActivityFeed(sources, DAY);
+    expect(filterFeed(feed, { group: 'payment', person: 'Khadija', includeMoney: true }).every((event) => event.group === 'payment' && event.by === 'Khadija')).toBe(true);
+    expect(filterFeed(feed, { group: 'payment', person: null, includeMoney: false })).toEqual([]);
   });
 });

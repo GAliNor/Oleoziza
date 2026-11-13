@@ -1,5 +1,5 @@
 import { toIsoDate } from 'global/composables/date';
-import type { ActivityGroup, ActivityKind, IActivity } from 'activity/types/activity';
+import type { ActivityGroup, ActivityKind, IActivity, IActivityDaySummary, IActivityFilter } from 'activity/types/activity';
 import type { IConfigurationChange } from 'configuration/types/configuration';
 import type { IDebtContact, IMovement, IRefund } from 'finance/types/finance';
 import type { ILot } from 'lot/types/lot';
@@ -108,11 +108,19 @@ export const buildActivityFeed = (sources: IActivitySources, day: string): IActi
 };
 
 /** The day at a glance: what came in, what was pressed and stored, what was given off and taken in. */
-export const daySummary = (events: readonly IActivity[]): { receptions: number; receivedKg: number; storedLitres: number; discounts: number; discountDh: number; collectedDh: number } => ({
+/** The events a filter keeps: a group, a person, and Money events only when allowed. */
+export const filterFeed = (events: readonly IActivity[], filter: IActivityFilter): IActivity[] =>
+  events.filter((event) => (filter.includeMoney || !event.isMoney) && (!filter.group || event.group === filter.group) && (!filter.person || event.by === filter.person));
+
+/** The day's figures, how many events each group holds, and who acted, over the events the person may see. */
+export const daySummary = (events: readonly IActivity[]): IActivityDaySummary => ({
   receptions: events.filter((event) => event.kind === 'reception').length,
   receivedKg: events.filter((event) => event.kind === 'reception').reduce((sum, event) => sum + (event.kg ?? 0), 0),
   storedLitres: events.filter((event) => event.kind === 'stored').reduce((sum, event) => sum + (event.litres ?? 0), 0),
   discounts: events.filter((event) => event.kind === 'discount_given' || event.kind === 'discount_pending').length,
   discountDh: events.filter((event) => event.kind === 'discount_given' || event.kind === 'discount_approved').reduce((sum, event) => sum + (event.amount ?? 0), 0),
   collectedDh: events.filter((event) => event.kind === 'payment_confirmed').reduce((sum, event) => sum + (event.amount ?? 0), 0),
+  total: events.length,
+  groupCounts: Object.fromEntries(ACTIVITY_GROUPS.map((group) => [group, events.filter((event) => event.group === group).length])) as Record<ActivityGroup, number>,
+  people: [...new Set(events.map((event) => event.by))].sort((first, second) => first.localeCompare(second)),
 });

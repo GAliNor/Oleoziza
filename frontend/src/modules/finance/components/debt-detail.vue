@@ -27,7 +27,7 @@
         <textarea :id="id" v-model="note" class="input min-h-20" :placeholder="$t('finance.debts.form.notePlaceholder')" />
       </ui-field>
       <ui-field v-slot="{ id }" :label="$t('finance.debts.form.promisedOn')">
-        <input :id="id" v-model="promisedOn" class="input" type="date" :min="todayIso()" />
+        <ui-date-picker :id="id" v-model="promisedOn" :min="todayIso()" :label="$t('finance.debts.form.promisedOn')" is-clearable />
       </ui-field>
       <button type="submit" class="btn-primary self-end" :disabled="!canSave">{{ $t('finance.debts.form.save') }}</button>
     </form>
@@ -64,6 +64,7 @@ import { amountDue } from 'lot/composables/fee';
 import type { IDebtRow } from 'finance/composables/debt-follow-up';
 import type { DebtContactKind } from 'finance/types/finance';
 
+import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiField from 'global/components/ui-field.vue';
 
 // props

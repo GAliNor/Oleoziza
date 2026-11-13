@@ -72,6 +72,19 @@ def test_management_creates_an_operator_with_a_first_pin(client: TestClient, db:
     assert published == []
 
 
+def test_an_operator_is_created_without_a_location(client: TestClient, db: Session, published: list) -> None:
+    """
+    Province, city and address are left for later, so creating an Operator stays quick.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990220", is_owner=True)
+
+    response = client.post(API_URL, json=build_operator_form(str(site.id), "0669990221", location=None), headers=build_auth_header(owner))
+
+    assert response.status_code == 201
+    assert response.json()["location"] is None
+
+
 def test_an_invited_user_receives_a_link_that_activates_them(client: TestClient, db: Session, published: list) -> None:
     """
     Inviting publishes the sending to the worker; accepting the link sets the chosen secret and activates the User.

@@ -151,6 +151,13 @@
             </ui-empty-state>
           </kit-demo>
 
+          <kit-demo name="ui-date-picker">
+            <div class="grid gap-3 sm:grid-cols-2">
+              <ui-date-picker v-model="demoDay" :label="$t('kit.demo.day')" />
+              <ui-date-picker v-model="demoStart" mode="datetime" :label="$t('kit.demo.start')" />
+            </div>
+          </kit-demo>
+
           <kit-demo name="ui-pagination">
             <ui-pagination v-model:page="demoPage" :page-count="3" :total="27" :page-size="10" />
           </kit-demo>
@@ -187,6 +194,7 @@ import UiConfirmButton from 'global/components/ui-confirm-button.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiField from 'global/components/ui-field.vue';
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
+import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import UiProgressBar from 'global/components/ui-progress-bar.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
@@ -225,6 +233,8 @@ const CHART_BARS = [
 ];
 const segment = ref<'one' | 'two'>('one');
 const demoPage = ref(1);
+const demoDay = ref('');
+const demoStart = ref('');
 const isDemoOpen = ref(false);
 const isDark = ref(document.documentElement.classList.contains('dark'));
 

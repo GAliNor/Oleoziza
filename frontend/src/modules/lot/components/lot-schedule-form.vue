@@ -8,8 +8,9 @@
       </button>
     </div>
     <ui-field v-slot="{ id }" :label="$t('lot.schedule.plannedStart')">
-      <input :id="id" v-model="startTyped" class="input" type="datetime-local" />
+      <ui-date-picker :id="id" v-model="startTyped" mode="datetime" :label="$t('lot.schedule.plannedStart')" />
     </ui-field>
+    <button v-if="pressLineId" type="button" class="link self-start" @click="handleFirst">{{ $t('lot.schedule.first') }}</button>
     <div class="grid grid-cols-2 gap-2">
       <button type="button" class="btn-secondary" @click="emit('close')">{{ $t('lot.schedule.cancel') }}</button>
       <button type="submit" class="btn-primary" :disabled="!canSave">{{ $t('lot.schedule.save') }}</button>
@@ -27,10 +28,11 @@ import { useToastStore } from 'global/stores/toast';
 import { createId } from 'global/composables/crypto';
 import { fromDateTimeInput, toDateTimeInput } from 'global/composables/datetime-input';
 import { formatPressLine } from 'configuration/composables/equipment';
-import { lineQueue } from 'lot/composables/press-schedule';
+import { firstStart, lineQueue } from 'lot/composables/press-schedule';
 import type { IPressLineSetting } from 'configuration/types/configuration';
 import type { ILot } from 'lot/types/lot';
 
+import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiField from 'global/components/ui-field.vue';
 
 // props
@@ -55,6 +57,10 @@ const plannedStartAt = computed((): string => fromDateTimeInput(startTyped.value
 const canSave = computed((): boolean => !!pressLineId.value && !!plannedStartAt.value && !lotStore.isSaving);
 
 // event handlers
+const handleFirst = (): void => {
+  startTyped.value = toDateTimeInput(firstStart(siteLots.value, pressLineId.value, props.lot.id, new Date()));
+};
+
 const handleSave = async (): Promise<void> => {
   if (!canSave.value) return;
   const updated = await lotStore.scheduleLot(props.lot, { id: scheduleId, pressLineId: pressLineId.value, plannedStartAt: plannedStartAt.value });

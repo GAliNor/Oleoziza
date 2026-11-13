@@ -50,5 +50,5 @@ export interface ISessionStore {
   session: ISession | null;
   isReady: boolean;
   hasExpired: boolean;
-  isBackofficeMode: boolean;
+  isOperatorMode: boolean;
 }

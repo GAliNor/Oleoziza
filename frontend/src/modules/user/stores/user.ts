@@ -4,6 +4,7 @@ import UserService from 'user/services/user';
 import { withStatus } from 'global/composables/with-status';
 import type { LoginMethod } from 'auth/types/auth';
 import type { Permission } from 'global/types/session';
+import type { ILocation } from 'territory/types/territory';
 import type { IStaffForm, IStaffUser, IUserStore, StaffStatus } from 'user/types/user';
 
 const userService = new UserService();
@@ -39,6 +40,9 @@ export const useUserStore = defineStore('user', {
     },
     async setStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<boolean> {
       return this.apply(() => userService.updateStatus(id, status));
+    },
+    async setLocation(id: string, location: ILocation | null): Promise<boolean> {
+      return this.apply(() => userService.updateLocation(id, location));
     },
     async sendInvitation(id: string): Promise<boolean> {
       return this.apply(() => userService.sendInvitation(id));

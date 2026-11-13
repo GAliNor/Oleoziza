@@ -25,10 +25,6 @@
       <overview-tab v-if="tab === 'overview'" key="overview" :period="period" :dashboard="dashboard" :is-finance-shown="isFinanceShown" />
       <production-tab v-else-if="tab === 'production'" key="production" :period="period" :dashboard="dashboard" />
       <finance-tab v-else-if="tab === 'finance'" key="finance" :period="period" />
-      <div v-else key="tanks">
-        <div class="hidden md:block"><tank-gantt :tanks="dashboard.tanks" :storage="dashboard.tankStorage" :period="period" /></div>
-        <tank-planning-cards class="md:hidden" :tanks="dashboard.tanks" :storage="dashboard.tankStorage" :period="period" />
-      </div>
     </Transition>
   </section>
 </template>
@@ -50,8 +46,6 @@ import { useSiteScope } from 'site/composables/use-site-scope';
 import FinanceTab from 'dashboard/components/finance-tab.vue';
 import OverviewTab from 'dashboard/components/overview-tab.vue';
 import ProductionTab from 'dashboard/components/production-tab.vue';
-import TankGantt from 'dashboard/components/tank-gantt.vue';
-import TankPlanningCards from 'dashboard/components/tank-planning-cards.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 
@@ -68,8 +62,8 @@ const { period, periodOptions, selectPeriod } = usePeriod();
 const { scopeName } = useSiteScope();
 
 // variables
-type HomeTab = 'overview' | 'production' | 'finance' | 'tanks';
-const TABS: { key: HomeTab; isFinance?: boolean }[] = [{ key: 'overview' }, { key: 'production' }, { key: 'finance', isFinance: true }, { key: 'tanks' }];
+type HomeTab = 'overview' | 'production' | 'finance';
+const TABS: { key: HomeTab; isFinance?: boolean }[] = [{ key: 'overview' }, { key: 'production' }, { key: 'finance', isFinance: true }];
 
 // computed
 const dashboard = computed(() => dashboardStore.dashboard);

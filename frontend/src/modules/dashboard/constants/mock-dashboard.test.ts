@@ -6,11 +6,10 @@ import { ALL_SITES } from 'site/constants/site';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 
 describe('dashboardMock', () => {
-  it('keeps each Site to its own Tanks and storage', async () => {
-    const { tanks, tankStorage } = await new DashboardMockService().getDashboard(SITE_OUJDA_ID, 'week');
+  it('keeps each Site to its own Tanks', async () => {
+    const { tanks } = await new DashboardMockService().getDashboard(SITE_OUJDA_ID, 'week');
     expect(tanks.length).toBeGreaterThan(0);
     expect(tanks.every((tank) => tank.siteId === SITE_OUJDA_ID)).toBe(true);
-    expect(tankStorage.every((entry) => tanks.some((tank) => tank.id === entry.tankId))).toBe(true);
   });
 
   it('shows every Site and every Tank under all Sites', async () => {

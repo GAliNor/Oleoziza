@@ -43,15 +43,10 @@
         </span>
       </button>
 
-      <label class="flex min-h-14 items-center justify-between gap-3 border-t border-default px-4">
-        <span class="shrink-0 text-sm font-medium whitespace-nowrap text-fg-primary-paragraph">{{ $t('reception.line.plannedStart') }}</span>
-        <input
-          class="min-h-11 w-full max-w-56 min-w-0 rounded-control bg-subtle px-3 text-end font-semibold text-fg-display tabular-nums focus-visible:outline-2 focus-visible:outline-focus"
-          type="datetime-local"
-          :value="plannedStartAt ? toDateTimeInput(plannedStartAt) : ''"
-          @input="handleStart"
-        />
-      </label>
+      <div class="flex min-h-14 items-center justify-between gap-3 border-t border-default px-4 py-1.5">
+        <label :for="startId" class="shrink-0 text-sm font-medium whitespace-nowrap text-fg-primary-paragraph">{{ $t('reception.line.plannedStart') }}</label>
+        <ui-date-picker :id="startId" v-model="startTyped" class="w-full max-w-64 min-w-0" mode="datetime" :label="$t('reception.line.plannedStart')" />
+      </div>
     </div>
   </section>
 </template>
@@ -68,6 +63,7 @@ import { lineQueue, suggestLine, suggestStart } from 'lot/composables/press-sche
 import type { IPressLineSetting } from 'configuration/types/configuration';
 import type { ILot } from 'lot/types/lot';
 
+import UiDatePicker from 'global/components/ui-date-picker.vue';
 import CheckLineIcon from 'global/icons/check-line.icon.vue';
 
 // props
@@ -82,10 +78,18 @@ const { t } = useI18n();
 
 // variables
 const titleId = useId();
+const startId = useId();
 const isStartTyped = ref(false);
 const rows = new Map<string, HTMLButtonElement>();
 
 // computed
+const startTyped = computed({
+  get: (): string => (plannedStartAt.value ? toDateTimeInput(plannedStartAt.value) : ''),
+  set: (value: string): void => {
+    isStartTyped.value = true;
+    plannedStartAt.value = fromDateTimeInput(value);
+  },
+});
 const suggestedComputed = computed((): IPressLineSetting | null => suggestLine(props.lines, props.lots));
 
 // watchers
@@ -141,8 +145,4 @@ const handleKeydown = (event: KeyboardEvent): void => {
   pickAt(current + steps[event.key]);
 };
 
-const handleStart = (event: Event): void => {
-  isStartTyped.value = true;
-  plannedStartAt.value = fromDateTimeInput((event.target as HTMLInputElement).value);
-};
 </script>

@@ -1,7 +1,7 @@
 <template>
   <app-layout>
     <management-home v-if="sessionStore.isBackofficeView" />
-    <operator-home v-else-if="sessionStore.session?.role === 'operator'" />
+    <operator-home v-else-if="sessionStore.isOperatorView" />
     <section v-else class="flex flex-col gap-6">
       <div>
         <h1 class="heading-one">{{ $t('dashboard.welcome', { name: sessionStore.salutation }) }}</h1>

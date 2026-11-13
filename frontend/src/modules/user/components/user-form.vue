@@ -26,8 +26,6 @@
       </ui-field>
     </div>
 
-    <location-fields v-if="form.role === 'operator'" v-model="form.location" />
-
     <div class="flex flex-col gap-1.5">
       <span class="label">{{ $t('user.form.sites') }}</span>
       <div class="flex flex-wrap gap-2">
@@ -96,12 +94,9 @@ import { normalizeIdentifier } from 'auth/composables/normalize-identifier';
 import { formatFullName } from 'user/composables/format';
 import { STAFF_ROLES } from 'user/constants/user';
 import { PIN_LENGTH } from 'auth/constants/auth';
-import { isLocationComplete, trimmedLocation } from 'territory/composables/location';
-import { EMPTY_LOCATION } from 'territory/constants/provinces';
 import type { IStaffUser, StaffRole } from 'user/types/user';
 
 import UiField from 'global/components/ui-field.vue';
-import LocationFields from 'territory/components/location-fields.vue';
 
 // emits
 const emit = defineEmits<{
@@ -126,7 +121,6 @@ const form = reactive({
   lastName: '',
   phone: '',
   email: '',
-  location: { ...EMPTY_LOCATION },
   siteIds: initialSiteId ? [initialSiteId] : ([] as string[]),
   isInvited: false,
   secret: '',
@@ -144,7 +138,6 @@ const validate = (phone: string | null, email: string | null): string => {
   if (form.phone.trim() && !phone) return t('user.form.contactInvalid');
   if (form.email.trim() && !email) return t('user.form.contactInvalid');
   if (!phone && !email) return t('user.form.contactRequired');
-  if (form.role === 'operator' && !isLocationComplete(form.location)) return t('user.form.locationRequired');
   if (!form.siteIds.length) return t('user.form.siteRequired');
   if (!form.isInvited && isPin.value && !PIN_PATTERN.test(form.secret)) return t('user.form.pinInvalid');
   if (!form.isInvited && !isPin.value && form.secret.length < MIN_PASSWORD_LENGTH) return t('user.form.passwordInvalid');
@@ -172,7 +165,7 @@ const handleSubmit = async (): Promise<void> => {
     lastName: form.lastName.trim(),
     phone,
     email,
-    location: form.role === 'operator' ? trimmedLocation(form.location) : null,
+    location: null,
     sites: Object.fromEntries(form.siteIds.map((siteId) => [siteId, defaultsFor(form.role, siteId)])),
     isInvited: form.isInvited,
     firstSecret: form.isInvited ? null : form.secret,

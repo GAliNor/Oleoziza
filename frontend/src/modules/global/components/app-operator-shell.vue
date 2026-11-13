@@ -1,38 +1,39 @@
 <template>
   <div class="flex min-h-dvh min-w-0 flex-col">
-    <header class="sticky top-0 z-30 flex items-center gap-1.5 border-b border-default bg-surface/90 px-4 py-2.5 backdrop-blur md:gap-2 md:px-8">
-      <router-link :to="{ name: 'dashboard' }" class="shrink-0 max-md:has-[+button]:hidden" :aria-label="$t('global.nav.dashboard')">
-        <logo-mark-fill-icon class="h-7 w-7 text-fg-brand" />
-      </router-link>
-      <app-back-button />
-      <site-switcher class="flex-1" />
-      <app-network-badge class="shrink-0" />
-      <router-link :to="{ name: 'client-search' }" class="icon-btn shrink-0" :aria-label="$t('global.shell.search')">
-        <search-line-icon class="h-5 w-5" />
-      </router-link>
-      <span
-        v-if="syncStore.pendingCount"
-        class="chip shrink-0 bg-warning-subtle py-1.5 text-fg-warning"
-        role="status"
-        :title="$t('global.shell.pendingSync', syncStore.pendingCount)"
-      >
-        <refresh-line-icon class="h-4 w-4" /> {{ syncStore.pendingCount }}
-      </span>
-      <button v-if="canJump" type="button" class="btn-secondary hidden shrink-0 md:inline-flex" @click="jump">
-        <sliders-line-icon class="h-5 w-5" />
-        {{ $t('global.shell.backoffice') }}
-      </button>
-      <app-user-menu :trigger-label="$t('global.shell.profileMenu', { name: firstNameComputed })" @logout="handleLogout">
-        <template #trigger>
-          <ui-avatar class="h-9 w-9 shrink-0" :name="sessionStore.fullName" :variant="STAFF_AVATAR_VARIANT" fallback-class="bg-accent-brown text-white" />
-          <span class="max-w-24 min-w-0 truncate">{{ firstNameComputed }}</span>
-        </template>
-        <button v-if="canJump" type="button" class="inline-flex min-h-11 w-full items-center gap-2 rounded-control px-3 label hover:bg-subtle md:hidden" @click="jump">
-          <sliders-line-icon class="h-5 w-5 shrink-0" />
-          {{ $t('global.shell.backoffice') }}
+    <div class="sticky top-0 z-30">
+      <div v-if="isOperatorMode" class="flex items-center justify-between gap-3 bg-accent-brown px-4 py-2 text-white md:px-8" role="status">
+        <span class="min-w-0 truncate text-sm font-semibold">{{ $t('global.shell.operatorMode') }}</span>
+        <button type="button" class="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-control bg-white/15 px-3 text-sm font-semibold hover:bg-white/25" @click="returnToManagement">
+          <arrow-left-line-icon class="h-4 w-4 rtl:-scale-x-100" />
+          {{ $t('global.shell.backToManagement') }}
         </button>
-      </app-user-menu>
-    </header>
+      </div>
+      <header class="flex items-center gap-1.5 border-b border-default bg-surface/90 px-4 py-2.5 backdrop-blur md:gap-2 md:px-8">
+        <router-link :to="{ name: 'dashboard' }" class="shrink-0 max-md:has-[+button]:hidden" :aria-label="$t('global.nav.dashboard')">
+          <logo-mark-fill-icon class="h-7 w-7 text-fg-brand" />
+        </router-link>
+        <app-back-button />
+        <site-switcher class="flex-1" />
+        <app-network-badge class="shrink-0" />
+        <router-link :to="{ name: 'client-search' }" class="icon-btn shrink-0" :aria-label="$t('global.shell.search')">
+          <search-line-icon class="h-5 w-5" />
+        </router-link>
+        <span
+          v-if="syncStore.pendingCount"
+          class="chip shrink-0 bg-warning-subtle py-1.5 text-fg-warning"
+          role="status"
+          :title="$t('global.shell.pendingSync', syncStore.pendingCount)"
+        >
+          <refresh-line-icon class="h-4 w-4" /> {{ syncStore.pendingCount }}
+        </span>
+        <app-user-menu :trigger-label="$t('global.shell.profileMenu', { name: firstNameComputed })" @logout="handleLogout">
+          <template #trigger>
+            <ui-avatar class="h-9 w-9 shrink-0" :name="sessionStore.fullName" :variant="STAFF_AVATAR_VARIANT" fallback-class="bg-accent-brown text-white" />
+            <span class="max-w-24 min-w-0 truncate max-sm:sr-only">{{ firstNameComputed }}</span>
+          </template>
+        </app-user-menu>
+      </header>
+    </div>
 
     <main class="flex-1 px-4 pt-6 pb-10 md:px-8">
       <slot />
@@ -49,7 +50,7 @@ import { useRouter } from 'vue-router';
 
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
-import { useBackofficeJump } from 'global/composables/use-backoffice-jump';
+import { useOperatorMode } from 'global/composables/use-operator-mode';
 
 import { STAFF_AVATAR_VARIANT } from 'user/constants/user';
 import AppToast from 'global/components/app-toast.vue';
@@ -61,13 +62,13 @@ import AppUserMenu from 'global/components/app-user-menu.vue';
 import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
 import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
-import SlidersLineIcon from 'global/icons/sliders-line.icon.vue';
+import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 
 // stores
 const router = useRouter();
 const sessionStore = useSessionStore();
 const syncStore = useSyncStore();
-const { canJump, jump } = useBackofficeJump();
+const { isOperatorMode, returnToManagement } = useOperatorMode();
 
 // computed
 const firstNameComputed = computed((): string => sessionStore.session?.firstName ?? '');

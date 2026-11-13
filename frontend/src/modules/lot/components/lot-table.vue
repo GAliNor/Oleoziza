@@ -59,6 +59,7 @@
     </template>
     <template v-if="active" #detail>
       <lot-detail :key="active.id" :lot="active" />
+      <lot-actions :key="`actions-${active.id}`" :lot="active" />
     </template>
   </ui-master-detail>
 </template>
@@ -78,6 +79,7 @@ import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import LotDetail from 'lot/components/lot-detail.vue';
+import LotActions from 'lot/components/lot-actions.vue';
 import LotPaymentChip from 'lot/components/lot-payment-chip.vue';
 
 // props

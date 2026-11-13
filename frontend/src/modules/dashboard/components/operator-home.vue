@@ -134,7 +134,7 @@ import DropLineIcon from 'global/icons/drop-line.icon.vue';
 import QrScanLineIcon from 'global/icons/qr-scan-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
-import ConfirmMove from 'dashboard/components/confirm-move.vue';
+import ConfirmMove from 'lot/components/confirm-move.vue';
 import OperatorLotSheet from 'dashboard/components/operator-lot-sheet.vue';
 import DeskLotCard from 'dashboard/components/desk-lot-card.vue';
 import PressLineCard from 'dashboard/components/press-line-card.vue';

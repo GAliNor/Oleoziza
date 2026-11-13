@@ -1,23 +1,31 @@
 <template>
-  <div class="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-3">
-    <div class="stagger flex min-w-0 flex-col gap-5" :class="isFinanceShown ? 'lg:col-span-2' : 'lg:col-span-3'">
-      <p class="eyebrow">{{ $t('dashboard.management.overview.production') }}</p>
-      <div class="-mt-3 grid grid-cols-2 gap-3">
-        <ui-stat-tile v-for="tile in productionTiles" :key="tile.label" v-bind="tile" />
+  <div class="flex min-w-0 flex-col gap-5">
+    <div class="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-3">
+      <div class="stagger flex min-w-0 flex-col gap-5" :class="isFinanceShown ? 'lg:col-span-2' : 'lg:col-span-3'">
+        <p class="eyebrow">{{ $t('dashboard.management.overview.production') }}</p>
+        <div class="-mt-3 grid grid-cols-2 gap-3">
+          <ui-stat-tile v-for="tile in productionTiles" :key="tile.label" v-bind="tile" />
+        </div>
+        <site-table v-if="siteStore.isAllSites" :sites="dashboard.sites" :is-finance-shown="isFinanceShown" />
+        <olive-chart :chart="dashboard.oliveChart" />
       </div>
-      <lot-queue-strip />
-      <site-table v-if="siteStore.isAllSites" :sites="dashboard.sites" :is-finance-shown="isFinanceShown" />
-      <olive-chart :chart="dashboard.oliveChart" />
-      <tank-cards :tanks="dashboard.tanks" />
+      <div v-if="isFinanceShown" class="stagger flex min-w-0 flex-col gap-5">
+        <p class="eyebrow">{{ $t('dashboard.management.overview.sales') }}</p>
+        <template v-if="figures && financeStore.sales">
+          <sales-tiles :figures="figures" :period-label="period.label" layout="stacked" class="-mt-3" />
+          <sales-lines :title="$t(financeStore.sales.chartTitleKey)" :bars="financeStore.sales.bars" />
+        </template>
+        <div v-else class="-mt-3 skeleton h-64 rounded-card" />
+      </div>
     </div>
-    <div v-if="isFinanceShown" class="stagger flex min-w-0 flex-col gap-5">
-      <p class="eyebrow">{{ $t('dashboard.management.overview.sales') }}</p>
-      <template v-if="figures && financeStore.sales">
-        <sales-tiles :figures="figures" :period-label="period.label" layout="stacked" class="-mt-3" />
-        <sales-lines :title="$t(financeStore.sales.chartTitleKey)" :bars="financeStore.sales.bars" />
-      </template>
-      <div v-else class="-mt-3 skeleton h-64 rounded-card" />
-    </div>
+    <section class="rise flex min-w-0 flex-col gap-3">
+      <div class="flex items-baseline justify-between gap-3">
+        <p class="eyebrow">{{ $t('dashboard.management.lines.title') }}</p>
+        <router-link :to="{ name: 'lot' }" class="link">{{ $t('dashboard.management.lines.open') }}</router-link>
+      </div>
+      <site-press-lines v-for="site in lineSites" :key="site.siteId" :site-id="site.siteId" :title="siteStore.isAllSites ? site.name : undefined" />
+    </section>
+    <tank-cards class="rise" :tanks="dashboard.tanks" />
   </div>
 </template>
 
@@ -33,9 +41,9 @@ import { formatDelta } from 'global/composables/number';
 import type { IDashboard } from 'dashboard/types/dashboard';
 import type { IPeriod } from 'global/types/period';
 
-import LotQueueStrip from 'dashboard/components/lot-queue-strip.vue';
 import OliveChart from 'dashboard/components/olive-chart.vue';
 import SalesLines from 'dashboard/components/sales-lines.vue';
+import SitePressLines from 'dashboard/components/site-press-lines.vue';
 import SiteTable from 'dashboard/components/site-table.vue';
 import TankCards from 'dashboard/components/tank-cards.vue';
 import SalesTiles from 'finance/components/sales-tiles.vue';
@@ -51,6 +59,9 @@ const siteStore = useSiteStore();
 const { figures } = useFinance();
 
 // computed
+const lineSites = computed((): { siteId: string; name: string }[] =>
+  siteStore.isAllSites ? props.dashboard.sites.map((site) => ({ siteId: site.siteId, name: site.name })) : siteStore.currentSiteId ? [{ siteId: siteStore.currentSiteId, name: '' }] : [],
+);
 const tankFill = computed((): number => {
   const capacity = props.dashboard.tanks.reduce((sum, tank) => sum + tank.capacityLitres, 0);
   return capacity ? props.dashboard.tanks.reduce((sum, tank) => sum + tank.fillLitres, 0) / capacity : 0;

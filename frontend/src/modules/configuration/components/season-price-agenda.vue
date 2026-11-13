@@ -55,7 +55,7 @@
         </div>
       </ui-field>
       <ui-field v-slot="{ id }" :label="$t('configuration.agenda.from')">
-        <input :id="id" v-model="formDate" type="date" class="input w-auto" :min="firstDay" :max="lastDay" required />
+        <ui-date-picker :id="id" v-model="formDate" class="max-w-80" :min="firstDay" :max="lastDay" :label="$t('configuration.agenda.from')" required />
       </ui-field>
       <div class="flex gap-2">
         <button type="submit" class="btn-primary" :disabled="configurationStore.isSaving">{{ $t('configuration.agenda.submit') }}</button>
@@ -82,6 +82,7 @@ import { CONFIGURATION_VALUES } from 'configuration/constants/configuration';
 import type { ConfigurationValueKey, IConfiguration, IPriceChange } from 'configuration/types/configuration';
 import type { ISeason } from 'season/types/season';
 
+import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiConfirmButton from 'global/components/ui-confirm-button.vue';
 import UiField from 'global/components/ui-field.vue';
 

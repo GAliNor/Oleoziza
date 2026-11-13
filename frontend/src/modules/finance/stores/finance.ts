@@ -6,7 +6,8 @@ import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { withStatus } from 'global/composables/with-status';
-import type { IDebtContact, IDebtContactPayload, IFinanceStore, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund } from 'finance/types/finance';
+import { emptyPagedList, loadFirstPage, loadNextPage, replaceInList } from 'global/composables/paged-list';
+import type { IDebtContact, IDebtContactPayload, IFinanceStore, ILotPaymentLink, IMovement, IMovementDecision, IMovementListQuery, IPaymentDocument, IRecordPaymentPayload, IRefund } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
 
 const financeService = new FinanceService();
@@ -19,6 +20,8 @@ export const useFinanceStore = defineStore('finance', {
   state: (): IFinanceStore => ({
     movements: [],
     refunds: [],
+    registerList: emptyPagedList<IMovement, IMovementListQuery>(),
+    refundList: emptyPagedList<IRefund, { siteId: string }>(),
     debtContacts: [],
     sales: null,
     salesQuery: null,
@@ -57,6 +60,26 @@ export const useFinanceStore = defineStore('finance', {
       return Promise.all([this.fetchMovements(siteId, isForced), this.fetchSales(siteId, period), this.fetchRefunds(siteId)]);
     },
     /** Reads the figures again after a Payment moved money between them. */
+    /** The register's « À traiter » or « Tous » list, 10 rows at a time. */
+    fetchRegister(query: IMovementListQuery, isForced = false): Promise<void> {
+      return loadFirstPage(this.registerList, query, (listQuery, page) => financeService.getMovementPage(listQuery, page), isForced);
+    },
+    fetchMoreRegister(): Promise<void> {
+      return loadNextPage(this.registerList, (listQuery, page) => financeService.getMovementPage(listQuery, page));
+    },
+    /** The rows already shown again, after a decision or a new Payment changed which ones belong. */
+    async refreshRegister(): Promise<void> {
+      if (this.registerList.query) await this.fetchRegister(this.registerList.query, true);
+    },
+    fetchRefundPage(siteId: string, isForced = false): Promise<void> {
+      return loadFirstPage(this.refundList, { siteId }, (query, page) => financeService.getRefundPage(query.siteId, page), isForced);
+    },
+    async refreshRefundPage(): Promise<void> {
+      if (this.refundList.query) await this.fetchRefundPage(this.refundList.query.siteId, true);
+    },
+    fetchMoreRefunds(): Promise<void> {
+      return loadNextPage(this.refundList, (query, page) => financeService.getRefundPage(query.siteId, page));
+    },
     async refreshSales(): Promise<void> {
       if (this.salesQuery) await this.fetchSales(this.salesQuery.siteId, this.salesQuery.period);
     },
@@ -64,9 +87,11 @@ export const useFinanceStore = defineStore('finance', {
       const index = this.movements.findIndex((item) => item.id === updated.id);
       if (index === -1) this.movements.unshift(updated);
       else this.movements.splice(index, 1, updated);
+      replaceInList(this.registerList, updated);
     },
     replaceRefund(updated: IRefund): void {
       this.refunds.splice(this.refunds.findIndex((item) => item.id === updated.id), 1, updated);
+      replaceInList(this.refundList, updated);
     },
     async linkLots(movement: IMovement, lotLinks: ILotPaymentLink[]): Promise<IMovement | null> {
       const updated = await withStatus(this, 'isSaving', () => financeService.linkLots(movement.id, plainList(lotLinks)));
@@ -94,7 +119,7 @@ export const useFinanceStore = defineStore('finance', {
       const updated = await withStatus(this, 'isSaving', () => financeService.decideMovement(movement.id, { ...decision, by: useSessionStore().fullName }));
       if (updated) {
         this.replaceMovement(updated);
-        await Promise.all([useLotStore().reloadLoaded(), useClientStore().fetchClients(true), this.fetchRefunds(updated.siteId), this.refreshSales()]);
+        await Promise.all([useLotStore().reloadLoaded(), useClientStore().fetchClients(true), this.fetchRefunds(updated.siteId), this.refreshSales(), this.refreshRegister(), this.refreshRefundPage()]);
       }
       return updated;
     },
@@ -106,7 +131,7 @@ export const useFinanceStore = defineStore('finance', {
       );
       if (!movement) return null;
       this.replaceMovement(movement);
-      await Promise.all([useLotStore().reloadLoaded(), this.refreshSales()]);
+      await Promise.all([useLotStore().reloadLoaded(), this.refreshSales(), this.refreshRegister()]);
       return movement;
     },
   },

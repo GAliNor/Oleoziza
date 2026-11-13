@@ -1,6 +1,7 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import FinanceMockService from 'finance/services/finance.mock';
-import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales } from 'finance/types/finance';
+import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IMovementListQuery, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales } from 'finance/types/finance';
+import type { IPage, IPageQuery } from 'global/types/page';
 import type { PeriodKey } from 'global/types/period';
 
 class FinanceApiService extends BaseService implements IFinanceService {
@@ -8,6 +9,18 @@ class FinanceApiService extends BaseService implements IFinanceService {
 
   getMovements(siteId: string): Promise<IMovement[]> {
     return this.request<IMovement[]>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/movements` });
+  }
+
+  getMovementPage(query: IMovementListQuery, page: IPageQuery): Promise<IPage<IMovement>> {
+    return this.request<IPage<IMovement>>({
+      method: 'GET',
+      url: `${this._BASE_API_URL}/sites/${query.siteId}/movements`,
+      params: { list: query.list, search: query.search || undefined, period: query.period, offset: page.offset, limit: page.limit },
+    });
+  }
+
+  getRefundPage(siteId: string, page: IPageQuery): Promise<IPage<IRefund>> {
+    return this.request<IPage<IRefund>>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/refunds`, params: { offset: page.offset, limit: page.limit } });
   }
 
   decideMovement(id: string, decision: IMovementDecision): Promise<IMovement> {

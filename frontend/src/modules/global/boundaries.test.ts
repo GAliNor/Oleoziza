@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-const SHELL_FILES = ['./components/app-layout.vue', './components/app-operator-shell.vue', './composables/use-navigation.ts', './composables/use-backoffice-jump.ts'];
+const SHELL_FILES = ['./components/app-layout.vue', './components/app-operator-shell.vue', './composables/use-navigation.ts', './composables/use-operator-mode.ts'];
 
 const sources = import.meta.glob<string>('./**/*.{ts,vue}', { eager: true, query: '?raw', import: 'default' });
 

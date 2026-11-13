@@ -38,7 +38,8 @@
       "oil": "Huile",
       "yield": "Rendement",
       "status": "Statut"
-    }
+    },
+    "newReception": "Nouvelle réception"
   },
   "detail": {
     "heading": "{code} · {site} · reçu le {date}",
@@ -162,7 +163,8 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "saved": "Pressage de {code} replanifié",
-    "error": "La planification n’a pas pu être enregistrée. Réessayez."
+    "error": "La planification n’a pas pu être enregistrée. Réessayez.",
+    "first": "Passer en premier sur cette chaîne"
   },
   "split": {
     "label": "Où va l’huile ?",
@@ -186,5 +188,9 @@
       "total": "Répartissez exactement {quantity} dans les cuves.",
       "purchaseHandedOver": "L’huile achetée ne se remet pas : elle va au stock de l’huilerie."
     }
+  },
+  "actions": {
+    "title": "Agir sur ce lot",
+    "back": "Retour au lot"
   }
 }

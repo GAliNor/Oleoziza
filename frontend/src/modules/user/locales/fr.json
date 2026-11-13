@@ -45,7 +45,8 @@
     "management": "Direction",
     "operator": "Opérateurs",
     "none": "Personne",
-    "rights": "{n} droit | {n} droit | {n} droits"
+    "rights": "{n} droit | {n} droit | {n} droits",
+    "accountant": "Comptables"
   },
   "detail": {
     "lastLogin": "dernière connexion {at}",
@@ -210,7 +211,14 @@
     "passwordInvalid": "Le mot de passe compte au moins 8 caractères.",
     "error": "Impossible de créer l’utilisateur ; le téléphone ou l’e-mail est peut-être déjà utilisé.",
     "created": "{name} est créé ; il changera son code à sa première connexion.",
-    "invited": "Invitation envoyée à {to}.",
-    "locationRequired": "La province, la ville et l’adresse de l’Opérateur sont nécessaires."
+    "invited": "Invitation envoyée à {to}."
+  },
+  "location": {
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "save": "Enregistrer l’adresse",
+    "saved": "Adresse enregistrée.",
+    "none": "Pas encore renseignée",
+    "incomplete": "Province, ville et adresse sont nécessaires pour enregistrer."
   }
 }

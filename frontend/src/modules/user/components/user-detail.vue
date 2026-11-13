@@ -30,14 +30,7 @@
             <dt class="label">{{ $t('user.detail.email') }}</dt>
             <dd class="truncate text-fg-display">{{ user.email ?? '—' }}</dd>
           </div>
-          <div v-if="user.role === 'operator'">
-            <dt class="label">{{ $t('user.detail.address') }}</dt>
-            <template v-if="user.location">
-              <dd class="text-fg-display">{{ user.location.address }}, {{ user.location.city }}</dd>
-              <dd class="body-two">{{ formatArea(user.location.province) }}</dd>
-            </template>
-            <dd v-else class="text-fg-display">—</dd>
-          </div>
+          <user-location v-if="user.role === 'operator'" :user="user" />
         </dl>
       </div>
       <div class="flex flex-col gap-3">
@@ -110,7 +103,6 @@ import { useToastStore } from 'global/stores/toast';
 import { useUserStore } from 'user/stores/user';
 import { useUserRights } from 'user/composables/use-user-rights';
 import { formatPhone } from 'global/composables/phone';
-import { formatArea } from 'territory/composables/location';
 import { formatFullName } from 'user/composables/format';
 import { LOGIN_METHODS } from 'user/constants/user';
 import type { LoginMethod } from 'auth/types/auth';
@@ -119,6 +111,7 @@ import { formatDateTime } from 'global/composables/date';
 
 import UiConfirmButton from 'global/components/ui-confirm-button.vue';
 import UserAvatar from 'user/components/user-avatar.vue';
+import UserLocation from 'user/components/user-location.vue';
 import UserSiteRights from 'user/components/user-site-rights.vue';
 import UserStatusChip from 'user/components/user-status-chip.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';

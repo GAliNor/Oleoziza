@@ -6,6 +6,7 @@ import { createId } from 'global/composables/crypto';
 import { MOCK_INVITATIONS_DB, MOCK_USERS_DB } from 'auth/services/users.mock-db';
 import type { LoginMethod } from 'auth/types/auth';
 import type { Permission } from 'global/types/session';
+import type { ILocation } from 'territory/types/territory';
 import type { IMockUser } from 'auth/types/mock-auth';
 import type { IStaffForm, IStaffUser, IUserService, StaffRole, StaffStatus } from 'user/types/user';
 
@@ -99,6 +100,13 @@ export default class UserMockService implements IUserService {
     if (user instanceof Error) return mockReject(user);
     if (!loginMethods.length) return mockReject(new Error('last_login_method'));
     user.loginMethods = [...loginMethods];
+    return mockResolve(toStaffUser(user));
+  }
+
+  updateLocation(id: string, location: ILocation | null): Promise<IStaffUser> {
+    const user = findEditable(id);
+    if (user instanceof Error) return mockReject(user);
+    user.location = location ? { ...location } : null;
     return mockResolve(toStaffUser(user));
   }
 

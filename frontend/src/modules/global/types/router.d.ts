@@ -7,5 +7,7 @@ declare module 'vue-router' {
     public?: boolean;
     guestOnly?: boolean;
     permission?: Permission | readonly Permission[];
+    /** The nav page a sub page goes back to when it was opened with no history. */
+    parent?: string;
   }
 }

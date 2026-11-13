@@ -11,7 +11,7 @@ const routes: RouteRecordRaw[] = [
     path: '/discounts',
     name: 'discount-queue',
     component: () => import('lot/views/discounts.vue'),
-    meta: { permission: 'discount.approve' },
+    meta: { permission: 'discount.approve', parent: 'task' },
   },
 ];
 
