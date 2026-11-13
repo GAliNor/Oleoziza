@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 
 import AuthService from 'auth/services/auth';
 import TokenService from 'auth/services/token';
-import { useDeviceProfileStore } from 'auth/stores/device-profile';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { setAccessToken, setTokenRefresher } from 'global/services/access-token';
@@ -57,7 +56,7 @@ export const useAuthStore = defineStore('auth', {
       const sessionStore = useSessionStore();
       if (sessionStore.isReady) return;
       setTokenRefresher(() => this.refresh());
-      useDeviceProfileStore().load();
+      writeStorage(STORAGE_KEYS.deviceProfiles, null);
       const credentialChange = readStorage<Pick<IAuthStore, 'mustChangeCredential' | 'canSkipCredentialChange' | 'credentialKind'> | null>(
         STORAGE_KEYS.credentialChange,
         null,
@@ -108,7 +107,6 @@ export const useAuthStore = defineStore('auth', {
       if (!session) return;
       try {
         await this.applyToken(await authService.refresh(session.userId));
-        useDeviceProfileStore().updateToken();
       } catch (error) {
         if (isSessionGone(error)) this.clearSession(true);
         throw error;
@@ -122,22 +120,21 @@ export const useAuthStore = defineStore('auth', {
     },
     async login(payload: ILoginPayload): Promise<ILoginResult> {
       const result = await authService.login(payload);
-      await this.completeLogin(result, payload.method === 'phone_pin' ? payload.secret : null);
+      await this.completeLogin(result);
       return result;
     },
     async acceptInvitation(token: string, secret: string): Promise<ILoginResult> {
       const result = await authService.acceptInvitation(token, secret);
-      await this.completeLogin(result, result.credentialKind === 'pin' ? secret : null);
+      await this.completeLogin(result);
       return result;
     },
     getInvitation(token: string): Promise<IInvitation> {
       return authService.getInvitation(token);
     },
-    async completeLogin(result: ILoginResult, pin: string | null): Promise<void> {
+    async completeLogin(result: ILoginResult): Promise<void> {
       useSiteStore().reset();
       await this.applyToken(result.accessToken);
       this.setCredentialChange(result.mustChangeCredential, result.canSkipCredentialChange, result.credentialKind);
-      if (pin) await useDeviceProfileStore().save(pin);
     },
     setCredentialChange(mustChange: boolean, canSkip: boolean, kind: CredentialKind | null): void {
       this.mustChangeCredential = mustChange;
@@ -148,7 +145,6 @@ export const useAuthStore = defineStore('auth', {
     async changeCredential(kind: CredentialKind, secret: string, currentSecret?: string): Promise<void> {
       await authService.changeCredential(kind, secret, currentSecret);
       this.setCredentialChange(false, false, null);
-      if (kind === 'pin') await useDeviceProfileStore().save(secret);
     },
     async skipCredentialChange(): Promise<void> {
       await authService.skipCredentialChange();
@@ -160,9 +156,6 @@ export const useAuthStore = defineStore('auth', {
     resetCredential(payload: IResetPayload): Promise<void> {
       return authService.resetCredential(payload);
     },
-    lock(): void {
-      this.clearSession();
-    },
     async logout(): Promise<void> {
       const session = useSessionStore().session;
       if (session) {
@@ -172,7 +165,6 @@ export const useAuthStore = defineStore('auth', {
           logDevError(error);
         }
       }
-      if (session) useDeviceProfileStore().forget(session.userId);
       this.clearSession();
     },
     clearSession(hasExpired = false): void {

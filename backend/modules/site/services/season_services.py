@@ -1,7 +1,6 @@
 from datetime import date, datetime, timezone
 from decimal import Decimal
-from io import BytesIO
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from fastapi import Depends, UploadFile
 from sqlalchemy import select
@@ -17,7 +16,7 @@ from modules.audit.business.audit_events import record_audit_event
 from modules.configuration.models.configuration_models import SiteSetting
 from modules.configuration.types.configuration_types import SettingKey
 from modules.file.models.file_models import File
-from modules.file.types.file_types import FileBucket
+from modules.site.business.season_art import store_season_illustration
 from modules.site.constants.site_constants import ILLUSTRATION_EXTENSION_BY_CONTENT_TYPE, MAX_ILLUSTRATION_SIZE_IN_BYTES
 from modules.site.models.site_models import Season, Site
 from modules.site.types.site_types import SeasonArtVariant, SeasonOut, SeasonStatus, SiteStatus
@@ -83,16 +82,7 @@ class SeasonService:
         content = upload.file.read(MAX_ILLUSTRATION_SIZE_IN_BYTES + 1)
         if len(content) > MAX_ILLUSTRATION_SIZE_IN_BYTES:
             raise RefusedError("too_large", 413)
-        storage_key = f"seasons/{season.code}/{variant.value}-{uuid4().hex}.{extension}"
-        self.storage.upload_object(storage_key, BytesIO(content), upload.content_type or "", is_private=False)
-        file = File(bucket=FileBucket.PUBLIC, storage_key=storage_key, original_name=upload.filename or storage_key, content_type=upload.content_type or "", size_in_bytes=len(content), created_by_id=self.current_user.id)
-        self.db.add(file)
-        self.db.flush()
-        if variant == SeasonArtVariant.DARK:
-            season.illustration_dark_file_id = file.id
-        else:
-            season.illustration_file_id = file.id
-        season.updated_by_id = self.current_user.id
+        file = store_season_illustration(self.db, self.storage, season, variant, content, upload.content_type or "", extension, upload.filename or f"{season.code}.{extension}", self.current_user.id)
         record_audit_event(self.db, self.current_user.id, "season.illustration_set", entity_type="season", entity_id=season.id, after={"variant": variant.value, "fileId": str(file.id)})
         self.db.commit()
         return self._build_season(season)

@@ -5,21 +5,16 @@
       :title="$t(`auth.changeCredential.title.${kind}`)"
       :subtitle="isForced ? $t('auth.changeCredential.subtitle', { firstName }) : $t('auth.changeCredential.voluntarySubtitle', { firstName })"
     />
-    <div v-if="!isForced && kinds.length > 1" class="grid grid-cols-2 gap-2" role="radiogroup" :aria-label="$t('auth.changeCredential.kindLabel')">
-      <button
-        v-for="option in kinds"
-        :key="option"
-        type="button"
-        role="radio"
-        class="toggle-tile"
-        :class="{ 'toggle-tile-active': option === kind }"
-        :aria-checked="option === kind"
-        :disabled="isLoading"
-        @click="handleKind(option)"
-      >
-        {{ $t(`auth.changeCredential.kind.${option}`) }}
-      </button>
-    </div>
+    <ui-segmented
+      v-if="!isForced && kinds.length > 1"
+      is-full
+      is-choice
+      :model-value="kind"
+      :options="kindOptionsComputed"
+      :label="$t('auth.changeCredential.kindLabel')"
+      :is-disabled="isLoading"
+      @update:model-value="handleKind"
+    />
     <ui-field v-if="!isForced" v-slot="{ id }" :label="$t('auth.changeCredential.current')">
       <password-input :id="id" v-model="currentSecret" autocomplete="current-password" :is-disabled="isLoading" />
     </ui-field>
@@ -46,6 +41,7 @@ import { useToastStore } from 'global/stores/toast';
 import { useAuthAction } from 'auth/composables/use-auth-action';
 import type { CredentialKind } from 'auth/types/auth';
 import UiField from 'global/components/ui-field.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
 import AuthHeading from 'auth/components/auth-heading.vue';
 import CredentialForm from 'auth/components/credential-form.vue';
 import PasswordInput from 'auth/components/password-input.vue';
@@ -67,6 +63,7 @@ const kinds = computed((): CredentialKind[] => {
 });
 
 // variables
+const kindOptionsComputed = computed((): { key: CredentialKind; label: string }[] => kinds.value.map((option) => ({ key: option, label: t(`auth.changeCredential.kind.${option}`) })));
 const kind = ref<CredentialKind>(isForced.value ? (authStore.credentialKind ?? 'pin') : kinds.value[0]);
 const currentSecret = ref('');
 const localError = ref('');

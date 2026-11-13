@@ -5,6 +5,7 @@ from core.app_init import init_models
 from core.config import get_settings
 from core.database import SessionLocal
 from core.exceptions import SeedRefusedError
+from core.integrations.rustfs.rustfs_client import get_rustfs_client
 from seeds.services.demo_seed_services import DemoSeedService
 from seeds.services.owner_seed_services import OwnerSeedService
 from seeds.services.reference_seed_services import ReferenceSeedService
@@ -41,7 +42,7 @@ def run_seed(part: SeedPart) -> int:
                 ReferenceSeedService(db).run()
                 print("reference: provinces, cities and olive varieties loaded")
             elif part == SeedPart.DEMO:
-                for label, count in DemoSeedService(db, settings).run().items():
+                for label, count in DemoSeedService(db, settings, get_rustfs_client()).run().items():
                     print(f"demo: {label}: {count}")
             else:
                 print("owner: created" if OwnerSeedService(db, settings).run() else "owner: already present, kept")

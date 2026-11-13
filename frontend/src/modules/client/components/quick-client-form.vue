@@ -4,10 +4,7 @@
       <h1 class="heading-one">{{ $t('client.quick.title') }}</h1>
       <div class="flex items-center gap-3">
         <ui-avatar class="h-16 w-16 shrink-0" :name="name.trim() || $t('client.quick.placeholderAvatar')" :variant="clientAvatarVariant(kind)" />
-        <div class="grid flex-1 grid-cols-2 gap-2">
-          <button type="button" class="toggle-tile" :class="{ 'toggle-tile-active': kind === 'individual' }" @click="kind = 'individual'">{{ $t('client.quick.individual') }}</button>
-          <button type="button" class="toggle-tile" :class="{ 'toggle-tile-active': kind === 'company' }" @click="kind = 'company'">{{ $t('client.quick.company') }}</button>
-        </div>
+        <ui-segmented v-model="kind" class="flex-1" is-full is-choice :options="kindOptionsComputed" :label="$t('client.quick.kindLabel')" />
       </div>
       <ui-field v-slot="{ id }" :label="$t(kind === 'company' ? 'client.quick.companyName' : 'client.quick.fullName')">
         <input :id="id" v-model="name" class="input" type="text" autocomplete="off" />
@@ -84,6 +81,7 @@ import type { ClientKind, IClient } from 'client/types/client';
 import type { ILocation } from 'territory/types/territory';
 
 import UiAvatar from 'global/components/ui-avatar.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
 import UiField from 'global/components/ui-field.vue';
 import LocationFields from 'territory/components/location-fields.vue';
 
@@ -113,6 +111,10 @@ const created = ref<IClient | null>(null);
 const clientId = ref(createId());
 
 // computed
+const kindOptionsComputed = computed((): { key: ClientKind; label: string }[] => [
+  { key: 'individual', label: t('client.quick.individual') },
+  { key: 'company', label: t('client.quick.company') },
+]);
 const normalizedIdentifier = computed((): string | null => normalizeClientIdentifier(kind.value, identifier.value));
 const duplicate = computed((): IClient | undefined => (normalizedIdentifier.value ? clientStore.clientByIdentifier(normalizedIdentifier.value) : undefined));
 const canReceive = computed((): boolean => siteStore.can('reception.create'));

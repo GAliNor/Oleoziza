@@ -18,21 +18,15 @@
       >
         <refresh-line-icon class="h-4 w-4" /> {{ syncStore.pendingCount }}
       </span>
-      <button
-        type="button"
-        class="flex min-h-11 min-w-0 items-center gap-2 rounded-control border border-default bg-surface pe-3 ps-1 label"
-        :aria-label="$t('global.shell.switchOperator', { name: operatorName })"
-        @click="handleSwitchOperator"
-      >
-        <ui-avatar class="h-9 w-9 shrink-0" :name="sessionStore.fullName" :variant="STAFF_AVATAR_VARIANT" fallback-class="bg-accent-brown text-white" />
-        <span class="max-w-24 min-w-0 truncate">{{ operatorName }}</span>
-        <user-switch-line-icon class="h-4 w-4 shrink-0 text-fg-secondary-paragraph max-[380px]:hidden" />
-      </button>
       <button v-if="canJump" type="button" class="btn-secondary hidden shrink-0 md:inline-flex" @click="jump">
         <sliders-line-icon class="h-5 w-5" />
         {{ $t('global.shell.backoffice') }}
       </button>
-      <app-user-menu @logout="handleLogout">
+      <app-user-menu :trigger-label="$t('global.shell.profileMenu', { name: firstNameComputed })" @logout="handleLogout">
+        <template #trigger>
+          <ui-avatar class="h-9 w-9 shrink-0" :name="sessionStore.fullName" :variant="STAFF_AVATAR_VARIANT" fallback-class="bg-accent-brown text-white" />
+          <span class="max-w-24 min-w-0 truncate">{{ firstNameComputed }}</span>
+        </template>
         <button v-if="canJump" type="button" class="inline-flex min-h-11 w-full items-center gap-2 rounded-control px-3 label hover:bg-subtle md:hidden" @click="jump">
           <sliders-line-icon class="h-5 w-5 shrink-0" />
           {{ $t('global.shell.backoffice') }}
@@ -68,7 +62,6 @@ import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
 import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import SlidersLineIcon from 'global/icons/sliders-line.icon.vue';
-import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
 
 // stores
 const router = useRouter();
@@ -77,13 +70,9 @@ const syncStore = useSyncStore();
 const { canJump, jump } = useBackofficeJump();
 
 // computed
-const operatorName = computed((): string => sessionStore.session?.firstName ?? '');
+const firstNameComputed = computed((): string => sessionStore.session?.firstName ?? '');
 
 // event handlers
-const handleSwitchOperator = (): void => {
-  router.push({ name: 'auth-lock' });
-};
-
 const handleLogout = (): void => {
   router.push({ name: 'auth-logout' });
 };

@@ -1,39 +1,53 @@
 <template>
   <div
-    ref="frame"
-    class="province-map relative h-full w-full"
-    role="img"
+    class="relative h-full w-full p-5"
+    :role="isSelectable ? 'group' : 'img'"
     :aria-label="province ? $t('territory.mapLabel', { name: province.name }) : $t('territory.mapLabelNone')"
   >
-    <div v-if="isUnavailable" class="flex h-full items-center justify-center p-6">
-      <p class="body-two text-center">{{ $t('territory.mapUnavailable') }}</p>
+    <div class="province-map-box h-full w-full">
+      <div class="absolute inset-0 m-auto" :style="frameStyle">
+        <svg class="absolute inset-0 h-full w-full overflow-visible" :viewBox="`0 0 ${PROVINCE_SHAPES.width} ${PROVINCE_SHAPES.height}`" aria-hidden="false">
+          <path
+            v-for="shape in orderedShapesComputed"
+            :key="shape.id"
+            :d="shape.path"
+            class="stroke-(--background-color-surface) outline-none transition-[fill] duration-200 ease-(--ease-premium)"
+            :class="pathClass(shape.id)"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+            vector-effect="non-scaling-stroke"
+            :role="isSelectable ? 'button' : undefined"
+            :tabindex="isSelectable ? 0 : undefined"
+            :aria-label="isSelectable ? shape.name : undefined"
+            :aria-pressed="isSelectable ? shape.id === provinceId : undefined"
+            @click="handleSelect(shape.id)"
+            @keydown.enter.prevent="handleSelect(shape.id)"
+            @keydown.space.prevent="handleSelect(shape.id)"
+          />
+        </svg>
+        <span
+          v-for="shape in PROVINCE_SHAPES.shapes"
+          :key="shape.id"
+          class="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-xs whitespace-nowrap transition-colors duration-200"
+          :class="shape.id === provinceId ? 'rounded-full bg-action px-2 py-0.5 font-semibold text-fg-on-action shadow-raised' : 'text-fg-secondary-paragraph'"
+          :style="{ left: `${shape.labelLeft}%`, top: `${shape.labelTop}%` }"
+          aria-hidden="true"
+        >
+          {{ shape.name }}
+        </span>
+      </div>
     </div>
-    <map-view v-else />
-    <map-marker v-for="item in otherProvinces" :key="item.id" :lng-lat="item.labelAt">
-      <span class="pointer-events-none text-xs whitespace-nowrap text-fg-secondary-paragraph">{{ item.name }}</span>
-    </map-marker>
-    <span
-      v-if="province && !isUnavailable"
-      class="absolute bottom-3 inset-s-3 z-10 flex items-center gap-1.5 rounded-full bg-surface py-1.5 pe-3.5 ps-2.5 text-xs font-semibold whitespace-nowrap text-fg-display shadow-overlay"
-    >
-      <map-pin-line-icon class="h-4 w-4 text-fg-place" />
-      {{ province.name }}
-    </span>
+    <span class="absolute bottom-1.5 inset-e-2 text-[0.625rem] text-fg-muted">© OpenStreetMap</span>
   </div>
 </template>
 
 <script setup lang="ts">
 // imports
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue';
-import { MapMarker, MapView, useMap, useMapLayer, type IFeature, type IFeatureCollection } from 'map';
+import { computed } from 'vue';
 
-import { readCssToken } from 'global/composables/css-token';
 import { provinceById } from 'territory/composables/location';
-import { ORIENTAL_BOUNDS, ORIENTAL_PROVINCES } from 'territory/constants/provinces';
-import ORIENTAL_GEOJSON from 'territory/constants/oriental-provinces.json';
+import { PROVINCE_SHAPES, type IProvinceShape } from 'territory/composables/province-shapes';
 import type { IProvince, ProvinceId } from 'territory/types/territory';
-
-import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
 
 // props
 const props = withDefaults(defineProps<{ provinceId: ProvinceId | null; isSelectable?: boolean }>(), { isSelectable: false });
@@ -41,78 +55,33 @@ const props = withDefaults(defineProps<{ provinceId: ProvinceId | null; isSelect
 // emits
 const emit = defineEmits<{ (event: 'select', province: ProvinceId): void }>();
 
-// stores
-const map = useMap();
-
 // variables
-const PROVINCE_SHAPES = ORIENTAL_GEOJSON as unknown as IFeatureCollection;
-const frame = useTemplateRef<HTMLElement>('frame');
-const isUnavailable = ref(false);
-let resizeObserver: ResizeObserver | null = null;
+const RATIO = PROVINCE_SHAPES.width / PROVINCE_SHAPES.height;
+const frameStyle = { aspectRatio: `${RATIO}`, width: `min(100cqw, 100cqh * ${RATIO})` };
 
 // computed
 const province = computed((): IProvince | undefined => provinceById(props.provinceId));
-const otherProvinces = computed((): IProvince[] => ORIENTAL_PROVINCES.filter((item) => item.id !== props.provinceId));
+const orderedShapesComputed = computed((): IProvinceShape[] => [
+  ...PROVINCE_SHAPES.shapes.filter((shape) => shape.id !== props.provinceId),
+  ...PROVINCE_SHAPES.shapes.filter((shape) => shape.id === props.provinceId),
+]);
 
 // methods
-const highlightOf = (id: ProvinceId | null): IFeatureCollection => ({ type: 'FeatureCollection', features: PROVINCE_SHAPES.features.filter((feature) => feature.properties.id === id) });
-
-const frameRegion = (): void => {
-  map.camera.fitBounds(ORIENTAL_BOUNDS, { duration: 0 });
+const pathClass = (id: ProvinceId): string[] => {
+  if (id === props.provinceId) return ['fill-(--background-color-action)'];
+  if (!props.isSelectable) return ['fill-(--background-color-emphasis)'];
+  return ['cursor-pointer fill-(--background-color-emphasis) hover:fill-(--background-color-selected) focus-visible:fill-(--background-color-selected)'];
 };
-
-useMapLayer({
-  id: 'oriental-provinces',
-  data: PROVINCE_SHAPES,
-  featureIdProperty: 'id',
-  ...(props.isSelectable ? { onClick: (feature: IFeature) => emit('select', feature.properties.id as ProvinceId) } : {}),
-  symbols: {
-    fill: { color: readCssToken('--background-color-emphasis'), hover: { color: readCssToken('--background-color-selected') } },
-    line: { color: readCssToken('--background-color-surface'), width: 1.5 },
-  },
-});
-
-const highlight = useMapLayer({
-  id: 'client-province',
-  zIndex: 1,
-  data: highlightOf(props.provinceId),
-  symbols: {
-    fill: { color: readCssToken('--background-color-action') },
-    line: { color: readCssToken('--background-color-surface'), width: 1.5 },
-  },
-});
-
-const stopErrors = map.on('error', () => {
-  if (!map.getState().isReady) isUnavailable.value = true;
-});
-
-// watchers
-watch(
-  () => props.provinceId,
-  (id) => highlight.setData(highlightOf(id)),
-);
 
 // event handlers
-const handleResize = (): void => {
-  requestAnimationFrame(frameRegion);
+const handleSelect = (id: ProvinceId): void => {
+  if (props.isSelectable) emit('select', id);
 };
-
-// lifecycle
-onMounted(() => {
-  frameRegion();
-  resizeObserver = new ResizeObserver(handleResize);
-  if (frame.value) resizeObserver.observe(frame.value);
-});
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect();
-  stopErrors();
-});
 </script>
 
 <style scoped>
-/* MapLibre's stylesheet is unlayered, so a utility class cannot override its typeface. */
-.province-map :deep(.maplibregl-map) {
-  font-family: inherit;
+.province-map-box {
+  position: relative;
+  container-type: size;
 }
 </style>

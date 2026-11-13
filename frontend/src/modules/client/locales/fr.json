@@ -100,6 +100,7 @@
     "address": "Adresse"
   },
   "quick": {
+    "kindLabel": "Type de client",
     "title": "Nouveau client",
     "placeholderAvatar": "Nouveau client",
     "individual": "Personne",

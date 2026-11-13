@@ -1,17 +1,20 @@
+from pathlib import Path
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from core.config import Settings
-from core.exceptions import SeedRefusedError
+from core.exceptions import SeedRefusedError, StorageError
+from core.integrations.rustfs.rustfs_client import RustFSClient
 from core.helpers import get_local_midnight
 from modules.auth.business.auth_secrets import hash_secret
 from modules.auth.models.auth_models import Credential
 from modules.auth.types.auth_types import CredentialKind
 from modules.configuration.models.configuration_models import Box, PaymentMethodSetting, PressLine, SiteSetting, Tank
 from modules.site.models.site_models import Season, Site
-from modules.site.types.site_types import SeasonStatus
+from modules.site.business.season_art import store_season_illustration
+from modules.site.types.site_types import SeasonArtVariant, SeasonStatus
 from modules.territory.models.territory_models import Province
 from modules.user.models.user_models import SiteAssignment, SiteAssignmentPermission, User, UserLoginMethod
 from seeds.constants.demo_seed_constants import (
@@ -41,18 +44,22 @@ from seeds.types.seed_types import UserSeed
 
 PRODUCTION_ENVIRONMENT = "production"
 
+SEASON_ART_DIRECTORY = Path(__file__).resolve().parent.parent / "fixtures" / "seasons"
+
 
 class DemoSeedService:
-    def __init__(self, db: Session, settings: Settings) -> None:
+    def __init__(self, db: Session, settings: Settings, storage: RustFSClient) -> None:
         """
-        Keep the session and settings the demo data is written with.
+        Keep the session, settings and storage the demo data is written with.
 
         Args:
             db (Session): Seed database session.
             settings (Settings): App settings, read for the environment.
+            storage (RustFSClient): RustFS client, for the Season banners.
         """
         self.db = db
         self.settings = settings
+        self.storage = storage
 
     def run(self) -> dict[str, int]:
         """
@@ -71,8 +78,9 @@ class DemoSeedService:
         self._seed_sites_and_season()
         self._seed_configuration(UUID(SITE_OUJDA_ID))
         self._seed_user(OWNER)
+        banner_count = self._seed_season_illustrations()
         self.db.commit()
-        return {"sites": len(SITES), "seasons": 2, "boxes": BOX_COUNT, "tanks": len(TANKS), "press lines": len(PRESS_LINES), "users": 1}
+        return {"season banners uploaded": banner_count, "sites": len(SITES), "seasons": 2, "boxes": BOX_COUNT, "tanks": len(TANKS), "press lines": len(PRESS_LINES), "users": 1}
 
     def _seed_sites_and_season(self) -> None:
         """
@@ -107,6 +115,27 @@ class DemoSeedService:
         for line_id, number, name in PRESS_LINES:
             self.db.merge(PressLine(id=UUID(line_id), site_id=site_id, number=number, name=name, retired_at=None))
         self.db.flush()
+
+    def _seed_season_illustrations(self) -> int:
+        """
+        Upload to RustFS the banners kept in seeds/fixtures/seasons (<code>.webp and <code>-dark.webp) for each Season that has none yet; skipped when RustFS is unreachable.
+
+        Returns:
+            int: Number of banners uploaded.
+        """
+        uploaded = 0
+        for season in self.db.scalars(select(Season)):
+            for variant, suffix, current in ((SeasonArtVariant.LIGHT, "", season.illustration_file_id), (SeasonArtVariant.DARK, "-dark", season.illustration_dark_file_id)):
+                path = SEASON_ART_DIRECTORY / f"{season.code}{suffix}.webp"
+                if current is not None or not path.exists():
+                    continue
+                try:
+                    store_season_illustration(self.db, self.storage, season, variant, path.read_bytes(), "image/webp", "webp", path.name, None)
+                except StorageError:
+                    print(f"demo: RustFS unreachable, banner {path.name} skipped")
+                    continue
+                uploaded += 1
+        return uploaded
 
     def _seed_user(self, user_seed: UserSeed) -> None:
         """

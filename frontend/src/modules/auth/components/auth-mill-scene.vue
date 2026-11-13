@@ -1,5 +1,5 @@
 <template>
-  <div class="scene absolute bottom-0" :class="isWide ? 'scene-wide' : 'scene-phone'">
+  <div class="scene absolute bottom-0" :class="isWide ? 'scene-wide' : 'scene-phone'" :style="{ '--scene-focus': stoneFocusComputed }">
     <img :src="layout.plate.src" :style="placeLayer(layout.plate)" class="layer" alt="" draggable="false" />
     <img
       v-for="crown in layout.crowns"
@@ -51,6 +51,7 @@ const isWide = ref(wideMedia.matches);
 
 // computed
 const layout = computed(() => (isWide.value ? MILL_SCENE_WIDE : MILL_SCENE_PHONE));
+const stoneFocusComputed = computed((): string => String((layout.value.stone.x + layout.value.stone.width / 2) / layout.value.canvas.width));
 
 const placeOlive = computed((): Record<string, string> => ({
   ...placeLayer(layout.value.olive),
@@ -98,11 +99,11 @@ onBeforeUnmount(() => {
   aspect-ratio: 1224 / 1285;
 }
 
-/* Fits the 14rem phone band set by auth-layout, keeping the stone and tank centred without ever leaving a gap at either side. */
+/* Fits the 14rem phone band set by auth-layout, keeping the stone centred without ever leaving a gap at either side. */
 .scene-phone {
   --scene-width: calc(14rem * 2172 / 600);
   height: 14rem;
-  left: clamp(calc(100% - var(--scene-width)), calc(50% - var(--scene-width) * 0.607), 0px);
+  left: clamp(calc(100% - var(--scene-width)), calc(50% - var(--scene-width) * var(--scene-focus)), 0px);
   width: var(--scene-width);
 }
 

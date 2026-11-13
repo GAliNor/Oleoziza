@@ -137,17 +137,6 @@
     },
     "back": "Retour"
   },
-  "switch": {
-    "action": "Changer d'opérateur",
-    "eyebrow": "Appareil partagé",
-    "title": "Qui travaille ?",
-    "subtitle": "Touchez votre nom puis saisissez votre code PIN.",
-    "empty": "Aucun opérateur ne s'est encore connecté sur cet appareil avec un code PIN.",
-    "forget": "Retirer {name} de cet appareil",
-    "otherAccount": "Autre compte",
-    "enterPin": "Saisissez votre code PIN",
-    "back": "Choisir un autre nom"
-  },
   "layout": {
     "footer": "© 2026 Oleoziza · AMANA OLIVE D’ORIENT"
   },

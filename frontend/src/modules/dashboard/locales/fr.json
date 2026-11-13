@@ -11,14 +11,13 @@
     "greeting": "Bonjour {name}",
     "receive": "Réceptionner",
     "newClient": "Nouveau client",
-    "search": "Chercher un client",
+    "search": "Client ou n° de lot",
     "noMatch": "Personne ne s’appelle « {query} ».",
     "createThisClient": "Créer ce client",
     "noLotInProgress": "Aucun lot en cours",
     "found": "Lots trouvés · {count}",
-    "inProgress": "En cours · {count}",
     "noLot": "Aucun lot",
-    "backToList": "Retour à la liste",
+    "backToList": "Retour à l’accueil",
     "moveError": "Le lot n’a pas pu avancer. Réessayez.",
     "moved": "{client} : {from} → {to}",
     "account": {
@@ -58,7 +57,21 @@
     "backToLot": "Retour au lot",
     "openLot": "Voir le lot {code} de {client}",
     "accountTitle": "Le client",
-    "allLines": "Toutes les chaînes"
+    "line": {
+      "now": "En cours",
+      "next": "Suivant",
+      "since": "depuis {at}",
+      "late": "En retard",
+      "unplanned": "Sans chaîne",
+      "running": "En marche",
+      "free": "Libre",
+      "afterCurrent": "À lancer quand le lot en cours sera fini.",
+      "empty": "Aucun lot prévu sur cette chaîne.",
+      "later": "{count} autre lot attend après | {count} autre lot attend après | {count} autres lots attendent après"
+    },
+    "pressedWaiting": "{count} lot pressé attend son client : scannez son ticket ou cherchez-le. | {count} lot pressé attend son client : scannez son ticket ou cherchez-le. | {count} lots pressés attendent leur client : scannez leur ticket ou cherchez-les.",
+    "scan": "Scanner",
+    "unknownTicket": "Aucun lot « {code} » sur ce site."
   },
   "management": {
     "financeHidden": "Finances masquées (autorisation « finance.view »)",

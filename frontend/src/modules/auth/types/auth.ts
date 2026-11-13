@@ -78,19 +78,6 @@ export interface IResetPayload {
 
 export type SecretStep = 'pin' | 'password' | 'otp';
 
-export interface IDeviceProfileStore {
-  profiles: IDeviceProfile[];
-}
-
-export interface IDeviceProfile {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  pinHash: string;
-  salt: string;
-  accessToken: string;
-}
-
 export interface IAuthService {
   getLoginOptions(identifier: string): Promise<ILoginOptions>;
   requestCode(identifier: string): Promise<void>;

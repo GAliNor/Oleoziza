@@ -1,6 +1,18 @@
 <template>
   <div ref="root" class="relative shrink-0" @focusout="handleFocusOut" @keydown.esc="isOpen = false">
-    <button type="button" class="icon-btn" :aria-label="$t('global.shell.menu')" :aria-expanded="isOpen" aria-haspopup="true" @click="isOpen = !isOpen">
+    <button
+      v-if="$slots.trigger"
+      type="button"
+      class="flex min-h-11 min-w-0 items-center gap-2 rounded-control border border-default bg-surface pe-3 ps-1 label"
+      :aria-label="triggerLabel ?? $t('global.shell.menu')"
+      :aria-expanded="isOpen"
+      aria-haspopup="true"
+      @click="isOpen = !isOpen"
+    >
+      <slot name="trigger" />
+      <chevron-down-line-icon class="h-4 w-4 shrink-0 text-fg-secondary-paragraph" />
+    </button>
+    <button v-else type="button" class="icon-btn" :aria-label="$t('global.shell.menu')" :aria-expanded="isOpen" aria-haspopup="true" @click="isOpen = !isOpen">
       <more-line-icon class="h-5 w-5" />
     </button>
     <div v-if="isOpen" class="absolute inset-e-0 top-full z-50 mt-2 flex min-w-52 flex-col gap-1 rounded-card border border-default bg-surface p-2 shadow-overlay">
@@ -28,15 +40,21 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import UiLanguageSwitch from 'global/components/ui-language-switch.vue';
+import ChevronDownLineIcon from 'global/icons/chevron-down-line.icon.vue';
 import LockLineIcon from 'global/icons/lock-line.icon.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import MoreLineIcon from 'global/icons/more-line.icon.vue';
+
+// props
+defineProps<{ triggerLabel?: string }>();
+defineSlots<{ default?: () => unknown; trigger?: () => unknown }>();
 
 // emits
 const emit = defineEmits<{ (event: 'logout'): void }>();
 
 // stores
 const route = useRoute();
+
 // variables
 const root = ref<HTMLElement | null>(null);
 const isOpen = ref(false);

@@ -13,23 +13,43 @@
       <button v-if="canRestoreSuggestion" type="button" class="link shrink-0" @click="handleUseSuggestion">{{ $t('reception.box.useSuggestion') }}</button>
     </div>
 
-    <ul class="grid grid-cols-6 gap-2 sm:grid-cols-8">
-      <li v-for="box in boxes" :key="box">
-        <button
-          type="button"
-          class="box-tile relative"
-          :class="boxClass(box)"
-          :disabled="occupancy.has(box)"
-          :aria-pressed="modelValue.includes(box)"
-          :aria-label="boxLabel(box)"
-          :title="boxLabel(box)"
-          @click="handleToggle(box)"
-        >
-          {{ box }}
-          <check-line-icon v-if="modelValue.includes(box)" class="check-pop absolute top-0.5 inset-e-0.5 h-3.5 w-3.5" />
-        </button>
-      </li>
-    </ul>
+    <ui-segmented
+      v-if="rangesComputed.length > 1"
+      :model-value="rangeKey"
+      :options="rangeOptionsComputed"
+      :label="$t('reception.box.rangeLabel')"
+      @update:model-value="handleRange"
+    >
+      <template #option="{ option }">
+        <span class="flex flex-col items-center leading-tight">
+          <span class="flex items-center gap-1 tabular-nums">
+            {{ option.label }}
+            <span v-if="rangeHasChosen(option.key)" class="h-1.5 w-1.5 rounded-full bg-action" :aria-label="$t('reception.box.rangeHasChosen')" />
+          </span>
+          <span class="text-xs font-normal text-fg-secondary-paragraph tabular-nums">{{ $t('reception.box.rangeFree', option.count ?? 0) }}</span>
+        </span>
+      </template>
+    </ui-segmented>
+
+    <Transition name="box-page" mode="out-in">
+      <ul :key="rangeKey" class="grid gap-2" :class="rangesComputed.length > 1 ? 'grid-cols-5 sm:grid-cols-10' : 'grid-cols-6 sm:grid-cols-8'">
+        <li v-for="box in visibleBoxesComputed" :key="box">
+          <button
+            type="button"
+            class="box-tile relative"
+            :class="boxClass(box)"
+            :disabled="occupancy.has(box)"
+            :aria-pressed="modelValue.includes(box)"
+            :aria-label="boxLabel(box)"
+            :title="boxLabel(box)"
+            @click="handleToggle(box)"
+          >
+            {{ box }}
+            <check-line-icon v-if="modelValue.includes(box)" class="check-pop absolute top-0.5 inset-e-0.5 h-3.5 w-3.5" />
+          </button>
+        </li>
+      </ul>
+    </Transition>
 
     <ul class="body-three flex flex-wrap gap-x-4 gap-y-1" aria-hidden="true">
       <li v-for="item in LEGEND" :key="item.key" class="flex items-center gap-1.5">
@@ -49,6 +69,7 @@ import { areSideBySide, boxesNeeded, formatBoxes, suggestBoxes } from 'lot/compo
 import { formatKg } from 'lot/composables/quantity';
 import type { ILot } from 'lot/types/lot';
 
+import UiSegmented from 'global/components/ui-segmented.vue';
 import CheckLineIcon from 'global/icons/check-line.icon.vue';
 
 // props
@@ -73,11 +94,26 @@ const LEGEND = [
   { key: 'selected', swatch: 'border-brand bg-action' },
   { key: 'occupied', swatch: 'border-default bg-emphasis' },
 ];
+const RANGE_SIZE = 20;
+const FLAT_LIMIT = 30;
 const isManual = ref(false);
+const rangeKey = ref('0');
 
 // computed
 const boxes = computed((): number[] => Array.from({ length: props.boxCount }, (_, index) => index + 1));
 const freeBoxes = computed((): number[] => boxes.value.filter((box) => !props.occupancy.has(box)));
+const rangesComputed = computed((): number[][] => {
+  if (boxes.value.length <= FLAT_LIMIT) return [boxes.value];
+  return Array.from({ length: Math.ceil(boxes.value.length / RANGE_SIZE) }, (_, index) => boxes.value.slice(index * RANGE_SIZE, (index + 1) * RANGE_SIZE));
+});
+const rangeOptionsComputed = computed((): { key: string; label: string; count: number }[] =>
+  rangesComputed.value.map((range, index) => ({
+    key: String(index),
+    label: `${range[0]}–${range[range.length - 1]}`,
+    count: range.filter((box) => !props.occupancy.has(box)).length,
+  })),
+);
+const visibleBoxesComputed = computed((): number[] => rangesComputed.value[Number(rangeKey.value)] ?? rangesComputed.value[0] ?? []);
 const needed = computed((): number => boxesNeeded(props.netKg, props.capacityKg));
 const suggestion = computed((): number[] => suggestBoxes(freeBoxes.value, needed.value));
 const canRestoreSuggestion = computed((): boolean => isManual.value && suggestion.value.length > 0 && suggestion.value.join() !== props.modelValue.join());
@@ -104,6 +140,15 @@ watch(suggestion, (next) => {
   if (!isManual.value) emit('update:modelValue', next);
 });
 
+watch(
+  () => props.modelValue[0],
+  (first) => {
+    if (first === undefined || isManual.value) return;
+    rangeKey.value = String(Math.max(rangesComputed.value.findIndex((range) => range.includes(first)), 0));
+  },
+  { immediate: true },
+);
+
 // methods
 const boxClass = (box: number): string => {
   if (props.occupancy.has(box)) return 'box-tile-taken';
@@ -115,7 +160,13 @@ const boxLabel = (box: number): string => {
   return holder ? t('reception.box.occupiedBy', { box, client: holder.clientName, code: holder.code }) : t('reception.box.freeBox', { box });
 };
 
+const rangeHasChosen = (key: string): boolean => (rangesComputed.value[Number(key)] ?? []).some((box) => props.modelValue.includes(box));
+
 // event handlers
+const handleRange = (key: string): void => {
+  rangeKey.value = key;
+};
+
 const handleToggle = (box: number): void => {
   isManual.value = true;
   const next = props.modelValue.includes(box) ? props.modelValue.filter((item) => item !== box) : [...props.modelValue, box];
@@ -127,3 +178,32 @@ const handleUseSuggestion = (): void => {
   emit('update:modelValue', suggestion.value);
 };
 </script>
+
+<style scoped>
+.box-page-enter-active,
+.box-page-leave-active {
+  transition:
+    opacity 160ms var(--ease-premium),
+    translate 220ms var(--ease-premium);
+}
+
+.box-page-enter-from {
+  opacity: 0;
+  translate: 0 4px;
+}
+
+.box-page-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .box-page-enter-active,
+  .box-page-leave-active {
+    transition: opacity 120ms linear;
+  }
+
+  .box-page-enter-from {
+    translate: none;
+  }
+}
+</style>

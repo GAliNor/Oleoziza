@@ -28,10 +28,6 @@
         <p class="truncate px-3 label">{{ sessionStore.fullName }}</p>
         <p v-if="sessionStore.session" class="px-3 body-two">{{ $t(`auth.roles.${sessionStore.session.role}`) }}</p>
         <ui-language-switch class="mt-2" />
-        <button v-if="canSwitchOperator" type="button" class="nav-link" @click="handleSwitchOperator">
-          <user-switch-line-icon class="h-5 w-5" />
-          {{ $t('auth.switch.action') }}
-        </button>
         <router-link :to="{ name: 'auth-change-credential', query: { redirect: route.fullPath } }" class="nav-link">
           <lock-line-icon class="h-5 w-5" />
           {{ $t('auth.changeCredential.menu') }}
@@ -62,15 +58,6 @@
         <slot name="header" />
         <span class="ms-auto" aria-hidden="true" />
         <app-network-badge class="shrink-0" />
-        <button
-          v-if="canSwitchOperator"
-          type="button"
-          class="icon-btn md:hidden"
-          :aria-label="$t('auth.switch.action')"
-          @click="handleSwitchOperator"
-        >
-          <user-switch-line-icon class="h-5 w-5" />
-        </button>
         <app-user-menu class="md:hidden" @logout="handleLogout" />
       </header>
       </div>
@@ -148,7 +135,6 @@ import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import MoreLineIcon from 'global/icons/more-line.icon.vue';
 import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';
 import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
-import UserSwitchLineIcon from 'global/icons/user-switch-line.icon.vue';
 import AppOperatorShell from 'global/components/app-operator-shell.vue';
 import AppUserMenu from 'global/components/app-user-menu.vue';
 import UiLanguageSwitch from 'global/components/ui-language-switch.vue';
@@ -173,7 +159,6 @@ const barItems = computed((): INavItem[] => (visibleNavItems.value.length > BAR_
 const moreItems = computed((): INavItem[] => visibleNavItems.value.slice(barItems.value.length));
 const isMoreActive = computed((): boolean => moreItems.value.some((item) => item.name === route.name));
 const isOperatorShell = computed((): boolean => sessionStore.session?.role === 'operator' && !sessionStore.isBackofficeMode);
-const canSwitchOperator = computed((): boolean => sessionStore.session?.role === 'operator');
 const hasTaskItem = computed((): boolean => visibleNavItems.value.some((item) => item.name === TASK_ROUTE_NAME));
 const badgeCounts = computed((): Record<string, number> => ({ [TASK_ROUTE_NAME]: hasTaskItem.value ? tasks.value.length : 0 }));
 
@@ -211,10 +196,6 @@ watch(canJump, (canStillJump) => {
 // event handlers
 const handleMoreFocusOut = (event: FocusEvent): void => {
   if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) isMoreOpen.value = false;
-};
-
-const handleSwitchOperator = (): void => {
-  router.push({ name: 'auth-lock' });
 };
 
 const handleLogout = (): void => {

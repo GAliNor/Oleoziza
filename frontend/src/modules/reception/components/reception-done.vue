@@ -18,6 +18,10 @@
       </p>
       </template>
     </div>
+    <figure class="flex flex-col items-center gap-1.5">
+      <ui-qr-code class="h-36 w-36 rounded-lg border border-default" :value="lot.code" :label="$t('reception.done.qrLabel', { code: lot.code })" />
+      <figcaption class="caption">{{ $t('reception.done.qrHint') }}</figcaption>
+    </figure>
     <span v-if="lot.isPendingSync" class="chip bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
     <div class="flex w-full flex-col gap-2">
       <button type="button" class="btn-primary min-h-14" @click="handlePrint">{{ $t('reception.done.print') }}</button>
@@ -43,6 +47,7 @@ import { fullFee, millingFee } from 'lot/composables/fee';
 import { formatBoxes } from 'lot/composables/lot-boxes';
 import { formatKg, formatQuintals } from 'lot/composables/quantity';
 
+import UiQrCode from 'global/components/ui-qr-code.vue';
 import AnimatedCheckIcon from 'global/icons/animated-check.icon.vue';
 
 // props

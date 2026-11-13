@@ -44,7 +44,7 @@
   "shell": {
     "search": "Rechercher un client",
     "pendingSync": "{count} élément à synchroniser | {count} éléments à synchroniser",
-    "switchOperator": "{name}, changer d’opérateur",
+    "profileMenu": "{name}, menu du compte",
     "menu": "Menu",
     "backoffice": "Backoffice",
     "backofficeMode": "Mode Backoffice",
@@ -85,5 +85,16 @@
   "arrow": "→",
   "language": {
     "label": "Langue"
+  },
+  "scanner": {
+    "title": "Scanner un ticket",
+    "close": "Fermer le scanner",
+    "status": {
+      "idle": "Caméra arrêtée.",
+      "starting": "Ouverture de la caméra…",
+      "scanning": "Visez le code QR du ticket.",
+      "denied": "La caméra est refusée. Autorisez-la dans le navigateur, ou tapez le numéro du lot.",
+      "unavailable": "Pas de caméra utilisable ici. Tapez le numéro du lot."
+    }
   }
 }

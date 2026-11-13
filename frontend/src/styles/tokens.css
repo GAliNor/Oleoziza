@@ -83,6 +83,8 @@
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
   /* A small overshoot, for what answers a touch: a press released, a choice made. */
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  /* A real damped spring (stiffness 210, damping 22) sampled over 600ms: overshoots 2.5% and settles. For a thumb that glides to a choice. */
+  --ease-glide: linear(0, 0.034, 0.113, 0.218, 0.337, 0.457, 0.566, 0.664, 0.751, 0.822, 0.881, 0.926, 0.961, 0.986, 1.003, 1.015, 1.021, 1.024, 1.025, 1.024, 1.022, 1.019, 1.016, 1.013, 1.01, 1.008, 1.006, 1.004, 1.003, 1.002, 1.001, 1, 1);
 
   /* Semantic tokens: components paint with these, and the .dark class below redefines only these. */
   --text-color-fg-display: var(--color-neutral-900);

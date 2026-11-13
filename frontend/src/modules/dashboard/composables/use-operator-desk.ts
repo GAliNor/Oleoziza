@@ -11,7 +11,7 @@ import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import { daysSince, formatDateTime, formatTime, toIsoDate, todayIso } from 'global/composables/date';
 import { useSiteEquipment } from 'configuration/composables/use-site-equipment';
 import { formatPressLine } from 'configuration/composables/equipment';
-import { isLate, lotsAhead } from 'lot/composables/press-schedule';
+import { isLate, lineQueue, lotsAhead } from 'lot/composables/press-schedule';
 import { formatMoney } from 'global/composables/money';
 import { clientMoney } from 'lot/composables/client-money';
 import { formatBoxes } from 'lot/composables/lot-boxes';
@@ -21,6 +21,7 @@ import { AMOUNT_PERMISSIONS } from 'finance/constants/finance';
 import { paymentStateOf } from 'lot/composables/fee';
 import type { IClientAccount } from 'client/types/client';
 import type { AvatarVariant } from 'global/types/avatar';
+import type { IPressLineSetting } from 'configuration/types/configuration';
 import type { ILot, ILotMove, LotStatus } from 'lot/types/lot';
 
 export interface IDeskClient {
@@ -31,9 +32,29 @@ export interface IDeskClient {
   account: IClientAccount;
 }
 
+/** One Lot shown on a Press Line card: the one pressing now, or the next one waiting. */
+export interface ILineSlot {
+  lot: ILot;
+  kind: 'now' | 'next';
+  detail: string;
+  avatarVariant: AvatarVariant;
+  isLate: boolean;
+  canMove: boolean;
+}
+
+/** What the Operator needs about one Press Line, or about the Lots still waiting for one (`line` null). */
+export interface ILineBoard {
+  key: string;
+  line: IPressLineSetting | null;
+  slots: ILineSlot[];
+  laterCount: number;
+}
+
+const UNPLANNED_BOARD_KEY = 'unplanned';
+
 const nextStatus = (status: LotStatus): LotStatus => LOT_STATUSES[Math.min(LOT_STATUSES.length - 1, LOT_STATUSES.indexOf(status) + 1)];
 
-/** What the Operator Home shows and does: every Lot still in process, Client lookup, and moving a Lot along. */
+/** What the Operator Home shows and does: per Press Line the Lot pressing now and the next one, Client and Lot lookup, and moving a Lot along. */
 export const useOperatorDesk = () => {
   // stores
   const router = useRouter();
@@ -48,6 +69,7 @@ export const useOperatorDesk = () => {
   // computed
   const siteLots = computed((): ILot[] => [...lotStore.lots].sort((first, second) => second.receivedAt.localeCompare(first.receivedAt)));
   const activeLots = computed((): ILot[] => siteLots.value.filter((lot) => lot.status !== 'withdrawn'));
+  const pressedCount = computed((): number => siteLots.value.filter((lot) => lot.status === 'pressed').length);
 
   // watchers
   watch(
@@ -119,6 +141,42 @@ export const useOperatorDesk = () => {
     return lines.length ? lines : [t('dashboard.operator.account.none')];
   };
 
+  const startedAt = (lot: ILot): string | undefined => [...lot.moves].reverse().find((record) => record.status === 'pressing')?.at;
+
+  const slotDetail = (lot: ILot): string => {
+    const started = lot.status === 'pressing' ? startedAt(lot) : undefined;
+    const when = started
+      ? t('dashboard.operator.line.since', { at: plannedLabel(started) })
+      : lot.plannedStartAt
+        ? t('dashboard.operator.stage.planned', { at: plannedLabel(lot.plannedStartAt) })
+        : '';
+    return [lot.code, when, lot.boxNumbers.length ? formatBoxes(lot.boxNumbers) : ''].filter(Boolean).join(' · ');
+  };
+
+  const toSlot = (lot: ILot, kind: ILineSlot['kind'], canMove: boolean): ILineSlot => ({
+    lot,
+    kind,
+    detail: slotDetail(lot),
+    avatarVariant: avatarVariantOf(lot),
+    isLate: isLate(lot, new Date()),
+    canMove,
+  });
+
+  const toBoard = (key: string, line: IPressLineSetting | null, queue: ILot[]): ILineBoard => {
+    const now = queue.find((lot) => lot.status === 'pressing');
+    const waiting = queue.filter((lot) => lot.status === 'waiting');
+    const slots = [...(now ? [toSlot(now, 'now', true)] : []), ...(waiting[0] ? [toSlot(waiting[0], 'next', !now && !!line)] : [])];
+    return { key, line, slots, laterCount: Math.max(waiting.length - 1, 0) };
+  };
+
+  const lineBoards = computed((): ILineBoard[] => {
+    const boards = pressLines.value.map((line) => toBoard(line.id, line, lineQueue(siteLots.value, line.id)));
+    const unplanned = siteLots.value
+      .filter((lot) => !lot.pressLineId && (lot.status === 'waiting' || lot.status === 'pressing'))
+      .sort((first, second) => first.receivedAt.localeCompare(second.receivedAt));
+    return unplanned.length ? [...boards, toBoard(UNPLANNED_BOARD_KEY, null, unplanned)] : boards;
+  });
+
   const nextLabel = (lot: ILot): string => t(`lot.status.${nextStatus(lot.status)}`);
 
   const move = async (lot: ILot, lotMove: ILotMove): Promise<boolean> => {
@@ -142,5 +200,5 @@ export const useOperatorDesk = () => {
     router.push({ name: 'reception-new', query: clientId ? { client: clientId } : {} });
   };
 
-  return { activeLots, pressLines, tanks, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, deskClientOf, nextLabel, move, receive, createClient };
+  return { activeLots, lineBoards, pressedCount, pressLines, tanks, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, deskClientOf, nextLabel, move, receive, createClient };
 };

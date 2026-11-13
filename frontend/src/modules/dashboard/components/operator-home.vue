@@ -27,10 +27,24 @@
           </button>
         </div>
 
-        <label class="relative">
-          <search-line-icon class="pointer-events-none absolute top-1/2 inset-s-4 h-5 w-5 -translate-y-1/2 text-fg-muted" />
-          <input v-model="query" class="input ps-12" type="search" :placeholder="$t('dashboard.operator.search')" />
-        </label>
+        <div class="flex gap-2">
+          <label class="relative min-w-0 flex-1">
+            <search-line-icon class="pointer-events-none absolute top-1/2 inset-s-4 h-5 w-5 -translate-y-1/2 text-fg-muted" />
+            <input
+              v-model="query"
+              class="input ps-12"
+              type="search"
+              enterkeyhint="search"
+              :placeholder="$t('dashboard.operator.search')"
+              :aria-label="$t('dashboard.operator.search')"
+              @keydown.enter="handleSearchEnter"
+            />
+          </label>
+          <button type="button" class="press flex min-h-12 shrink-0 items-center gap-2 rounded-control bg-action px-4 font-semibold text-fg-on-action" @click="isScanning = true">
+            <qr-scan-line-icon class="h-6 w-6" />
+            <span class="max-[380px]:sr-only">{{ $t('dashboard.operator.scan') }}</span>
+          </button>
+        </div>
 
         <div v-if="query && searched.length" class="flex flex-col gap-2">
           <div v-for="client in searched" :key="client.name" class="flex items-center gap-3 rounded-card bg-accent-subtle p-3">
@@ -42,57 +56,29 @@
             </div>
           </div>
         </div>
-        <div v-else-if="query" class="flex flex-col items-center gap-3 text-center">
+        <div v-else-if="query && !foundLotsComputed.length" class="flex flex-col items-center gap-3 text-center">
           <p class="body-two">{{ $t('dashboard.operator.noMatch', { query }) }}</p>
           <button type="button" class="btn-secondary min-h-14" @click="desk.createClient(query)">{{ $t('dashboard.operator.createThisClient') }}</button>
         </div>
 
-        <h2 class="label">{{ $t(query ? 'dashboard.operator.found' : 'dashboard.operator.inProgress', { count: listed.length }) }}</h2>
-        <div v-if="desk.pressLines.value.length > 1" class="no-scrollbar -mx-4 -mt-2 flex gap-2 overflow-x-auto px-4">
-          <button type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': lineFilter === ALL_LINES }" @click="lineFilter = ALL_LINES">{{ $t('dashboard.operator.allLines') }}</button>
-          <button v-for="line in desk.pressLines.value" :key="line.id" type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': lineFilter === line.id }" @click="lineFilter = line.id">
-            {{ formatPressLine(line) }}
-          </button>
-        </div>
-        <ul class="flex flex-col gap-3">
-          <li v-for="lot in visible" :key="lot.id" class="card flex flex-col gap-4 p-3">
-            <button
-              type="button"
-              class="press group flex min-h-16 w-full items-center gap-3 rounded-control p-1 text-start hover:bg-subtle
-                focus-visible:outline-2 focus-visible:outline-focus"
-              :aria-label="$t('dashboard.operator.openLot', { client: lot.clientName, code: lot.code })"
-              @click="handleOpenLot(lot)"
-            >
-              <ui-avatar class="h-12 w-12 shrink-0" :name="lot.clientName" :variant="desk.avatarVariantOf(lot)" />
-              <span class="min-w-0 flex-1">
-                <span class="block truncate font-semibold text-fg-display">{{ lot.clientName }}</span>
-                <span class="block body-two text-fg-primary-paragraph">{{ desk.stageSentence(lot) }}</span>
-                <span class="mt-1 flex flex-wrap gap-1">
-                  <lot-payment-chip :lot="lot" />
-                  <span v-if="lot.discount?.state === 'pending'" class="chip bg-warning-subtle text-fg-warning">{{ $t('lot.discount.pendingChip') }}</span>
-                  <span v-if="lot.discount?.state === 'refused'" class="chip bg-danger-subtle text-fg-danger">{{ $t('lot.discount.refusedChip') }}</span>
-                  <span v-if="lot.isContactMissing" class="chip bg-danger-subtle text-fg-danger">{{ $t('lot.timeline.notificationFailed') }}</span>
-                </span>
-                <span class="mt-1.5 flex items-center gap-1">
-                  <span
-                    v-for="(status, index) in LOT_STATUSES"
-                    :key="status"
-                    class="h-1.5 w-4 rounded-full"
-                    :class="index <= LOT_STATUSES.indexOf(lot.status) ? 'bg-action' : 'bg-emphasis'"
-                    aria-hidden="true"
-                  />
-                  <span class="ms-2 truncate caption">{{ desk.ageLabel(lot) }}</span>
-                </span>
-              </span>
-              <arrow-right-line-icon class="h-5 w-5 shrink-0 text-fg-muted transition-transform duration-300 ease-(--ease-sheet) group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
-            </button>
-            <button type="button" class="press min-h-14 w-full rounded-control px-4 text-md font-semibold" :class="LOT_MOVE_TONES[lot.status]" @click="handleMove(lot)">
-              {{ $t(`lot.move.${lot.status}`) }}
-            </button>
-          </li>
-        </ul>
-        <div v-if="visible.length < listed.length" :key="shownCount" ref="sentinel" class="skeleton h-14" aria-hidden="true" />
-        <ui-empty-state v-else-if="!listed.length" :message="$t('dashboard.operator.noLot')" />
+        <template v-if="query">
+          <h2 v-if="foundLotsComputed.length" class="label">{{ $t('dashboard.operator.found', { count: foundLotsComputed.length }) }}</h2>
+          <ul class="flex flex-col gap-3">
+            <li v-for="lot in foundLotsComputed" :key="lot.id">
+              <desk-lot-card :lot="lot" :sentence="desk.stageSentence(lot)" :age="desk.ageLabel(lot)" :avatar-variant="desk.avatarVariantOf(lot)" @open="handleOpenLot" @move="handleMove" />
+            </li>
+          </ul>
+        </template>
+        <template v-else>
+          <div class="stagger flex flex-col gap-3">
+            <press-line-card v-for="board in desk.lineBoards.value" :key="board.key" :board="board" @open="handleOpenLot" @move="handleMove" />
+          </div>
+          <ui-empty-state v-if="!desk.lineBoards.value.length" :message="$t('dashboard.operator.noLot')" />
+          <p v-if="desk.pressedCount.value" class="flex items-start gap-2 rounded-card bg-subtle p-3 body-two">
+            <drop-line-icon class="mt-0.5 h-4 w-4 shrink-0 text-fg-brand" />
+            {{ $t('dashboard.operator.pressedWaiting', desk.pressedCount.value) }}
+          </p>
+        </template>
       </div>
 
       <div v-if="panelLot" class="grid w-full min-w-0 shrink-0 overflow-x-clip">
@@ -123,78 +109,67 @@
         </Transition>
       </div>
     </div>
+
+    <ui-qr-scanner v-if="isScanning" @read="handleScanRead" @close="isScanning = false" />
   </section>
 </template>
 
 <script setup lang="ts">
 // imports
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useSessionStore } from 'global/stores/session';
+import { useToastStore } from 'global/stores/toast';
 import { useClientStore } from 'client/stores/client';
 import { useLotStore } from 'lot/stores/lot';
 import { useOperatorDesk } from 'dashboard/composables/use-operator-desk';
-import { LOT_MOVE_TONES, LOT_STATUSES } from 'lot/constants/lot';
-import { formatPressLine } from 'configuration/composables/equipment';
 import type { ILot, ILotMove } from 'lot/types/lot';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
+import UiQrScanner from 'global/components/ui-qr-scanner.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
-import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
+import DropLineIcon from 'global/icons/drop-line.icon.vue';
+import QrScanLineIcon from 'global/icons/qr-scan-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 import ConfirmMove from 'dashboard/components/confirm-move.vue';
 import OperatorLotSheet from 'dashboard/components/operator-lot-sheet.vue';
-import LotPaymentChip from 'lot/components/lot-payment-chip.vue';
+import DeskLotCard from 'dashboard/components/desk-lot-card.vue';
+import PressLineCard from 'dashboard/components/press-line-card.vue';
 
 type Panel = { kind: 'lot'; lotId: string } | { kind: 'move'; lotId: string; isFromSheet: boolean };
 
 // stores
+const { t } = useI18n();
 const sessionStore = useSessionStore();
+const toastStore = useToastStore();
 const clientStore = useClientStore();
 const lotStore = useLotStore();
 const desk = useOperatorDesk();
 
 // variables
-const PAGE_SIZE = 12;
 const SLIDE_MS = 500;
-const ALL_LINES = 'all';
 const query = ref('');
-const lineFilter = ref(ALL_LINES);
-const shownCount = ref(PAGE_SIZE);
+const isScanning = ref(false);
 const panel = ref<Panel | null>(null);
 const isPanelOpen = ref(false);
 const paneTransition = ref('pane-forward');
 const root = ref<HTMLElement | null>(null);
-const sentinel = ref<HTMLElement | null>(null);
-const observer = new IntersectionObserver((entries) => {
-  if (entries.some((entry) => entry.isIntersecting)) shownCount.value += PAGE_SIZE;
-});
 let clearTimer = 0;
 
 // computed
 const firstName = computed((): string => sessionStore.session?.firstName ?? '');
 const searched = computed(() => desk.searchClients(query.value));
-const listed = computed((): ILot[] => {
+const foundLotsComputed = computed((): ILot[] => {
   const text = query.value.trim().toLowerCase();
-  const onLine = lineFilter.value === ALL_LINES ? desk.activeLots.value : desk.activeLots.value.filter((lot) => lot.pressLineId === lineFilter.value);
-  return text ? onLine.filter((lot) => lot.clientName.toLowerCase().includes(text)) : onLine;
+  return desk.activeLots.value.filter((lot) => lot.clientName.toLowerCase().includes(text) || lot.code.toLowerCase().includes(text));
 });
-const visible = computed((): ILot[] => listed.value.slice(0, shownCount.value));
 const panelLot = computed((): ILot | undefined => lotStore.lots.find((lot) => lot.id === panel.value?.lotId));
 
 // watchers
-watch([query, lineFilter], () => {
-  shownCount.value = PAGE_SIZE;
-});
-
 watch(searched, (clients) => clients.forEach((client) => clientStore.fetchAccount(client.id)));
-
-watch(sentinel, (element, previous) => {
-  if (previous) observer.unobserve(previous);
-  if (element) observer.observe(element);
-});
 
 // methods
 const openPanel = async (next: Panel): Promise<void> => {
@@ -217,7 +192,31 @@ const closeMove = (): void => {
   else handleClosePanel();
 };
 
+const lotByCode = (code: string): ILot | undefined => {
+  const wanted = code.trim().toUpperCase();
+  return lotStore.lots.find((lot) => lot.code.toUpperCase() === wanted);
+};
+
 // event handlers
+const handleScanRead = (text: string): void => {
+  isScanning.value = false;
+  const lot = lotByCode(text);
+  if (lot) {
+    query.value = '';
+    handleOpenLot(lot);
+    return;
+  }
+  query.value = text;
+  toastStore.push(t('dashboard.operator.unknownTicket', { code: text }), 'danger');
+};
+
+const handleSearchEnter = (): void => {
+  const lot = lotByCode(query.value);
+  if (!lot) return;
+  query.value = '';
+  handleOpenLot(lot);
+};
+
 const handleOpenLot = (lot: ILot): void => {
   clientStore.fetchAccount(lot.clientId);
   openPanel({ kind: 'lot', lotId: lot.id });
@@ -245,7 +244,6 @@ const handleConfirm = async (lot: ILot, move: ILotMove): Promise<void> => {
 
 // lifecycle
 onBeforeUnmount(() => {
-  observer.disconnect();
   clearTimeout(clearTimer);
 });
 </script>

@@ -4,7 +4,6 @@
   "prefecture": "Préfecture d’{name}",
   "mapLabel": "Carte de la région de l’Oriental, {name} en évidence",
   "mapLabelNone": "Carte de la région de l’Oriental",
-  "mapUnavailable": "Carte indisponible sur cet appareil",
   "fields": {
     "area": "Province",
     "areaHint": "Touchez la province sur la carte ou dans la liste.",

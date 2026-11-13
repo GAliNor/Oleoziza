@@ -35,12 +35,6 @@ const routes: RouteRecordRaw[] = [
         name: 'auth-change-credential',
         component: () => import('auth/views/change-credential.vue'),
       },
-      {
-        path: '/switch',
-        name: 'auth-switch',
-        component: () => import('auth/views/switch.vue'),
-        meta: { public: true, guestOnly: true },
-      },
     ],
   },
   {
@@ -51,16 +45,6 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: async () => {
       await useAuthStore().logout();
       return { name: 'auth-login' };
-    },
-  },
-  {
-    path: '/lock',
-    name: 'auth-lock',
-    component: () => import('auth/views/switch.vue'),
-    meta: { public: true },
-    beforeEnter: () => {
-      useAuthStore().lock();
-      return { name: 'auth-switch' };
     },
   },
 ];
