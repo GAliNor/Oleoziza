@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { buildActivityFeed, daySummary, filterFeed } from 'activity/composables/activity-feed';
 import type { IMovement } from 'finance/types/finance';
+import type { IExpense } from 'expense/types/expense';
 import type { ILot } from 'lot/types/lot';
 
 const DAY = '2026-11-09';
@@ -29,7 +30,7 @@ const lot = {
 const cash = { id: 'm1', code: 'P-1', client: 'Ali', method: 'cash', amount: 450, status: 'confirmed', recordedAt: at('12:05'), recordedBy: 'Khadija', decidedAt: at('12:05'), decidedBy: 'Khadija' } as IMovement;
 const cheque = { id: 'm2', code: 'P-2', client: 'Sara', method: 'cheque', amount: 300, status: 'confirmed', recordedAt: at('09:00', '2026-11-08'), recordedBy: 'Khadija', decidedAt: at('15:00'), decidedBy: 'Khadija' } as IMovement;
 
-const sources = { lots: [lot], movements: [cash, cheque], refunds: [], debtContacts: [], configurationChanges: [], clientNames: {} };
+const sources = { lots: [lot], movements: [cash, cheque], refunds: [], expenses: [], debtContacts: [], configurationChanges: [], clientNames: {} };
 
 describe('buildActivityFeed', () => {
   it('tells the day newest first, from every record, and only that day', () => {
@@ -57,5 +58,14 @@ describe('buildActivityFeed', () => {
     const feed = buildActivityFeed(sources, DAY);
     expect(filterFeed(feed, { group: 'payment', person: 'Khadija', includeMoney: true }).every((event) => event.group === 'payment' && event.by === 'Khadija')).toBe(true);
     expect(filterFeed(feed, { group: 'payment', person: null, includeMoney: false })).toEqual([]);
+  });
+
+  it('tells an Expense entered then cancelled as two finance-only events linking to the Charges page', () => {
+    const expense = { id: 'e1', code: 'OJ-C2627-0009', siteId: 's', date: DAY, categoryId: 'electricity', description: 'Électricité', amount: 1200, status: 'cancelled', recordedAt: at('09:30'), recordedBy: 'Nadia', cancelledAt: at('16:00'), cancelledBy: 'Mohammed', cancelReason: 'Saisie en double' } as IExpense;
+    const feed = buildActivityFeed({ ...sources, lots: [], movements: [], expenses: [expense] }, DAY);
+    expect(feed.map((event) => event.kind)).toEqual(['expense_cancelled', 'expense_recorded']);
+    expect(feed.every((event) => event.group === 'expense' && event.isMoney && event.amount === 1200)).toBe(true);
+    expect(feed[0].to).toEqual({ name: 'expense', query: { period: 'season', expense: 'e1' } });
+    expect(filterFeed(feed, { group: null, person: null, includeMoney: false })).toEqual([]);
   });
 });

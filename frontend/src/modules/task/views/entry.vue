@@ -25,7 +25,7 @@
         <section v-for="entry in groups" :key="entry.group" class="flex flex-col gap-3" :aria-labelledby="`task-group-${entry.group}`">
           <h2 :id="`task-group-${entry.group}`" class="flex items-center gap-2 px-1 label text-fg-secondary-paragraph">
             {{ $t(`task.groups.${entry.group}`) }}
-            <span class="rounded-full bg-subtle px-2 text-xs tabular-nums">{{ entry.tasks.length }}</span>
+            <span class="rounded-control bg-subtle px-2 text-xs tabular-nums">{{ entry.tasks.length }}</span>
           </h2>
           <ul class="card divide-y divide-default overflow-hidden p-0">
             <li v-for="task in entry.tasks" :key="task.id">

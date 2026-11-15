@@ -60,7 +60,7 @@
     "waiting": "En attente",
     "waitingDetail": "En file de pressage",
     "pressing": "Pressage lancé",
-    "pressingDetail": "Ligne 1",
+    "pressingDetail": "Sur un malaxeur",
     "pressed": "Pressé",
     "yield": "rendement {value}",
     "stored": "Versé en cuve",
@@ -156,7 +156,7 @@
     "error": "La remise n’a pas pu être enregistrée. Réessayez."
   },
   "schedule": {
-    "open": "Changer la chaîne ou l’heure",
+    "open": "Changer le malaxeur ou l’heure",
     "title": "Planifier le pressage",
     "queue": "Aucun autre Lot en file | {count} autre Lot en file | {count} autres Lots en file",
     "plannedStart": "Pressage prévu le",
@@ -164,7 +164,7 @@
     "save": "Enregistrer",
     "saved": "Pressage de {code} replanifié",
     "error": "La planification n’a pas pu être enregistrée. Réessayez.",
-    "first": "Passer en premier sur cette chaîne"
+    "first": "Passer en premier sur ce malaxeur"
   },
   "split": {
     "label": "Où va l’huile ?",

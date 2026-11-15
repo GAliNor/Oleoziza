@@ -35,7 +35,7 @@ export const CONFIGURATIONS_MOCK: Record<string, IConfiguration> = {
     boxCount: 24,
     boxCapacityKg: 1000,
     tanks: tanks('oj', [20000, 20000, 10000, 10000, 5000]),
-    pressLines: lines('oj', ['Chaîne continue', 'Chaîne 2 phases']),
+    pressLines: lines('oj', ['', '', '', '', '']),
     history: [
       change('oj-rate-2', 'millingRate', 0.5, 12),
       change('oj-oil-2', 'oilPrice', 40, 12),

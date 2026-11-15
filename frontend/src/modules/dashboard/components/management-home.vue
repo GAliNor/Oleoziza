@@ -36,6 +36,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useDashboardStore } from 'dashboard/stores/dashboard';
+import { useExpenseStore } from 'expense/stores/expense';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
@@ -53,6 +54,7 @@ import UiSegmented from 'global/components/ui-segmented.vue';
 const { t } = useI18n();
 const dashboardStore = useDashboardStore();
 const financeStore = useFinanceStore();
+const expenseStore = useExpenseStore();
 const lotStore = useLotStore();
 const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
@@ -80,7 +82,9 @@ const load = (): void => {
   if (!siteId) return;
   dashboardStore.fetchDashboard(siteId, period.value.key);
   lotStore.fetchLots(siteId);
-  if (isFinanceShown.value) financeStore.load(siteId, period.value.key);
+  if (!isFinanceShown.value) return;
+  financeStore.load(siteId, period.value.key);
+  expenseStore.fetchSummary(siteId, period.value.key);
 };
 
 // watchers

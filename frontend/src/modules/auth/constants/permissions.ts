@@ -50,6 +50,6 @@ export const OPERATOR_WORKSPACE_PERMISSIONS: readonly Permission[] = [
 export const ROLE_DEFAULT_PERMISSIONS: Record<Role, readonly Permission[]> = {
   management: PERMISSIONS,
   operator: OPERATOR_WORKSPACE_PERMISSIONS,
-  accountant: ['finance.view', 'client.view', 'payment.record', 'payment.confirm', 'payment.cancel', 'document.add', 'refund.manage', 'discount.give', 'debt.follow'],
+  accountant: ['finance.view', 'client.view', 'payment.record', 'payment.confirm', 'payment.cancel', 'document.add', 'refund.manage', 'discount.give', 'debt.follow', 'expense.record'],
   client: [],
 };

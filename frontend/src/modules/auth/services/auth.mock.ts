@@ -37,7 +37,9 @@ const fitsIdentifier = (method: LoginMethod, identifier: string): boolean =>
 
 const readRefreshSessions = (): Record<string, { userId: string; expiresAt: number }> => readStorage(REFRESH_STORAGE_KEY, {});
 
-const writeRefreshSessions = (sessions: Record<string, { userId: string; expiresAt: number }>): void => writeStorage(REFRESH_STORAGE_KEY, sessions);
+const writeRefreshSessions = (sessions: Record<string, { userId: string; expiresAt: number }>): void => {
+  writeStorage(REFRESH_STORAGE_KEY, sessions);
+};
 
 const signAccessToken = async (user: IMockUser): Promise<string> => {
   const claims = {

@@ -77,7 +77,4 @@ TANKS: tuple[tuple[str, int, Decimal], ...] = (
     ("7a4c0000-0001-4000-8000-000000000005", 5, Decimal("5000")),
 )
 
-PRESS_LINES: tuple[tuple[str, int, str], ...] = (
-    ("11e00000-0001-4000-8000-000000000001", 1, "Chaîne continue"),
-    ("11e00000-0001-4000-8000-000000000002", 2, "Chaîne 2 phases"),
-)
+PRESS_LINES: tuple[tuple[str, int, str | None], ...] = tuple((f"11e00000-0001-4000-8000-{number:012d}", number, None) for number in range(1, 6))

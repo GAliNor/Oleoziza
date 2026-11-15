@@ -1,0 +1,68 @@
+@layer components {
+  /* One look for every dropdown: the site switcher's panel, generalised. */
+  .menu-panel {
+    @apply absolute inset-s-0 top-full z-50 mt-2 w-max min-w-full max-w-[min(24rem,calc(100vw-2rem))] origin-top rounded-card border border-default/70 bg-surface p-1.5 shadow-overlay;
+  }
+
+  .menu-list {
+    @apply flex max-h-72 flex-col gap-0.5 overflow-y-auto overscroll-contain;
+  }
+
+  .menu-group {
+    @apply px-2.5 pt-2.5 pb-1 text-xs font-medium tracking-wide text-fg-muted uppercase;
+  }
+
+  .menu-option {
+    @apply flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-2.5 py-1.5 text-sm text-fg-display outline-none
+      transition-colors duration-150;
+  }
+
+  .menu-option-active {
+    @apply bg-subtle;
+  }
+
+  .menu-option[aria-selected='true'] {
+    @apply bg-selected/50 font-medium;
+  }
+
+  .menu-search {
+    @apply mb-1.5 min-h-10 w-full rounded-control border border-default bg-page/60 px-3 text-sm text-fg-default
+      placeholder:text-fg-muted focus:border-brand focus:bg-surface focus:outline-none;
+  }
+
+  .select-trigger {
+    @apply flex min-h-13 w-full cursor-pointer items-center justify-between gap-2 rounded-control border border-default bg-page/60 ps-4 pe-3 text-start text-md text-fg-default
+      transition-[border-color,box-shadow,background-color] duration-300 ease-(--ease-premium)
+      hover:border-strong focus-visible:border-brand focus-visible:bg-surface focus-visible:shadow-[0_0_0_4px] focus-visible:shadow-primary-olive-light/70 focus-visible:outline-none
+      disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .select-trigger[aria-expanded='true'] {
+    @apply border-brand bg-surface;
+  }
+}
+
+.menu-pop-enter-active {
+  transition:
+    opacity 0.18s var(--ease-premium),
+    transform 0.26s var(--ease-spring);
+}
+
+.menu-pop-leave-active {
+  transition:
+    opacity 0.12s ease-in,
+    transform 0.12s ease-in;
+}
+
+.menu-pop-enter-from,
+.menu-pop-leave-to {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-pop-enter-from,
+  .menu-pop-leave-to {
+    transform: none;
+  }
+}

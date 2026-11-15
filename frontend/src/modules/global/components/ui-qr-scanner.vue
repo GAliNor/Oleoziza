@@ -2,7 +2,7 @@
   <div class="fixed inset-0 z-50 flex flex-col bg-neutral-900 text-white" role="dialog" aria-modal="true" :aria-label="$t('global.scanner.title')" @keydown.esc="emit('close')">
     <video ref="video" class="absolute inset-0 h-full w-full object-cover" playsinline muted />
     <div class="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden="true">
-      <div class="scanner-frame aspect-square w-[min(72vw,18rem)] rounded-[1.75rem]" />
+      <div class="scanner-frame aspect-square w-[min(72vw,18rem)] rounded-card" />
     </div>
 
     <header class="relative flex items-center justify-between gap-3 p-4">
@@ -12,7 +12,7 @@
       </button>
     </header>
 
-    <p class="relative mx-auto mt-auto mb-10 max-w-xs rounded-full bg-neutral-900/60 px-4 py-2 text-center text-sm backdrop-blur" role="status">
+    <p class="relative mx-auto mt-auto mb-10 max-w-xs rounded-control bg-neutral-900/60 px-4 py-2 text-center text-sm backdrop-blur" role="status">
       {{ $t(`global.scanner.status.${status}`) }}
     </p>
   </div>

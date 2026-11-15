@@ -1,6 +1,6 @@
 <template>
   <router-link :to="task.to" class="press group flex min-h-18 items-center gap-3 px-4 py-3.5 sm:gap-4 transition-colors hover:bg-subtle focus-visible:bg-subtle sm:px-5">
-    <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl sm:h-11 sm:w-11" :class="TASK_GROUP_TONES[task.group]">
+    <span class="grid h-10 w-10 shrink-0 place-items-center rounded-card sm:h-11 sm:w-11" :class="TASK_GROUP_TONES[task.group]">
       <component :is="TASK_ICONS[task.kind]" class="h-5 w-5" />
     </span>
     <span class="flex min-w-0 flex-1 flex-col gap-0.5">

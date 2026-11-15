@@ -11,9 +11,7 @@
 
       <ul class="flex flex-col gap-2">
         <li v-for="(pour, index) in pours" :key="index" class="flex items-center gap-2">
-          <select v-model="pour.tankId" class="input min-w-0 flex-1" :aria-label="$t('lot.split.tank', { index: index + 1 })">
-            <option v-for="state in states" :key="state.tank.id" :value="state.tank.id" :disabled="!canTake(state, lot.variety)">{{ tankOption(state) }}</option>
-          </select>
+          <ui-select v-model="pour.tankId" class="min-w-0 flex-1" :options="tankOptionsComputed" :label="$t('lot.split.tank', { index: index + 1 })" />
           <div class="relative w-32 shrink-0">
             <input v-model.number="pour.litres" class="input pe-8 figure" type="number" inputmode="decimal" min="0" step="0.1" :aria-label="$t('lot.split.litres', { index: index + 1 })" />
             <span class="pointer-events-none absolute top-1/2 inset-e-3 -translate-y-1/2 body-two">{{ $t('global.units.litre') }}</span>
@@ -50,10 +48,12 @@ import { formatLitres, formatLitresRounded } from 'lot/composables/quantity';
 import { canTake, checkPours, suggestPours, tankStates, type ITankState, type PourProblem } from 'lot/composables/storage';
 import type { ITankSetting } from 'configuration/types/configuration';
 import type { ILot, IOilSplit, ITankPour } from 'lot/types/lot';
+import type { ISelectOption } from 'global/types/select';
 
 import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiField from 'global/components/ui-field.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
+import UiSelect from 'global/components/ui-select.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
 import CloseLineIcon from 'global/icons/close-line.icon.vue';
 
@@ -81,6 +81,7 @@ const modeOptions = computed((): { key: SplitMode; label: string }[] => [
   { key: 'store', label: t('lot.split.store') },
 ]);
 const states = computed((): ITankState[] => tankStates(props.tanks, props.lots.filter((other) => other.id !== props.lot.id)));
+const tankOptionsComputed = computed((): ISelectOption[] => states.value.map((state) => ({ value: state.tank.id, label: tankOption(state), isDisabled: !canTake(state, props.lot.variety) })));
 const handedLitres = computed((): number => (mode.value === 'hand' ? props.oilLitres : typeof handedTyped.value === 'number' ? handedTyped.value : 0));
 const toStore = computed((): number => Math.max(Math.round((props.oilLitres - handedLitres.value) * 10) / 10, 0));
 const shownPours = computed((): ITankPour[] => (mode.value === 'hand' ? [] : pours.value.filter((pour) => pour.tankId)));

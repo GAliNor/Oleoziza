@@ -55,10 +55,7 @@
                 {{ $t(`activity.groups.${option}`, { count: summary.groupCounts[option] }) }}
               </button>
             </div>
-            <select v-model="person" class="input sm:w-56" :aria-label="$t('activity.byPerson')">
-              <option :value="ALL">{{ $t('activity.everyone') }}</option>
-              <option v-for="name in summary.people" :key="name" :value="name">{{ name }}</option>
-            </select>
+            <ui-select v-model="person" class="shrink-0 sm:w-56" :options="personOptionsComputed" :label="$t('activity.byPerson')" />
           </div>
 
           <ui-empty-state v-if="activityStore.hasError" tone="danger" size="compact" :message="$t('activity.loadError')" />
@@ -80,6 +77,7 @@
 <script setup lang="ts">
 // imports
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useActivityStore } from 'activity/stores/activity';
 import { useSiteStore } from 'site/stores/site';
@@ -91,14 +89,17 @@ import { todayIso } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
 import { formatKg, formatLitresRounded } from 'lot/composables/quantity';
 import type { ActivityGroup, IActivityDaySummary, IActivityFilter } from 'activity/types/activity';
+import type { ISelectOption } from 'global/types/select';
 
 import AppLayout from 'global/components/app-layout.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiLoadMore from 'global/components/ui-load-more.vue';
+import UiSelect from 'global/components/ui-select.vue';
 import ActivityDayBar from 'activity/components/activity-day-bar.vue';
 import ActivityRow from 'activity/components/activity-row.vue';
 
 // stores
+const { t } = useI18n();
 const activityStore = useActivityStore();
 const siteStore = useSiteStore();
 const { scopeName } = useSiteScope();
@@ -116,6 +117,7 @@ const isFinanceShown = computed((): boolean => siteStore.can('finance.view'));
 const tileCount = computed((): number => (isFinanceShown.value ? 4 : 2));
 const groups = computed((): ActivityGroup[] => ACTIVITY_GROUPS.filter((option) => isFinanceShown.value || !MONEY_ACTIVITY_GROUPS.includes(option)));
 const summary = computed((): IActivityDaySummary | null => activityStore.summary);
+const personOptionsComputed = computed((): ISelectOption[] => [{ value: ALL, label: t('activity.everyone') }, ...(summary.value?.people ?? []).map((name) => ({ value: name, label: name }))]);
 const isDayLoading = computed((): boolean => activityStore.isLoading && activityStore.query?.day !== activityStore.loadedDay);
 const isFilterLoading = computed((): boolean => activityStore.isLoading && !isDayLoading.value);
 const filter = computed((): IActivityFilter => ({ group: group.value === ALL ? null : group.value, person: person.value === ALL ? null : person.value, includeMoney: isFinanceShown.value }));

@@ -9,7 +9,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full border-2 border-transparent bg-primary-olive-mid bg-clip-padding;
+    @apply rounded-control border-2 border-transparent bg-primary-olive-mid bg-clip-padding;
   }
 
   ::-webkit-scrollbar-thumb:hover {

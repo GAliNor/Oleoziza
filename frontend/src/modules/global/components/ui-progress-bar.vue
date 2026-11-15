@@ -1,6 +1,6 @@
 <template>
   <div
-    class="overflow-hidden rounded-full"
+    class="overflow-hidden rounded-control"
     :class="trackClass"
     role="progressbar"
     :aria-label="label"
@@ -8,7 +8,7 @@
     :aria-valuemax="max"
     :aria-valuenow="value"
   >
-    <div class="grow-x h-full rounded-full transition-[width] duration-700 ease-(--ease-premium)" :class="barClass" :style="{ width: `${Math.min((value / max) * 100, 100)}%`, animationDelay: `${delay}ms` }" />
+    <div class="grow-x h-full rounded-control transition-[width] duration-700 ease-(--ease-premium)" :class="barClass" :style="{ width: `${Math.min((value / max) * 100, 100)}%`, animationDelay: `${delay}ms` }" />
   </div>
 </template>
 

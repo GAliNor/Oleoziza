@@ -29,6 +29,7 @@
       "user/*": ["src/modules/user/*"],
       "task/*": ["src/modules/task/*"],
       "finance/*": ["src/modules/finance/*"],
+      "expense/*": ["src/modules/expense/*"],
       "configuration/*": ["src/modules/configuration/*"],
       "season/*": ["src/modules/season/*"],
       "lot/*": ["src/modules/lot/*"],

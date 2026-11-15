@@ -21,7 +21,7 @@
       </g>
       <path :d="hill(look.near, 255)" :fill="look.ground" />
     </svg>
-    <span v-if="!image && isSketchNoted" class="absolute end-3 bottom-2 rounded-full bg-surface/80 px-2 py-0.5 caption text-fg-muted">{{ $t('season.art.sketch') }}</span>
+    <span v-if="!image && isSketchNoted" class="absolute end-3 bottom-2 rounded-control bg-surface/80 px-2 py-0.5 caption text-fg-muted">{{ $t('season.art.sketch') }}</span>
   </div>
 </template>
 

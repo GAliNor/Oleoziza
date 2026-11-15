@@ -46,7 +46,7 @@
     "proofOn": "justificatif obligatoire",
     "proofOff": "justificatif facultatif"
   },
-  "equipmentTitle": "Box, chaînes et cuves",
+  "equipmentTitle": "Box, malaxeurs et cuves",
   "boxes": {
     "title": "Box",
     "hint": "Les contenants où l’on vide les sacs d’un Client pour suivre son Lot jusqu’au pressage.",
@@ -71,19 +71,19 @@
     "saveError": "Enregistrement impossible : une cuve retirée contient de l’huile, ou le réseau a coupé."
   },
   "pressLines": {
-    "title": "Chaînes de production",
-    "hint": "Chaque chaîne presse un Lot à la fois ; chaque Lot est planifié sur une chaîne.",
-    "label": "Chaîne {number}",
-    "name": "Nom de la chaîne {number}",
+    "title": "Malaxeurs",
+    "hint": "Chaque malaxeur presse un Lot à la fois ; chaque Lot est planifié sur un malaxeur.",
+    "label": "Malaxeur {number}",
+    "name": "Nom du malaxeur {number}",
     "namePlaceholder": "Nom (facultatif)",
-    "summary": "{count} chaîne | {count} chaîne | {count} chaînes",
-    "inUse": "Un Lot y est planifié ou en pressage : ne peut pas être retirée",
-    "inUseShort": "occupée",
-    "lockedNote": "{count} chaîne a un Lot planifié et ne peut pas être retirée. | {count} chaîne a un Lot planifié et ne peut pas être retirée. | {count} chaînes ont un Lot planifié et ne peuvent pas être retirées.",
-    "remove": "Retirer la chaîne {number}",
-    "add": "Ajouter une chaîne",
-    "invalid": "Gardez au moins une chaîne.",
-    "saveError": "Enregistrement impossible : une chaîne retirée a un Lot planifié, ou le réseau a coupé."
+    "summary": "{count} malaxeur | {count} malaxeur | {count} malaxeurs",
+    "inUse": "Un Lot y est planifié ou en pressage : ne peut pas être retiré",
+    "inUseShort": "occupé",
+    "lockedNote": "{count} malaxeur a un Lot planifié et ne peut pas être retiré. | {count} malaxeur a un Lot planifié et ne peut pas être retiré. | {count} malaxeurs ont un Lot planifié et ne peuvent pas être retirés.",
+    "remove": "Retirer le malaxeur {number}",
+    "add": "Ajouter un malaxeur",
+    "invalid": "Gardez au moins un malaxeur.",
+    "saveError": "Enregistrement impossible : un malaxeur retiré a un Lot planifié, ou le réseau a coupé."
   },
   "season": {
     "tabsLabel": "Saisons",
@@ -125,6 +125,6 @@
   },
   "site": {
     "title": "Réglages du moulin",
-    "hint": "Ce qui ne change pas avec la saison : modes de paiement, Box, chaînes et cuves."
+    "hint": "Ce qui ne change pas avec la saison : modes de paiement, Box, malaxeurs et cuves."
   }
 }

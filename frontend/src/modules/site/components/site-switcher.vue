@@ -144,7 +144,7 @@ const handleFocusOut = (event: FocusEvent): void => {
 @reference "~/style.css";
 
 .site-pill {
-  @apply inline-flex h-11 max-w-full min-w-0 items-center gap-2 rounded-full bg-subtle/80 ps-1.5 pe-3 text-sm
+  @apply inline-flex h-11 max-w-full min-w-0 items-center gap-2 rounded-card bg-subtle/80 ps-1.5 pe-3 text-sm
     transition-[background-color,box-shadow,transform] duration-200 ease-(--ease-premium);
 }
 
@@ -162,17 +162,17 @@ button.site-pill[aria-expanded='true'] {
 }
 
 .site-pill-mark {
-  @apply grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface text-fg-place;
+  @apply grid h-8 w-8 shrink-0 place-items-center rounded-control bg-surface text-fg-place;
   box-shadow: 0 1px 2px rgb(41 37 36 / 0.12);
 }
 
 .site-menu {
-  @apply absolute inset-s-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] origin-top-left rounded-2xl border border-default/70
+  @apply absolute inset-s-0 top-full z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] origin-top-left rounded-card border border-default/70
     bg-surface p-1.5 shadow-overlay rtl:origin-top-right;
 }
 
 .site-option {
-  @apply flex min-h-13 cursor-pointer items-center gap-3 rounded-xl px-2.5 py-1.5 outline-none transition-colors duration-150
+  @apply flex min-h-13 cursor-pointer items-center gap-3 rounded-control px-2.5 py-1.5 outline-none transition-colors duration-150
     hover:bg-subtle focus-visible:bg-subtle;
 }
 
@@ -181,7 +181,7 @@ button.site-pill[aria-expanded='true'] {
 }
 
 .site-option-mark {
-  @apply grid h-9 w-9 shrink-0 place-items-center rounded-lg text-xs font-semibold tracking-wide tabular-nums;
+  @apply grid h-9 w-9 shrink-0 place-items-center rounded-control text-xs font-semibold tracking-wide tabular-nums;
 }
 
 .site-menu-enter-active {

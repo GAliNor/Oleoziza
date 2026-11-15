@@ -29,7 +29,7 @@
           v-for="shape in PROVINCE_SHAPES.shapes"
           :key="shape.id"
           class="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-xs whitespace-nowrap transition-colors duration-200"
-          :class="shape.id === provinceId ? 'rounded-full bg-action px-2 py-0.5 font-semibold text-fg-on-action shadow-raised' : 'text-fg-secondary-paragraph'"
+          :class="shape.id === provinceId ? 'rounded-control bg-action px-2 py-0.5 font-semibold text-fg-on-action shadow-raised' : 'text-fg-secondary-paragraph'"
           :style="{ left: `${shape.labelLeft}%`, top: `${shape.labelTop}%` }"
           aria-hidden="true"
         >

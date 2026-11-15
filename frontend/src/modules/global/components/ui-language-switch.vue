@@ -1,5 +1,5 @@
 <template>
-  <div class="relative grid grid-cols-2 rounded-control bg-subtle p-1" role="radiogroup" :aria-label="$t('global.language.label')">
+  <div class="relative grid grid-cols-2 rounded-card bg-subtle p-1" role="radiogroup" :aria-label="$t('global.language.label')">
     <span
       class="pointer-events-none absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-md bg-surface shadow-raised
         transition-[inset-inline-start] duration-500 ease-(--ease-sheet)"

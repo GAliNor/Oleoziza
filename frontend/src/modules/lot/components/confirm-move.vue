@@ -14,9 +14,9 @@
     </div>
 
     <div class="flex items-center justify-center gap-3 text-sm font-medium">
-      <span class="rounded-full bg-subtle px-3 py-1.5 text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
+      <span class="rounded-control bg-subtle px-3 py-1.5 text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
       <span aria-hidden="true">{{ $t('global.arrow') }}</span>
-      <span class="rounded-full bg-action px-3 py-1.5 text-fg-on-action">{{ nextLabel }}</span>
+      <span class="rounded-control bg-action px-3 py-1.5 text-fg-on-action">{{ nextLabel }}</span>
     </div>
 
     <section v-if="lot.status === 'waiting' && lines.length" class="flex flex-col gap-2">

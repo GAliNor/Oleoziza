@@ -21,6 +21,7 @@
     "storage": "الخزانات ({count})",
     "discount": "التخفيضات ({count})",
     "payment": "الدفعات ({count})",
+    "expense": "المصاريف ({count})",
     "follow": "التحصيل ({count})",
     "configuration": "الإعدادات ({count})"
   },
@@ -49,7 +50,10 @@
     "refund_made": "تنفيذ الاسترداد عن {code}",
     "refund_confirmed": "تأكيد الاسترداد عن {code}",
     "debt_contact": "تذكير · {contact}",
-    "configuration": "الإعدادات: {setting}"
+    "configuration": "الإعدادات: {setting}",
+    "expense_recorded": "تسجيل المصروف {code} · {category}",
+    "expense_updated": "تعديل المصروف {code} · {category}",
+    "expense_cancelled": "إلغاء المصروف {code} · {category}"
   },
   "settings": {
     "millingRate": "تعريفة العصر",
@@ -61,6 +65,6 @@
     "oil": "حصة من الزيت",
     "boxes": "الصناديق",
     "tanks": "الخزانات",
-    "pressLines": "خطوط الإنتاج"
+    "pressLines": "الخلاطات"
   }
 }

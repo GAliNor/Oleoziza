@@ -21,7 +21,7 @@
           <span
             v-for="(status, index) in LOT_STATUSES"
             :key="status"
-            class="h-1.5 w-4 rounded-full"
+            class="h-1.5 w-4 rounded-control"
             :class="index <= LOT_STATUSES.indexOf(lot.status) ? 'bg-action' : 'bg-emphasis'"
             aria-hidden="true"
           />

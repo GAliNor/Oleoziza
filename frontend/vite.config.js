@@ -62,6 +62,7 @@ export default defineConfig({
       user: fromSrc('modules/user'),
       task: fromSrc('modules/task'),
       finance: fromSrc('modules/finance'),
+      expense: fromSrc('modules/expense'),
       configuration: fromSrc('modules/configuration'),
       season: fromSrc('modules/season'),
       lot: fromSrc('modules/lot'),

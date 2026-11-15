@@ -19,3 +19,13 @@ export interface IPagedList<T, Q> {
   isLoadingMore: boolean;
   hasError: boolean;
 }
+
+/** A list read one numbered page at a time from the server, with the page and query it shows. */
+export interface IPageList<T, Q> {
+  items: T[];
+  total: number;
+  page: number;
+  query: Q | null;
+  isLoading: boolean;
+  hasError: boolean;
+}

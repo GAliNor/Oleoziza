@@ -14,7 +14,7 @@
             v-for="section in SECTIONS"
             :key="section"
             :href="`#${section}`"
-            class="rounded-full border border-default bg-surface px-3 py-1.5 text-sm text-fg-primary-paragraph hover:border-strong"
+            class="rounded-control border border-default bg-surface px-3 py-1.5 text-sm text-fg-primary-paragraph hover:border-strong"
           >
             {{ $t(`kit.sections.${section}.title`) }}
           </a>

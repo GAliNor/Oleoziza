@@ -42,7 +42,7 @@
       <olive-chart :chart="dashboard.oliveChart" class="lg:col-span-3" />
       <div class="card flex min-w-0 flex-col gap-4 p-5 lg:col-span-2">
         <h2 class="heading-four">{{ $t('dashboard.management.production.origin') }}</h2>
-        <div class="flex h-3 gap-0.5 overflow-hidden rounded-full">
+        <div class="flex h-3 gap-0.5 overflow-hidden rounded-control">
           <div class="grow-x bg-primary-olive" :style="{ flex: dashboard.modeSplit.serviceKg }" />
           <div class="grow-x bg-accent-sand" :style="{ flex: dashboard.modeSplit.purchaseKg, animationDelay: '120ms' }" />
         </div>

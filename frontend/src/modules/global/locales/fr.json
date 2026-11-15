@@ -20,6 +20,7 @@
     "dashboardShort": "Accueil",
     "operations": "Opérations",
     "finances": "Finances",
+    "expenses": "Charges",
     "clients": "Clients",
     "users": "Utilisateurs",
     "sites": "Sites",
@@ -108,5 +109,22 @@
     "more": "Voir {count} de plus",
     "range": "{shown} sur {total}",
     "all": "{total} élément | {total} élément | Les {total} éléments sont affichés"
+  },
+  "select": {
+    "placeholder": "Choisir",
+    "search": "Rechercher",
+    "empty": "Aucun résultat"
+  },
+  "combobox": {
+    "create": "Créer « {query} »",
+    "createHint": "nouveau"
+  },
+  "dropZone": {
+    "title": "Déposez la facture ici",
+    "release": "Relâchez pour ajouter",
+    "hint": "Photo ou PDF, plusieurs à la fois",
+    "take": "Prendre une photo",
+    "browse": "Choisir un fichier",
+    "titleTouch": "Ajoutez la facture"
   }
 }

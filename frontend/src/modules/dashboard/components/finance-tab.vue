@@ -2,6 +2,7 @@
   <div v-if="!sales || !figures" class="skeleton h-64 rounded-card" />
   <div v-else class="stagger flex min-w-0 flex-col gap-5">
     <sales-tiles :figures="figures" :period-label="period.label" />
+    <result-panel :period="period" />
 
     <div class="grid grid-cols-1 gap-3 lg:grid-cols-5">
       <ui-bar-chart :title="$t(sales.chartTitleKey)" :series="salesSeries" :bars="chartBars" class="lg:col-span-3">
@@ -72,6 +73,7 @@ import { formatNumber } from 'global/composables/number';
 
 import type { IChartSeries } from 'global/types/chart';
 
+import ResultPanel from 'dashboard/components/result-panel.vue';
 import SalesTiles from 'finance/components/sales-tiles.vue';
 import UiBarChart from 'global/components/ui-bar-chart.vue';
 

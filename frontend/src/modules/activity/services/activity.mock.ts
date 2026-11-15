@@ -3,6 +3,7 @@ import { slicePage } from 'global/composables/page';
 import { LOTS_MOCK_DB } from 'lot/services/lot.mock';
 import { DEBT_CONTACTS_DB, MOVEMENTS_DB, REFUNDS_DB } from 'finance/services/finance.mock';
 import { CLIENTS_MOCK_DB } from 'client/services/client.mock';
+import { EXPENSES_DB } from 'expense/services/expense.mock';
 import { configurationOf } from 'configuration/services/configuration.mock';
 import { buildActivityFeed, daySummary, filterFeed } from 'activity/composables/activity-feed';
 import type { IPage, IPageQuery } from 'global/types/page';
@@ -15,6 +16,7 @@ const dayFeed = (siteId: string, day: string): IActivity[] => {
       lots: ofSite(LOTS_MOCK_DB),
       movements: ofSite(MOVEMENTS_DB),
       refunds: ofSite(REFUNDS_DB),
+      expenses: ofSite(EXPENSES_DB),
       debtContacts: ofSite(DEBT_CONTACTS_DB),
       configurationChanges: configurationOf(siteId).history,
       clientNames: Object.fromEntries(CLIENTS_MOCK_DB.map((client) => [client.id, client.name])),

@@ -9,7 +9,7 @@ const pressedLot = (id: string, line: string, start: string, end: string): ILot 
 
 describe('pressLineFigures', () => {
   const sites = [{ siteId: 'oj', siteName: 'Oujda', pressLines: [{ id: 'p1', number: 1, name: '' }, { id: 'p2', number: 2, name: 'Sinolea' }] }];
-  const label = (line: { number: number; name: string }): string => (line.name ? `Chaîne ${line.number} · ${line.name}` : `Chaîne ${line.number}`);
+  const label = (line: { number: number; name: string }): string => (line.name ? `Malaxeur ${line.number} · ${line.name}` : `Malaxeur ${line.number}`);
 
   it('adds up the Lots pressed in the period on each Press Line, with the hours spent pressing', () => {
     const lots = [
@@ -19,13 +19,13 @@ describe('pressLineFigures', () => {
       lot({ id: 'd', pressLineId: 'p2', oilLitres: null, moves: [{ status: 'pressing', at: '2026-11-11T10:00:00+01:00', by: 'H' }] }),
     ];
     expect(pressLineFigures(sites, lots, '2026-11-07', '2026-11-13', label).map((row) => [row.name, row.lots, row.olivesKg, row.oilLitres, row.pressingHours])).toEqual([
-      ['Chaîne 1', 2, 2000, 360, 2.5],
-      ['Chaîne 2 · Sinolea', 0, 0, 0, 0],
+      ['Malaxeur 1', 2, 2000, 360, 2.5],
+      ['Malaxeur 2 · Sinolea', 0, 0, 0, 0],
     ]);
   });
 
   it('names each Press Line after its Site when several Sites are in scope', () => {
     const twoSites = [...sites, { siteId: 'bk', siteName: 'Berkane', pressLines: [{ id: 'p3', number: 1, name: '' }] }];
-    expect(pressLineFigures(twoSites, [], '2026-11-07', '2026-11-13', label).map((row) => row.name)).toEqual(['Oujda · Chaîne 1', 'Oujda · Chaîne 2 · Sinolea', 'Berkane · Chaîne 1']);
+    expect(pressLineFigures(twoSites, [], '2026-11-07', '2026-11-13', label).map((row) => row.name)).toEqual(['Oujda · Malaxeur 1', 'Oujda · Malaxeur 2 · Sinolea', 'Berkane · Malaxeur 1']);
   });
 });

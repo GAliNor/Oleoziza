@@ -7,11 +7,13 @@ export const readStorage = <T>(key: string, fallback: T): T => {
   }
 };
 
-export const writeStorage = (key: string, value: unknown): void => {
+/** Writes, or removes on null; answers false when the browser refused (storage full or blocked). */
+export const writeStorage = (key: string, value: unknown): boolean => {
   try {
     if (value === null || value === undefined) localStorage.removeItem(key);
     else localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch {
-    return;
+    return false;
   }
 };

@@ -38,7 +38,7 @@
       "pressing": "En train d’être pressé",
       "pressed": "Huile prête · {quantity}",
       "withdrawn": "Huile retirée",
-      "noLine": "Sans chaîne",
+      "noLine": "Sans malaxeur",
       "planned": "prévu {at}",
       "late": "prévu {at} · en retard"
     },
@@ -50,7 +50,7 @@
       "yes": "Oui, c’est ça",
       "photo": "Photo de cette étape",
       "unpaid": "Non payé : passer à la caisse. Le retrait reste permis.",
-      "line": "Sur quelle chaîne ?",
+      "line": "Sur quel malaxeur ?",
       "lineBusy": "Presse déjà le Lot de {client}",
       "lineFree": "Libre"
     },
@@ -62,11 +62,11 @@
       "next": "Suivant",
       "since": "depuis {at}",
       "late": "En retard",
-      "unplanned": "Sans chaîne",
+      "unplanned": "Sans malaxeur",
       "running": "En marche",
       "free": "Libre",
       "afterCurrent": "À lancer quand le lot en cours sera fini.",
-      "empty": "Aucun lot prévu sur cette chaîne.",
+      "empty": "Aucun lot prévu sur ce malaxeur.",
       "later": "{count} autre lot attend après | {count} autre lot attend après | {count} autres lots attendent après"
     },
     "pressedWaiting": "{count} lot pressé attend son client : scannez son ticket ou cherchez-le. | {count} lot pressé attend son client : scannez son ticket ou cherchez-le. | {count} lots pressés attendent leur client : scannez leur ticket ou cherchez-les.",
@@ -107,10 +107,10 @@
         "olives": "Olives",
         "oil": "Huile",
         "yield": "Rendement",
-        "line": "Chaîne",
+        "line": "Malaxeur",
         "hours": "Pressage"
       },
-      "byLine": "Par chaîne",
+      "byLine": "Par malaxeur",
       "hours": "{hours} h",
       "byVariety": "Par variété"
     },
@@ -138,9 +138,20 @@
       "outstanding": "À encaisser"
     },
     "lines": {
-      "title": "Chaînes",
+      "title": "Malaxeurs",
       "open": "Voir les opérations →",
-      "none": "Aucune chaîne configurée sur ce site."
+      "none": "Aucun malaxeur configuré sur ce site."
+    },
+    "result": {
+      "title": "Résultat · {period}",
+      "open": "Voir les charges →",
+      "revenue": "CA",
+      "expenses": "Charges",
+      "result": "Résultat",
+      "margin": "{percent} % du CA",
+      "noRevenue": "pas de CA sur la période",
+      "investments": "Investissements de la période : {amount}, gardés à part, non déduits du résultat.",
+      "byCategory": "Charges par catégorie"
     }
   },
   "tanks": {

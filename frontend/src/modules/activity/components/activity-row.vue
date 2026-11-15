@@ -41,6 +41,7 @@ const title = computed((): string => {
     tank: tank ? formatTank(tank) : String(params.tankId ?? ''),
     contact: params.contact ? t(`finance.debts.kinds.${params.contact}`) : '',
     setting: params.key ? t(`activity.settings.${params.key}`) : '',
+    category: params.category ? t(`expense.categories.${params.category}`) : '',
   });
 });
 const subject = computed((): string => {

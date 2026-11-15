@@ -2,7 +2,7 @@
   <div class="md:p-3" aria-hidden="true">
     <div
       class="relative h-full overflow-hidden bg-gradient-to-b from-primary-olive-light/70 via-accent-cream
-        to-accent-sand/50 md:rounded-[2rem]"
+        to-accent-sand/50 md:rounded-card"
     >
       <div class="sun absolute top-[14%] right-[14%] h-20 w-20 rounded-full bg-accent-gold/70 blur-[1px] md:h-32 md:w-32" />
 
@@ -26,7 +26,7 @@
             <div v-for="month in SHOWCASE_MONTHLY_OIL" :key="month.monthKey" class="flex flex-1 flex-col items-center gap-1.5">
               <span v-if="month.kg === peakKg" class="body-three font-medium text-fg-primary-paragraph tabular-nums">{{ $n(month.kg) }}</span>
               <div
-                class="bar w-full rounded-t-[4px]"
+                class="bar w-full rounded-t-control"
                 :class="month.kg === peakKg ? 'bg-primary-olive-dark' : 'bg-primary-olive-mid'"
                 :style="{ height: `${(month.kg / peakKg) * 64}px` }"
               />

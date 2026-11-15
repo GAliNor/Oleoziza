@@ -21,6 +21,7 @@
     "storage": "Cuves ({count})",
     "discount": "Remises ({count})",
     "payment": "Paiements ({count})",
+    "expense": "Charges ({count})",
     "follow": "Recouvrement ({count})",
     "configuration": "Configuration ({count})"
   },
@@ -49,7 +50,10 @@
     "refund_made": "Remboursement pour {code} effectué",
     "refund_confirmed": "Remboursement pour {code} confirmé",
     "debt_contact": "Relance · {contact}",
-    "configuration": "Configuration : {setting}"
+    "configuration": "Configuration : {setting}",
+    "expense_recorded": "Charge {code} saisie · {category}",
+    "expense_updated": "Charge {code} modifiée · {category}",
+    "expense_cancelled": "Charge {code} annulée · {category}"
   },
   "settings": {
     "millingRate": "tarif de trituration",
@@ -61,6 +65,6 @@
     "oil": "part d’huile",
     "boxes": "Box",
     "tanks": "cuves",
-    "pressLines": "chaînes de production"
+    "pressLines": "malaxeurs"
   }
 }

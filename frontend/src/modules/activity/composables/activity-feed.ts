@@ -2,12 +2,15 @@ import { toIsoDate } from 'global/composables/date';
 import type { ActivityGroup, ActivityKind, IActivity, IActivityDaySummary, IActivityFilter } from 'activity/types/activity';
 import type { IConfigurationChange } from 'configuration/types/configuration';
 import type { IDebtContact, IMovement, IRefund } from 'finance/types/finance';
+import type { IExpense } from 'expense/types/expense';
+import { SEASON_START } from 'global/constants/period';
 import type { ILot } from 'lot/types/lot';
 
 export interface IActivitySources {
   lots: readonly ILot[];
   movements: readonly IMovement[];
   refunds: readonly IRefund[];
+  expenses: readonly IExpense[];
   debtContacts: readonly IDebtContact[];
   configurationChanges: readonly IConfigurationChange[];
   clientNames: Readonly<Record<string, string>>;
@@ -29,14 +32,17 @@ const GROUPS: Record<ActivityKind, ActivityGroup> = {
   payment_cancelled: 'payment',
   refund_made: 'payment',
   refund_confirmed: 'payment',
+  expense_recorded: 'expense',
+  expense_updated: 'expense',
+  expense_cancelled: 'expense',
   debt_contact: 'follow',
   configuration: 'configuration',
 };
 
-/** Money is shown only to those who may see the finances: Discounts, Payments, Refunds and debt follow-up. */
-const MONEY_GROUPS: ActivityGroup[] = ['discount', 'payment', 'follow'];
+/** Money is shown only to those who may see the finances: Discounts, Payments, Refunds, Expenses and debt follow-up. */
+const MONEY_GROUPS: ActivityGroup[] = ['discount', 'payment', 'expense', 'follow'];
 
-export const ACTIVITY_GROUPS: ActivityGroup[] = ['production', 'storage', 'discount', 'payment', 'follow', 'configuration'];
+export const ACTIVITY_GROUPS: ActivityGroup[] = ['production', 'storage', 'discount', 'payment', 'expense', 'follow', 'configuration'];
 
 type Draft = Omit<IActivity, 'group' | 'isMoney' | 'amount' | 'litres' | 'kg' | 'params' | 'to'> & Partial<Pick<IActivity, 'amount' | 'litres' | 'kg' | 'params' | 'to'>>;
 
@@ -93,12 +99,23 @@ const refundEvents = (refund: IRefund): IActivity[] => {
   return events;
 };
 
+/** An Expense entered, changed and cancelled; the link opens it on the Charges page, on the Season it belongs to. */
+const expenseEvents = (expense: IExpense): IActivity[] => {
+  const link = { name: 'expense', query: { period: expense.date >= SEASON_START ? 'season' : 'previous', expense: expense.id } };
+  const fields = { subject: expense.description, params: { code: expense.code ?? '', category: expense.categoryId }, amount: expense.amount, to: link };
+  const events = [activity({ id: `expense-recorded-${expense.id}`, kind: 'expense_recorded', at: expense.recordedAt, by: expense.recordedBy, ...fields })];
+  if (expense.updatedAt && expense.updatedBy) events.push(activity({ id: `expense-updated-${expense.id}`, kind: 'expense_updated', at: expense.updatedAt, by: expense.updatedBy, ...fields }));
+  if (expense.cancelledAt && expense.cancelledBy) events.push(activity({ id: `expense-cancelled-${expense.id}`, kind: 'expense_cancelled', at: expense.cancelledAt, by: expense.cancelledBy, ...fields }));
+  return events;
+};
+
 /** Everything done on one Site on one day, newest first, read from the records each event comes from. */
 export const buildActivityFeed = (sources: IActivitySources, day: string): IActivity[] => {
   const events = [
     ...sources.lots.flatMap(lotEvents),
     ...sources.movements.flatMap(movementEvents),
     ...sources.refunds.flatMap(refundEvents),
+    ...sources.expenses.flatMap(expenseEvents),
     ...sources.debtContacts.map((contact) =>
       activity({ id: `debt-${contact.id}`, kind: 'debt_contact', at: contact.at, by: contact.by, subject: sources.clientNames[contact.clientId] ?? '', params: { contact: contact.kind, promisedOn: contact.promisedOn ?? '' }, to: { name: 'debt-follow-up' } }),
     ),

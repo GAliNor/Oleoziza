@@ -75,9 +75,9 @@ let resizeObserver: ResizeObserver | null = null;
 
 // computed
 const containerClass = computed((): string[] => {
-  if (props.variant === 'tabs') return props.isFull ? ['grid grid-flow-col auto-cols-fr rounded-control bg-subtle p-1'] : ['inline-flex rounded-control bg-subtle p-1'];
+  if (props.variant === 'tabs') return props.isFull ? ['grid grid-flow-col auto-cols-fr rounded-card bg-subtle p-1'] : ['inline-flex rounded-card bg-subtle p-1'];
   return [
-    props.isFull ? 'relative grid grid-flow-col auto-cols-fr rounded-control p-1' : 'no-scrollbar relative flex max-w-full overflow-x-auto rounded-control p-1',
+    props.isFull ? 'relative grid grid-flow-col auto-cols-fr rounded-card p-1' : 'no-scrollbar relative flex max-w-full overflow-x-auto rounded-card p-1',
     props.variant === 'strong-pills' ? 'bg-surface shadow-raised ring-1 ring-default' : 'bg-subtle',
   ];
 });

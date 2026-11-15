@@ -2,7 +2,7 @@ import type { RouteLocationRaw } from 'vue-router';
 
 import type { IPage, IPageQuery } from 'global/types/page';
 
-export type ActivityGroup = 'production' | 'storage' | 'discount' | 'payment' | 'follow' | 'configuration';
+export type ActivityGroup = 'production' | 'storage' | 'discount' | 'payment' | 'expense' | 'follow' | 'configuration';
 
 export type ActivityKind =
   | 'reception'
@@ -20,6 +20,9 @@ export type ActivityKind =
   | 'payment_cancelled'
   | 'refund_made'
   | 'refund_confirmed'
+  | 'expense_recorded'
+  | 'expense_updated'
+  | 'expense_cancelled'
   | 'debt_contact'
   | 'configuration';
 

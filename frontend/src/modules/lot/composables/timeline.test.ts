@@ -22,10 +22,10 @@ describe('buildLotTimeline', () => {
   it('adds each move, and each Tank the oil is stored in, with its planned end', () => {
     const steps = buildLotTimeline(
       lot({ oilLitres: 425, storages: [storage({ plannedUntil: '2026-12-15' })], moves: [move('waiting'), move('pressing'), move('pressed')] }),
-      { lineLabel: 'Chaîne 2', tankLabel: (tankId) => `Cuve ${tankId}` },
+      { lineLabel: 'Malaxeur 2', tankLabel: (tankId) => `Cuve ${tankId}` },
     );
     expect(steps.map((step) => step.key)).toEqual(['reception', 'waiting', 'pressing', 'pressed', 'stored']);
-    expect(steps[2].detail).toBe('Sur Chaîne 2');
+    expect(steps[2].detail).toBe('Sur Malaxeur 2');
     expect(clean(steps[3].detail)).toBe('425 L d’huile · rendement 20,7 L/q');
     expect(clean(steps[4].detail)).toBe('Cuve 3 · 425 L · jusqu’au 15 déc. 2026');
   });

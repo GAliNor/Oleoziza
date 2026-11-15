@@ -36,7 +36,7 @@
       "box": "le box",
       "notification": "la notification",
       "contact": "le contact du Client",
-      "line": "la chaîne et l’heure prévue"
+      "line": "le malaxeur et l’heure prévue"
     },
     "photo": "Photo des olives"
   },
@@ -97,9 +97,9 @@
     }
   },
   "line": {
-    "title": "Chaîne de production",
+    "title": "Malaxeur",
     "queue": "Aucun Lot en file | {count} Lot en file | {count} Lots en file",
-    "suggested": "Proposée",
+    "suggested": "Proposé",
     "plannedStart": "Pressage prévu",
     "freeNow": "Libre, peut presser tout de suite",
     "queueFrom": "{queue} · place dès {at}"

@@ -22,6 +22,7 @@ ACCOUNTANT_DEFAULT_PERMISSIONS: tuple[Permission, ...] = (
     Permission.REFUND_MANAGE,
     Permission.DISCOUNT_GIVE,
     Permission.DEBT_FOLLOW,
+    Permission.EXPENSE_RECORD,
 )
 
 ROLE_DEFAULT_PERMISSIONS: dict[Role, tuple[Permission, ...]] = {
