@@ -62,7 +62,8 @@
     "ice_invalid": "L'ICE compte 15 chiffres.",
     "date_in_future": "La date ne peut pas être dans le futur.",
     "expense_cancelled": "Cette charge est annulée.",
-    "expense_not_found": "Cette charge n'existe plus."
+    "expense_not_found": "Cette charge n'existe plus.",
+    "journal_forbidden": "Vous n'avez pas accès au journal de ce site."
   },
   "site": {
     "label": "Site",
