@@ -1,16 +1,23 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
-import { PROVINCE_SHAPES } from 'territory/composables/province-shapes';
-import { ORIENTAL_PROVINCES } from 'territory/constants/provinces';
+import { buildProvinceShapes, type IProvinceShapes } from 'territory/composables/province-shapes';
+import { PROVINCES_MOCK } from 'territory/constants/mock-provinces';
+import { readMockProvinces } from 'territory/services/territory.mock';
 
-describe('PROVINCE_SHAPES', () => {
+describe('buildProvinceShapes', () => {
+  let shapes: IProvinceShapes;
+
+  beforeAll(async () => {
+    shapes = buildProvinceShapes(await readMockProvinces());
+  });
+
   it('draws every province of the Oriental once', () => {
-    expect(PROVINCE_SHAPES.shapes.map((shape) => shape.id).sort()).toEqual(ORIENTAL_PROVINCES.map((province) => province.id).sort());
-    PROVINCE_SHAPES.shapes.forEach((shape) => expect(shape.path).toMatch(/^M[\d.]+ [\d.]+L.*Z$/));
+    expect(shapes.shapes.map((shape) => shape.id).sort()).toEqual(PROVINCES_MOCK.map((province) => province.id).sort());
+    shapes.shapes.forEach((shape) => expect(shape.path).toMatch(/^M[\d.]+ [\d.]+L.*Z$/));
   });
 
   it('places every label inside the frame', () => {
-    PROVINCE_SHAPES.shapes.forEach((shape) => {
+    shapes.shapes.forEach((shape) => {
       expect(shape.labelLeft).toBeGreaterThan(0);
       expect(shape.labelLeft).toBeLessThan(100);
       expect(shape.labelTop).toBeGreaterThan(0);
@@ -19,9 +26,13 @@ describe('PROVINCE_SHAPES', () => {
   });
 
   it('keeps the Region taller than wide, north up', () => {
-    expect(PROVINCE_SHAPES.height).toBeGreaterThan(PROVINCE_SHAPES.width);
-    const nador = PROVINCE_SHAPES.shapes.find((shape) => shape.id === 'nador');
-    const figuig = PROVINCE_SHAPES.shapes.find((shape) => shape.id === 'figuig');
+    expect(shapes.height).toBeGreaterThan(shapes.width);
+    const nador = shapes.shapes.find((shape) => shape.id === 'nador');
+    const figuig = shapes.shapes.find((shape) => shape.id === 'figuig');
     expect(nador!.labelTop).toBeLessThan(figuig!.labelTop);
+  });
+
+  it('leaves out a Province without an outline, until the Provinces are loaded', () => {
+    expect(buildProvinceShapes(PROVINCES_MOCK).shapes).toEqual([]);
   });
 });

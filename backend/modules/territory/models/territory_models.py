@@ -18,6 +18,7 @@ class Province(SlugIdMixin, TimestampMixin, Base):
 
     name: Mapped[str] = mapped_column(String(NAME_LENGTH))
     kind: Mapped[ProvinceKind] = mapped_column(build_enum_type(ProvinceKind, "province_kind"))
+    position: Mapped[int] = mapped_column(default=0, server_default="0")
     latitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
     longitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
     boundary: Mapped[dict[str, Any] | None] = mapped_column(GEOJSON)
@@ -33,6 +34,7 @@ class City(IdMixin, TimestampMixin, Base):
 
     province_id: Mapped[str] = mapped_column(ForeignKey("provinces.id"))
     name: Mapped[str] = mapped_column(String(NAME_LENGTH))
+    position: Mapped[int] = mapped_column(default=0, server_default="0")
     latitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
     longitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
     boundary: Mapped[dict[str, Any] | None] = mapped_column(GEOJSON)

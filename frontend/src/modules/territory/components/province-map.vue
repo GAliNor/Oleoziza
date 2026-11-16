@@ -6,7 +6,7 @@
   >
     <div class="province-map-box h-full w-full">
       <div class="absolute inset-0 m-auto" :style="frameStyle">
-        <svg class="absolute inset-0 h-full w-full overflow-visible" :viewBox="`0 0 ${PROVINCE_SHAPES.width} ${PROVINCE_SHAPES.height}`" aria-hidden="false">
+        <svg class="absolute inset-0 h-full w-full overflow-visible" :viewBox="`0 0 ${shapes.width} ${shapes.height}`" aria-hidden="false">
           <path
             v-for="shape in orderedShapesComputed"
             :key="shape.id"
@@ -26,7 +26,7 @@
           />
         </svg>
         <span
-          v-for="shape in PROVINCE_SHAPES.shapes"
+          v-for="shape in shapes.shapes"
           :key="shape.id"
           class="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-xs whitespace-nowrap transition-colors duration-200"
           :class="shape.id === provinceId ? 'rounded-control bg-action px-2 py-0.5 font-semibold text-fg-on-action shadow-raised' : 'text-fg-secondary-paragraph'"
@@ -43,10 +43,10 @@
 
 <script setup lang="ts">
 // imports
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 
-import { provinceById } from 'territory/composables/location';
-import { PROVINCE_SHAPES, type IProvinceShape } from 'territory/composables/province-shapes';
+import { useTerritoryStore } from 'territory/stores/territory';
+import type { IProvinceShape, IProvinceShapes } from 'territory/composables/province-shapes';
 import type { IProvince, ProvinceId } from 'territory/types/territory';
 
 // props
@@ -55,15 +55,19 @@ const props = withDefaults(defineProps<{ provinceId: ProvinceId | null; isSelect
 // emits
 const emit = defineEmits<{ (event: 'select', province: ProvinceId): void }>();
 
-// variables
-const RATIO = PROVINCE_SHAPES.width / PROVINCE_SHAPES.height;
-const frameStyle = { aspectRatio: `${RATIO}`, width: `min(100cqw, 100cqh * ${RATIO})` };
+// stores
+const territoryStore = useTerritoryStore();
 
 // computed
-const province = computed((): IProvince | undefined => provinceById(props.provinceId));
+const shapes = computed((): IProvinceShapes => territoryStore.shapes);
+const frameStyle = computed((): Record<string, string> => {
+  const ratio = shapes.value.width / shapes.value.height;
+  return { aspectRatio: `${ratio}`, width: `min(100cqw, 100cqh * ${ratio})` };
+});
+const province = computed((): IProvince | undefined => territoryStore.findProvince(props.provinceId));
 const orderedShapesComputed = computed((): IProvinceShape[] => [
-  ...PROVINCE_SHAPES.shapes.filter((shape) => shape.id !== props.provinceId),
-  ...PROVINCE_SHAPES.shapes.filter((shape) => shape.id === props.provinceId),
+  ...shapes.value.shapes.filter((shape) => shape.id !== props.provinceId),
+  ...shapes.value.shapes.filter((shape) => shape.id === props.provinceId),
 ]);
 
 // methods
@@ -77,6 +81,9 @@ const pathClass = (id: ProvinceId): string[] => {
 const handleSelect = (id: ProvinceId): void => {
   if (props.isSelectable) emit('select', id);
 };
+
+// lifecycle
+onMounted(() => territoryStore.fetchProvinces());
 </script>
 
 <style scoped>

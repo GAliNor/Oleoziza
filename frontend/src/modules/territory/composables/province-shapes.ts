@@ -1,8 +1,7 @@
 import type { Bounds, LngLat } from 'map';
 
-import { ORIENTAL_BOUNDS, ORIENTAL_PROVINCES } from 'territory/constants/provinces';
-import ORIENTAL_GEOJSON from 'territory/constants/oriental-provinces.json';
-import type { ProvinceId } from 'territory/types/territory';
+import { ORIENTAL_BOUNDS } from 'territory/constants/provinces';
+import type { IProvince, ProvinceBoundary, ProvinceId } from 'territory/types/territory';
 
 export interface IProvinceShape {
   id: ProvinceId;
@@ -19,7 +18,6 @@ export interface IProvinceShapes {
 }
 
 type Ring = LngLat[];
-type Geometry = { type: 'Polygon'; coordinates: Ring[] } | { type: 'MultiPolygon'; coordinates: Ring[][] };
 
 const VIEW_WIDTH = 1000;
 const INSET_RATIO = 0.04;
@@ -40,24 +38,20 @@ const projector = (bounds: Bounds): { width: number; height: number; project: (p
   };
 };
 
-const ringsOf = (geometry: Geometry): Ring[] => (geometry.type === 'Polygon' ? geometry.coordinates : geometry.coordinates.flat());
+const ringsOf = (geometry: ProvinceBoundary): Ring[] => (geometry.type === 'Polygon' ? geometry.coordinates : geometry.coordinates.flat());
 
-const pathOf = (geometry: Geometry, project: (point: LngLat) => [number, number]): string =>
+const pathOf = (geometry: ProvinceBoundary, project: (point: LngLat) => [number, number]): string =>
   ringsOf(geometry)
     .map((ring) => `M${ring.map((point) => project(point).map((value) => value.toFixed(1)).join(' ')).join('L')}Z`)
     .join('');
 
-/** The eight provinces projected once (Web Mercator, framed on the Oriental) into an SVG view box, with label positions in percent of it. */
-const buildProvinceShapes = (): IProvinceShapes => {
+/** The provinces projected (Web Mercator, framed on the Oriental) into an SVG view box, with label positions in percent of it; a Province without an outline is left out. */
+export const buildProvinceShapes = (provinces: readonly IProvince[]): IProvinceShapes => {
   const { width, height, project } = projector(ORIENTAL_BOUNDS);
-  const features = (ORIENTAL_GEOJSON as unknown as { features: { properties: { id: ProvinceId }; geometry: Geometry }[] }).features;
-  const shapes = ORIENTAL_PROVINCES.flatMap((province) => {
-    const feature = features.find((item) => item.properties.id === province.id);
-    if (!feature) return [];
+  const shapes = provinces.flatMap((province) => {
+    if (!province.boundary) return [];
     const [x, y] = project(province.labelAt);
-    return [{ id: province.id, name: province.name, path: pathOf(feature.geometry, project), labelLeft: (x / width) * 100, labelTop: (y / height) * 100 }];
+    return [{ id: province.id, name: province.name, path: pathOf(province.boundary, project), labelLeft: (x / width) * 100, labelTop: (y / height) * 100 }];
   });
   return { width, height, shapes };
 };
-
-export const PROVINCE_SHAPES: IProvinceShapes = buildProvinceShapes();

@@ -18,7 +18,7 @@
     </dd>
     <template v-else-if="user.location">
       <dd class="text-fg-display">{{ user.location.address }}, {{ user.location.city }}</dd>
-      <dd class="body-two">{{ formatArea(user.location.province) }}</dd>
+      <dd class="body-two">{{ formatArea(territoryStore.findProvince(user.location.province)) }}</dd>
     </template>
     <dd v-else class="body-two">{{ $t('user.location.none') }}</dd>
   </div>
@@ -26,13 +26,14 @@
 
 <script setup lang="ts">
 // imports
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useToastStore } from 'global/stores/toast';
 import { useUserStore } from 'user/stores/user';
 import { useUserRights } from 'user/composables/use-user-rights';
 import { formatArea, isLocationComplete, trimmedLocation } from 'territory/composables/location';
+import { useTerritoryStore } from 'territory/stores/territory';
 import { EMPTY_LOCATION } from 'territory/constants/provinces';
 import type { ILocation } from 'territory/types/territory';
 import type { IStaffUser } from 'user/types/user';
@@ -46,6 +47,7 @@ const props = defineProps<{ user: IStaffUser }>();
 const { t } = useI18n();
 const toastStore = useToastStore();
 const userStore = useUserStore();
+const territoryStore = useTerritoryStore();
 const { canEdit } = useUserRights();
 
 // variables
@@ -72,4 +74,7 @@ const handleSave = async (): Promise<void> => {
   toastStore.push(t('user.location.saved'), 'success');
   isEditing.value = false;
 };
+
+// lifecycle
+onMounted(() => territoryStore.fetchProvinces());
 </script>

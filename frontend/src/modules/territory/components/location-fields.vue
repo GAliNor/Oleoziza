@@ -8,7 +8,7 @@
       <p class="body-three">{{ $t('territory.fields.areaHint') }}</p>
       <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <button
-          v-for="province in ORIENTAL_PROVINCES"
+          v-for="province in territoryStore.provinces"
           :key="province.id"
           type="button"
           class="toggle-tile px-2"
@@ -46,10 +46,10 @@
 
 <script setup lang="ts">
 // imports
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, onMounted } from 'vue';
 
-import { isSameCity, provinceById, withCity, withProvince } from 'territory/composables/location';
-import { ORIENTAL_PROVINCES } from 'territory/constants/provinces';
+import { isSameCity, withCity, withProvince } from 'territory/composables/location';
+import { useTerritoryStore } from 'territory/stores/territory';
 import type { ILocation, IProvince, ProvinceId } from 'territory/types/territory';
 
 import UiField from 'global/components/ui-field.vue';
@@ -60,19 +60,22 @@ const props = withDefaults(defineProps<{ modelValue: ILocation; isMapShown?: boo
 // emits
 const emit = defineEmits<{ (event: 'update:modelValue', location: ILocation): void }>();
 
+// stores
+const territoryStore = useTerritoryStore();
+
 // variables
 const ProvinceMap = defineAsyncComponent(() => import('territory/components/province-map.vue'));
 
 // computed
-const province = computed((): IProvince | undefined => provinceById(props.modelValue.province));
+const province = computed((): IProvince | undefined => territoryStore.findProvince(props.modelValue.province));
 
 // event handlers
 const handleProvince = (id: ProvinceId): void => {
-  emit('update:modelValue', withProvince(props.modelValue, id));
+  emit('update:modelValue', withProvince(territoryStore.provinces, props.modelValue, id));
 };
 
 const handleCity = (city: string): void => {
-  emit('update:modelValue', withCity(props.modelValue, city));
+  emit('update:modelValue', withCity(territoryStore.provinces, props.modelValue, city));
 };
 
 const handleCityInput = (event: Event): void => {
@@ -82,4 +85,7 @@ const handleCityInput = (event: Event): void => {
 const handleAddress = (event: Event): void => {
   emit('update:modelValue', { ...props.modelValue, address: (event.target as HTMLInputElement).value });
 };
+
+// lifecycle
+onMounted(() => territoryStore.fetchProvinces());
 </script>

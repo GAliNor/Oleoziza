@@ -26,11 +26,12 @@
 
 <script setup lang="ts">
 // imports
-import { computed, defineAsyncComponent, type Component } from 'vue';
+import { computed, defineAsyncComponent, onMounted, type Component } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { formatPhone } from 'global/composables/phone';
 import { formatArea } from 'territory/composables/location';
+import { useTerritoryStore } from 'territory/stores/territory';
 import type { IClientRecord } from 'client/types/client';
 
 import IdCardLineIcon from 'global/icons/id-card-line.icon.vue';
@@ -42,6 +43,7 @@ import PhoneLineIcon from 'global/icons/phone-line.icon.vue';
 const props = defineProps<{ client: IClientRecord }>();
 
 // stores
+const territoryStore = useTerritoryStore();
 const { t } = useI18n();
 
 // variables
@@ -54,7 +56,10 @@ const rows = computed((): { label: string; value: string; icon: Component; href?
     { label: t('client.coordinates.phone'), value: formatPhone(client.phone), icon: PhoneLineIcon, href: `tel:${client.phone}` },
     { label: t('client.coordinates.email'), value: client.email ?? t('client.coordinates.noEmail'), icon: MailLineIcon, href: client.email ? `mailto:${client.email}` : undefined },
     ...(client.identifier ? [{ label: t(`client.identifierKinds.${client.kind}`), value: client.identifier, icon: IdCardLineIcon }] : []),
-    { label: t('client.coordinates.address'), value: client.address ?? client.region, icon: MapPinLineIcon, detail: `${client.address ? `${client.region} · ` : ''}${formatArea(client.province)}` },
+    { label: t('client.coordinates.address'), value: client.address ?? client.region, icon: MapPinLineIcon, detail: `${client.address ? `${client.region} · ` : ''}${formatArea(territoryStore.findProvince(client.province))}` },
   ];
 });
+
+// lifecycle
+onMounted(() => territoryStore.fetchProvinces());
 </script>

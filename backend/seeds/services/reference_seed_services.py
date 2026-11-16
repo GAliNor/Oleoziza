@@ -32,13 +32,14 @@ class ReferenceSeedService:
         Load or refresh the eight Provinces of the Oriental with their outlines and towns, the olive varieties and the Expense Categories.
         """
         boundaries = read_province_boundaries()
-        for province in PROVINCES:
+        for province_position, province in enumerate(PROVINCES, start=1):
             kind = ProvinceKind.PREFECTURE if province.is_prefecture else ProvinceKind.PROVINCE
             self.db.merge(
                 Province(
                     id=province.id,
                     name=province.name,
                     kind=kind,
+                    position=province_position,
                     latitude=Decimal(province.latitude),
                     longitude=Decimal(province.longitude),
                     boundary=boundaries[province.id],
@@ -46,8 +47,8 @@ class ReferenceSeedService:
             )
         self.db.flush()
         for province in PROVINCES:
-            for city_name in province.cities:
-                self.db.merge(City(id=build_city_id(province.id, city_name), province_id=province.id, name=city_name))
+            for city_position, city_name in enumerate(province.cities, start=1):
+                self.db.merge(City(id=build_city_id(province.id, city_name), province_id=province.id, name=city_name, position=city_position))
         for variety_id, variety_name in OLIVE_VARIETIES:
             self.db.merge(OliveVariety(id=variety_id, name=variety_name, is_active=True))
         self._seed_expense_categories()
