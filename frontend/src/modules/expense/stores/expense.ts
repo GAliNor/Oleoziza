@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import ExpenseService from 'expense/services/expense';
 import { useSessionStore } from 'global/stores/session';
 import { withStatus } from 'global/composables/with-status';
+import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
 import { emptyPageList, loadPage, replaceOnPage } from 'global/composables/paged-list';
 import { groupCategories } from 'expense/composables/expense-amounts';
 import type { IExpense, IExpenseCategoryGroup, IExpenseListQuery, IExpensePayload, IExpenseStore, ISupplier } from 'expense/types/expense';
@@ -36,9 +37,11 @@ export const useExpenseStore = defineStore('expense', {
   },
   actions: {
     async fetchCategories(): Promise<void> {
-      if (this.categories.length) return;
-      const categories = await withStatus(this, 'isCategoriesLoading', () => expenseService.getCategories());
-      if (categories) this.categories = categories;
+      await withStatus(this, 'isCategoriesLoading', () =>
+        cachedLoad('expense-categories', LOAD_TTL_MS.reference, async () => {
+          this.categories = await expenseService.getCategories();
+        }),
+      );
     },
     /** One numbered page of the register, read from the server only when it is asked for. */
     fetchPage(query: IExpenseListQuery, page: number, isForced = false): Promise<void> {
@@ -56,8 +59,16 @@ export const useExpenseStore = defineStore('expense', {
     },
     async fetchSummary(siteId: string, period: PeriodKey): Promise<void> {
       this.summaryQuery = { siteId, period };
-      const summary = await withStatus(this, 'isSummaryLoading', () => expenseService.getSummary(siteId, period), { errorFlag: 'hasSummaryError' });
-      if (summary && this.summaryQuery?.siteId === siteId && this.summaryQuery.period === period) this.summary = summary;
+      await withStatus(
+        this,
+        'isSummaryLoading',
+        () =>
+          cachedLoad(`expense-summary:${siteId}:${period}`, LOAD_TTL_MS.records, async () => {
+            const summary = await expenseService.getSummary(siteId, period);
+            if (this.summaryQuery?.siteId === siteId && this.summaryQuery.period === period) this.summary = summary;
+          }),
+        { errorFlag: 'hasSummaryError' },
+      );
     },
     async fetchSuppliers(isForced = false): Promise<void> {
       if (this.suppliers.length && !isForced) return;
@@ -75,6 +86,7 @@ export const useExpenseStore = defineStore('expense', {
     },
     /** The rows and totals again, after an Expense was added, changed or cancelled. */
     async refresh(): Promise<void> {
+      invalidateLoads('expense-summary:');
       await Promise.all([this.list.query ? this.fetchPage(this.list.query, this.list.page, true) : Promise.resolve(), this.summaryQuery ? this.fetchSummary(this.summaryQuery.siteId, this.summaryQuery.period) : Promise.resolve()]);
     },
     async create(payload: IExpensePayload): Promise<IExpense | null> {

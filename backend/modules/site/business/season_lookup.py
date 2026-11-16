@@ -24,7 +24,7 @@ def get_open_season(db: Session) -> Season | None:
 
 def get_season_on(db: Session, day: date) -> Season | None:
     """
-    Find the Season, open or closed, whose dates hold a day; a planned Season never holds records.
+    Find the Season, open or closed, whose dates hold a day, the open one first when two overlap; a planned Season never holds records.
 
     Args:
         db (Session): Session to read with.
@@ -33,7 +33,8 @@ def get_season_on(db: Session, day: date) -> Season | None:
     Returns:
         Season | None: The Season of that day.
     """
-    return db.scalar(select(Season).where(Season.starts_on <= day, Season.ends_on >= day, Season.status != SeasonStatus.PLANNED))
+    query = select(Season).where(Season.starts_on <= day, Season.ends_on >= day, Season.status != SeasonStatus.PLANNED)
+    return db.scalar(query.order_by(Season.status != SeasonStatus.OPEN, Season.starts_on.desc()).limit(1))
 
 
 def get_period_range(db: Session, period: str) -> tuple[date, date]:

@@ -55,7 +55,14 @@
     "refund_own": "Une autre personne doit confirmer ce remboursement.",
     "refunds_forbidden": "Vous ne gérez pas les remboursements de ce site.",
     "debts_forbidden": "Vous ne suivez pas les impayés de ce site.",
-    "document_invalid": "Ce justificatif n'est pas une image ou un PDF valide."
+    "document_invalid": "Ce justificatif n'est pas une image ou un PDF valide.",
+    "expenses_forbidden": "Vous ne gérez pas les charges de ce site.",
+    "category_invalid": "Choisissez une sous-catégorie.",
+    "vat_rate_invalid": "Taux de TVA invalide (20 %, 10 % ou exonéré).",
+    "ice_invalid": "L'ICE compte 15 chiffres.",
+    "date_in_future": "La date ne peut pas être dans le futur.",
+    "expense_cancelled": "Cette charge est annulée.",
+    "expense_not_found": "Cette charge n'existe plus."
   },
   "site": {
     "label": "Site",
