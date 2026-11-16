@@ -35,6 +35,13 @@
   "network": {
     "offline": "Hors ligne"
   },
+  "errors": {
+    "network": "Pas de connexion au serveur. Réessayez quand le réseau revient.",
+    "invalid_request": "Certaines informations sont invalides. Vérifiez le formulaire.",
+    "site_forbidden": "Vous n'avez pas accès à ce site.",
+    "season_closed": "Cette saison est clôturée : plus aucune modification possible.",
+    "season_not_open": "Aucune saison n'est ouverte à cette date."
+  },
   "site": {
     "label": "Site",
     "all": "Tous les sites",

@@ -2,6 +2,7 @@ import importlib
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -68,6 +69,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(AuthError, build_auth_error_response)
     app.add_exception_handler(RefusedError, build_refused_error_response)
     app.add_exception_handler(StorageError, build_storage_error_response)
+    app.add_exception_handler(RequestValidationError, build_validation_error_response)
 
 
 def build_auth_error_response(request: Request, error: AuthError) -> JSONResponse:
@@ -100,6 +102,21 @@ def build_refused_error_response(request: Request, error: RefusedError) -> JSONR
         JSONResponse: The error status with {"code": ...}.
     """
     return JSONResponse(status_code=error.status_code, content={"code": error.code})
+
+
+def build_validation_error_response(request: Request, error: RequestValidationError) -> JSONResponse:
+    """
+    Turn a request FastAPI could not parse into the same coded answer as a refusal, naming the fields at fault.
+
+    Args:
+        request (Request): Request that failed.
+        error (RequestValidationError): Parsing errors of the path, query or body.
+
+    Returns:
+        JSONResponse: 422 with {"code": "invalid_request", "fields": [...]}.
+    """
+    fields = sorted({str(detail["loc"][-1]) for detail in error.errors() if detail.get("loc")})
+    return JSONResponse(status_code=422, content={"code": "invalid_request", "fields": fields})
 
 
 def build_storage_error_response(request: Request, error: StorageError) -> JSONResponse:

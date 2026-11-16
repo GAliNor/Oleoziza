@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { withStatus } from 'global/composables/with-status';
+import { ApiRefusal } from 'global/services/api-error';
 import { useToastStore } from 'global/stores/toast';
 
 interface IFakeStore {
@@ -41,6 +42,12 @@ describe('withStatus', () => {
     await withStatus(store, 'isSaving', () => Promise.reject(new Error('down')), { errorMessage: 'Échec' });
     expect(useToastStore().toasts).toMatchObject([{ message: 'Échec', tone: 'danger' }]);
     expect(store.isSaving).toBe(false);
+  });
+
+  it('shows the refusal in words when its code has a translation, else the generic message', async () => {
+    await withStatus(fakeStore(), 'isSaving', () => Promise.reject(new ApiRefusal('season_closed')), { errorMessage: 'Échec' });
+    await withStatus(fakeStore(), 'isSaving', () => Promise.reject(new ApiRefusal('no_such_code')), { errorMessage: 'Échec' });
+    expect(useToastStore().toasts.map((toast) => toast.message)).toEqual(['Cette saison est clôturée : plus aucune modification possible.', 'Échec']);
   });
 
   it('stays quiet on success', async () => {
