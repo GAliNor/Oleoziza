@@ -5,7 +5,10 @@ import { useSessionStore } from 'global/stores/session';
 import SiteMockService from 'site/services/site.mock';
 import { useSiteStore } from 'site/stores/site';
 import { ALL_SITES } from 'site/constants/site';
+import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { ISession, Permission } from 'global/types/session';
+import type { ISite, ISiteForm } from 'site/types/site';
+import type { ProvinceId } from 'territory/types/territory';
 
 const OUJDA = 'site-oujda';
 const BERKANE = 'site-berkane';
@@ -16,13 +19,17 @@ const signIn = (sites: Record<string, Permission[]>, isOwner = false): void => {
   useSessionStore().session = session;
 };
 
+const testSite = (id: string, code: string, name: string, province: ProvinceId): ISite => ({ id, code, name, province, city: name, address: 'Centre', phone: null, status: 'active' });
+
+const taourirtForm: ISiteForm = { code: 'TA', name: 'Huilerie Taourirt', location: { province: 'taourirt', city: 'Taourirt', address: 'Centre' }, phone: null };
+
 describe('site store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     useSiteStore().sites = [
-      { id: OUJDA, name: 'Oujda', city: 'Oujda' },
-      { id: BERKANE, name: 'Berkane', city: 'Berkane' },
-      { id: TAOURIRT, name: 'Taourirt', city: 'Taourirt' },
+      testSite(OUJDA, 'OJ', 'Oujda', 'oujda-angad'),
+      testSite(BERKANE, 'BK', 'Berkane', 'berkane'),
+      testSite(TAOURIRT, 'TA', 'Taourirt', 'taourirt'),
     ];
   });
 
@@ -69,8 +76,8 @@ describe('site store remembered Site', () => {
       removeItem: (key: string): void => void memory.delete(key),
     });
     vi.spyOn(SiteMockService.prototype, 'getAll').mockResolvedValue([
-      { id: OUJDA, name: 'Oujda', city: 'Oujda' },
-      { id: BERKANE, name: 'Berkane', city: 'Berkane' },
+      testSite(OUJDA, 'OJ', 'Oujda', 'oujda-angad'),
+      testSite(BERKANE, 'BK', 'Berkane', 'berkane'),
     ]);
     setActivePinia(createPinia());
   });
@@ -104,9 +111,9 @@ describe('site store saving', () => {
     vi.restoreAllMocks();
   });
 
-  it('creates a Site and shows it in the reloaded list', async () => {
+  it('creates a Site and puts it in the list without reloading', async () => {
     const siteStore = useSiteStore();
-    const created = await siteStore.save({ name: 'Huilerie Taourirt', city: 'Taourirt' });
+    const created = await siteStore.save(taourirtForm);
     expect(siteStore.sites.map((site) => site.id)).toContain(created?.id);
     await siteStore.remove(created?.id ?? '');
     expect(siteStore.sites.map((site) => site.id)).not.toContain(created?.id);
@@ -114,16 +121,28 @@ describe('site store saving', () => {
 
   it('moves the current Site away when it is removed', async () => {
     const siteStore = useSiteStore();
-    const created = await siteStore.save({ name: 'Huilerie Taourirt', city: 'Taourirt' });
+    const created = await siteStore.save(taourirtForm);
     siteStore.selectSite(created?.id ?? '');
     await siteStore.remove(created?.id ?? '');
     expect(siteStore.currentSiteId).not.toBe(created?.id);
   });
 
+  it('keeps a taken code for the form to explain', async () => {
+    const siteStore = useSiteStore();
+    expect(await siteStore.save({ ...taourirtForm, code: 'OJ' })).toBeNull();
+    expect(siteStore.saveErrorCode).toBe('code_taken');
+  });
+
+  it('refuses to delete a Site that already holds records', async () => {
+    const siteStore = useSiteStore();
+    expect(await siteStore.remove(SITE_OUJDA_ID)).toBe(false);
+    expect(siteStore.saveErrorCode).toBe('site_has_records');
+  });
+
   it('reports a failed save apart from a failed load', async () => {
     vi.spyOn(SiteMockService.prototype, 'create').mockRejectedValue(new Error('down'));
     const siteStore = useSiteStore();
-    expect(await siteStore.save({ name: 'X', city: 'Y' })).toBeNull();
+    expect(await siteStore.save(taourirtForm)).toBeNull();
     expect([siteStore.hasSaveError, siteStore.hasError, siteStore.isSaving]).toEqual([true, false, false]);
     siteStore.clearSaveError();
     expect(siteStore.hasSaveError).toBe(false);

@@ -3,9 +3,12 @@ import { readApiErrorCode } from 'global/services/api-error';
 import { useToastStore } from 'global/stores/toast';
 
 type FlagOf<S> = { [K in keyof S]: S[K] extends boolean ? K : never }[keyof S];
+type CodeOf<S> = { [K in keyof S]: S[K] extends string | null ? K : never }[keyof S];
 
 export interface IStatusOptions<S> {
   errorFlag?: FlagOf<S>;
+  /** State field that receives the refusal code (`code_taken`), so a form can say what went wrong; cleared before the task. */
+  errorCode?: CodeOf<S>;
   errorMessage?: string;
 }
 
@@ -29,11 +32,13 @@ const setFlag = <S extends object>(store: S, flag: FlagOf<S>, value: boolean): v
 export const withStatus = async <S extends object, T>(store: S, flag: FlagOf<S>, task: () => Promise<T>, options: IStatusOptions<S> = {}): Promise<T | null> => {
   setFlag(store, flag, true);
   if (options.errorFlag) setFlag(store, options.errorFlag, false);
+  if (options.errorCode) Object.assign(store, { [options.errorCode]: null });
   try {
     return await task();
   } catch (error) {
     logDevError(error);
     if (options.errorFlag) setFlag(store, options.errorFlag, true);
+    if (options.errorCode) Object.assign(store, { [options.errorCode]: readApiErrorCode(error) });
     if (options.errorMessage) useToastStore().push(buildErrorMessage(error, options.errorMessage), 'danger');
     return null;
   } finally {

@@ -88,6 +88,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useSiteStore } from 'site/stores/site';
+import { siteErrorMessage } from 'site/composables/site-errors';
 import { useToastStore } from 'global/stores/toast';
 import type { ISite } from 'site/types/site';
 
@@ -168,7 +169,7 @@ const handleDelete = async (): Promise<void> => {
   if (!activeSite.value) return;
   const isDeleted = await siteStore.remove(activeSite.value.id);
   if (!isDeleted) {
-    toastStore.push(t('site.delete.error'), 'danger');
+    toastStore.push(siteErrorMessage(siteStore.saveErrorCode, t('site.delete.error')), 'danger');
     return;
   }
   toastStore.push(t('site.delete.deleted'), 'success');

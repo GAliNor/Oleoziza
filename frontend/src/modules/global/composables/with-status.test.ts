@@ -9,9 +9,10 @@ interface IFakeStore {
   isLoading: boolean;
   isSaving: boolean;
   hasError: boolean;
+  errorCode: string | null;
 }
 
-const fakeStore = (): IFakeStore => ({ isLoading: false, isSaving: false, hasError: true });
+const fakeStore = (): IFakeStore => ({ isLoading: false, isSaving: false, hasError: true, errorCode: 'stale' });
 
 describe('withStatus', () => {
   beforeEach(() => {
@@ -48,6 +49,14 @@ describe('withStatus', () => {
     await withStatus(fakeStore(), 'isSaving', () => Promise.reject(new ApiRefusal('season_closed')), { errorMessage: 'Échec' });
     await withStatus(fakeStore(), 'isSaving', () => Promise.reject(new ApiRefusal('no_such_code')), { errorMessage: 'Échec' });
     expect(useToastStore().toasts.map((toast) => toast.message)).toEqual(['Cette saison est clôturée : plus aucune modification possible.', 'Échec']);
+  });
+
+  it('keeps the refusal code for the form, and clears it on the next try', async () => {
+    const store = fakeStore();
+    await withStatus(store, 'isSaving', () => Promise.reject(new ApiRefusal('code_taken')), { errorCode: 'errorCode' });
+    expect(store.errorCode).toBe('code_taken');
+    await withStatus(store, 'isSaving', async () => true, { errorCode: 'errorCode' });
+    expect(store.errorCode).toBeNull();
   });
 
   it('stays quiet on success', async () => {

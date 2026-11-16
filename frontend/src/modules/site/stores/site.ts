@@ -20,6 +20,7 @@ export const useSiteStore = defineStore('site', {
     hasError: false,
     isSaving: false,
     hasSaveError: false,
+    saveErrorCode: null,
   }),
   getters: {
     hasPermission(): (permission: Permission, siteId: string | null) => boolean {
@@ -84,17 +85,14 @@ export const useSiteStore = defineStore('site', {
       this.hasError = false;
       this.hasSaveError = false;
     },
+    /** Saves and puts the answer in the list: no reload. */
     async save(form: ISiteForm, id?: string): Promise<ISite | null> {
-      return withStatus(
-        this,
-        'isSaving',
-        async () => {
-          const site = id ? await siteService.update(id, form) : await siteService.create(form);
-          await this.fetchSites(true);
-          return site;
-        },
-        { errorFlag: 'hasSaveError' },
-      );
+      const site = await withStatus(this, 'isSaving', () => (id ? siteService.update(id, form) : siteService.create(form)), { errorFlag: 'hasSaveError', errorCode: 'saveErrorCode' });
+      if (!site) return null;
+      const index = this.sites.findIndex((item) => item.id === site.id);
+      if (index === -1) this.sites.push(site);
+      else this.sites.splice(index, 1, site);
+      return site;
     },
     async remove(id: string): Promise<boolean> {
       const isRemoved = await withStatus(
@@ -102,17 +100,19 @@ export const useSiteStore = defineStore('site', {
         'isSaving',
         async () => {
           await siteService.delete(id);
-          await this.fetchSites(true);
-          const userId = useSessionStore().session?.userId;
-          if (this.currentSiteId === id && userId) this.pickInitialSite(userId);
           return true;
         },
-        { errorFlag: 'hasSaveError' },
+        { errorFlag: 'hasSaveError', errorCode: 'saveErrorCode' },
       );
-      return isRemoved ?? false;
+      if (!isRemoved) return false;
+      this.sites = this.sites.filter((site) => site.id !== id);
+      const userId = useSessionStore().session?.userId;
+      if (this.currentSiteId === id && userId) this.pickInitialSite(userId);
+      return true;
     },
     clearSaveError(): void {
       this.hasSaveError = false;
+      this.saveErrorCode = null;
     },
   },
 });

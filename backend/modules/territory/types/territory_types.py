@@ -1,6 +1,8 @@
 from enum import StrEnum
 from typing import Any
 
+from pydantic import Field
+
 from core.types import CamelModel
 
 
@@ -24,3 +26,23 @@ class ProvinceOut(CamelModel):
     label_at: tuple[float, float] | None
     boundary: dict[str, Any] | None
     cities: list[str]
+
+
+class LocationOut(CamelModel):
+    """
+    Where a Site, Client or staff User is: a Province of the Oriental, a town and an address.
+    """
+
+    province: str | None
+    city: str
+    address: str
+
+
+class LocationIn(CamelModel):
+    """
+    A Location as typed in the location fields: the Province, town and address are all required.
+    """
+
+    province: str = Field(min_length=1)
+    city: str = Field(min_length=1, max_length=120)
+    address: str = Field(min_length=1, max_length=255)

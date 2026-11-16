@@ -18,7 +18,10 @@
     "cancel": "Annuler",
     "save": "Enregistrer",
     "saved": "Site enregistré.",
-    "error": "Impossible d'enregistrer le site."
+    "error": "Impossible d'enregistrer le site.",
+    "code": "Code",
+    "codeHint": "Deux lettres, en tête de chaque numéro (OJ-2627-0001). Il ne change plus ensuite.",
+    "phone": "Téléphone"
   },
   "delete": {
     "title": "Supprimer le site",
@@ -27,5 +30,11 @@
     "confirm": "Confirmer la suppression",
     "deleted": "Site supprimé.",
     "error": "Impossible de supprimer le site."
+  },
+  "errors": {
+    "code_taken": "Ce code est déjà pris par un autre site.",
+    "site_has_records": "Ce site a déjà de l'activité : il ne peut plus être supprimé.",
+    "sites_forbidden": "Seul le propriétaire peut créer ou supprimer un site.",
+    "province_not_found": "Choisissez une province de l'Oriental."
   }
 }

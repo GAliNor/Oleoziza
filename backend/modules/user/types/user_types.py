@@ -3,6 +3,7 @@ from enum import StrEnum
 from uuid import UUID
 
 from core.types import CamelModel
+from modules.territory.types.territory_types import LocationOut
 
 
 class Role(StrEnum):
@@ -115,12 +116,6 @@ class StaffStatusChange(StrEnum):
 
     ACTIVE = "active"
     DISABLED = "disabled"
-
-
-class LocationOut(CamelModel):
-    province: str | None
-    city: str
-    address: str
 
 
 class StaffUserOut(CamelModel):
