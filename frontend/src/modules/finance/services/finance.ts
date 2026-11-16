@@ -1,26 +1,10 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import FinanceMockService from 'finance/services/finance.mock';
-import { formatWeekday } from 'global/composables/date';
-import { i18n } from '~/plugins/i18n';
+import { toSales, type ISalesAnswer } from 'finance/composables/sales-buckets';
 import { ALL_SITES } from 'site/constants/site';
-import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IMovementListQuery, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales, ISalesFigures, IPaymentMethodShare } from 'finance/types/finance';
+import type { IDebtContact, IDebtContactPayload, IFinanceService, ILotPaymentLink, IMovement, IMovementDecision, IMovementListQuery, IPaymentDocument, IRecordPaymentPayload, IRefund, ISales } from 'finance/types/finance';
 import type { IPage, IPageQuery } from 'global/types/page';
 import type { PeriodKey } from 'global/types/period';
-
-interface ISalesBucket {
-  startsOn: string;
-  endsOn: string;
-  revenue: number;
-  collected: number;
-  isCurrent: boolean;
-}
-
-interface ISalesAnswer {
-  figures: ISalesFigures;
-  chartTitleKey: string;
-  buckets: ISalesBucket[];
-  methods: IPaymentMethodShare[];
-}
 
 /** « Tous les sites » sends no siteId: the backend answers every Site the User holds. */
 const siteParams = (siteId: string): Record<string, string> => (siteId === ALL_SITES ? {} : { siteId });
@@ -76,15 +60,7 @@ class FinanceApiService extends BaseService implements IFinanceService {
 
   /** The backend computes the figures and buckets; the bars get the same labels as before: a weekday, or « S1 », « S2 »… */
   async getSales(siteId: string, period: PeriodKey): Promise<ISales> {
-    const answer = await this.request<ISalesAnswer>({ method: 'GET', url: `${this._BASE_API_URL}/sales`, params: { ...siteParams(siteId), period } });
-    const isDaily = answer.chartTitleKey.endsWith('.days');
-    const weekPrefix = i18n.global.t('finance.sales.weekPrefix');
-    return {
-      figures: answer.figures,
-      chartTitleKey: answer.chartTitleKey,
-      methods: answer.methods,
-      bars: answer.buckets.map((bucket, index) => ({ label: isDaily ? formatWeekday(bucket.startsOn) : `${weekPrefix}${index + 1}`, revenue: bucket.revenue, collected: bucket.collected, isCurrent: bucket.isCurrent })),
-    };
+    return toSales(await this.request<ISalesAnswer>({ method: 'GET', url: `${this._BASE_API_URL}/sales`, params: { ...siteParams(siteId), period } }));
   }
 
   getDebtContacts(siteId: string): Promise<IDebtContact[]> {

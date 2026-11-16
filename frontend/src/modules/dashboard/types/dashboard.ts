@@ -1,4 +1,6 @@
 import type { PeriodKey } from 'global/types/period';
+import type { ISales } from 'finance/types/finance';
+import type { IExpenseSummary } from 'expense/types/expense';
 
 export interface ITank {
   id: string;
@@ -65,6 +67,9 @@ export interface IDashboard {
   oliveChart: { titleKey: string; bars: IOliveBar[] };
   tanks: ITank[];
   sites: ISiteFigures[];
+  /** Sent with the Dashboard to those who see the finances, so the Finances tab needs no request of its own. */
+  sales?: ISales;
+  expenseSummary?: IExpenseSummary;
 }
 
 export interface IDashboardService {

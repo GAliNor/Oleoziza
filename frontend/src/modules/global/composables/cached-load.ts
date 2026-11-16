@@ -32,6 +32,11 @@ export const cachedLoad = async (key: string, ttlMs: number, task: () => Promise
   return load;
 };
 
+/** Marks a key fresh without loading it: a composite answer filled that store already. */
+export const markLoaded = (key: string): void => {
+  loadedAt.set(key, Date.now());
+};
+
 /** Marks every key starting with `prefix` stale, so the next load asks the server: after switching Site, a Season change or another device's write. */
 export const invalidateLoads = (prefix = ''): void => {
   [...loadedAt.keys()].filter((key) => key.startsWith(prefix)).forEach((key) => loadedAt.delete(key));

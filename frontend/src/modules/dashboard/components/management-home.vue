@@ -77,11 +77,12 @@ const tab = computed((): HomeTab => {
 });
 
 // methods
-const load = (): void => {
+/** The Dashboard first: it carries the sales and Expense summary, so the finance loads after it only ask for what it didn't bring. */
+const load = async (): Promise<void> => {
   const siteId = siteStore.currentSiteId;
   if (!siteId) return;
-  dashboardStore.fetchDashboard(siteId, period.value.key);
   lotStore.fetchLots(siteId);
+  await dashboardStore.fetchDashboard(siteId, period.value.key);
   if (!isFinanceShown.value) return;
   financeStore.load(siteId, period.value.key);
   expenseStore.fetchSummary(siteId, period.value.key);
