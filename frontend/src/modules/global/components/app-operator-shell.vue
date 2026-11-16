@@ -36,6 +36,7 @@
     </div>
 
     <main class="flex-1 px-4 pt-6 pb-10 md:px-8">
+      <app-sync-issues />
       <slot />
     </main>
 
@@ -57,6 +58,7 @@ import AppToast from 'global/components/app-toast.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import AppBackButton from 'global/components/app-back-button.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
+import AppSyncIssues from 'global/components/app-sync-issues.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import AppUserMenu from 'global/components/app-user-menu.vue';
 import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';

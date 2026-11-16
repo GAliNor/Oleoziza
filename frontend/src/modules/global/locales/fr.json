@@ -133,5 +133,14 @@
     "take": "Prendre une photo",
     "browse": "Choisir un fichier",
     "titleTouch": "Ajoutez la facture"
+  },
+  "sync": {
+    "stale": "Des saisies attendent depuis plus d'un jour. Ouvrez l'application avec du réseau pour les envoyer, sinon le téléphone peut les effacer.",
+    "retry": "Réessayer",
+    "discard": "Abandonner",
+    "refused": "Le serveur a refusé cette saisie.",
+    "kinds": {
+      "client.create": "Nouveau client"
+    }
   }
 }

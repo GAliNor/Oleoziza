@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { invalidateLoads } from 'global/composables/cached-load';
+import { startOutbox } from 'global/services/app-outbox';
 
 import AuthService from 'auth/services/auth';
 import TokenService from 'auth/services/token';
@@ -75,6 +76,7 @@ export const useAuthStore = defineStore('auth', {
       }
       window.addEventListener('online', () => this.refreshIfExpired());
       sessionStore.markReady();
+      void startOutbox();
     },
     async applyToken(token: string): Promise<void> {
       const claims = await tokenService.verify(token);

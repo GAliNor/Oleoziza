@@ -38,7 +38,7 @@ export default class ClientMockService implements IClientService {
       identifier: payload.identifier,
       creditDh: 0,
       siteIds: [payload.siteId],
-      isPendingSync: !navigator.onLine,
+      isPendingSync: false,
     };
     CLIENTS_MOCK_DB.unshift(client);
     CLIENT_RECORDS_MOCK_DB.unshift({

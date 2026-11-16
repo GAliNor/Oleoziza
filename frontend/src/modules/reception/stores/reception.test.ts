@@ -6,6 +6,7 @@ import ClientMockService from 'client/services/client.mock';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useLotStore } from 'lot/stores/lot';
 import { useClientStore } from 'client/stores/client';
+import { outbox } from 'global/services/app-outbox';
 import { createId } from 'global/composables/crypto';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
@@ -68,8 +69,10 @@ describe('reception store retries', () => {
     const clientStore = useClientStore();
     const payload = { id: createId(), kind: 'individual' as const, name: 'Rachid Ouali', phone: '+212661000001', siteId: SITE_OUJDA_ID, identifier: null, email: null, location: { province: 'jerada' as const, city: 'Jerada', address: 'Hay Al Qods' } };
 
-    expect(await clientStore.createClient(payload)).toBeNull();
+    expect((await clientStore.createClient(payload)).isPendingSync).toBe(true);
+    await outbox.drain();
     await clientStore.createClient(payload);
+    await outbox.drain();
     await clientStore.fetchClients(true);
 
     expect(clientStore.clients.filter((client) => client.id === payload.id)).toHaveLength(1);

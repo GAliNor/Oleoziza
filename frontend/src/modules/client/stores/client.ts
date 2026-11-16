@@ -1,12 +1,19 @@
 import { defineStore } from 'pinia';
 
 import ClientService from 'client/services/client';
-import { useSyncStore } from 'global/stores/sync';
+import { outbox } from 'global/services/app-outbox';
 import { withStatus } from 'global/composables/with-status';
 import { EMPTY_ACCOUNT } from 'client/constants/mock-accounts';
 import type { IClient, IClientContact, IClientAccount, IClientRecord, IClientStore, ICreateClientPayload } from 'client/types/client';
 
 const clientService = new ClientService();
+
+export const CLIENT_CREATE_WRITE = 'client.create';
+
+outbox.register(CLIENT_CREATE_WRITE, async (payload) => {
+  const client = await clientService.create(payload as ICreateClientPayload);
+  useClientStore().keepCreated(client);
+});
 
 export const useClientStore = defineStore('client', {
   state: (): IClientStore => ({
@@ -32,7 +39,6 @@ export const useClientStore = defineStore('client', {
       if (!clients) return;
       this.clients = clients;
       this.isLoaded = true;
-      this.reportPending();
     },
     async fetchRecords(): Promise<void> {
       if (this.records.length) return;
@@ -51,13 +57,20 @@ export const useClientStore = defineStore('client', {
         .filter((client) => client.name.toLowerCase().includes(text) || (digits.length >= 3 && client.phone.includes(digits)))
         .slice(0, limit);
     },
-    async createClient(payload: ICreateClientPayload): Promise<IClient | null> {
-      const client = await withStatus(this, 'isSaving', () => clientService.create(payload));
-      if (!client) return null;
-      this.clients.unshift(client);
+    /** Works offline: the Client appears at once, marked pending, and the outbox sends it; the server's answer replaces it. */
+    async createClient(payload: ICreateClientPayload): Promise<IClient> {
+      const client: IClient = { id: payload.id, kind: payload.kind, name: payload.name, phone: payload.phone, email: payload.email, identifier: payload.identifier, creditDh: 0, siteIds: [payload.siteId], isPendingSync: true };
+      this.clients = [client, ...this.clients.filter((item) => item.id !== client.id)];
       this.records = [];
-      this.reportPending();
+      await outbox.enqueue(CLIENT_CREATE_WRITE, payload.id, payload.id, payload);
       return client;
+    },
+    keepCreated(client: IClient): void {
+      const index = this.clients.findIndex((item) => item.id === client.id);
+      const synced = { ...client, isPendingSync: false };
+      if (index === -1) this.clients.unshift(synced);
+      else this.clients.splice(index, 1, synced);
+      this.records = [];
     },
     /** Past Lots of a Client on one Site, across Seasons; loaded once per Client and Site. */
     async fetchHistory(clientId: string, siteId: string): Promise<void> {
@@ -73,9 +86,6 @@ export const useClientStore = defineStore('client', {
       if (index !== -1) this.clients.splice(index, 1, updated);
       this.records = [];
       return updated;
-    },
-    reportPending(): void {
-      useSyncStore().setPending('clients', this.clients.filter((client) => client.isPendingSync).length);
     },
   },
 });
