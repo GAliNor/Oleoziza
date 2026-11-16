@@ -132,11 +132,13 @@ export const useFinanceStore = defineStore('finance', {
     async makeRefund(refund: IRefund, made: Pick<IRefund, 'method' | 'reference' | 'documents'>): Promise<IRefund | null> {
       const updated = await withStatus(this, 'isSaving', () => financeService.makeRefund(refund.id, { ...made, documents: plainList(made.documents), madeBy: useSessionStore().fullName }));
       if (updated) this.replaceRefund(updated);
+      invalidateLoads('tasks:');
       return updated;
     },
     async confirmRefund(refund: IRefund): Promise<IRefund | null> {
       const updated = await withStatus(this, 'isSaving', () => financeService.confirmRefund(refund.id, useSessionStore().fullName));
       if (updated) this.replaceRefund(updated);
+      invalidateLoads('tasks:');
       return updated;
     },
     async decide(movement: IMovement, decision: Omit<IMovementDecision, 'by'>): Promise<IMovement | null> {
@@ -145,6 +147,7 @@ export const useFinanceStore = defineStore('finance', {
         this.replaceMovement(updated);
         invalidateLoads('refunds:');
         invalidateLoads('sales:');
+        invalidateLoads('tasks:');
         invalidateLoads('client');
         await Promise.all([useLotStore().reloadLoaded(), useClientStore().fetchClients(true), this.fetchRefunds(updated.siteId), this.refreshSales(), this.refreshRegister(), this.refreshRefundPage()]);
       }

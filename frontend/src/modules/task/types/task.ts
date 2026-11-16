@@ -6,6 +6,16 @@ export type TaskKind = 'discount' | 'payment' | 'payout' | 'refund-make' | 'refu
 export type TaskGroup = 'decide' | 'money' | 'follow';
 
 /** One thing waiting on Management, read from the records it comes from: it disappears once that record is settled. */
+export interface ITaskService {
+  getTasks(siteId: string): Promise<ITask[]>;
+}
+
+export interface ITaskStore {
+  tasks: ITask[];
+  isLoading: boolean;
+  hasError: boolean;
+}
+
 export interface ITask {
   id: string;
   kind: TaskKind;

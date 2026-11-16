@@ -4,7 +4,7 @@ import LotService from 'lot/services/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
-import { cachedLoad, LOAD_TTL_MS } from 'global/composables/cached-load';
+import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
 import { outbox } from 'global/services/app-outbox';
 import { isRetryable } from 'global/services/outbox';
 import { advanceLocally } from 'lot/composables/pending-move';
@@ -76,6 +76,7 @@ export const useLotStore = defineStore('lot', {
       if (!lot.discount || !sessionStore.canValidate(lot.discount.givenBy)) return null;
       const updated = await withStatus(this, 'isSaving', () => lotService.decideDiscount(lot.id, { ...decision, by: sessionStore.fullName }));
       if (updated) this.upsertLot(updated);
+      invalidateLoads('tasks:');
       return updated;
     },
     async giveDiscount(lot: ILot, gift: IDiscountGift): Promise<ILot | null> {
