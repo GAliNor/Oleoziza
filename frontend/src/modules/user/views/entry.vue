@@ -49,10 +49,11 @@
 
 <script setup lang="ts">
 // imports
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
+import { useFreshView } from 'global/composables/use-fresh-view';
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useSiteStore } from 'site/stores/site';
 import { useUserStore } from 'user/stores/user';
@@ -165,7 +166,5 @@ const handleSaved = (user: IStaffUser): void => {
 };
 
 // lifecycle
-onMounted(() => {
-  userStore.fetchUsers();
-});
+useFreshView(() => userStore.fetchUsers());
 </script>

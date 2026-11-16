@@ -65,9 +65,9 @@ const build = (siteId: string, season: ISeason): IConfiguration => {
 };
 
 export default class ConfigurationMockService implements IConfigurationService {
-  getOne(siteId: string, seasonId?: string): Promise<IConfiguration> {
+  getAll(siteIds: string[], seasonId?: string): Promise<IConfiguration[]> {
     const season = resolveSeason(seasonId);
-    return season ? mockResolve(build(siteId, season)) : mockReject({ code: 'season_not_open' });
+    return season ? mockResolve(siteIds.map((siteId) => build(siteId, season))) : mockReject({ code: 'season_not_open' });
   }
 
   update(siteId: string, update: IConfigurationUpdatePayload): Promise<IConfiguration> {

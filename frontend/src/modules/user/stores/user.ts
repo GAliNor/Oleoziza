@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 import UserService from 'user/services/user';
 import { withStatus } from 'global/composables/with-status';
+import { cachedLoad, LOAD_TTL_MS } from 'global/composables/cached-load';
 import type { LoginMethod } from 'auth/types/auth';
 import type { Permission } from 'global/types/session';
 import type { ILocation } from 'territory/types/territory';
@@ -23,9 +24,21 @@ export const useUserStore = defineStore('user', {
         state.users.find((user) => user.id === id),
   },
   actions: {
-    async fetchUsers(): Promise<void> {
-      const users = await withStatus(this, 'isLoading', () => userService.getAll(), { errorFlag: 'hasError' });
-      if (users) this.users = users;
+    async fetchUsers(isForced = false): Promise<void> {
+      await withStatus(
+        this,
+        'isLoading',
+        () =>
+          cachedLoad(
+            'users',
+            LOAD_TTL_MS.records,
+            async () => {
+              this.users = await userService.getAll();
+            },
+            isForced,
+          ),
+        { errorFlag: 'hasError' },
+      );
     },
     async create(form: IStaffForm): Promise<IStaffUser | null> {
       const user = await this.run(() => userService.create(form));

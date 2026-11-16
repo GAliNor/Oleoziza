@@ -11,6 +11,28 @@ from modules.configuration.types.configuration_types import ConfigurationOut, Co
 router = APIRouter(tags=["configuration"])
 
 
+@router.get("", response_model=list[ConfigurationOut])
+def list_configurations(
+    site_ids: list[UUID] = Query(default=[], alias="siteId"),
+    season_id: UUID | None = Query(default=None, alias="seasonId"),
+    current_user: CurrentUser = Depends(get_current_user),
+    configuration_service: ConfigurationService = Depends(get_configuration_service),
+) -> list[ConfigurationOut]:
+    """
+    Read several Sites' Configurations for one Season in one request, every Site the caller holds when no siteId is given.
+
+    Args:
+        site_ids (list[UUID]): Repeated siteId, possibly none.
+        season_id (UUID | None): Season to read, the open one when omitted.
+        current_user (CurrentUser): User from the access token.
+        configuration_service (ConfigurationService): Injected configuration service.
+
+    Returns:
+        list[ConfigurationOut]: One Configuration per Site.
+    """
+    return configuration_service.list_configurations(site_ids, current_user, season_id)
+
+
 @router.get("/{site_id}", response_model=ConfigurationOut)
 def get_configuration(
     site_id: UUID,

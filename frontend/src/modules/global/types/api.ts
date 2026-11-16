@@ -4,6 +4,6 @@ export interface IAPICallConfig {
   method: Method;
   url: string;
   data?: unknown;
-  params?: Record<string, unknown>;
+  params?: Record<string, unknown> | URLSearchParams;
   headers?: Record<string, string>;
 }

@@ -4,6 +4,7 @@ import ConfigurationService from 'configuration/services/configuration';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useSessionStore } from 'global/stores/session';
 import { withStatus } from 'global/composables/with-status';
+import { cachedLoad, LOAD_TTL_MS } from 'global/composables/cached-load';
 import type { IConfiguration, IConfigurationStore, IConfigurationUpdate } from 'configuration/types/configuration';
 
 const configurationService = new ConfigurationService();
@@ -19,27 +20,25 @@ export const useConfigurationStore = defineStore('configuration', {
     hasError: false,
   }),
   actions: {
-    /** Loads each Site's Configuration for the open Season, the one Reception, Payments and equipment pickers read. */
+    /** Loads the Sites' Configurations for the open Season in one request, the one Reception, Payments and equipment pickers read. */
     async fetchSites(siteIds: string[]): Promise<void> {
-      await withStatus(
-        this,
-        'isLoading',
-        async () => {
-          const loaded = await Promise.all(siteIds.map((siteId) => configurationService.getOne(siteId)));
-          loaded.forEach((configuration) => this.keep(configuration));
-        },
-        { errorFlag: 'hasError' },
-      );
+      await this.load(siteIds);
     },
-    /** Loads each Site's prices for one Season, for the Configuration page's agenda. */
+    /** Loads the Sites' prices for one Season in one request, for the Configuration page's agenda. */
     async fetchSeason(siteIds: string[], seasonId: string): Promise<void> {
+      await this.load(siteIds, seasonId);
+    },
+    async load(siteIds: string[], seasonId?: string): Promise<void> {
+      if (!siteIds.length) return;
+      const key = `configuration:${[...siteIds].sort().join(',')}:${seasonId ?? 'open'}`;
       await withStatus(
         this,
         'isLoading',
-        async () => {
-          const loaded = await Promise.all(siteIds.map((siteId) => configurationService.getOne(siteId, seasonId)));
-          loaded.forEach((configuration) => this.keep(configuration));
-        },
+        () =>
+          cachedLoad(key, LOAD_TTL_MS.configuration, async () => {
+            const loaded = await configurationService.getAll(siteIds, seasonId);
+            loaded.forEach((configuration) => this.keep(configuration));
+          }),
         { errorFlag: 'hasError' },
       );
     },

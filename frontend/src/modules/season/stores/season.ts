@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 import SeasonService from 'season/services/season';
 import { withStatus } from 'global/composables/with-status';
+import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
 import type { ISeason, ISeasonStore, SeasonArtVariant } from 'season/types/season';
 
 const seasonService = new SeasonService();
@@ -23,9 +24,21 @@ export const useSeasonStore = defineStore('season', {
         state.seasons.find((season) => season.id === id),
   },
   actions: {
-    async fetchSeasons(): Promise<void> {
-      const seasons = await withStatus(this, 'isLoading', () => seasonService.getAll(), { errorFlag: 'hasError' });
-      if (seasons) this.seasons = seasons;
+    async fetchSeasons(isForced = false): Promise<void> {
+      await withStatus(
+        this,
+        'isLoading',
+        () =>
+          cachedLoad(
+            'seasons',
+            LOAD_TTL_MS.configuration,
+            async () => {
+              this.seasons = await seasonService.getAll();
+            },
+            isForced,
+          ),
+        { errorFlag: 'hasError' },
+      );
     },
     async prepareNext(): Promise<ISeason | null> {
       const season = await withStatus(this, 'isSaving', () => seasonService.prepareNext());
@@ -34,7 +47,9 @@ export const useSeasonStore = defineStore('season', {
     },
     async open(id: string): Promise<ISeason | null> {
       const season = await withStatus(this, 'isSaving', () => seasonService.open(id));
-      if (season) await this.fetchSeasons();
+      if (!season) return null;
+      invalidateLoads('configuration:');
+      await this.fetchSeasons(true);
       return season;
     },
     async uploadIllustration(id: string, variant: SeasonArtVariant, file: File): Promise<ISeason | null> {

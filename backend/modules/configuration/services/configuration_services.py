@@ -39,6 +39,7 @@ from modules.configuration.types.configuration_types import (
 from modules.lot.models.lot_models import BoxOccupancy, Lot
 from modules.lot.types.lot_types import LotStatus
 from modules.oil.models.oil_models import Storage
+from modules.site.business.site_scope import resolve_site_ids
 from modules.site.models.site_models import Season, Site
 from modules.site.types.site_types import SeasonStatus
 from modules.user.models.user_models import User
@@ -74,6 +75,24 @@ class ConfigurationService:
         if not current_user.is_owner and str(site_id) not in current_user.permissions_by_site:
             raise RefusedError("site_forbidden", 403)
         return self._build_configuration(site_id, self._resolve_season(season_id))
+
+    def list_configurations(self, site_ids: list[UUID], current_user: CurrentUser, season_id: UUID | None = None) -> list[ConfigurationOut]:
+        """
+        Read several Sites' Configurations for one Season in one call, every Site the caller holds when none is named.
+
+        Args:
+            site_ids (list[UUID]): Sites to read, possibly none.
+            current_user (CurrentUser): Signed-in User.
+            season_id (UUID | None): Season to read, the open one when omitted.
+
+        Returns:
+            list[ConfigurationOut]: One Configuration per Site.
+
+        Raises:
+            RefusedError: site_not_found, site_forbidden, season_not_found, season_not_open.
+        """
+        season = self._resolve_season(season_id)
+        return [self._build_configuration(site_id, season) for site_id in resolve_site_ids(self.db, current_user, site_ids)]
 
     def cancel_price_change(self, site_id: UUID, change_id: UUID, current_user: CurrentUser) -> ConfigurationOut:
         """

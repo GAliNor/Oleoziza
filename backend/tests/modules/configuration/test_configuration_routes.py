@@ -45,6 +45,38 @@ def test_staff_of_another_site_cannot_read(client: TestClient, db: Session) -> N
     assert response.json() == {"code": "site_forbidden"}
 
 
+def test_several_sites_are_read_in_one_request_and_none_means_every_held_site(client: TestClient, db: Session) -> None:
+    """
+    « Tous les sites » is one request: the Sites named by repeated siteId, or every Site the caller holds when none is named.
+    """
+    site = create_site(db)
+    other_site = create_site(db, "TO")
+    get_open_season(db)
+    permissions = {site.id: [Permission.RECEPTION_CREATE], other_site.id: [Permission.RECEPTION_CREATE]}
+    manager = create_staff_user(db, "+212669990103", permissions_by_site=permissions)
+    headers = build_auth_header(manager, permissions)
+
+    named = client.get(API_URL, params=[("siteId", str(site.id)), ("siteId", str(other_site.id))], headers=headers).json()
+    held = client.get(API_URL, headers=headers).json()
+
+    assert [configuration["siteId"] for configuration in named] == [str(site.id), str(other_site.id)]
+    assert {configuration["siteId"] for configuration in held} == {str(site.id), str(other_site.id)}
+
+
+def test_a_site_not_held_is_refused_in_a_batch(client: TestClient, db: Session) -> None:
+    """
+    Naming a Site the caller doesn't hold refuses the whole read.
+    """
+    site = create_site(db)
+    other_site = create_site(db, "TO")
+    get_open_season(db)
+    operator = create_staff_user(db, "+212669990104", permissions_by_site={other_site.id: [Permission.RECEPTION_CREATE]})
+
+    response = client.get(API_URL, params={"siteId": str(site.id)}, headers=build_auth_header(operator, {other_site.id: [Permission.RECEPTION_CREATE]}))
+
+    assert response.json() == {"code": "site_forbidden"}
+
+
 def test_a_price_change_is_recorded_once_with_its_author(client: TestClient, db: Session) -> None:
     """
     Sending the same change twice applies it once and lists it once in the history, with who made it.

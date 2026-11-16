@@ -48,6 +48,7 @@ export default defineConfig({
   ],
   test: {
     env: { TZ: 'Africa/Casablanca' },
+    setupFiles: ['./src/test-setup.ts'],
   },
   resolve: {
     alias: {

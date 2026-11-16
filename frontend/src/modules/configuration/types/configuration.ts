@@ -89,7 +89,7 @@ export interface IConfigurationUpdatePayload extends IConfigurationUpdate {
 }
 
 export interface IConfigurationService {
-  getOne(siteId: string, seasonId?: string): Promise<IConfiguration>;
+  getAll(siteIds: string[], seasonId?: string): Promise<IConfiguration[]>;
   update(siteId: string, update: IConfigurationUpdatePayload): Promise<IConfiguration>;
   cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration>;
 }

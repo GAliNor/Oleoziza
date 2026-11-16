@@ -13,6 +13,7 @@ describe('readApiErrorCode', () => {
 
   it('reads the code a mock refuses with', () => {
     expect(readApiErrorCode(new ApiRefusal('season_closed'))).toBe('season_closed');
+    expect(readApiErrorCode({ code: 'season_not_open' })).toBe('season_not_open');
   });
 
   it('calls a call that got no answer a network failure', () => {

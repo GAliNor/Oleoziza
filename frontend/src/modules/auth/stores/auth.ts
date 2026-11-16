@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { invalidateLoads } from 'global/composables/cached-load';
 
 import AuthService from 'auth/services/auth';
 import TokenService from 'auth/services/token';
@@ -177,6 +178,7 @@ export const useAuthStore = defineStore('auth', {
       writeStorage(STORAGE_KEYS.accessToken, null);
       this.setCredentialChange(false, false, null);
       useSiteStore().reset();
+      invalidateLoads();
     },
   },
 });

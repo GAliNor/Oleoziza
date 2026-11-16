@@ -16,10 +16,9 @@ const readBodyCode = (data: unknown): string | null => {
   return typeof code === 'string' ? code : null;
 };
 
-/** The refusal code of a failed call: the backend's `{ code }`, a mock's ApiRefusal, `network` when no answer came, else null. */
+/** The refusal code of a failed call: the backend's `{ code }`, a mock's refusal (`ApiRefusal` or `{ code }`), `network` when no answer came, else null. */
 export const readApiErrorCode = (error: unknown): string | null => {
-  if (error instanceof ApiRefusal) return error.code;
-  if (!isHttpError(error)) return null;
+  if (!isHttpError(error)) return readBodyCode(error);
   if (!error.response) return NETWORK_ERROR_CODE;
   return readBodyCode(error.response.data);
 };

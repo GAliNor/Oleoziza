@@ -5,8 +5,11 @@ import type { IConfiguration, IConfigurationService, IConfigurationUpdatePayload
 class ConfigurationApiService extends BaseService implements IConfigurationService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL;
 
-  getOne(siteId: string, seasonId?: string): Promise<IConfiguration> {
-    return this.request<IConfiguration>({ method: 'GET', url: `${this._BASE_API_URL}/configuration/${siteId}`, params: seasonId ? { seasonId } : undefined });
+  /** Several Sites in one request: `siteId` repeats (`siteId=a&siteId=b`). */
+  getAll(siteIds: string[], seasonId?: string): Promise<IConfiguration[]> {
+    const params = new URLSearchParams(siteIds.map((siteId) => ['siteId', siteId]));
+    if (seasonId) params.append('seasonId', seasonId);
+    return this.request<IConfiguration[]>({ method: 'GET', url: `${this._BASE_API_URL}/configuration`, params });
   }
 
   cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration> {
