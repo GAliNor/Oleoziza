@@ -8,7 +8,7 @@ const lot = (fields: Partial<ILot>): ILot =>
     id: 'lot',
     clientId: 'c1',
     clientName: 'Client',
-    mode: 'service',
+    mode: 'service_milling',
     netKg: 1000,
     millingRatePerKg: 0.5,
     discount: null,

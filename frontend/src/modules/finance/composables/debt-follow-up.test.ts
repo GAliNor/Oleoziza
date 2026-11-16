@@ -5,7 +5,7 @@ import type { IDebtContact } from 'finance/types/finance';
 import type { ILot } from 'lot/types/lot';
 
 const lot = (fields: Partial<ILot>): ILot =>
-  ({ id: 'lot', clientId: 'c1', clientName: 'Ali', mode: 'service', netKg: 1000, millingRatePerKg: 0.5, discount: null, paidDh: 0, pendingDh: 0, creditDh: 0, receivedAt: '2026-11-01T08:00:00+01:00', moves: [], ...fields }) as ILot;
+  ({ id: 'lot', clientId: 'c1', clientName: 'Ali', mode: 'service_milling', netKg: 1000, millingRatePerKg: 0.5, discount: null, paidDh: 0, pendingDh: 0, creditDh: 0, receivedAt: '2026-11-01T08:00:00+01:00', moves: [], ...fields }) as ILot;
 
 const contact = (fields: Partial<IDebtContact>): IDebtContact => ({ id: 'x', siteId: 's', clientId: 'c1', kind: 'call', note: '', promisedOn: null, by: 'K', at: '2026-11-05T10:00:00+01:00', ...fields });
 

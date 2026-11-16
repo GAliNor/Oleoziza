@@ -1,5 +1,5 @@
 <template>
-  <reception-done v-if="finishedLot" :lot="finishedLot" @again="handleAgain" />
+  <reception-done v-if="finishedLot" :received-lot="finishedLot" @again="handleAgain" />
 
   <div v-else class="flex flex-col gap-6">
     <h1 class="heading-one">{{ $t('reception.open.title') }}</h1>
@@ -205,7 +205,7 @@ const handleSave = async (): Promise<void> => {
     id: receptionId.value,
     siteId: siteId.value,
     clientId: client.value.id,
-    mode: 'service',
+    mode: 'service_milling',
     variety: variety.value,
     netKg: netKg.value,
     millingRatePerKg: settings.value?.millingRatePerKg ?? 0,

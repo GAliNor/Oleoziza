@@ -28,7 +28,9 @@ export const useLotStore = defineStore('lot', {
     },
     /** Loads without status flags and lets a failure through, for a caller that loads more alongside. */
     async loadLots(siteId: string): Promise<void> {
-      this.lots = await lotService.getLots(siteId);
+      const lots = await lotService.getLots(siteId);
+      const knownIds = new Set(lots.map((lot) => lot.id));
+      this.lots = [...this.lots.filter((lot) => lot.siteId === siteId && lot.isPendingSync && !knownIds.has(lot.id)), ...lots];
       this.loadedSiteId = siteId;
       this.reportPending();
     },
@@ -70,7 +72,8 @@ export const useLotStore = defineStore('lot', {
       this.reportPending();
     },
     reportPending(): void {
-      useSyncStore().setPending('lots', this.lots.filter((lot) => lot.isPendingSync).length);
+      const syncStore = useSyncStore();
+      syncStore.setPending('lots', this.lots.filter((lot) => lot.isPendingSync && !syncStore.isPending(lot.id)).length);
     },
   },
 });

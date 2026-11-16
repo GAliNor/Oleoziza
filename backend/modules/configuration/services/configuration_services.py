@@ -94,6 +94,20 @@ class ConfigurationService:
         season = self._resolve_season(season_id)
         return [self._build_configuration(site_id, season) for site_id in resolve_site_ids(self.db, current_user, site_ids)]
 
+    def get_price_in_force(self, site_id: UUID, season: Season, key: ConfigurationValueKey) -> Decimal:
+        """
+        Read one price in force on a Site for a Season, for the records that copy it as their suggested price.
+
+        Args:
+            site_id (UUID): Site to read.
+            season (Season): Season of the record.
+            key (ConfigurationValueKey): Price to read.
+
+        Returns:
+            Decimal: The price in force, or its default.
+        """
+        return self._get_value(site_id, season, key)
+
     def cancel_price_change(self, site_id: UUID, change_id: UUID, current_user: CurrentUser) -> ConfigurationOut:
         """
         Cancel a scheduled price change before it takes effect.

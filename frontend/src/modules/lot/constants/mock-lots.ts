@@ -85,19 +85,19 @@ const toLot = (seed: ISeedLot): ILot => ({
 });
 
 const TODAY_SEEDS: ISeedLot[] = [
-  { code: 'OJ-2627-0158', siteId: SITE_OUJDA_ID, client: 'Mohammed Benali', variety: 'Picholine marocaine', mode: 'service', status: 'waiting', netKg: 1840, oilLitres: null, receivedAt: todayAt('10:45'), operator: 'Hamid', isPendingSync: true },
-  { code: 'OJ-2627-0157', siteId: SITE_OUJDA_ID, client: 'Fatima Zahra El Idrissi', variety: 'Haouzia', mode: 'service', status: 'waiting', netKg: 620, oilLitres: null, receivedAt: todayAt('10:28'), operator: 'Rachid', discount: { amountDh: 62, percent: 20, state: 'refused', givenBy: 'Rachid Bennani', givenAt: todayAt('10:28'), decidedBy: 'Mohammed Taibi', decidedAt: todayAt('11:05'), refusalReason: 'Client déjà remisé cette saison' } },
-  { code: 'BK-2627-0087', siteId: SITE_BERKANE_ID, client: 'Youssef Kaddouri', variety: 'Picholine marocaine', mode: 'service', status: 'waiting', netKg: 1410, oilLitres: null, receivedAt: todayAt('10:15'), operator: 'Abdelkader' },
+  { code: 'OJ-2627-0158', siteId: SITE_OUJDA_ID, client: 'Mohammed Benali', variety: 'Picholine marocaine', mode: 'service_milling', status: 'waiting', netKg: 1840, oilLitres: null, receivedAt: todayAt('10:45'), operator: 'Hamid', isPendingSync: true },
+  { code: 'OJ-2627-0157', siteId: SITE_OUJDA_ID, client: 'Fatima Zahra El Idrissi', variety: 'Haouzia', mode: 'service_milling', status: 'waiting', netKg: 620, oilLitres: null, receivedAt: todayAt('10:28'), operator: 'Rachid', discount: { amountDh: 62, percent: 20, state: 'refused', givenBy: 'Rachid Bennani', givenAt: todayAt('10:28'), decidedBy: 'Mohammed Taibi', decidedAt: todayAt('11:05'), refusalReason: 'Client déjà remisé cette saison' } },
+  { code: 'BK-2627-0087', siteId: SITE_BERKANE_ID, client: 'Youssef Kaddouri', variety: 'Picholine marocaine', mode: 'service_milling', status: 'waiting', netKg: 1410, oilLitres: null, receivedAt: todayAt('10:15'), operator: 'Abdelkader' },
   { code: 'OJ-2627-0156', siteId: SITE_OUJDA_ID, client: 'Coopérative Angad', variety: 'Picholine marocaine', mode: 'purchase', status: 'waiting', netKg: 3210, oilLitres: null, receivedAt: todayAt('09:18'), operator: 'Hamid' },
-  { code: 'OJ-2627-0155', siteId: SITE_OUJDA_ID, client: 'Abdellah Moussaoui', variety: 'Menara', mode: 'service', status: 'waiting', netKg: 940, oilLitres: null, receivedAt: todayAt('08:55'), operator: 'Hamid', notificationChoice: 'sms', discount: { amountDh: 94, percent: 20, state: 'pending', givenBy: 'Hamid Zerrouki', givenAt: todayAt('08:55') } },
-  { code: 'OJ-2627-0154', siteId: SITE_OUJDA_ID, client: 'Khadija Bouzidi', variety: 'Picholine marocaine', mode: 'service', status: 'waiting', netKg: 1120, oilLitres: null, receivedAt: todayAt('08:40'), operator: 'Rachid', notificationChoice: 'email', isContactMissing: true, discount: { amountDh: 56, percent: 10, state: 'applied', givenBy: 'Rachid Bennani', givenAt: todayAt('08:40') } },
-  { code: 'OJ-2627-0153', siteId: SITE_OUJDA_ID, client: 'Mustapha Ouchen', variety: 'Haouzia', mode: 'service', status: 'pressing', netKg: 1560, oilLitres: null, receivedAt: todayAt('08:12'), operator: 'Hamid' },
-  { code: 'OJ-2627-0152', siteId: SITE_OUJDA_ID, client: 'Said Tahiri', variety: 'Picholine marocaine', mode: 'service', status: 'pressed', netKg: 2050, oilLitres: 425, receivedAt: todayAt('07:45'), operator: 'Abdelkader', notificationChoice: 'sms', notifications: [{ event: 'pressed', channel: 'sms', at: todayAt('12:30'), isFailed: false }] },
-  { code: 'OJ-2627-0151', siteId: SITE_OUJDA_ID, client: 'Naima Lahlou', variety: 'Menara', mode: 'service', status: 'pressed', netKg: 780, oilLitres: 154, receivedAt: todayAt('07:30'), operator: 'Hamid' },
-  { code: 'OJ-2627-0149', siteId: SITE_OUJDA_ID, client: 'Driss Amrani', variety: 'Picholine marocaine', mode: 'service', status: 'withdrawn', netKg: 1300, oilLitres: 270, receivedAt: todayAt('07:05'), operator: 'Hamid' },
-  { code: 'BK-2627-0086', siteId: SITE_BERKANE_ID, client: 'Latifa Berrada', variety: 'Arbequina', mode: 'service', status: 'waiting', netKg: 860, oilLitres: null, receivedAt: todayAt('09:05'), operator: 'Abdelkader', discount: { amountDh: 86, percent: 20, state: 'pending', givenBy: 'Abdelkader Mansouri', givenAt: todayAt('08:30') } },
+  { code: 'OJ-2627-0155', siteId: SITE_OUJDA_ID, client: 'Abdellah Moussaoui', variety: 'Menara', mode: 'service_milling', status: 'waiting', netKg: 940, oilLitres: null, receivedAt: todayAt('08:55'), operator: 'Hamid', notificationChoice: 'sms', discount: { amountDh: 94, percent: 20, state: 'pending', givenBy: 'Hamid Zerrouki', givenAt: todayAt('08:55') } },
+  { code: 'OJ-2627-0154', siteId: SITE_OUJDA_ID, client: 'Khadija Bouzidi', variety: 'Picholine marocaine', mode: 'service_milling', status: 'waiting', netKg: 1120, oilLitres: null, receivedAt: todayAt('08:40'), operator: 'Rachid', notificationChoice: 'email', isContactMissing: true, discount: { amountDh: 56, percent: 10, state: 'applied', givenBy: 'Rachid Bennani', givenAt: todayAt('08:40') } },
+  { code: 'OJ-2627-0153', siteId: SITE_OUJDA_ID, client: 'Mustapha Ouchen', variety: 'Haouzia', mode: 'service_milling', status: 'pressing', netKg: 1560, oilLitres: null, receivedAt: todayAt('08:12'), operator: 'Hamid' },
+  { code: 'OJ-2627-0152', siteId: SITE_OUJDA_ID, client: 'Said Tahiri', variety: 'Picholine marocaine', mode: 'service_milling', status: 'pressed', netKg: 2050, oilLitres: 425, receivedAt: todayAt('07:45'), operator: 'Abdelkader', notificationChoice: 'sms', notifications: [{ event: 'pressed', channel: 'sms', at: todayAt('12:30'), isFailed: false }] },
+  { code: 'OJ-2627-0151', siteId: SITE_OUJDA_ID, client: 'Naima Lahlou', variety: 'Menara', mode: 'service_milling', status: 'pressed', netKg: 780, oilLitres: 154, receivedAt: todayAt('07:30'), operator: 'Hamid' },
+  { code: 'OJ-2627-0149', siteId: SITE_OUJDA_ID, client: 'Driss Amrani', variety: 'Picholine marocaine', mode: 'service_milling', status: 'withdrawn', netKg: 1300, oilLitres: 270, receivedAt: todayAt('07:05'), operator: 'Hamid' },
+  { code: 'BK-2627-0086', siteId: SITE_BERKANE_ID, client: 'Latifa Berrada', variety: 'Arbequina', mode: 'service_milling', status: 'waiting', netKg: 860, oilLitres: null, receivedAt: todayAt('09:05'), operator: 'Abdelkader', discount: { amountDh: 86, percent: 20, state: 'pending', givenBy: 'Abdelkader Mansouri', givenAt: todayAt('08:30') } },
   { code: 'BK-2627-0085', siteId: SITE_BERKANE_ID, client: 'Domaine Zegzel', variety: 'Picholine marocaine', mode: 'purchase', status: 'pressing', netKg: 4120, oilLitres: null, receivedAt: todayAt('08:00'), operator: 'Abdelkader' },
-  { code: 'BK-2627-0084', siteId: SITE_BERKANE_ID, client: 'Hassan Ziani', variety: 'Haouzia', mode: 'service', status: 'pressed', netKg: 990, oilLitres: 188, receivedAt: todayAt('07:20'), operator: 'Abdelkader' },
+  { code: 'BK-2627-0084', siteId: SITE_BERKANE_ID, client: 'Hassan Ziani', variety: 'Haouzia', mode: 'service_milling', status: 'pressed', netKg: 990, oilLitres: 188, receivedAt: todayAt('07:20'), operator: 'Abdelkader' },
 ];
 
 const RECENT_CLIENTS = [
@@ -114,7 +114,7 @@ const RECENT_SEEDS: ISeedLot[] = Array.from({ length: 22 }, (_, index) => {
     siteId,
     client: RECENT_CLIENTS[index % RECENT_CLIENTS.length],
     variety: RECENT_VARIETIES[index % 4],
-    mode: 'service',
+    mode: 'service_milling',
     status,
     netKg,
     oilLitres: Math.round(netKg * (0.165 + ((index * 7) % 9) / 100)),
@@ -139,7 +139,7 @@ const OLDER_SEEDS: ISeedLot[] = Array.from({ length: 64 }, (_, index) => {
     siteId,
     client: OLDER_CLIENTS[index % OLDER_CLIENTS.length],
     variety: index % 4 === 0 ? 'Haouzia' : 'Picholine marocaine',
-    mode: index % 7 === 0 ? 'purchase' : 'service',
+    mode: index % 7 === 0 ? 'purchase' : 'service_milling',
     status,
     netKg,
     oilLitres: status === 'pressed' ? Math.round(netKg * (0.165 + (index % 5) / 100)) : null,

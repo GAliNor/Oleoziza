@@ -106,7 +106,7 @@ const contactDay = (daysAgo: number, time: string): string => `${shiftDate(today
 /** A few Clients who owe on each Site already have a follow-up: one promise passed, one still ahead, one note. */
 const buildDebtContacts = (): IDebtContact[] => {
   const owing = [...LOTS_MOCK]
-    .filter((lot) => lot.clientId && lot.mode === 'service' && lot.status !== 'waiting')
+    .filter((lot) => lot.clientId && lot.mode === 'service_milling' && lot.status !== 'waiting')
     .sort((first, second) => first.receivedAt.localeCompare(second.receivedAt));
   const firstClients = (siteId: string): string[] => [...new Set(owing.filter((lot) => lot.siteId === siteId).map((lot) => lot.clientId))].slice(0, 3);
   return [O, SITE_BERKANE_ID].flatMap((siteId) => {

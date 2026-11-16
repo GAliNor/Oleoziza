@@ -94,7 +94,7 @@ const pressLineId = ref('');
 const split = ref<IOilSplit | null>(null);
 
 // computed
-const isUnpaidWithdrawal = computed((): boolean => props.lot.status === 'pressed' && props.lot.mode === 'service' && ['unpaid', 'partial'].includes(paymentStateOf(props.lot)));
+const isUnpaidWithdrawal = computed((): boolean => props.lot.status === 'pressed' && props.lot.mode === 'service_milling' && ['unpaid', 'partial'].includes(paymentStateOf(props.lot)));
 const isLineMissing = computed((): boolean => props.lot.status === 'waiting' && props.lines.length > 0 && (!pressLineId.value || !!busyOn(pressLineId.value)));
 const isDisabled = computed((): boolean => lotStore.isSaving || (props.lot.status === 'pressing' && (!oilLitres.value || !split.value?.isValid)) || isLineMissing.value);
 

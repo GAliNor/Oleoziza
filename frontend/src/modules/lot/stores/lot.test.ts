@@ -61,7 +61,7 @@ describe('a Reception seen through the lot store', () => {
       id: createId(),
       siteId: SITE_OUJDA_ID,
       clientId: CLIENTS_MOCK[1].id,
-      mode: 'service',
+      mode: 'service_milling',
       variety: 'Haouzia',
       netKg: 250,
       millingRatePerKg: 0.5,

@@ -4,7 +4,7 @@ import { tankFill } from 'dashboard/composables/tank-fill';
 import type { ILot } from 'lot/types/lot';
 
 const storage = (fields: Partial<ILot['storages'][number]>): ILot['storages'][number] => ({ id: 's', tankId: 't1', litres: 400, withdrawnLitres: 0, from: '2026-11-05T12:00:00+01:00', plannedUntil: null, endedAt: null, by: 'H', ...fields });
-const lot = (fields: Partial<ILot>): ILot => ({ id: 'l', code: 'L-1', siteId: 'oj', clientName: 'Ali', mode: 'service', variety: 'Picholine', storages: [], ...fields }) as ILot;
+const lot = (fields: Partial<ILot>): ILot => ({ id: 'l', code: 'L-1', siteId: 'oj', clientName: 'Ali', mode: 'service_milling', variety: 'Picholine', storages: [], ...fields }) as ILot;
 
 describe('tankFill', () => {
   const sites = [{ siteId: 'oj', siteName: 'Oujda', tanks: [{ id: 't1', number: 1, capacityLitres: 1000 }, { id: 't2', number: 2, capacityLitres: 500 }] }];

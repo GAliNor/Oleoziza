@@ -140,7 +140,8 @@
     "discard": "Abandonner",
     "refused": "Le serveur a refusé cette saisie.",
     "kinds": {
-      "client.create": "Nouveau client"
+      "client.create": "Nouveau client",
+      "reception.receive": "Réception"
     }
   }
 }

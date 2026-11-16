@@ -1,4 +1,4 @@
-export type ReceptionMode = 'service' | 'purchase';
+export type ReceptionMode = 'service_milling' | 'purchase';
 export type LotStatus = 'waiting' | 'pressing' | 'pressed' | 'withdrawn';
 
 /** A status a Lot reached, with who moved it and when. Provisional until the Operations data model settles. */

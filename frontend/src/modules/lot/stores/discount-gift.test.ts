@@ -20,7 +20,7 @@ describe('giving a Discount at the counter', () => {
     vi.unstubAllGlobals();
   });
 
-  const unpaidLots = (): ILot[] => useLotStore().lots.filter((lot) => !lot.discount && lot.mode === 'service' && amountDue(lot) > 50);
+  const unpaidLots = (): ILot[] => useLotStore().lots.filter((lot) => !lot.discount && lot.mode === 'service_milling' && amountDue(lot) > 50);
 
   it('lowers the fee at once within the limit, and records who gave it', async () => {
     const [lot] = unpaidLots();

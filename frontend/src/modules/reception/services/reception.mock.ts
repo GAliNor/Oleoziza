@@ -1,11 +1,10 @@
 import { mockReject, mockResolve } from 'global/services/mock';
 import { CLIENTS_MOCK_DB } from 'client/services/client.mock';
-import { configurationOf } from 'configuration/services/configuration.mock';
 import { LOTS_MOCK_DB } from 'lot/services/lot.mock';
 import { millingFee } from 'lot/composables/fee';
 import { LAST_LOT_NUMBER_MOCK, SETTINGS_MOCK } from 'reception/constants/mock-reception';
 import type { ILot } from 'lot/types/lot';
-import type { IReceiveLotPayload, IReceptionService, ISiteReceptionSettings } from 'reception/types/reception';
+import type { IReceiveLotPayload, IReceptionService } from 'reception/types/reception';
 
 const lastLotNumbers = structuredClone(LAST_LOT_NUMBER_MOCK);
 
@@ -16,16 +15,11 @@ const nextLotCode = (siteId: string): string => {
 };
 
 export default class ReceptionMockService implements IReceptionService {
-  getSettings(siteId: string): Promise<ISiteReceptionSettings> {
-    const { millingRate, discountLimit, boxCount, boxCapacityKg, pressLines, tanks } = configurationOf(siteId);
-    return mockResolve({ dailyPricePerKg: SETTINGS_MOCK[siteId]?.dailyPricePerKg ?? null, boxCount, boxCapacityKg, pressLines, tanks, millingRatePerKg: millingRate, discountLimitPercent: discountLimit });
-  }
-
   receiveLot(payload: IReceiveLotPayload): Promise<ILot> {
     const existing = LOTS_MOCK_DB.find((lot) => lot.id === payload.id);
     if (existing) return mockResolve(existing);
     const client = CLIENTS_MOCK_DB.find((option) => option.id === payload.clientId);
-    if (!client) return mockReject(new Error('client_not_found'));
+    if (!client) return mockReject({ code: 'client_not_found' });
     const { photoUrl, ...fields } = payload;
     const receivedAt = new Date().toISOString();
     const lot: ILot = {
@@ -45,7 +39,7 @@ export default class ReceptionMockService implements IReceptionService {
       moves: [{ status: 'waiting', at: receivedAt, by: payload.receivedBy }],
       stepPhotos: photoUrl ? { reception: photoUrl } : {},
       receivedAt,
-      isPendingSync: !navigator.onLine,
+      isPendingSync: false,
     };
     lot.creditDh = Math.min(client.creditDh, millingFee(lot));
     client.creditDh -= lot.creditDh;

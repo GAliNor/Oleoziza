@@ -19,7 +19,7 @@ export const lastActivityOf = (lot: ILot): string => lot.moves.reduce((latest, m
 export const clientsToCollect = (lots: readonly ILot[]): IClientToCollect[] => {
   const byClient = new Map<string, IClientToCollect>();
   lots
-    .filter((lot) => lot.mode === 'service' && (amountDue(lot) > 0 || isDiscountPending(lot)))
+    .filter((lot) => lot.mode === 'service_milling' && (amountDue(lot) > 0 || isDiscountPending(lot)))
     .forEach((lot) => {
       const row = byClient.get(clientKeyOf(lot)) ?? { clientId: lot.clientId, clientName: lot.clientName, dueDh: 0, lotCount: 0, lastActivityAt: '', hasPendingDiscount: false };
       row.dueDh = Math.round((row.dueDh + amountDue(lot)) * 100) / 100;

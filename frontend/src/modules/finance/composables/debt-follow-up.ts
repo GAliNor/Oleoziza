@@ -26,7 +26,7 @@ const latestPromise = (contacts: readonly IDebtContact[]): string | null => cont
 export const debtRows = (lots: readonly ILot[], contacts: readonly IDebtContact[], today: string): IDebtRow[] => {
   const byClient = new Map<string, IDebtRow>();
   lots
-    .filter((lot) => lot.mode === 'service' && amountDue(lot) > 0)
+    .filter((lot) => lot.mode === 'service_milling' && amountDue(lot) > 0)
     .forEach((lot) => {
       const key = clientKeyOf(lot);
       const row = byClient.get(key) ?? { key, clientId: lot.clientId, clientName: lot.clientName, dueDh: 0, lots: [], oldestAt: lot.receivedAt, ageDays: 0, contacts: [], promisedOn: null, isPromiseOverdue: false };

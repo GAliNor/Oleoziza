@@ -29,7 +29,6 @@ export interface IReceiveLotPayload {
 }
 
 export interface IReceptionService {
-  getSettings(siteId: string): Promise<ISiteReceptionSettings>;
   receiveLot(payload: IReceiveLotPayload): Promise<ILot>;
 }
 

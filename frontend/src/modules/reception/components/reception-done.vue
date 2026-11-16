@@ -4,7 +4,7 @@
       <animated-check-icon class="h-10 w-10 text-fg-brand" />
     </span>
     <div>
-      <p class="eyebrow text-sm">{{ lot.code }} · {{ $t('reception.done.waiting') }}</p>
+      <p class="eyebrow text-sm">{{ lot.code || $t('reception.done.codePending') }} · {{ $t('reception.done.waiting') }}</p>
       <h2 class="display-md mt-1 tabular-nums">{{ formatKg(lot.netKg) }}</h2>
       <p class="body-one">{{ formatQuintals(lot.netKg) }} · {{ lot.clientName }}</p>
       <p v-if="lot.boxNumbers.length" class="heading-two mt-3 text-fg-brand tabular-nums">{{ formatBoxes(lot.boxNumbers) }}</p>
@@ -18,13 +18,13 @@
       </p>
       </template>
     </div>
-    <figure class="flex flex-col items-center gap-1.5">
+    <figure v-if="lot.code" class="flex flex-col items-center gap-1.5">
       <ui-qr-code class="h-36 w-36 rounded-lg border border-default" :value="lot.code" :label="$t('reception.done.qrLabel', { code: lot.code })" />
       <figcaption class="caption">{{ $t('reception.done.qrHint') }}</figcaption>
     </figure>
     <span v-if="lot.isPendingSync" class="chip bg-warning-subtle text-fg-warning">{{ $t('reception.pendingSync') }}</span>
     <div class="flex w-full flex-col gap-2">
-      <button type="button" class="btn-primary min-h-14" @click="handlePrint">{{ $t('reception.done.print') }}</button>
+      <button type="button" class="btn-primary min-h-14" :disabled="!lot.code" @click="handlePrint">{{ $t('reception.done.print') }}</button>
       <div class="grid grid-cols-2 gap-2">
         <router-link :to="{ name: 'reception-new' }" class="btn-secondary" @click="emit('again')">{{ $t('reception.done.again') }}</router-link>
         <router-link :to="{ name: 'dashboard' }" class="btn-secondary">{{ $t('reception.done.home') }}</router-link>
@@ -40,6 +40,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useToastStore } from 'global/stores/toast';
 import { useSiteStore } from 'site/stores/site';
+import { useLotStore } from 'lot/stores/lot';
 import { AMOUNT_PERMISSIONS } from 'finance/constants/finance';
 import type { ILot } from 'lot/types/lot';
 import { formatMoney } from 'global/composables/money';
@@ -51,7 +52,7 @@ import UiQrCode from 'global/components/ui-qr-code.vue';
 import AnimatedCheckIcon from 'global/icons/animated-check.icon.vue';
 
 // props
-const props = defineProps<{ lot: ILot }>();
+const props = defineProps<{ receivedLot: ILot }>();
 
 // emits
 const emit = defineEmits<{ (event: 'again'): void }>();
@@ -60,12 +61,15 @@ const emit = defineEmits<{ (event: 'again'): void }>();
 const { t } = useI18n();
 const toastStore = useToastStore();
 const siteStore = useSiteStore();
+const lotStore = useLotStore();
 
 // computed
+/** The Lot as it is now: the server's version, with its code, replaces the pending one once the outbox sent it. */
+const lot = computed((): ILot => lotStore.lots.find((item) => item.id === props.receivedLot.id) ?? props.receivedLot);
 const isAmountShown = computed((): boolean => siteStore.can(AMOUNT_PERMISSIONS));
 
 // event handlers
 const handlePrint = (): void => {
-  toastStore.push(t('reception.done.printed', { code: props.lot.code }), 'success');
+  toastStore.push(t('reception.done.printed', { code: lot.value.code }), 'success');
 };
 </script>

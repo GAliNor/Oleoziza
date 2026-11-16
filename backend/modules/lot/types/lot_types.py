@@ -1,4 +1,10 @@
+from datetime import date, datetime
 from enum import StrEnum
+from uuid import UUID
+
+from pydantic import Field
+
+from core.types import CamelModel
 
 
 class LotMode(StrEnum):
@@ -70,3 +76,111 @@ class NotificationStatus(StrEnum):
     SENT = "sent"
     FAILED = "failed"
     SIMULATED = "simulated"
+
+
+class LotMoveOut(CamelModel):
+    """
+    A status a Lot reached, with who moved it and when, derived from its Pressing and Withdrawals.
+    """
+
+    status: LotStatus
+    at: datetime
+    by: str
+
+
+class LotStorageOut(CamelModel):
+    """
+    Some of a Lot's oil kept in one Tank, with what was already drawn from it.
+    """
+
+    id: UUID
+    tank_id: UUID
+    litres: float
+    withdrawn_litres: float
+    from_: date = Field(alias="from")
+    planned_until: date | None
+    ended_at: datetime | None
+    by: str
+
+
+class LotDiscountOut(CamelModel):
+    """
+    The Discount in force on a Lot's Milling Fee, or the last refused one.
+    """
+
+    amount_dh: float
+    percent: float
+    state: str
+    given_by: str
+    given_at: datetime
+    decided_by: str | None = None
+    decided_at: datetime | None = None
+    refusal_reason: str | None = None
+
+
+class LotNotificationOut(CamelModel):
+    """
+    A message the Client was sent about the Lot, or could not be sent.
+    """
+
+    event: NotificationEvent
+    channel: str
+    at: datetime
+    is_failed: bool
+
+
+class LotOut(CamelModel):
+    """
+    A Lot as every screen reads it, built from its rows (Box Occupancies, Pressing, Storages, Withdrawals, Discount, Allocations) with names beside ids.
+    """
+
+    id: UUID
+    code: str
+    site_id: UUID
+    client_id: UUID
+    client_name: str
+    mode: LotMode
+    variety: str
+    status: LotStatus
+    net_kg: float
+    oil_litres: float | None
+    withdrawn_litres: float
+    box_numbers: list[int]
+    press_line_id: UUID | None
+    planned_start_at: datetime | None
+    storages: list[LotStorageOut]
+    daily_price_per_kg: float | None
+    milling_rate_per_kg: float
+    discount: LotDiscountOut | None
+    notification_choice: NotificationChoice
+    is_contact_missing: bool
+    notifications: list[LotNotificationOut]
+    paid_dh: float
+    pending_dh: float
+    credit_dh: float
+    moves: list[LotMoveOut]
+    step_photos: dict[str, str]
+    received_at: datetime
+    received_by: str
+    is_pending_sync: bool = False
+
+
+class LotReceiveIn(CamelModel):
+    """
+    One Reception, typed by an Operator and possibly replayed from the outbox; the id is minted when the form opens.
+    """
+
+    id: UUID
+    site_id: UUID
+    client_id: UUID
+    mode: LotMode
+    variety: str = Field(min_length=1, max_length=64)
+    net_kg: float = Field(gt=0)
+    milling_rate_per_kg: float = Field(ge=0)
+    notification_choice: NotificationChoice
+    box_numbers: list[int] = Field(min_length=1)
+    press_line_id: UUID
+    planned_start_at: datetime
+    entered_at: datetime | None = None
+    recorded_offline: bool = False
+    device_label: str | None = Field(default=None, max_length=120)

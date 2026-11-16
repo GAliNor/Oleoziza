@@ -10,7 +10,7 @@ const TANKS = [
 ];
 
 const stored = (id: string, variety: string, tankId: string, litres: number, fields: Partial<ILot['storages'][number]> = {}): ILot =>
-  ({ id, variety, mode: 'service', storages: [{ id: `s-${id}`, tankId, litres, withdrawnLitres: 0, from: '2026-11-01', plannedUntil: null, endedAt: null, by: 'H', ...fields }] }) as ILot;
+  ({ id, variety, mode: 'service_milling', storages: [{ id: `s-${id}`, tankId, litres, withdrawnLitres: 0, from: '2026-11-01', plannedUntil: null, endedAt: null, by: 'H', ...fields }] }) as ILot;
 
 describe('Tanks and Storages', () => {
   const lots = [stored('a', 'Picholine', 't1', 800), stored('b', 'Haouzia', 't2', 300, { endedAt: '2026-11-05' })];
@@ -34,7 +34,7 @@ describe('Tanks and Storages', () => {
   });
 
   it('refuses another variety, too much oil, a split that loses litres, and purchased oil handed over', () => {
-    const lot = { variety: 'Haouzia', mode: 'service' as const };
+    const lot = { variety: 'Haouzia', mode: 'service_milling' as const };
     expect(checkPours(states, lot, 300, 0, [{ tankId: 't1', litres: 300 }])).toBe('variety');
     expect(checkPours(states, lot, 900, 0, [{ tankId: 't2', litres: 900 }])).toBe('space');
     expect(checkPours(states, lot, 300, 50, [{ tankId: 't2', litres: 200 }])).toBe('total');
