@@ -67,7 +67,7 @@ describe('reception store retries', () => {
       throw new Error('timeout');
     });
     const clientStore = useClientStore();
-    const payload = { id: createId(), kind: 'individual' as const, name: 'Rachid Ouali', phone: '+212661000001', siteId: SITE_OUJDA_ID, identifier: null, email: null, location: { province: 'jerada' as const, city: 'Jerada', address: 'Hay Al Qods' } };
+    const payload = { id: createId(), kind: 'individual' as const, firstName: 'Rachid', lastName: 'Ouali', legalName: null, phone: '+212661000001', siteId: SITE_OUJDA_ID, identifier: null, email: null, location: { province: 'jerada' as const, city: 'Jerada', address: 'Hay Al Qods' } };
 
     expect((await clientStore.createClient(payload)).isPendingSync).toBe(true);
     await outbox.drain();

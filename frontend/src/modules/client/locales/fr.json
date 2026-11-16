@@ -142,7 +142,9 @@
     },
     "openDuplicate": "Voir sa fiche",
     "receiveDuplicate": "Réceptionner pour ce client",
-    "createAnyway": "Créer quand même"
+    "createAnyway": "Créer quand même",
+    "firstName": "Prénom",
+    "lastName": "Nom"
   },
   "history": {
     "title": "Historique sur ce Site",
@@ -153,5 +155,11 @@
     "noMatch": "Aucun lot ne correspond.",
     "withdrawn": "Retiré",
     "more": "Voir {count} de plus"
+  },
+  "errors": {
+    "names_required": "Le prénom et le nom (ou le nom de la société) sont obligatoires.",
+    "identifier_invalid": "Ce numéro de CIN ou d'ICE n'est pas valide.",
+    "clients_forbidden": "Vous n'avez pas le droit de créer un client sur ce site.",
+    "client_not_found": "Ce client n'existe plus."
   }
 }

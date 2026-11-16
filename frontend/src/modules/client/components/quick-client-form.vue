@@ -3,12 +3,20 @@
     <template v-if="!created">
       <h1 class="heading-one">{{ $t('client.quick.title') }}</h1>
       <div class="flex items-center gap-3">
-        <ui-avatar class="h-16 w-16 shrink-0" :name="name.trim() || $t('client.quick.placeholderAvatar')" :variant="clientAvatarVariant(kind)" />
+        <ui-avatar class="h-16 w-16 shrink-0" :name="displayNameComputed || $t('client.quick.placeholderAvatar')" :variant="clientAvatarVariant(kind)" />
         <ui-segmented v-model="kind" class="flex-1" is-full is-choice :options="kindOptionsComputed" :label="$t('client.quick.kindLabel')" />
       </div>
-      <ui-field v-slot="{ id }" :label="$t(kind === 'company' ? 'client.quick.companyName' : 'client.quick.fullName')">
+      <ui-field v-if="kind === 'company'" v-slot="{ id }" :label="$t('client.quick.companyName')">
         <input :id="id" v-model="name" class="input" type="text" autocomplete="off" />
       </ui-field>
+      <div v-else class="grid gap-4 sm:grid-cols-2">
+        <ui-field v-slot="{ id }" :label="$t('client.quick.firstName')">
+          <input :id="id" v-model="firstName" class="input" type="text" autocomplete="off" />
+        </ui-field>
+        <ui-field v-slot="{ id }" :label="$t('client.quick.lastName')">
+          <input :id="id" v-model="lastName" class="input" type="text" autocomplete="off" />
+        </ui-field>
+      </div>
       <ui-field v-slot="{ id }" :label="$t('client.quick.phoneLabel')">
         <input :id="id" v-model="phone" class="input" type="tel" inputmode="tel" :placeholder="$t('client.quick.phone')" />
       </ui-field>
@@ -103,6 +111,8 @@ const siteStore = useSiteStore();
 const { isOnline } = useOnlineStatus();
 const kind = ref<ClientKind>('individual');
 const name = ref('');
+const firstName = ref('');
+const lastName = ref('');
 const phone = ref('');
 const identifier = ref('');
 const email = ref('');
@@ -115,6 +125,7 @@ const kindOptionsComputed = computed((): { key: ClientKind; label: string }[] =>
   { key: 'individual', label: t('client.quick.individual') },
   { key: 'company', label: t('client.quick.company') },
 ]);
+const displayNameComputed = computed((): string => (kind.value === 'company' ? name.value.trim() : `${firstName.value.trim()} ${lastName.value.trim()}`.trim()));
 const normalizedIdentifier = computed((): string | null => normalizeClientIdentifier(kind.value, identifier.value));
 const duplicate = computed((): IClient | undefined => (normalizedIdentifier.value ? clientStore.clientByIdentifier(normalizedIdentifier.value) : undefined));
 const canReceive = computed((): boolean => siteStore.can('reception.create'));
@@ -123,7 +134,7 @@ const normalizedEmail = computed((): string | null => (isEmail(email.value) ? no
 const isEmailInvalid = computed((): boolean => !!email.value.trim() && !normalizedEmail.value);
 const missing = computed((): string[] =>
   [
-    { isMissing: name.value.trim().length <= 2, key: 'name' },
+    { isMissing: kind.value === 'company' ? name.value.trim().length <= 2 : !firstName.value.trim() || !lastName.value.trim(), key: 'name' },
     { isMissing: normalizePhone(phone.value) === null, key: 'phone' },
     { isMissing: !location.value.province, key: 'province' },
     { isMissing: !location.value.city.trim(), key: 'city' },
@@ -137,6 +148,8 @@ const canSave = computed((): boolean => !missing.value.length && !isIdentifierIn
 // methods
 const reset = (): void => {
   name.value = '';
+  firstName.value = '';
+  lastName.value = '';
   phone.value = '';
   identifier.value = '';
   email.value = '';
@@ -152,6 +165,7 @@ watch(
     if (!text || created.value) return;
     const isPhone = /\d{3,}/.test(text);
     name.value = isPhone ? '' : text;
+    firstName.value = isPhone ? '' : text;
     phone.value = isPhone ? text : '';
   },
   { immediate: true },
@@ -164,7 +178,9 @@ const handleSave = async (): Promise<void> => {
   const client = await clientStore.createClient({
     id: clientId.value,
     kind: kind.value,
-    name: name.value.trim(),
+    firstName: kind.value === 'individual' ? firstName.value.trim() : null,
+    lastName: kind.value === 'individual' ? lastName.value.trim() : null,
+    legalName: kind.value === 'company' ? name.value.trim() : null,
     phone: normalizedPhone,
     siteId: siteStore.currentSite?.id ?? '',
     identifier: normalizedIdentifier.value,

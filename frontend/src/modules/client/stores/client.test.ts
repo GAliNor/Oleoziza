@@ -116,7 +116,7 @@ describe('client store clientByIdentifier', () => {
     const clientStore = useClientStore();
     await clientStore.fetchClients();
     const id = createId();
-    await clientStore.createClient({ id, kind: 'individual', name: 'Nadia Rahmani', phone: '+212661223344', siteId: SITE_OUJDA_ID, identifier: 'AB123456', email: null, location: { province: 'jerada', city: 'Touissit', address: 'Hay Essalam' } });
+    await clientStore.createClient({ id, kind: 'individual', firstName: 'Nadia', lastName: 'Rahmani', legalName: null, phone: '+212661223344', siteId: SITE_OUJDA_ID, identifier: 'AB123456', email: null, location: { province: 'jerada', city: 'Touissit', address: 'Hay Essalam' } });
     expect(clientStore.clientByIdentifier('AB123456')?.id).toBe(id);
   });
 
@@ -176,7 +176,7 @@ describe('client store records', () => {
     vi.stubGlobal('navigator', { onLine: true });
     const clientStore = useClientStore();
     await clientStore.fetchRecords();
-    const payload = { id: createId(), kind: 'individual' as const, name: 'Zineb Test', phone: '+212661112233', siteId: SITE_OUJDA_ID, identifier: 'F486168', email: 'zineb@test.ma', location: { province: 'berkane' as const, city: 'Ahfir', address: '12 rue des Oliviers' } };
+    const payload = { id: createId(), kind: 'individual' as const, firstName: 'Zineb', lastName: 'Test', legalName: null, phone: '+212661112233', siteId: SITE_OUJDA_ID, identifier: 'F486168', email: 'zineb@test.ma', location: { province: 'berkane' as const, city: 'Ahfir', address: '12 rue des Oliviers' } };
     await clientStore.createClient(payload);
     await clientStore.createClient(payload);
     await clientStore.fetchRecords();
@@ -189,7 +189,7 @@ describe('client store records', () => {
     vi.stubGlobal('navigator', { onLine: true });
     const clientStore = useClientStore();
     const id = createId();
-    await clientStore.createClient({ id, kind: 'company', name: 'Domaine Test', phone: '+212536112233', siteId: SITE_OUJDA_ID, identifier: null, email: null, location: { province: 'nador', city: 'Nador', address: 'Route de Selouane' } });
+    await clientStore.createClient({ id, kind: 'company', firstName: null, lastName: null, legalName: 'Domaine Test', phone: '+212536112233', siteId: SITE_OUJDA_ID, identifier: null, email: null, location: { province: 'nador', city: 'Nador', address: 'Route de Selouane' } });
     await clientStore.fetchRecords();
     expect(clientStore.recordById(id)?.identifier).toBe('');
     vi.unstubAllGlobals();

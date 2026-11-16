@@ -1,3 +1,4 @@
+import { buildClientName } from 'client/composables/client-name';
 import { mockReject, mockResolve } from 'global/services/mock';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { ACCOUNTS_MOCK, EMPTY_ACCOUNT } from 'client/constants/mock-accounts';
@@ -32,7 +33,10 @@ export default class ClientMockService implements IClientService {
     const client: IClient = {
       id: payload.id,
       kind: payload.kind,
-      name: payload.name,
+      name: buildClientName(payload),
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      legalName: payload.legalName,
       phone: payload.phone,
       email: payload.email,
       identifier: payload.identifier,

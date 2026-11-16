@@ -3,7 +3,7 @@ import ClientMockService from 'client/services/client.mock';
 import type { IClient, IClientAccount, IClientRecord, IClientService, IClientContact, IClientLotLine, ICreateClientPayload } from 'client/types/client';
 
 class ClientApiService extends BaseService implements IClientService {
-  private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/clients';
+  private _BASE_API_URL = `${import.meta.env.VITE_APP_API_BASE_URL}/client/clients`;
 
   getAll(): Promise<IClient[]> {
     return this.request<IClient[]>({ method: 'GET', url: this._BASE_API_URL });

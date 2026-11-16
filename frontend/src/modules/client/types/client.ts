@@ -7,7 +7,12 @@ export type ClientKind = 'individual' | 'company';
 export interface IClient {
   id: string;
   kind: ClientKind;
+  /** The display name the backend builds: title, first and last name, or the legal name. */
   name: string;
+  title?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  legalName?: string | null;
   phone: string;
   email: string | null;
   identifier: string | null;
@@ -24,7 +29,9 @@ export interface IClientContact {
 export interface ICreateClientPayload {
   id: string;
   kind: ClientKind;
-  name: string;
+  firstName: string | null;
+  lastName: string | null;
+  legalName: string | null;
   phone: string;
   siteId: string;
   identifier: string | null;
