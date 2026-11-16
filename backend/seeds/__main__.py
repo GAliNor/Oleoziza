@@ -40,7 +40,7 @@ def run_seed(part: SeedPart) -> int:
         try:
             if part == SeedPart.REFERENCE:
                 ReferenceSeedService(db).run()
-                print("reference: provinces, cities and olive varieties loaded")
+                print("reference: provinces, cities, olive varieties and expense categories loaded")
             elif part == SeedPart.DEMO:
                 for label, count in DemoSeedService(db, settings, get_rustfs_client()).run().items():
                     print(f"demo: {label}: {count}")

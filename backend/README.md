@@ -14,7 +14,8 @@ FastAPI API, laid out like the Maroc Voyages backend and following the fastapi-b
 | `core/integrations/mail/`, `core/integrations/sms/` | SMTP client (MailHog in development) and a simulated SMS gateway that writes each SMS to the worker log |
 | `modules/<business>/models/` | The SQLAlchemy models of the [data model](../docs/data-model.md) |
 | `modules/health/` | `GET /api/health`, and the `health.ping` task |
-| `seeds/` | `python -m seeds reference` (Provinces with their outlines from `seeds/fixtures/oriental-provinces.json`, towns, olive varieties), `demo` (Oujda, the closed 2025-2026 and open 2026-2027 Seasons, Oujda's Configuration with the front mock's Tank and Press Line ids, the Owner, and the Season banners from `seeds/fixtures/seasons/` uploaded to RustFS; refused in production), `owner` (first Owner from `SEED_OWNER_*`) |
+| `modules/<business>/agent/README.md` | Each module explained for agents: business, endpoints, refusal codes, rules. Read it before touching the module |
+| `seeds/` | `python -m seeds reference` (Provinces with their outlines from `seeds/fixtures/oriental-provinces.json`, towns, olive varieties, the 89 Expense Categories), `demo` (Oujda, the closed 2025-2026 and open 2026-2027 Seasons, Oujda's Configuration with the front mock's Tank and Press Line ids, the Owner, and the Season banners from `seeds/fixtures/seasons/` uploaded to RustFS; refused in production), `owner` (first Owner from `SEED_OWNER_*`) |
 | `alembic/` | Migrations (`alembic revision --autogenerate -m "..."`, `alembic upgrade head`) |
 | `tests/` | pytest, mirroring the source tree; auth tests run on the dev database inside a rolled-back transaction and skip when it is unreachable |
 
@@ -36,5 +37,6 @@ Dependencies are managed with [uv](https://docs.astral.sh/uv/) (Python 3.12). Th
 ```bash
 uv sync
 uv run pytest
+uv run lint-imports      # the layer rules of fastapi-backend-style, as contracts in pyproject.toml
 uv run uvicorn main:app --reload
 ```

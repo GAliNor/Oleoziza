@@ -7,9 +7,11 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 from sqlalchemy.orm import Session
 
 from modules.configuration.models.configuration_models import OliveVariety
+from modules.expense.models.expense_models import ExpenseCategory
+from modules.expense.types.expense_types import ExpenseCategoryType, ExpenseVatNature
 from modules.territory.models.territory_models import City, Province
 from modules.territory.types.territory_types import ProvinceKind
-from seeds.constants.reference_seed_constants import OLIVE_VARIETIES, PROVINCES
+from seeds.constants.reference_seed_constants import EXPENSE_CATEGORY_TREE, OLIVE_VARIETIES, PROVINCES
 
 
 PROVINCE_BOUNDARIES_FILE = Path(__file__).resolve().parent.parent / "fixtures" / "oriental-provinces.json"
@@ -27,7 +29,7 @@ class ReferenceSeedService:
 
     def run(self) -> None:
         """
-        Load or refresh the eight Provinces of the Oriental with their outlines and towns, and the olive varieties.
+        Load or refresh the eight Provinces of the Oriental with their outlines and towns, the olive varieties and the Expense Categories.
         """
         boundaries = read_province_boundaries()
         for province in PROVINCES:
@@ -48,7 +50,19 @@ class ReferenceSeedService:
                 self.db.merge(City(id=build_city_id(province.id, city_name), province_id=province.id, name=city_name))
         for variety_id, variety_name in OLIVE_VARIETIES:
             self.db.merge(OliveVariety(id=variety_id, name=variety_name, is_active=True))
+        self._seed_expense_categories()
         self.db.commit()
+
+    def _seed_expense_categories(self) -> None:
+        """
+        Write the 11 Expense Categories in the owner's order, then their sub-categories with the suggested CGNC account and TVA nature.
+        """
+        for category_position, (category_id, _) in enumerate(EXPENSE_CATEGORY_TREE, start=1):
+            self.db.merge(ExpenseCategory(id=category_id, type=ExpenseCategoryType.CATEGORY, parent_id=None, position=category_position, account_code=None, vat_nature=ExpenseVatNature.NONE, is_vat_never_deductible=False, is_active=True))
+        self.db.flush()
+        for category_id, subcategories in EXPENSE_CATEGORY_TREE:
+            for position, (subcategory_id, account_code, vat_nature, is_vat_never_deductible) in enumerate(subcategories, start=1):
+                self.db.merge(ExpenseCategory(id=subcategory_id, type=ExpenseCategoryType.SUBCATEGORY, parent_id=category_id, position=position, account_code=account_code, vat_nature=ExpenseVatNature(vat_nature), is_vat_never_deductible=is_vat_never_deductible, is_active=True))
 
 
 def build_city_id(province_id: str, city_name: str) -> UUID:

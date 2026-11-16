@@ -26,7 +26,7 @@ def published(monkeypatch: pytest.MonkeyPatch) -> list[tuple[Any, ...]]:
         list[tuple[Any, ...]]: Published task arguments.
     """
     calls: list[tuple[Any, ...]] = []
-    monkeypatch.setattr("modules.user.services.user_services.publish_task", lambda task, *args: calls.append(args) or True)
+    monkeypatch.setattr("modules.user.services.user_services.publish_task", lambda task_name, *args: calls.append(args) or True)
     return calls
 
 

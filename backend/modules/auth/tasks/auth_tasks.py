@@ -4,6 +4,7 @@ from core.database import SessionLocal
 from core.exceptions import MessageDeliveryError
 from core.integrations.celery.celery_app import celery_app
 from modules.auth.services.invitation_services import InvitationService
+from modules.auth.types.auth_types import SEND_INVITATION_TASK
 
 
 INVITATION_MAX_RETRIES = 5
@@ -12,7 +13,7 @@ INVITATION_RETRY_BACKOFF_MAX_IN_SECONDS = 600
 
 
 @celery_app.task(
-    name="auth.send_invitation",
+    name=SEND_INVITATION_TASK,
     autoretry_for=(MessageDeliveryError,),
     retry_backoff=True,
     retry_backoff_max=INVITATION_RETRY_BACKOFF_MAX_IN_SECONDS,

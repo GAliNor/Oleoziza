@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from core.helpers import get_local_midnight
@@ -30,12 +30,13 @@ def test_preparing_the_next_season_carries_prices_over(client: TestClient, db: S
     db.add(SiteSetting(site_id=site.id, season_id=season.id, key=SettingKey.MILLING_RATE_PER_KG, value=Decimal("0.55"), effective_from=get_local_midnight(season.starts_on)))
     owner = create_staff_user(db, "+212669990300", is_owner=True)
     db.commit()
+    latest_start = db.scalar(select(func.max(Season.starts_on)))
 
     body = client.post(API_URL, headers=build_auth_header(owner)).json()
     carried = db.scalar(select(SiteSetting.value).where(SiteSetting.season_id == body["id"], SiteSetting.site_id == site.id, SiteSetting.key == SettingKey.MILLING_RATE_PER_KG))
 
     assert body["status"] == "planned"
-    assert body["startsOn"] == f"{season.starts_on.year + 1}-11-01"
+    assert body["startsOn"] == f"{latest_start.year + 1}-11-01"
     assert carried == Decimal("0.55")
 
 

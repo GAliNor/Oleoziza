@@ -41,7 +41,7 @@ docker build -f docker/backend/Dockerfile-deploy -t oleoziza-backend .
 First start, after `docker compose up -d --build` (the backend runs `alembic upgrade head` on start):
 
 ```bash
-docker compose exec oleoziza_backend python -m seeds reference   # Provinces, towns, olive varieties
+docker compose exec oleoziza_backend python -m seeds reference   # Provinces, towns, olive varieties, Expense Categories
 docker compose exec oleoziza_backend python -m seeds demo        # dev only: Oujda, the open Season, its Configuration and the Owner (m.taibi@oleoziza.ma / Oleoziza2026, or 0661100001 + PIN 1234)
 ```
 

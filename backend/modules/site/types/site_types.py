@@ -34,6 +34,7 @@ class CodeKind(StrEnum):
     REFUND = "refund"
     WITHDRAWAL = "withdrawal"
     PAYOUT = "payout"
+    EXPENSE = "expense"
 
 
 class SeasonArtVariant(StrEnum):

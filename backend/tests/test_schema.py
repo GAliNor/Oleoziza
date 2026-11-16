@@ -2,7 +2,7 @@ from core.app_init import init_models
 from core.database import Base
 
 
-EXPECTED_TABLE_COUNT = 39
+EXPECTED_TABLE_COUNT = 43
 
 
 def test_every_foreign_key_points_at_a_registered_table() -> None:

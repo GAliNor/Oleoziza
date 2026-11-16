@@ -100,3 +100,6 @@ class IssuedLogin(BaseModel):
 
     result: LoginOut
     tokens: IssuedTokens
+
+
+SEND_INVITATION_TASK = "auth.send_invitation"

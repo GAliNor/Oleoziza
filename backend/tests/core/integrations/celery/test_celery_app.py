@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from kombu.exceptions import OperationalError
 from sqlalchemy.orm import configure_mappers
@@ -45,17 +45,16 @@ def test_publish_task_sends_the_arguments() -> None:
     """
     A reachable broker receives the task with its arguments and the publish reports success.
     """
-    task = MagicMock()
-    assert publish_task(task, 42) is True
-    task.apply_async.assert_called_once()
-    assert task.apply_async.call_args.kwargs["args"] == (42,)
+    with patch("core.integrations.celery.celery_publisher.celery_app.send_task") as send_task:
+        assert publish_task("health.ping", 42) is True
+    send_task.assert_called_once()
+    assert send_task.call_args.args == ("health.ping",)
+    assert send_task.call_args.kwargs["args"] == (42,)
 
 
 def test_publish_task_never_raises_when_the_broker_is_down() -> None:
     """
     An unreachable broker is logged and reported as False instead of failing the request.
     """
-    task = MagicMock()
-    task.name = "health.ping"
-    task.apply_async.side_effect = OperationalError("Connection refused")
-    assert publish_task(task) is False
+    with patch("core.integrations.celery.celery_publisher.celery_app.send_task", side_effect=OperationalError("Connection refused")):
+        assert publish_task("health.ping") is False

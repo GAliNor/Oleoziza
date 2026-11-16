@@ -16,8 +16,7 @@ from modules.auth.helpers.auth_identifiers import normalize_identifier
 from modules.auth.models.auth_models import Credential, Invitation
 from modules.auth.services.auth_services import AuthService
 from modules.auth.services.invitation_services import InvitationService
-from modules.auth.tasks.auth_tasks import send_invitation_task
-from modules.auth.types.auth_types import CredentialKind
+from modules.auth.types.auth_types import SEND_INVITATION_TASK, CredentialKind
 from modules.site.models.site_models import Site
 from modules.user.models.user_models import SiteAssignment, SiteAssignmentPermission, User, UserLoginMethod
 from modules.user.types.user_types import (
@@ -119,7 +118,7 @@ class UserService:
         record_audit_event(self.db, self.current_user.id, "user.created", entity_type="user", entity_id=user.id, after={"role": user.role.value, "isInvited": payload.is_invited})
         self.db.commit()
         if invitation:
-            publish_task(send_invitation_task, str(invitation[0].id), invitation[1])
+            publish_task(SEND_INVITATION_TASK, str(invitation[0].id), invitation[1])
         return self._build_staff_user(user)
 
     def set_site_permissions(self, user_id: UUID, site_id: UUID, permissions: list[Permission] | None) -> StaffUserOut:
@@ -254,7 +253,7 @@ class UserService:
         invitation, token = InvitationService(self.db).create_invitation(user, self.current_user.id)
         record_audit_event(self.db, self.current_user.id, action, entity_type="user", entity_id=user.id, after={"channel": invitation.channel.value})
         self.db.commit()
-        publish_task(send_invitation_task, str(invitation.id), token)
+        publish_task(SEND_INVITATION_TASK, str(invitation.id), token)
 
     def _get_manageable_site_ids(self) -> set[str]:
         """
