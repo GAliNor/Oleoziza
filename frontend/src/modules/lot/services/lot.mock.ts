@@ -74,7 +74,7 @@ export default class LotMockService implements ILotService {
       lot.withdrawnLitres = lot.oilLitres ?? 0;
       lot.storages.filter(isStorageActive).forEach((storage) => Object.assign(storage, { withdrawnLitres: storage.litres, endedAt: at }));
     }
-    lot.isPendingSync = !navigator.onLine;
+    lot.isPendingSync = false;
     return mockResolve(lot);
   }
 
@@ -107,7 +107,7 @@ export default class LotMockService implements ILotService {
     if (appliedMoves.has(schedule.id)) return mockResolve(lot);
     if (lot.status !== 'waiting') return mockReject(new Error('lot_already_pressing'));
     appliedMoves.add(schedule.id);
-    Object.assign(lot, { pressLineId: schedule.pressLineId, plannedStartAt: schedule.plannedStartAt, isPendingSync: !navigator.onLine });
+    Object.assign(lot, { pressLineId: schedule.pressLineId, plannedStartAt: schedule.plannedStartAt, isPendingSync: false });
     return mockResolve(lot);
   }
 

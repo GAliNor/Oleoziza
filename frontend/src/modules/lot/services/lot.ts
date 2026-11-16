@@ -1,32 +1,34 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import LotMockService from 'lot/services/lot.mock';
+import { ALL_SITES } from 'site/constants/site';
 import type { IDiscountDecision, IDiscountGift, ILot, ILotMovePayload, ILotSchedule, ILotService } from 'lot/types/lot';
 
 class LotApiService extends BaseService implements ILotService {
-  private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL;
+  private _BASE_API_URL = `${import.meta.env.VITE_APP_API_BASE_URL}/lot/lots`;
 
+  /** « Tous les sites » sends no siteId: the backend answers every Site the User holds, in one request. */
   getLots(siteId: string): Promise<ILot[]> {
-    return this.request<ILot[]>({ method: 'GET', url: `${this._BASE_API_URL}/sites/${siteId}/lots` });
+    return this.request<ILot[]>({ method: 'GET', url: this._BASE_API_URL, params: siteId === ALL_SITES ? undefined : { siteId } });
   }
 
   decideDiscount(lotId: string, decision: IDiscountDecision & { by: string }): Promise<ILot> {
-    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/lots/${lotId}/discount/decision`, data: decision, headers: { 'Idempotency-Key': decision.id } });
+    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/${lotId}/discount/decision`, data: decision, headers: { 'Idempotency-Key': decision.id } });
   }
 
   giveDiscount(lotId: string, gift: IDiscountGift & { by: string }): Promise<ILot> {
-    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/lots/${lotId}/discount`, data: gift, headers: { 'Idempotency-Key': gift.id } });
+    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/${lotId}/discount`, data: gift, headers: { 'Idempotency-Key': gift.id } });
   }
 
   scheduleLot(lotId: string, schedule: ILotSchedule): Promise<ILot> {
-    return this.request<ILot>({ method: 'PUT', url: `${this._BASE_API_URL}/lots/${lotId}/schedule`, data: schedule, headers: { 'Idempotency-Key': schedule.id } });
+    return this.request<ILot>({ method: 'PUT', url: `${this._BASE_API_URL}/${lotId}/schedule`, data: schedule, headers: { 'Idempotency-Key': schedule.id } });
   }
 
   clearMissingContact(lotId: string): Promise<ILot> {
-    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/lots/${lotId}/contact-found` });
+    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/${lotId}/contact-found` });
   }
 
   moveLot(lotId: string, move: ILotMovePayload): Promise<ILot> {
-    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/lots/${lotId}/moves`, data: move, headers: { 'Idempotency-Key': move.id } });
+    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/${lotId}/moves`, data: move, headers: { 'Idempotency-Key': move.id } });
   }
 }
 

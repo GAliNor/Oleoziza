@@ -184,3 +184,58 @@ class LotReceiveIn(CamelModel):
     entered_at: datetime | None = None
     recorded_offline: bool = False
     device_label: str | None = Field(default=None, max_length=120)
+
+
+class TankPourIn(CamelModel):
+    """
+    One share of a Lot's oil going into one Tank at the end of its Pressing.
+    """
+
+    tank_id: UUID
+    litres: float = Field(gt=0)
+
+
+class LotMoveIn(CamelModel):
+    """
+    One step of a Lot: start its Pressing, end it (oil, handover, Tanks), or withdraw what is left; the id is the step's Audit Event, so a replay never moves it twice.
+    """
+
+    id: UUID
+    oil_litres: float | None = Field(default=None, gt=0)
+    press_line_id: UUID | None = None
+    handed_litres: float | None = Field(default=None, ge=0)
+    pours: list[TankPourIn] = []
+    planned_until: date | None = None
+    entered_at: datetime | None = None
+    recorded_offline: bool = False
+    device_label: str | None = Field(default=None, max_length=120)
+
+
+class LotScheduleIn(CamelModel):
+    """
+    A waiting Lot moved to another Press Line or planned start.
+    """
+
+    id: UUID
+    press_line_id: UUID
+    planned_start_at: datetime
+
+
+class DiscountGiftIn(CamelModel):
+    """
+    A Discount on a Lot's Milling Fee, typed as an amount and its percent; above the Discount Limit it waits for a decision.
+    """
+
+    id: UUID
+    amount_dh: float = Field(gt=0)
+    percent: float = Field(gt=0, le=100)
+
+
+class DiscountDecisionIn(CamelModel):
+    """
+    Management's answer to a Discount above the limit.
+    """
+
+    id: UUID
+    is_approved: bool
+    reason: str | None = Field(default=None, max_length=500)

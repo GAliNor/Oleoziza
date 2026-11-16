@@ -39,6 +39,8 @@ import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
+import { useFreshView } from 'global/composables/use-fresh-view';
+import { LOAD_TTL_MS } from 'global/composables/cached-load';
 import { useLotStore } from 'lot/stores/lot';
 import { useSiteStore } from 'site/stores/site';
 import { useLotRegister } from 'lot/composables/use-lot-register';
@@ -76,14 +78,16 @@ const view = computed((): RegisterView => (route.query.view === 'board' ? 'board
 const isLotOpen = computed((): boolean => typeof route.query.lot === 'string');
 const canReceive = computed((): boolean => !siteStore.isAllSites && siteStore.can('reception.create'));
 
+// methods
+const loadLots = (): void => {
+  if (siteStore.currentSiteId) lotStore.fetchLots(siteStore.currentSiteId);
+};
+
 // watchers
-watch(
-  () => siteStore.currentSiteId,
-  (siteId) => {
-    if (siteId) lotStore.fetchLots(siteId);
-  },
-  { immediate: true },
-);
+watch(() => siteStore.currentSiteId, loadLots);
+
+// lifecycle
+useFreshView(loadLots, { pollMs: LOAD_TTL_MS.live });
 
 // event handlers
 const handleView = (key: RegisterView): void => {

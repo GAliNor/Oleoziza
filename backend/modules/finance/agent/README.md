@@ -4,7 +4,7 @@
 Money between the mill and its [Clients](../../../../GLOSSARY.md): [Discounts](../../../../GLOSSARY.md) on a Lot's [Milling Fee](../../../../GLOSSARY.md), [Payments](../../../../GLOSSARY.md) split over Lots by [Payment Allocations](../../../../GLOSSARY.md) and proved by [Payment Proofs](../../../../GLOSSARY.md), [Credit Notes](../../../../GLOSSARY.md) and their uses, [Refunds](../../../../GLOSSARY.md), and [Debt Contacts](../../../../GLOSSARY.md) when chasing a balance.
 
 ## Exposes
-- Endpoints: none yet (the `finance` plug adds them).
+- Endpoints: Discounts through the lot routes (`/api/lot/lots/{id}/discount`, `/decision`), served by `DiscountService` (within the Discount Limit applied at once, above it pending; the Owner is never held; nobody but the Owner decides their own).
 - Models only: Discount, Payment, PaymentAllocation, PaymentProof, CreditNote, CreditNoteUse, Refund, DebtContact.
 
 ## Refusal codes

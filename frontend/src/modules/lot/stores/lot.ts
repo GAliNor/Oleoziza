@@ -4,9 +4,20 @@ import LotService from 'lot/services/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSyncStore } from 'global/stores/sync';
 import { withStatus } from 'global/composables/with-status';
-import type { IDiscountDecision, IDiscountGift, ILot, ILotMove, ILotSchedule, ILotStore } from 'lot/types/lot';
+import { cachedLoad, LOAD_TTL_MS } from 'global/composables/cached-load';
+import { outbox } from 'global/services/app-outbox';
+import { isRetryable } from 'global/services/outbox';
+import { advanceLocally } from 'lot/composables/pending-move';
+import type { IDiscountDecision, IDiscountGift, ILot, ILotMove, ILotMovePayload, ILotSchedule, ILotStore } from 'lot/types/lot';
 
 const lotService = new LotService();
+
+export const LOT_MOVE_WRITE = 'lot.move';
+
+outbox.register(LOT_MOVE_WRITE, async (payload) => {
+  const { lotId, move } = payload as { lotId: string; move: ILotMovePayload };
+  useLotStore().upsertLot({ ...(await lotService.moveLot(lotId, move)), isPendingSync: false });
+});
 
 /** The Lots of the current Site, read across modules; reception creates them. */
 export const useLotStore = defineStore('lot', {
@@ -23,8 +34,7 @@ export const useLotStore = defineStore('lot', {
   },
   actions: {
     async fetchLots(siteId: string, isForced = false): Promise<void> {
-      if (!isForced && this.loadedSiteId === siteId && !this.hasError) return;
-      await withStatus(this, 'isLoading', () => this.loadLots(siteId), { errorFlag: 'hasError' });
+      await withStatus(this, 'isLoading', () => cachedLoad(`lots:${siteId}`, LOAD_TTL_MS.live, () => this.loadLots(siteId), isForced), { errorFlag: 'hasError' });
     },
     /** Loads without status flags and lets a failure through, for a caller that loads more alongside. */
     async loadLots(siteId: string): Promise<void> {
@@ -38,8 +48,25 @@ export const useLotStore = defineStore('lot', {
     async reloadLoaded(): Promise<void> {
       if (this.loadedSiteId) await withStatus(this, 'isSaving', () => this.loadLots(this.loadedSiteId as string));
     },
+    /** Online first; when the network is gone the Lot moves on the phone, marked pending, and the outbox sends the step later. */
     async moveLot(lot: ILot, move: ILotMove): Promise<ILot | null> {
-      const updated = await withStatus(this, 'isSaving', () => lotService.moveLot(lot.id, { ...move, by: useSessionStore().fullName }));
+      const payload: ILotMovePayload = { ...move, by: useSessionStore().fullName };
+      let isOffline = false;
+      const updated = await withStatus(this, 'isSaving', async () => {
+        try {
+          return await lotService.moveLot(lot.id, payload);
+        } catch (error) {
+          if (!isRetryable(error)) throw error;
+          isOffline = true;
+          return null;
+        }
+      });
+      if (isOffline) {
+        const pending = advanceLocally(lot, payload);
+        this.upsertLot(pending);
+        await outbox.enqueue(LOT_MOVE_WRITE, move.id, lot.id, { lotId: lot.id, move: payload });
+        return pending;
+      }
       if (updated) this.upsertLot(updated);
       return updated;
     },
