@@ -15,6 +15,7 @@ from modules.client.models.client_models import Client
 from modules.configuration.models.configuration_models import Box, OliveVariety, PressLine
 from modules.configuration.services.configuration_services import ConfigurationService
 from modules.configuration.types.configuration_types import ConfigurationValueKey
+from modules.finance.business.client_credit import use_open_credit
 from modules.lot.business.lot_views import build_lot_views
 from modules.lot.models.lot_models import BoxOccupancy, Lot
 from modules.lot.types.lot_types import LotMode, LotOut, LotReceiveIn
@@ -128,6 +129,8 @@ class LotService:
         self.db.add(lot)
         self.db.flush()
         self.db.add_all([BoxOccupancy(lot_id=lot.id, box_id=box.id, occupied_from=entered_at, created_by_id=self.current_user.id) for box in boxes])
+        if lot.mode == LotMode.SERVICE_MILLING:
+            use_open_credit(self.db, lot.client_id, lot.site_id, lot.id, lot.net_weight_in_kg * (lot.milling_rate_per_kg or Decimal(0)), self.current_user.id)
         record_audit_event(self.db, self.current_user.id, LOT_RECEIVED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, after={"code": lot.code, "netKg": payload.net_kg, "boxes": payload.box_numbers})
         self.db.commit()
         return build_lot_views(self.db, [lot])[0]

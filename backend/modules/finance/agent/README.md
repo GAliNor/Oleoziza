@@ -1,17 +1,28 @@
 # Finance
 
 ## Business
-Money between the mill and its [Clients](../../../../GLOSSARY.md): [Discounts](../../../../GLOSSARY.md) on a Lot's [Milling Fee](../../../../GLOSSARY.md), [Payments](../../../../GLOSSARY.md) split over Lots by [Payment Allocations](../../../../GLOSSARY.md) and proved by [Payment Proofs](../../../../GLOSSARY.md), [Credit Notes](../../../../GLOSSARY.md) and their uses, [Refunds](../../../../GLOSSARY.md), and [Debt Contacts](../../../../GLOSSARY.md) when chasing a balance.
+Money between the mill and its [Clients](../../../../GLOSSARY.md): [Discounts](../../../../GLOSSARY.md) on a Lot's [Milling Fee](../../../../GLOSSARY.md), [Payments](../../../../GLOSSARY.md) split over Lots by Payment Allocations and proved by Payment Proofs, [Credit Notes](../../../../GLOSSARY.md) and their Uses, [Refunds](../../../../GLOSSARY.md), and Debt Contacts when chasing a balance.
 
 ## Exposes
-- Endpoints: Discounts through the lot routes (`/api/lot/lots/{id}/discount`, `/decision`), served by `DiscountService` (within the Discount Limit applied at once, above it pending; the Owner is never held; nobody but the Owner decides their own).
-- Models only: Discount, Payment, PaymentAllocation, PaymentProof, CreditNote, CreditNoteUse, Refund, DebtContact.
+- Endpoints (`/api/finance`):
+  - `GET /payments?siteId=` (open Season), `GET /payments/page?list=pending|all&search=&period=&offset=&limit=` → `{items, total}`.
+  - `POST /payments` (`payment.record`): idempotent on the id; cash recorded by someone with `payment.confirm` is confirmed at once, anything else pending; Proofs as data URLs go to the private bucket.
+  - `POST /payments/{id}/decision`: confirm or reject a pending one (`payment.confirm`; needs Allocations; a surplus needs a settlement), cancel a confirmed one (`payment.cancel`; optional settlement). Settlement: Credit Note or Refund (code R).
+  - `PUT /payments/{id}/lots`, `POST /payments/{id}/documents` (`document.add`).
+  - `GET /refunds`, `GET /refunds/page`, `POST /refunds/{id}/made`, `POST /refunds/{id}/confirm` (`refund.manage`; never by its maker).
+  - `GET|POST /debt-contacts` (`debt.follow`; POST idempotent).
+  - `GET /sales?siteId=&period=`: figures (revenue = collected + pending + outstanding over the period's Lots), day or week buckets, methods.
+  - Discounts through `/api/lot/lots/{id}/discount` (`DiscountService`).
+- Services: `PaymentService`, `FinanceDeskService` (Refunds, Debt Contacts, sales), `DiscountService`.
+- Business: `get_fees`, `get_amounts_due` (`lot_fees.py`), `get_open_credits`, `get_lot_credits`, `use_open_credit` (`client_credit.py`, used at Reception), `build_movement_views`, `build_refund_views`.
 
 ## Refusal codes
-None yet.
+- `payment_not_found`, `refund_not_found`, `client_not_found` (404); `payments_forbidden`, `refunds_forbidden`, `debts_forbidden`, `refund_own`, `discounts_forbidden`, `discount_own` (403).
+- `movement_not_decidable`, `movement_not_linked`, `movement_not_pending`, `refund_not_to_make`, `refund_not_made`, `season_not_open`, `discount_already_given`, `discount_not_pending` (409).
+- `surplus_not_settled`, `links_too_high`, `lot_not_payable`, `oil_litres_required`, `method_invalid`, `document_invalid`, `discount_too_high`, `reason_required` (422).
 
 ## Rules and gotchas
-- The Milling Fee, a Lot's Payment State and a Client's balance are derived, never stored.
-- One Discount in force per Lot; a refused one stays as history and needs a reason.
-- A Refund is confirmed by someone other than the one who made it, and never paid in oil.
-- An oil Payment carries its litres and price per litre.
+- The Milling Fee, a Lot's Payment State and a Client's balance are derived, never stored. A pending Discount counts at full price.
+- Credit Notes are used on the Site that issued them, oldest first, automatically at the next Service Milling Reception.
+- `payment_services.py` and `finance_desk_services.py` sit at the 300-line flag: split the sales into their own service when next touched.
+- Payment-confirmed Notifications aren't sent yet (the « pressed » one is).

@@ -3,7 +3,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from fastapi import Depends
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from core.database import get_db
@@ -14,8 +14,9 @@ from modules.audit.business.audit_events import record_audit_event
 from modules.audit.models.audit_models import AuditEvent
 from modules.configuration.services.configuration_services import ConfigurationService
 from modules.configuration.types.configuration_types import ConfigurationValueKey
-from modules.finance.models.finance_models import Discount, Payment, PaymentAllocation
-from modules.finance.types.finance_types import DiscountEntry, DiscountState, PaymentStatus
+from modules.finance.business.lot_fees import get_amounts_due
+from modules.finance.models.finance_models import Discount
+from modules.finance.types.finance_types import DiscountEntry, DiscountState
 from modules.lot.business.lot_views import build_lot_views
 from modules.lot.services.lot_services import LotService
 from modules.lot.types.lot_types import DiscountDecisionIn, DiscountGiftIn, LotOut
@@ -63,7 +64,7 @@ class DiscountService:
         if self.db.scalar(select(Discount.id).where(Discount.lot_id == lot.id, Discount.state != DiscountState.REFUSED).limit(1)):
             raise RefusedError("discount_already_given")
         amount = Decimal(str(payload.amount_dh))
-        if amount > self._get_amount_due(lot.id, lot.net_weight_in_kg, lot.milling_rate_per_kg or Decimal(0)):
+        if amount > get_amounts_due(self.db, [lot])[lot.id]:
             raise RefusedError("discount_too_high", 422)
         limit = ConfigurationService(self.db).get_price_in_force(lot.site_id, self.db.get(Season, lot.season_id), ConfigurationValueKey.DISCOUNT_LIMIT)
         is_over_limit = Decimal(str(payload.percent)) > limit and not self.current_user.is_owner
@@ -107,23 +108,6 @@ class DiscountService:
         record_audit_event(self.db, self.current_user.id, DISCOUNT_DECIDED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, after={"state": discount.state.value, "reason": discount.refusal_reason}, event_id=payload.id)
         self.db.commit()
         return build_lot_views(self.db, [lot])[0]
-
-    def _get_amount_due(self, lot_id: UUID, net_kg: Decimal, rate: Decimal) -> Decimal:
-        """
-        Read what a Lot still owes: its Milling Fee minus the Payments allocated to it, confirmed or pending.
-
-        Args:
-            lot_id (UUID): Lot to read.
-            net_kg (Decimal): Its net weight.
-            rate (Decimal): Its milling rate per kg.
-
-        Returns:
-            Decimal: Amount due, in dirhams.
-        """
-        allocated = self.db.scalar(
-            select(func.coalesce(func.sum(PaymentAllocation.amount), 0)).join(Payment, Payment.id == PaymentAllocation.payment_id).where(PaymentAllocation.lot_id == lot_id, Payment.status.in_((PaymentStatus.CONFIRMED, PaymentStatus.PENDING)))
-        )
-        return net_kg * rate - Decimal(allocated)
 
 
 def get_discount_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)) -> DiscountService:

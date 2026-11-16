@@ -6,6 +6,7 @@ import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { withStatus } from 'global/composables/with-status';
+import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
 import { emptyPagedList, loadFirstPage, loadNextPage, replaceInList } from 'global/composables/paged-list';
 import type { IDebtContact, IDebtContactPayload, IFinanceStore, ILotPaymentLink, IMovement, IMovementDecision, IMovementListQuery, IPaymentDocument, IRecordPaymentPayload, IRefund } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
@@ -32,24 +33,47 @@ export const useFinanceStore = defineStore('finance', {
   }),
   actions: {
     async fetchMovements(siteId: string, isForced = false): Promise<void> {
-      if (!isForced && this.loadedSiteId === siteId && !this.hasError) return;
-      const movements = await withStatus(this, 'isLoading', () => financeService.getMovements(siteId), { errorFlag: 'hasError' });
-      if (!movements) return;
-      this.movements = movements;
-      this.loadedSiteId = siteId;
+      await withStatus(
+        this,
+        'isLoading',
+        () =>
+          cachedLoad(
+            `movements:${siteId}`,
+            LOAD_TTL_MS.records,
+            async () => {
+              this.movements = await financeService.getMovements(siteId);
+              this.loadedSiteId = siteId;
+            },
+            isForced,
+          ),
+        { errorFlag: 'hasError' },
+      );
     },
     async fetchSales(siteId: string, period: PeriodKey): Promise<void> {
       this.salesQuery = { siteId, period };
-      const sales = await withStatus(this, 'isLoading', () => financeService.getSales(siteId, period), { errorFlag: 'hasError' });
-      if (sales) this.sales = sales;
+      await withStatus(
+        this,
+        'isLoading',
+        () =>
+          cachedLoad(`sales:${siteId}:${period}`, LOAD_TTL_MS.records, async () => {
+            this.sales = await financeService.getSales(siteId, period);
+          }),
+        { errorFlag: 'hasError' },
+      );
     },
     async fetchRefunds(siteId: string): Promise<void> {
-      const refunds = await withStatus(this, 'isLoading', () => financeService.getRefunds(siteId));
-      if (refunds) this.refunds = refunds;
+      await withStatus(this, 'isLoading', () =>
+        cachedLoad(`refunds:${siteId}`, LOAD_TTL_MS.records, async () => {
+          this.refunds = await financeService.getRefunds(siteId);
+        }),
+      );
     },
     async fetchDebtContacts(siteId: string): Promise<void> {
-      const contacts = await withStatus(this, 'isLoading', () => financeService.getDebtContacts(siteId));
-      if (contacts) this.debtContacts = contacts;
+      await withStatus(this, 'isLoading', () =>
+        cachedLoad(`debt-contacts:${siteId}`, LOAD_TTL_MS.records, async () => {
+          this.debtContacts = await financeService.getDebtContacts(siteId);
+        }),
+      );
     },
     async addDebtContact(payload: Omit<IDebtContactPayload, 'by'>): Promise<IDebtContact | null> {
       const contact = await withStatus(this, 'isSaving', () => financeService.addDebtContact({ ...payload, by: useSessionStore().fullName }));
@@ -119,6 +143,9 @@ export const useFinanceStore = defineStore('finance', {
       const updated = await withStatus(this, 'isSaving', () => financeService.decideMovement(movement.id, { ...decision, by: useSessionStore().fullName }));
       if (updated) {
         this.replaceMovement(updated);
+        invalidateLoads('refunds:');
+        invalidateLoads('sales:');
+        invalidateLoads('client');
         await Promise.all([useLotStore().reloadLoaded(), useClientStore().fetchClients(true), this.fetchRefunds(updated.siteId), this.refreshSales(), this.refreshRegister(), this.refreshRefundPage()]);
       }
       return updated;
@@ -131,6 +158,7 @@ export const useFinanceStore = defineStore('finance', {
       );
       if (!movement) return null;
       this.replaceMovement(movement);
+      invalidateLoads('sales:');
       await Promise.all([useLotStore().reloadLoaded(), this.refreshSales(), this.refreshRegister()]);
       return movement;
     },

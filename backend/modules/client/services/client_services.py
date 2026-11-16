@@ -1,9 +1,10 @@
 import re
 from datetime import datetime, timezone
+from decimal import Decimal
 from uuid import UUID
 
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from core.database import get_db
@@ -12,6 +13,10 @@ from core.security import get_current_user
 from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
 from modules.client.business.client_figures import get_follow_up, list_lot_lines
+from modules.finance.business.client_credit import get_open_credits
+from modules.finance.business.lot_fees import get_amounts_due
+from modules.finance.models.finance_models import CreditNote, Payment, PaymentAllocation
+from modules.finance.types.finance_types import PaymentStatus
 from modules.client.models.client_models import Client
 from modules.client.types.client_types import (
     ClientAccountLineOut,
@@ -61,7 +66,8 @@ class ClientService:
         """
         clients = self.db.scalars(select(Client).where(Client.merged_into_id.is_(None)).order_by(Client.created_at.desc())).all()
         site_ids_by_client = self._list_site_ids_by_client()
-        return [map_client(client, site_ids_by_client.get(client.id, [])) for client in clients]
+        credits = get_open_credits(self.db)
+        return [map_client(client, site_ids_by_client.get(client.id, []), credits.get(client.id, Decimal(0))) for client in clients]
 
     def list_records(self) -> list[ClientRecordOut]:
         """
@@ -78,7 +84,8 @@ class ClientService:
         lines_by_client = list_lot_lines(self.db)
         site_names = {site_id: name for site_id, name in self.db.execute(select(Site.id, Site.name))}
         open_season = get_open_season(self.db)
-        return [self._build_record(client, lines_by_client.get(client.id, []), site_names, open_season.code if open_season else None) for client in clients]
+        balances = self._list_balances()
+        return [self._build_record(client, lines_by_client.get(client.id, []), site_names, open_season.code if open_season else None, balances.get(client.id, {})) for client in clients]
 
     def get_account(self, client_id: UUID) -> ClientAccountOut:
         """
@@ -97,7 +104,10 @@ class ClientService:
         open_season = get_open_season(self.db)
         lines = list_lot_lines(self.db, [client_id]).get(client_id, [])
         season_lines = [line for line in lines if open_season and line.season == open_season.code]
-        return ClientAccountOut(oil_stock_litres=0, due_dh=0, pending_dh=0, payout_dh=0, history=[ClientAccountLineOut(code=line.code, status=line.status, kg=line.kg) for line in season_lines])
+        lots = list(self.db.scalars(select(Lot).where(Lot.client_id == client_id)))
+        due = sum(get_amounts_due(self.db, lots).values(), Decimal(0))
+        pending = self.db.scalar(select(func.coalesce(func.sum(PaymentAllocation.amount), 0)).join(Payment, Payment.id == PaymentAllocation.payment_id).where(Payment.client_id == client_id, Payment.status == PaymentStatus.PENDING))
+        return ClientAccountOut(oil_stock_litres=0, due_dh=float(due), pending_dh=float(pending), payout_dh=0, history=[ClientAccountLineOut(code=line.code, status=line.status, kg=line.kg) for line in season_lines])
 
     def list_history(self, client_id: UUID, site_id: UUID) -> list[ClientLotLineOut]:
         """
@@ -189,26 +199,47 @@ class ClientService:
         self.db.commit()
         return map_client(client, self._list_site_ids_by_client([client.id]).get(client.id, [client.first_site_id]))
 
-    def _build_record(self, client: Client, lines: list[ClientLotLineOut], site_names: dict[UUID, str], open_season_code: str | None) -> ClientRecordOut:
+    def _list_balances(self) -> dict[UUID, dict[UUID, Decimal]]:
         """
-        Shape one Client for the register; balances and Oil Stock read zero until Payments and Storages are served.
+        Compute what every Client owes per Site: what their Lots still owe, minus the credit their Credit Notes still hold there.
+
+        Returns:
+            dict[UUID, dict[UUID, Decimal]]: Balance per Client and Site (negative when the mill owes them credit).
+        """
+        lots = list(self.db.scalars(select(Lot)))
+        dues = get_amounts_due(self.db, lots)
+        balances: dict[UUID, dict[UUID, Decimal]] = {}
+        for lot in lots:
+            per_site = balances.setdefault(lot.client_id, {})
+            per_site[lot.site_id] = per_site.get(lot.site_id, Decimal(0)) + dues[lot.id]
+        for site_id in self.db.scalars(select(CreditNote.site_id).distinct()):
+            for client_id, credit in get_open_credits(self.db, site_id=site_id).items():
+                per_site = balances.setdefault(client_id, {})
+                per_site[site_id] = per_site.get(site_id, Decimal(0)) - credit
+        return balances
+
+    def _build_record(self, client: Client, lines: list[ClientLotLineOut], site_names: dict[UUID, str], open_season_code: str | None, balances: dict[UUID, Decimal]) -> ClientRecordOut:
+        """
+        Shape one Client for the register; Oil Stock reads zero until Storages are summed per Client.
 
         Args:
             client (Client): Client row.
             lines (list[ClientLotLineOut]): Their Lots.
             site_names (dict[UUID, str]): Name of every Site.
             open_season_code (str | None): Code of the Season under way.
+            balances (dict[UUID, Decimal]): What they owe per Site.
 
         Returns:
             ClientRecordOut: The register row.
         """
-        site_ids = list(dict.fromkeys([client.first_site_id, *(line.site_id for line in lines)]))
-        sites = [ClientSiteFiguresOut(site_id=site_id, site_name=site_names.get(site_id, ""), oil_stock_litres=0, balance=0) for site_id in site_ids]
+        site_ids = list(dict.fromkeys([client.first_site_id, *(line.site_id for line in lines), *balances]))
+        sites = [ClientSiteFiguresOut(site_id=site_id, site_name=site_names.get(site_id, ""), oil_stock_litres=0, balance=float(balances.get(site_id, Decimal(0)))) for site_id in site_ids]
+        balance = float(sum(balances.values(), Decimal(0)))
         return ClientRecordOut(
             id=client.id,
             name=client.display_name,
             kind=client.kind,
-            follow_up=get_follow_up(lines, open_season_code, 0),
+            follow_up=get_follow_up(lines, open_season_code, balance),
             phone=client.phone,
             identifier=client.national_id_number or client.company_identifier or "",
             region=client.city,
@@ -216,7 +247,7 @@ class ClientService:
             address=client.address,
             email=client.email,
             oil_stock_litres=0,
-            balance=0,
+            balance=balance,
             sites=sites,
             history=lines,
         )
@@ -310,13 +341,14 @@ def clean(value: str | None) -> str | None:
     return value.strip() or None if value else None
 
 
-def map_client(client: Client, site_ids: list[UUID]) -> ClientOut:
+def map_client(client: Client, site_ids: list[UUID], credit: Decimal = Decimal(0)) -> ClientOut:
     """
     Shape a Client for the pickers and the search.
 
     Args:
         client (Client): Client row.
         site_ids (list[UUID]): Sites the Client came to.
+        credit (Decimal): What their Credit Notes still hold.
 
     Returns:
         ClientOut: The Client as the front reads it.
@@ -332,7 +364,7 @@ def map_client(client: Client, site_ids: list[UUID]) -> ClientOut:
         phone=client.phone,
         email=client.email,
         identifier=client.national_id_number or client.company_identifier,
-        credit_dh=0,
+        credit_dh=float(credit),
         site_ids=site_ids,
     )
 

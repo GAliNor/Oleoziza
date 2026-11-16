@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from core.helpers import APP_TIME_ZONE
 from modules.client.models.client_models import Client
 from modules.configuration.models.configuration_models import Box, OliveVariety
+from modules.finance.business.client_credit import get_lot_credits
 from modules.finance.models.finance_models import Discount, Payment, PaymentAllocation
 from modules.finance.types.finance_types import DiscountState, PaymentStatus
 from modules.lot.models.lot_models import BoxOccupancy, Lot, Notification
@@ -38,6 +39,7 @@ def build_lot_views(db: Session, lots: list[Lot]) -> list[LotOut]:
     discounts = list_current_discounts(db, lot_ids)
     notifications = list_notifications(db, lot_ids)
     paid_by_lot, pending_by_lot = list_allocated_amounts(db, lot_ids)
+    credit_by_lot = get_lot_credits(db, lot_ids)
     user_ids = {user_id for lot in lots for user_id in (lot.created_by_id, lot.pressing_started_by_id, lot.pressing_ended_by_id)}
     user_ids |= {storage.created_by_id for lot_storages in storages.values() for storage in lot_storages}
     user_ids |= {user_id for discount in discounts.values() for user_id in (discount.created_by_id, discount.decided_by_id)}
@@ -57,6 +59,7 @@ def build_lot_views(db: Session, lots: list[Lot]) -> list[LotOut]:
             paid_by_lot.get(lot.id, Decimal(0)),
             pending_by_lot.get(lot.id, Decimal(0)),
             names,
+            credit_by_lot.get(lot.id, Decimal(0)),
         )
         for lot in lots
     ]
@@ -75,6 +78,7 @@ def build_lot_view(
     paid: Decimal,
     pending: Decimal,
     names: dict[UUID, str],
+    credit: Decimal = Decimal(0),
 ) -> LotOut:
     """
     Shape one Lot from the rows already read for it.
@@ -92,6 +96,7 @@ def build_lot_view(
         paid (Decimal): Confirmed Allocations.
         pending (Decimal): Pending Allocations.
         names (dict[UUID, str]): Names of the Users involved.
+        credit (Decimal): Credit Note Uses taken off its fee.
 
     Returns:
         LotOut: The Lot as the screens read it.
@@ -120,7 +125,7 @@ def build_lot_view(
         notifications=notifications,
         paid_dh=float(paid),
         pending_dh=float(pending),
-        credit_dh=0,
+        credit_dh=float(credit),
         moves=build_moves(lot, last_withdrawal, names),
         step_photos={},
         received_at=lot.entered_at,

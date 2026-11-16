@@ -40,7 +40,22 @@
     "invalid_request": "Certaines informations sont invalides. Vérifiez le formulaire.",
     "site_forbidden": "Vous n'avez pas accès à ce site.",
     "season_closed": "Cette saison est clôturée : plus aucune modification possible.",
-    "season_not_open": "Aucune saison n'est ouverte à cette date."
+    "season_not_open": "Aucune saison n'est ouverte à cette date.",
+    "payments_forbidden": "Vous n'avez pas ce droit sur ce site.",
+    "movement_not_decidable": "Ce paiement a déjà été traité.",
+    "movement_not_linked": "Liez d'abord ce paiement à un lot.",
+    "surplus_not_settled": "Choisissez quoi faire du surplus : avoir ou remboursement.",
+    "movement_not_pending": "Ce paiement n'est plus en attente.",
+    "links_too_high": "Les montants par lot dépassent le paiement.",
+    "lot_not_payable": "Ce lot n'est pas à ce client sur ce site.",
+    "oil_litres_required": "Indiquez les litres d'huile.",
+    "method_invalid": "Mode de paiement invalide.",
+    "refund_not_to_make": "Ce remboursement a déjà été fait.",
+    "refund_not_made": "Ce remboursement n'a pas encore été fait.",
+    "refund_own": "Une autre personne doit confirmer ce remboursement.",
+    "refunds_forbidden": "Vous ne gérez pas les remboursements de ce site.",
+    "debts_forbidden": "Vous ne suivez pas les impayés de ce site.",
+    "document_invalid": "Ce justificatif n'est pas une image ou un PDF valide."
   },
   "site": {
     "label": "Site",
