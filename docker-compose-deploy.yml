@@ -10,8 +10,21 @@ services:
     restart: always
     environment:
       CURRENT_ENV: ${CURRENT_ENV}
-    ports:
-      - '${PORT_FRONTEND}:80'
+    networks:
+      - app-network
+
+  oleoziza_cloudflared:
+    image: cloudflare/cloudflared:${CLOUDFLARED_VERSION}
+    container_name: oleoziza_cloudflared_${CURRENT_ENV}
+    restart: always
+    command: ['tunnel', '--no-autoupdate', 'run']
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    read_only: true
+    security_opt:
+      - 'no-new-privileges:true'
+    depends_on:
+      - oleoziza_frontend
     networks:
       - app-network
 
