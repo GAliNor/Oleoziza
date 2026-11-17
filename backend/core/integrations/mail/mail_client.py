@@ -1,4 +1,5 @@
 import smtplib
+import ssl
 from email.message import EmailMessage
 from functools import lru_cache
 
@@ -47,7 +48,7 @@ class MailClient:
         try:
             with smtplib.SMTP(self.server, self.port, timeout=SMTP_TIMEOUT_IN_SECONDS) as smtp:
                 if self.username:
-                    smtp.starttls()
+                    smtp.starttls(context=ssl.create_default_context())
                     smtp.login(self.username, self.password)
                 smtp.send_message(message)
         except (smtplib.SMTPException, OSError) as error:

@@ -13,7 +13,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - '${PORT_FRONTEND:-32501}:5173'
+      - '127.0.0.1:${PORT_FRONTEND:-32501}:5173'
     networks:
       - app-network
 
@@ -35,7 +35,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - '${PORT_BACKEND:-32551}:8000'
+      - '127.0.0.1:${PORT_BACKEND:-32551}:8000'
     networks:
       - app-network
 
@@ -54,7 +54,7 @@ services:
       timeout: 5s
       retries: 10
     ports:
-      - '${PORT_DB:-32509}:5432'
+      - '127.0.0.1:${PORT_DB:-32509}:5432'
     volumes:
       - db_backend:/var/lib/postgresql/data
     networks:
@@ -76,7 +76,7 @@ services:
     volumes:
       - pgadmin:/var/lib/pgadmin
     ports:
-      - '${PORT_PGADMIN:-32520}:80'
+      - '127.0.0.1:${PORT_PGADMIN:-32520}:80'
     networks:
       - app-network
 
@@ -87,7 +87,7 @@ services:
     environment:
       CURRENT_ENV: ${CURRENT_ENV:-development}
     ports:
-      - '${PORT_MAILHOG:-32586}:8025'
+      - '127.0.0.1:${PORT_MAILHOG:-32586}:8025'
     networks:
       - app-network
 
@@ -144,7 +144,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - '${PORT_FLOWER:-32555}:5555'
+      - '127.0.0.1:${PORT_FLOWER:-32555}:5555'
     networks:
       - app-network
 

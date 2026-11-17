@@ -13,8 +13,8 @@ services:
       RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
       RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
     ports:
-      - '${PORT_RUSTFS_API:-32590}:9000'
-      - '${PORT_RUSTFS_CONSOLE:-32591}:9001'
+      - '127.0.0.1:${PORT_RUSTFS_API:-32590}:9000'
+      - '127.0.0.1:${PORT_RUSTFS_CONSOLE:-32591}:9001'
     volumes:
       - rustfs_data:/data
       - rustfs_logs:/logs
