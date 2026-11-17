@@ -22,7 +22,11 @@ Domain vocabulary is in [GLOSSARY.md](GLOSSARY.md).
 # dev: frontend, backend, postgres, pgadmin and mailhog on one network, with hot reload
 docker compose up -d --build
 
+# production settings: copy each env_files/production/*.env.example to *.env and fill it in; the real files are gitignored
+for f in env_files/production/*.env.example; do cp -n "$f" "${f%.example}"; done
+
 # production images: nginx serving the front build (VITE_* baked in from env_files/<env>/frontend.env), and the API
+# in production nginx is the only published port: it proxies /api/ to the backend and the bucket paths to RustFS; pgAdmin and MailHog are dev-only
 docker build --build-arg CURRENT_ENV=production -f docker/frontend/Dockerfile-deploy -t oleoziza-frontend .
 docker build -f docker/backend/Dockerfile-deploy -t oleoziza-backend .
 ```

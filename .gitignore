@@ -6,6 +6,7 @@ dev-dist/
 .env.local
 *.log
 .wayfinder/
+.scratch/
 research/
 docs/
 GLOSSARY.md
@@ -14,3 +15,6 @@ GLOSSARY.md
 __pycache__/
 .venv/
 .pytest_cache/
+
+# real production settings live only on the server; the committed *.env.example files are the templates
+env_files/production/*.env
