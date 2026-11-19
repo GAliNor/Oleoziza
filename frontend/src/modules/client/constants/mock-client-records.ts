@@ -74,7 +74,8 @@ const lotSiteId = (siteIds: string[], lotIndex: number): string => siteIds[siteI
 const buildLot = (siteIds: string[], season: string, seedIndex: number, lotIndex: number, line: Pick<IClientLotLine, 'status' | 'kg' | 'receivedOn'>): IClientLotLine => {
   const siteId = lotSiteId(siteIds, lotIndex);
   const litresPerKg = 0.175 + ((seedIndex * 7 + lotIndex * 3) % 6) / 100;
-  return { ...line, code: lotCode(siteId, season, 100 + seedIndex * 13 + lotIndex), siteId, siteName: siteNameOf(siteId), oilLitres: Math.round(line.kg * litresPerKg), millingRatePerKg: MOCK_MILLING_RATE, variety: HISTORY_VARIETIES[(seedIndex + lotIndex) % HISTORY_VARIETIES.length], season };
+  const code = lotCode(siteId, season, 100 + seedIndex * 13 + lotIndex);
+  return { ...line, id: `history-${code}`, code, siteId, siteName: siteNameOf(siteId), oilLitres: Math.round(line.kg * litresPerKg), millingRatePerKg: MOCK_MILLING_RATE, variety: HISTORY_VARIETIES[(seedIndex + lotIndex) % HISTORY_VARIETIES.length], season };
 };
 
 /** The season's lots, adding up to the seed's olives, from the last visit back towards the season's start. */

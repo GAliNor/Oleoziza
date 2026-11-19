@@ -11,6 +11,7 @@ from modules.configuration.models.configuration_models import Box, OliveVariety
 from modules.finance.business.client_credit import get_lot_credits
 from modules.finance.models.finance_models import Discount, Payment, PaymentAllocation
 from modules.finance.types.finance_types import DiscountState, PaymentStatus
+from modules.lot.business.lot_rate_views import list_rate_corrections, map_rate_correction
 from modules.lot.models.lot_models import BoxOccupancy, Lot, Notification
 from modules.lot.types.lot_types import LotDiscountOut, LotMoveOut, LotNotificationOut, LotOut, LotStatus, LotStorageOut, NotificationChoice, NotificationStatus
 from modules.oil.models.oil_models import Storage, StorageDraw, Withdrawal, WithdrawalLine
@@ -40,10 +41,12 @@ def build_lot_views(db: Session, lots: list[Lot]) -> list[LotOut]:
     notifications = list_notifications(db, lot_ids)
     paid_by_lot, pending_by_lot = list_allocated_amounts(db, lot_ids)
     credit_by_lot = get_lot_credits(db, lot_ids)
+    corrections = list_rate_corrections(db, lot_ids)
     user_ids = {user_id for lot in lots for user_id in (lot.created_by_id, lot.pressing_started_by_id, lot.pressing_ended_by_id)}
     user_ids |= {storage.created_by_id for lot_storages in storages.values() for storage in lot_storages}
     user_ids |= {user_id for discount in discounts.values() for user_id in (discount.created_by_id, discount.decided_by_id)}
     user_ids |= {withdrawal.created_by_id for withdrawal in last_withdrawal_by_lot.values()}
+    user_ids |= {correction.created_by_id for lot_corrections in corrections.values() for correction in lot_corrections}
     names = list_user_names(db, {user_id for user_id in user_ids if user_id})
     return [
         build_lot_view(
@@ -60,7 +63,7 @@ def build_lot_views(db: Session, lots: list[Lot]) -> list[LotOut]:
             pending_by_lot.get(lot.id, Decimal(0)),
             names,
             credit_by_lot.get(lot.id, Decimal(0)),
-        )
+        ).model_copy(update={"rate_corrections": [map_rate_correction(correction, names) for correction in corrections.get(lot.id, [])]})
         for lot in lots
     ]
 

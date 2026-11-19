@@ -1,7 +1,7 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import LotMockService from 'lot/services/lot.mock';
 import { ALL_SITES } from 'site/constants/site';
-import type { IDiscountDecision, IDiscountGift, ILot, ILotMovePayload, ILotSchedule, ILotService } from 'lot/types/lot';
+import type { IDiscountDecision, IDiscountGift, ILot, ILotMovePayload, ILotSchedule, ILotService, IRateCorrection } from 'lot/types/lot';
 
 class LotApiService extends BaseService implements ILotService {
   private _BASE_API_URL = `${import.meta.env.VITE_APP_API_BASE_URL}/lot/lots`;
@@ -17,6 +17,10 @@ class LotApiService extends BaseService implements ILotService {
 
   giveDiscount(lotId: string, gift: IDiscountGift & { by: string }): Promise<ILot> {
     return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/${lotId}/discount`, data: gift, headers: { 'Idempotency-Key': gift.id } });
+  }
+
+  correctRate(lotId: string, correction: IRateCorrection): Promise<ILot> {
+    return this.request<ILot>({ method: 'POST', url: `${this._BASE_API_URL}/${lotId}/rate`, data: { id: correction.id, millingRatePerKg: correction.millingRatePerKg, reason: correction.reason }, headers: { 'Idempotency-Key': correction.id } });
   }
 
   scheduleLot(lotId: string, schedule: ILotSchedule): Promise<ILot> {

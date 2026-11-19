@@ -22,6 +22,7 @@ export interface IReceiveLotPayload {
   notificationChoice: NotificationChoice;
   isContactMissing: boolean;
   boxNumbers: number[];
+  areBoxesIgnored: boolean;
   pressLineId: string;
   plannedStartAt: string;
   photoUrl?: string;

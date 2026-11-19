@@ -22,7 +22,7 @@
     "moved": "{client} : {from} → {to}",
     "account": {
       "oilStock": "Huile en stock : {quantity}",
-      "due": "Reste à payer : {amount}",
+      "due": "Reste à payer, tous ses lots : {amount}",
       "payout": "Le moulin lui doit : {amount}",
       "none": "Rien à payer, rien en stock",
       "unpaid": "{count} Lot non payé · passer à la caisse | {count} Lot non payé · passer à la caisse | {count} Lots non payés · passer à la caisse"

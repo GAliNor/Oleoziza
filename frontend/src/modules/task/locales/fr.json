@@ -38,5 +38,8 @@
     "invitation": {
       "title": "Invitation sans réponse"
     }
+  },
+  "actions": {
+    "collect": "Encaisser"
   }
 }

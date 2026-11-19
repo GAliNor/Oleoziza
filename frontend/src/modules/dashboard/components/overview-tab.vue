@@ -7,16 +7,16 @@
           <ui-stat-tile v-for="tile in productionTiles" :key="tile.label" v-bind="tile" />
         </div>
         <site-table v-if="siteStore.isAllSites" :sites="dashboard.sites" :is-finance-shown="isFinanceShown" />
-        <olive-chart :chart="dashboard.oliveChart" />
       </div>
-      <div v-if="isFinanceShown" class="stagger flex min-w-0 flex-col gap-5">
-        <p class="eyebrow">{{ $t('dashboard.management.overview.sales') }}</p>
-        <template v-if="figures && financeStore.sales">
-          <sales-tiles :figures="figures" :period-label="period.label" layout="stacked" class="-mt-3" />
-          <sales-lines :title="$t(financeStore.sales.chartTitleKey)" :bars="financeStore.sales.bars" />
-        </template>
-        <div v-else class="-mt-3 skeleton h-64 rounded-card" />
-      </div>
+      <olive-chart class="rise lg:row-start-2" :class="isFinanceShown ? 'lg:col-span-2' : 'lg:col-span-3'" :chart="dashboard.oliveChart" />
+      <template v-if="isFinanceShown">
+        <div class="stagger flex min-w-0 flex-col gap-5 lg:col-start-3 lg:row-start-1">
+          <p class="eyebrow">{{ $t('dashboard.management.overview.sales') }}</p>
+          <sales-tiles v-if="figures && financeStore.sales" :figures="figures" :period-label="period.label" layout="stacked" class="-mt-3" />
+          <div v-else class="-mt-3 skeleton h-64 rounded-card" />
+        </div>
+        <sales-lines v-if="figures && financeStore.sales" class="rise lg:col-start-3 lg:row-start-2" :title="$t(financeStore.sales.chartTitleKey)" :bars="financeStore.sales.bars" />
+      </template>
     </div>
     <section class="rise flex min-w-0 flex-col gap-3">
       <div class="flex items-baseline justify-between gap-3">

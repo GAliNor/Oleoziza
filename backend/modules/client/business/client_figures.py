@@ -38,6 +38,7 @@ def list_lot_lines(db: Session, client_ids: Iterable[UUID] | None = None, site_i
     for lot, site_name, variety_name, season_code in db.execute(query):
         lines.setdefault(lot.client_id, []).append(
             ClientLotLineOut(
+                id=lot.id,
                 code=lot.code or "",
                 site_id=lot.site_id,
                 site_name=site_name,

@@ -93,6 +93,7 @@ class ClientLotLineOut(CamelModel):
     One past Lot of a Client, as their history lists it.
     """
 
+    id: UUID
     code: str
     site_id: UUID
     site_name: str

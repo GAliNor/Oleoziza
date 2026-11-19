@@ -1,19 +1,20 @@
 <template>
-  <sales-tiles v-if="figures" v-show="!isOpen" class="rise" :figures="figures" :period-label="period.label" can-open-pending :is-active="tab === 'pending'" @pending="handleTab('pending')" />
+  <sales-tiles v-if="figures" v-show="!isAnyOpen" class="rise" :figures="figures" :period-label="period.label" can-open-pending :is-active="tab === 'pending'" @pending="handleTab('pending')" />
 
-  <div v-show="!isOpen" class="rise flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between">
+  <div v-show="!isAnyOpen" class="rise flex min-w-0 flex-col gap-3 md:flex-row md:items-center md:justify-between">
     <input v-model="search" class="input md:max-w-xs" type="search" :placeholder="$t('finance.register.search')" />
     <ui-segmented class="shrink-0 self-start md:self-auto" variant="tabs" :model-value="tab" :options="tabOptions" :label="$t('finance.register.tabsLabel')" @update:model-value="handleTab">
       <template #option="{ option }">
         {{ option.label }}
         <span v-if="option.key === 'pending'" class="chip ms-1 bg-warning-subtle text-fg-warning">{{ pending.length }}</span>
+        <span v-else-if="option.key === 'unpaid' && unpaidCount" class="chip ms-1 bg-warning-subtle text-fg-warning">{{ unpaidCount }}</span>
         <span v-else-if="option.key === 'refunds' && refundsToHandle" class="chip ms-1 bg-warning-subtle text-fg-warning">{{ refundsToHandle }}</span>
       </template>
     </ui-segmented>
   </div>
 
-  <direct-payment-form v-if="isRecording && siteStore.currentSiteId" v-show="!isOpen" :site-id="siteStore.currentSiteId" @close="isRecording = false" @saved="handleDirectSaved" />
-  <button v-else-if="canRecordDirect" v-show="!isOpen" type="button" class="btn-primary self-start" @click="isRecording = true">{{ $t('finance.direct.open') }}</button>
+  <direct-payment-form v-if="isRecording && siteStore.currentSiteId" v-show="!isAnyOpen" :site-id="siteStore.currentSiteId" @close="isRecording = false" @saved="handleDirectSaved" />
+  <button v-else-if="canRecordDirect && tab !== 'unpaid'" v-show="!isAnyOpen" type="button" class="btn-primary self-start" @click="isRecording = true">{{ $t('finance.direct.open') }}</button>
 
   <template v-if="tab === 'refunds' && !isOpen">
     <div v-if="refundList.isLoading && !refundList.items.length" class="flex flex-col gap-3">
@@ -26,7 +27,9 @@
     <ui-load-more :shown="refundList.items.length" :total="refundList.total" :is-loading="refundList.isLoadingMore" @more="financeStore.fetchMoreRefunds()" />
   </template>
 
-  <ui-master-detail v-if="tab !== 'refunds' || isOpen" :is-open="isOpen" :back-label="$t('finance.register.back')" @close="handleClose">
+  <unpaid-lots v-if="tab === 'unpaid' && !isOpen" :search="searched" />
+
+  <ui-master-detail v-if="tab === 'pending' || tab === 'all' || isOpen" :is-open="isOpen" :back-label="$t('finance.register.back')" @close="handleClose">
     <template #list>
       <div class="table-card">
         <table class="data-table">
@@ -94,6 +97,8 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { useFinanceStore } from 'finance/stores/finance';
 import { useSiteStore } from 'site/stores/site';
+import { useLotStore } from 'lot/stores/lot';
+import { amountDue } from 'lot/composables/fee';
 import { useFinance } from 'finance/composables/use-finance';
 import { movementLabel } from 'finance/composables/movement-label';
 import { pendingSteps } from 'finance/composables/pending-steps';
@@ -111,6 +116,7 @@ import DirectPaymentForm from 'finance/components/direct-payment-form.vue';
 import MovementDetail from 'finance/components/movement-detail.vue';
 import RefundCard from 'finance/components/refund-card.vue';
 import PendingPager from 'finance/components/pending-pager.vue';
+import UnpaidLots from 'finance/components/unpaid-lots.vue';
 
 // stores
 const route = useRoute();
@@ -118,10 +124,11 @@ const router = useRouter();
 const { t } = useI18n();
 const financeStore = useFinanceStore();
 const siteStore = useSiteStore();
+const lotStore = useLotStore();
 const { pending, figures, period, isOnline } = useFinance();
 
 // variables
-type RegisterTab = MovementList | 'refunds';
+type RegisterTab = MovementList | 'unpaid' | 'refunds';
 const SEARCH_DELAY_MS = 250;
 const isRecording = ref(false);
 const search = ref('');
@@ -134,11 +141,13 @@ const canRefund = computed((): boolean => siteStore.can('refund.manage'));
 const tabOptions = computed((): { key: RegisterTab; label: string }[] => [
   { key: 'pending', label: t('finance.register.tabs.pending') },
   { key: 'all', label: t('finance.register.tabs.all') },
+  { key: 'unpaid', label: t('finance.register.tabs.unpaid') },
   ...(canRefund.value ? [{ key: 'refunds' as const, label: t('finance.register.tabs.refunds') }] : []),
 ]);
 const tab = computed((): RegisterTab => {
   if (route.query.tab === 'refunds' && canRefund.value) return 'refunds';
-  return route.query.tab === 'all' ? 'all' : 'pending';
+  if (route.query.tab === 'unpaid' || route.query.tab === 'all') return route.query.tab;
+  return 'pending';
 });
 const refundsToHandle = computed((): number => financeStore.refunds.filter((refund) => refund.status !== 'confirmed').length);
 const canRecordDirect = computed((): boolean => !siteStore.isAllSites && siteStore.can('payment.record'));
@@ -147,6 +156,11 @@ const refundList = computed(() => financeStore.refundList);
 const openId = computed((): string | null => (typeof route.query.movement === 'string' ? route.query.movement : null));
 const isOpen = computed((): boolean => find(openId.value) !== undefined);
 const active = computed((): IMovement | undefined => find(openId.value ?? lastId.value));
+const isLotOpen = computed((): boolean => tab.value === 'unpaid' && lotStore.lots.some((lot) => lot.id === route.query.lot));
+const isAnyOpen = computed((): boolean => isOpen.value || isLotOpen.value);
+const unpaidCount = computed((): number =>
+  lotStore.lots.filter((lot) => lot.mode === 'service_milling' && amountDue(lot) > 0 && (siteStore.isAllSites || lot.siteId === siteStore.currentSiteId)).length,
+);
 const steps = computed((): IPendingSteps => pendingSteps(pending.value, find(openId.value)));
 
 // watchers
@@ -162,6 +176,7 @@ watch(
   [() => siteStore.currentSiteId, tab, searched, () => period.value.key],
   ([siteId, currentTab, text, periodKey]) => {
     if (!siteId) return;
+    if (currentTab === 'unpaid') return;
     if (currentTab === 'refunds') financeStore.fetchRefundPage(siteId);
     else financeStore.fetchRegister({ siteId, list: currentTab, search: text, period: periodKey });
   },
@@ -180,7 +195,7 @@ const find = (id: string | null): IMovement | undefined => financeStore.movement
 
 // event handlers
 const handleTab = (key: RegisterTab): void => {
-  router.replace({ query: { ...route.query, tab: key === 'pending' ? undefined : key, movement: undefined } });
+  router.replace({ query: { ...route.query, tab: key === 'pending' ? undefined : key, movement: undefined, lot: undefined } });
 };
 
 const handleOpen = (id: string): void => {

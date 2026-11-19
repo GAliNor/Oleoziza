@@ -36,9 +36,9 @@ def prepare_site(db: Session) -> tuple:
     return site, season, press_line, first_lot, build_auth_header(operator, {site.id: [Permission.RECEPTION_CREATE]})
 
 
-def build_reception(site_id: object, client_id: object, press_line_id: object, boxes: list[int], lot_id: object | None = None) -> dict[str, object]:
+def build_reception(site_id: object, client_id: object, press_line_id: object, boxes: list[int], lot_id: object | None = None, net_kg: float = 900, are_boxes_ignored: bool = False) -> dict[str, object]:
     """
-    Build the body of one Reception.
+    Build the body of one Reception; each test Box holds 1000 kg.
 
     Returns:
         dict[str, object]: Request body.
@@ -49,10 +49,11 @@ def build_reception(site_id: object, client_id: object, press_line_id: object, b
         "clientId": str(client_id),
         "mode": "service_milling",
         "variety": "Haouzia",
-        "netKg": 1250,
+        "netKg": net_kg,
         "millingRatePerKg": 0.5,
         "notificationChoice": "sms",
         "boxNumbers": boxes,
+        "areBoxesIgnored": are_boxes_ignored,
         "pressLineId": str(press_line_id),
         "plannedStartAt": "2026-11-20T08:00:00Z",
     }
@@ -64,7 +65,7 @@ def test_a_reception_becomes_a_waiting_lot_with_its_code_and_boxes(client: TestC
     """
     site, season, press_line, first_lot, headers = prepare_site(db)
 
-    lot = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, [1, 2]), headers=headers).json()
+    lot = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, [1, 2], net_kg=1250), headers=headers).json()
 
     assert lot["code"] == f"TS-{season.code}-0001"
     assert (lot["status"], lot["boxNumbers"], lot["variety"], lot["clientName"]) == ("waiting", [1, 2], "Haouzia", "Test Client")
@@ -94,6 +95,54 @@ def test_a_box_holding_a_lot_is_refused(client: TestClient, db: Session) -> None
     response = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, [3]), headers=headers)
 
     assert response.json() == {"code": "box_taken"}
+
+
+def test_boxes_too_small_for_the_weight_are_refused(client: TestClient, db: Session) -> None:
+    """
+    Two 1000 kg Boxes can't hold 2001 kg: the Reception is refused and no Lot is saved.
+    """
+    site, season, press_line, first_lot, headers = prepare_site(db)
+    lot_id = uuid7()
+
+    response = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, [1, 2], lot_id, net_kg=2001), headers=headers)
+
+    assert (response.status_code, response.json()) == (422, {"code": "box_capacity_short"})
+    assert client.get(f"{API_URL}/{lot_id}", headers=headers).status_code == 404
+
+
+def test_boxes_holding_exactly_the_weight_are_enough(client: TestClient, db: Session) -> None:
+    """
+    Equal capacity is enough: 2000 kg fit two 1000 kg Boxes.
+    """
+    site, season, press_line, first_lot, headers = prepare_site(db)
+
+    response = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, [1, 2], net_kg=2000), headers=headers)
+
+    assert response.status_code == 200
+
+
+def test_a_reception_without_boxes_is_refused_unless_boxes_are_ignored(client: TestClient, db: Session) -> None:
+    """
+    No Box means no room, unless the Operator ticked « Ignorer les Box »: then the Lot is saved with the Boxes picked, here none.
+    """
+    site, season, press_line, first_lot, headers = prepare_site(db)
+
+    refused = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, []), headers=headers)
+    lot = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, [], are_boxes_ignored=True), headers=headers).json()
+
+    assert refused.json() == {"code": "box_capacity_short"}
+    assert (lot["status"], lot["boxNumbers"]) == ("waiting", [])
+
+
+def test_ignored_boxes_keep_the_boxes_picked(client: TestClient, db: Session) -> None:
+    """
+    With Boxes ignored, a 1500 kg Lot fills the one Box picked and the rest stays outside.
+    """
+    site, season, press_line, first_lot, headers = prepare_site(db)
+
+    lot = client.post(API_URL, json=build_reception(site.id, first_lot.client_id, press_line.id, [2], net_kg=1500, are_boxes_ignored=True), headers=headers).json()
+
+    assert lot["boxNumbers"] == [2]
 
 
 def test_the_list_reads_the_open_season_of_the_sites_held(client: TestClient, db: Session) -> None:

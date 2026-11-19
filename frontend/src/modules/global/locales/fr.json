@@ -63,7 +63,14 @@
     "date_in_future": "La date ne peut pas être dans le futur.",
     "expense_cancelled": "Cette charge est annulée.",
     "expense_not_found": "Cette charge n'existe plus.",
-    "journal_forbidden": "Vous n'avez pas accès au journal de ce site."
+    "journal_forbidden": "Vous n'avez pas accès au journal de ce site.",
+    "rates_forbidden": "Vous n’avez pas le droit de corriger le tarif sur ce site.",
+    "rate_below_paid": "Ce tarif ferait descendre les frais sous ce qui est déjà payé ou en attente.",
+    "rate_below_discount": "Ce tarif ferait descendre les frais sous la remise du lot.",
+    "lot_already_paid": "Ce lot est déjà payé : son tarif ne change plus.",
+    "rate_unchanged": "C’est déjà le tarif de ce lot.",
+    "rate_not_applicable": "Ce lot n’a pas de tarif de trituration.",
+    "box_capacity_short": "Ces box ne suffisent pas pour ce poids."
   },
   "site": {
     "label": "Site",

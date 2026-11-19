@@ -69,6 +69,7 @@ describe('a Reception seen through the lot store', () => {
       notificationChoice: 'none',
       isContactMissing: false,
       boxNumbers: [3],
+      areBoxesIgnored: false,
       pressLineId: 'oj-line-1',
       plannedStartAt: '2026-11-09T14:00:00.000Z',
     });

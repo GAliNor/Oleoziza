@@ -8,7 +8,7 @@ import { amountDue } from 'lot/composables/fee';
 import { pressingOn } from 'lot/composables/press-schedule';
 import { checkPours, isStorageActive, tankStates } from 'lot/composables/storage';
 import { configurationOf, isChannelEnabledMock } from 'configuration/services/configuration.mock';
-import type { IDiscountDecision, IDiscountGift, ILot, ILotMovePayload, ILotSchedule, ILotService, NotificationEvent } from 'lot/types/lot';
+import type { IDiscountDecision, IDiscountGift, ILot, ILotMovePayload, ILotSchedule, ILotService, IRateCorrection, NotificationEvent } from 'lot/types/lot';
 
 export const LOTS_MOCK_DB: ILot[] = structuredClone(LOTS_MOCK);
 
@@ -98,6 +98,25 @@ export default class LotMockService implements ILotService {
     if (gift.amountDh <= 0 || gift.amountDh > amountDue(lot)) return mockReject(new Error('discount_too_high'));
     appliedMoves.add(gift.id);
     lot.discount = { amountDh: gift.amountDh, percent: gift.percent, state: gift.isOverLimit ? 'pending' : 'applied', givenBy: gift.by, givenAt: new Date().toISOString() };
+    return mockResolve(lot);
+  }
+
+  /** The rate changes until the Lot is paid, never below what is paid or waiting, nor below its Discount. */
+  correctRate(lotId: string, correction: IRateCorrection & { by: string }): Promise<ILot> {
+    const lot = LOTS_MOCK_DB.find((candidate) => candidate.id === lotId);
+    if (!lot) return mockReject(new Error('lot_not_found'));
+    if (appliedMoves.has(correction.id)) return mockResolve(lot);
+    if (!correction.reason.trim()) return mockReject(new Error('reason_required'));
+    const settled = lot.paidDh + lot.pendingDh + (lot.creditDh ?? 0);
+    if (settled > 0 && amountDue(lot) === 0) return mockReject(new Error('lot_already_paid'));
+    const newFullFee = lot.netKg * correction.millingRatePerKg;
+    const discount = lot.discount && lot.discount.state !== 'refused' ? lot.discount.amountDh : 0;
+    if (newFullFee < discount) return mockReject(new Error('rate_below_discount'));
+    const discountInForce = lot.discount?.state === 'applied' || lot.discount?.state === 'approved' ? lot.discount.amountDh : 0;
+    if (newFullFee - discountInForce < settled) return mockReject(new Error('rate_below_paid'));
+    appliedMoves.add(correction.id);
+    const entry = { previousRatePerKg: lot.millingRatePerKg, newRatePerKg: correction.millingRatePerKg, reason: correction.reason.trim(), by: correction.by, at: new Date().toISOString() };
+    Object.assign(lot, { millingRatePerKg: correction.millingRatePerKg, rateCorrections: [...(lot.rateCorrections ?? []), entry] });
     return mockResolve(lot);
   }
 

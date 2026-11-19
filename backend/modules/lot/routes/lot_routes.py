@@ -3,9 +3,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 
 from modules.finance.services.discount_services import DiscountService, get_discount_service
+from modules.finance.services.rate_correction_services import RateCorrectionService, get_rate_correction_service
 from modules.lot.services.lot_move_services import LotMoveService, get_lot_move_service
 from modules.lot.services.lot_services import LotService, get_lot_service
-from modules.lot.types.lot_types import DiscountDecisionIn, DiscountGiftIn, LotMoveIn, LotOut, LotReceiveIn, LotScheduleIn
+from modules.lot.types.lot_types import DiscountDecisionIn, DiscountGiftIn, LotMoveIn, LotOut, LotReceiveIn, LotScheduleIn, RateCorrectionIn
 
 
 router = APIRouter(prefix="/lots", tags=["lot"])
@@ -123,6 +124,22 @@ def decide_discount(lot_id: UUID, payload: DiscountDecisionIn, discount_service:
         LotOut: The Lot after the decision.
     """
     return discount_service.decide_discount(lot_id, payload)
+
+
+@router.post("/{lot_id}/rate", response_model=LotOut)
+def correct_rate(lot_id: UUID, payload: RateCorrectionIn, rate_correction_service: RateCorrectionService = Depends(get_rate_correction_service)) -> LotOut:
+    """
+    Correct a Lot's Milling Rate until it is paid, with a reason (lot.set_price).
+
+    Args:
+        lot_id (UUID): Lot corrected.
+        payload (RateCorrectionIn): New rate and reason.
+        rate_correction_service (RateCorrectionService): Injected rate correction service.
+
+    Returns:
+        LotOut: The Lot at its new rate.
+    """
+    return rate_correction_service.correct_rate(lot_id, payload)
 
 
 @router.post("/{lot_id}/contact-found", response_model=LotOut)

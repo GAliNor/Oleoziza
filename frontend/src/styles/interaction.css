@@ -90,8 +90,7 @@
 
 @media (hover: hover) {
   @layer components {
-    .press-lift:not(:disabled):hover,
-    .btn-primary:not(:disabled):hover {
+    .press-lift:not(:disabled):hover {
       translate: 0 -1px;
       box-shadow: var(--shadow-lifted);
     }

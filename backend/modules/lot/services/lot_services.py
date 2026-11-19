@@ -16,6 +16,7 @@ from modules.configuration.models.configuration_models import Box, OliveVariety,
 from modules.configuration.services.configuration_services import ConfigurationService
 from modules.configuration.types.configuration_types import ConfigurationValueKey
 from modules.finance.business.client_credit import use_open_credit
+from modules.lot.business.box_capacity import check_box_capacity
 from modules.lot.business.lot_views import build_lot_views
 from modules.lot.models.lot_models import BoxOccupancy, Lot
 from modules.lot.types.lot_types import LotMode, LotOut, LotReceiveIn
@@ -89,7 +90,7 @@ class LotService:
             LotOut: The Lot as saved.
 
         Raises:
-            RefusedError: lots_forbidden, season_not_open, client_not_found, variety_not_found, press_line_not_found, box_not_found, box_taken.
+            RefusedError: lots_forbidden, season_not_open, client_not_found, variety_not_found, press_line_not_found, box_not_found, box_taken, box_capacity_short.
         """
         existing = self.db.get(Lot, payload.id)
         if existing is not None:
@@ -105,6 +106,8 @@ class LotService:
         variety_id = self._resolve_variety(payload.variety)
         self._check_press_line(payload.site_id, payload.press_line_id)
         boxes = self._take_boxes(payload.site_id, payload.box_numbers)
+        if not payload.are_boxes_ignored:
+            check_box_capacity(boxes, Decimal(str(payload.net_kg)))
         entered_at = payload.entered_at or datetime.now(timezone.utc)
         suggested_rate = ConfigurationService(self.db).get_price_in_force(payload.site_id, season, ConfigurationValueKey.MILLING_RATE) if payload.mode == LotMode.SERVICE_MILLING else None
         lot = Lot(
@@ -131,7 +134,7 @@ class LotService:
         self.db.add_all([BoxOccupancy(lot_id=lot.id, box_id=box.id, occupied_from=entered_at, created_by_id=self.current_user.id) for box in boxes])
         if lot.mode == LotMode.SERVICE_MILLING:
             use_open_credit(self.db, lot.client_id, lot.site_id, lot.id, lot.net_weight_in_kg * (lot.milling_rate_per_kg or Decimal(0)), self.current_user.id)
-        record_audit_event(self.db, self.current_user.id, LOT_RECEIVED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, after={"code": lot.code, "netKg": payload.net_kg, "boxes": payload.box_numbers})
+        record_audit_event(self.db, self.current_user.id, LOT_RECEIVED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, after={"code": lot.code, "netKg": payload.net_kg, "boxes": payload.box_numbers, "boxesIgnored": payload.are_boxes_ignored})
         self.db.commit()
         return build_lot_views(self.db, [lot])[0]
 
@@ -201,6 +204,8 @@ class LotService:
         Raises:
             RefusedError: box_not_found, box_taken.
         """
+        if not numbers:
+            return []
         boxes = self.db.scalars(select(Box).where(Box.site_id == site_id, Box.number.in_(numbers), Box.retired_at.is_(None))).all()
         if len(boxes) != len(set(numbers)):
             raise RefusedError("box_not_found", 422)

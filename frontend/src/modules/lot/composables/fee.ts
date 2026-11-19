@@ -27,3 +27,17 @@ export const paymentStateOf = (lot: LotMoney): PaymentState => {
   if (settledOf(lot) + lot.pendingDh >= fee) return 'to_confirm';
   return settledOf(lot) + lot.pendingDh > 0 ? 'partial' : 'unpaid';
 };
+
+/** The fee the Lot would owe at another rate, its Discount in force kept in dirhams. */
+export const rateFee = (lot: LotMoney, ratePerKg: number): number => Math.max(toCentimes(lot.netKg * ratePerKg - (isDiscountInForce(lot) ? (lot.discount?.amountDh ?? 0) : 0)), 0);
+
+/** The lowest rate a correction may set: the full fee never below what is paid or waiting plus the Discount in force, nor below any Discount not refused. */
+export const lowestRate = (lot: LotMoney): number => {
+  if (lot.netKg <= 0) return 0;
+  const discount = lot.discount && lot.discount.state !== 'refused' ? lot.discount.amountDh : 0;
+  const floor = Math.max(settledOf(lot) + lot.pendingDh + (isDiscountInForce(lot) ? discount : 0), discount);
+  return Math.ceil((floor / lot.netKg) * 100 - 1e-9) / 100;
+};
+
+/** A rate can be corrected on a Lot milled for its Client until the fee is fully paid. */
+export const canCorrectRate = (lot: LotMoney & Pick<ILot, 'mode'>): boolean => lot.mode === 'service_milling' && !(settledOf(lot) + lot.pendingDh > 0 && amountDue(lot) === 0);

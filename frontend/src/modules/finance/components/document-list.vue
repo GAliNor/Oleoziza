@@ -11,7 +11,7 @@
     </ul>
     <p v-else class="body-two rounded-card bg-emphasis/40 p-4 text-center">{{ emptyMessage }}</p>
     <label v-if="canAdd" class="btn-secondary cursor-pointer self-start">
-      {{ $t('finance.documents.add') }}
+      {{ addLabel ?? $t('finance.documents.add') }}
       <input class="sr-only" type="file" accept="image/*,application/pdf" multiple @change="handlePick" />
     </label>
   </div>
@@ -22,7 +22,7 @@
 import type { IPaymentDocument } from 'finance/types/finance';
 
 // props
-defineProps<{ documents: IPaymentDocument[]; emptyMessage: string; canAdd?: boolean }>();
+defineProps<{ documents: IPaymentDocument[]; emptyMessage: string; canAdd?: boolean; addLabel?: string }>();
 
 // emits
 const emit = defineEmits<{ (event: 'add', files: File[]): void }>();

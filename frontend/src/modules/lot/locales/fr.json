@@ -39,7 +39,8 @@
       "yield": "Rendement",
       "status": "Statut"
     },
-    "newReception": "Nouvelle réception"
+    "newReception": "Nouvelle réception",
+    "backToClient": "Retour au client"
   },
   "detail": {
     "heading": "{code} · {site} · reçu le {date}",
@@ -94,10 +95,13 @@
     "discountApprovedDetail": "Les frais baissent du montant de la remise",
     "pressingOnLine": "Sur {line}",
     "handedOver": "Remis au Client",
-    "storedUntil": "jusqu’au {date}"
+    "storedUntil": "jusqu’au {date}",
+    "rateCorrected": "Tarif corrigé",
+    "rateChange": "{from} → {to}/kg"
   },
   "box": {
-    "label": "Box {numbers}"
+    "label": "Box {numbers}",
+    "none": "Hors box"
   },
   "discount": {
     "pendingChip": "Remise en attente",
@@ -195,5 +199,29 @@
   "actions": {
     "title": "Agir sur ce lot",
     "back": "Retour au lot"
+  },
+  "money": {
+    "title": "Paiement",
+    "due": "Reste à payer {amount}",
+    "settled": "Rien à payer",
+    "discountPending": "Remise en attente de la Direction : ce Lot ne s’encaisse pas d’ici là.",
+    "actions": {
+      "pay": "Encaisser",
+      "discount": "Donner une remise",
+      "rate": "Corriger le tarif"
+    }
+  },
+  "rateForm": {
+    "title": "Tarif de {code}",
+    "current": "Actuel : {rate}/kg",
+    "rate": "Nouveau tarif",
+    "unit": "DH/kg",
+    "tooLow": "Au moins {rate}/kg : les frais ne descendent pas sous ce qui est déjà payé ou en attente, ni sous la remise.",
+    "fee": "Frais : {from} → {to}",
+    "reason": "Motif",
+    "reasonPlaceholder": "Pourquoi ce tarif ? (tarif coopérative, erreur à la réception…)",
+    "cancel": "Annuler",
+    "save": "Corriger le tarif",
+    "saved": "Tarif de {code} corrigé : {rate}/kg"
   }
 }

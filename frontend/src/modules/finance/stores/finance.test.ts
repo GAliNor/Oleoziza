@@ -176,7 +176,7 @@ describe('a Payment received directly', () => {
     await store.decide(movement, { status: 'confirmed', settlement: 'credit_note' });
     expect(useClientStore().clientById(lot.clientId)?.creditDh).toBe(before + 200);
     const receptionId = createId();
-    await useReceptionStore().receiveLot({ id: receptionId, siteId: lot.siteId, clientId: lot.clientId, mode: 'service_milling', variety: 'Haouzia', netKg: 1000, millingRatePerKg: 0.5, notificationChoice: 'none', isContactMissing: false, boxNumbers: [3], pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z' });
+    await useReceptionStore().receiveLot({ id: receptionId, siteId: lot.siteId, clientId: lot.clientId, mode: 'service_milling', variety: 'Haouzia', netKg: 1000, millingRatePerKg: 0.5, notificationChoice: 'none', isContactMissing: false, boxNumbers: [3], areBoxesIgnored: false, pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z' });
     await outbox.drain();
     const received = useLotStore().lots.find((item) => item.id === receptionId);
     expect(received?.creditDh).toBe(before + 200);

@@ -8,7 +8,7 @@ import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cac
 import { outbox } from 'global/services/app-outbox';
 import { isRetryable } from 'global/services/outbox';
 import { advanceLocally } from 'lot/composables/pending-move';
-import type { IDiscountDecision, IDiscountGift, ILot, ILotMove, ILotMovePayload, ILotSchedule, ILotStore } from 'lot/types/lot';
+import type { IDiscountDecision, IDiscountGift, ILot, ILotMove, ILotMovePayload, ILotSchedule, ILotStore, IRateCorrection } from 'lot/types/lot';
 
 const lotService = new LotService();
 
@@ -81,6 +81,11 @@ export const useLotStore = defineStore('lot', {
     },
     async giveDiscount(lot: ILot, gift: IDiscountGift): Promise<ILot | null> {
       const updated = await withStatus(this, 'isSaving', () => lotService.giveDiscount(lot.id, { ...gift, by: useSessionStore().fullName }));
+      if (updated) this.upsertLot(updated);
+      return updated;
+    },
+    async correctRate(lot: ILot, correction: IRateCorrection): Promise<ILot | null> {
+      const updated = await withStatus(this, 'isSaving', () => lotService.correctRate(lot.id, { ...correction, by: useSessionStore().fullName }));
       if (updated) this.upsertLot(updated);
       return updated;
     },

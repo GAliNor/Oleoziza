@@ -60,7 +60,8 @@
     "owesNow": "Reste à payer {amount}",
     "owesOfTotal": "sur {amount} générés au total",
     "generated": "Généré",
-    "generatedAmount": "{amount} générés"
+    "generatedAmount": "{amount} générés",
+    "openLot": "Ouvrir le lot {code}"
   },
   "page": {
     "pending": "{amount} en attente",

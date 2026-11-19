@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import TaskService from 'task/services/task';
 import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
 import { withStatus } from 'global/composables/with-status';
+import { withClientTaskLinks } from 'task/composables/client-task-links';
 import type { ITaskStore } from 'task/types/task';
 
 const taskService = new TaskService();
@@ -24,7 +25,8 @@ export const useTaskStore = defineStore('task', {
             `tasks:${siteId}`,
             LOAD_TTL_MS.records,
             async () => {
-              this.tasks = await taskService.getTasks(siteId);
+              const tasks = await taskService.getTasks(siteId);
+              this.tasks = tasks.map((task) => ('targetId' in task && typeof task.targetId === 'string' ? withClientTaskLinks(task, task.targetId) : task));
             },
             isForced,
           ),

@@ -25,4 +25,6 @@ export interface ITask {
   amount: number | null;
   at: string | null;
   to: RouteLocationRaw;
+  /** A shortcut beside the task, for its most common action (« Encaisser »). */
+  action?: { labelKey: string; to: RouteLocationRaw };
 }

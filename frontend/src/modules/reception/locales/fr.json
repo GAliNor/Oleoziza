@@ -33,7 +33,7 @@
     "missingItems": {
       "client": "le client",
       "weight": "le poids",
-      "box": "le box",
+      "box": "assez de place dans les box",
       "notification": "la notification",
       "contact": "le contact du Client",
       "line": "le malaxeur et l’heure prévue"
@@ -65,10 +65,10 @@
     "fits": "{room} de place pour {weight}",
     "room": "{room} de place",
     "notSideBySide": "pas de box côte à côte libres",
-    "short": "Il manque {count} box",
-    "shortDetail": "{room} de place pour {weight}",
+    "short": "Il manque {missing} de place",
+    "shortDetail": "{room} de place pour {weight} : choisissez un box de plus, ou cochez « Ignorer les box ».",
     "noneFree": "Aucun box libre",
-    "noneFreeDetail": "Un box se libère quand le pressage de son lot commence.",
+    "noneFreeDetail": "Un box se libère quand le pressage de son lot commence. Pour donner son ticket au client maintenant, cochez « Ignorer les box ».",
     "useSuggestion": "Reprendre la proposition",
     "freeBox": "Box {box} libre",
     "occupiedBy": "Box {box} occupé : {client}, {code}",
@@ -79,7 +79,12 @@
     },
     "rangeLabel": "Groupes de box",
     "rangeFree": "aucun libre | {count} libre | {count} libres",
-    "rangeHasChosen": "contient un box choisi"
+    "rangeHasChosen": "contient un box choisi",
+    "ignore": "Ignorer les box",
+    "ignoreDetail": "Box absents ou tous pris : la réception s’enregistre quand même.",
+    "ignored": "Box ignorés",
+    "ignoredWith": "{boxes}, le reste hors box",
+    "ignoredNone": "Le lot s’enregistre hors box"
   },
   "tabs": {
     "label": "Réception ou nouveau client",
@@ -113,6 +118,7 @@
     "press_line_not_found": "Ce malaxeur n'existe plus.",
     "variety_not_found": "Variété inconnue.",
     "season_not_open": "Aucune saison n'est ouverte.",
-    "lots_forbidden": "Vous n'avez pas le droit de réceptionner sur ce site."
+    "lots_forbidden": "Vous n'avez pas le droit de réceptionner sur ce site.",
+    "box_capacity_short": "Ces box ne suffisent pas pour ce poids."
   }
 }

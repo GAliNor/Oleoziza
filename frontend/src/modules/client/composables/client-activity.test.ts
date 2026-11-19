@@ -5,7 +5,7 @@ import type { IClientLotLine, IClientSiteFigures } from 'client/types/client';
 
 const TODAY = '2026-11-04';
 
-const lot = (code: string, siteId: string, receivedOn: string, kg: number, oilLitres: number): IClientLotLine => ({ code, siteId, siteName: siteId, status: 'withdrawn', kg, oilLitres, millingRatePerKg: 0.5, variety: 'Haouzia', season: '2627', receivedOn });
+const lot = (code: string, siteId: string, receivedOn: string, kg: number, oilLitres: number): IClientLotLine => ({ id: code, code, siteId, siteName: siteId, status: 'withdrawn', kg, oilLitres, millingRatePerKg: 0.5, variety: 'Haouzia', season: '2627', receivedOn });
 
 const site = (siteId: string): IClientSiteFigures => ({ siteId, siteName: siteId, oilStockLitres: 0, balance: 0 });
 

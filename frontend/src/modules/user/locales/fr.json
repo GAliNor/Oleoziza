@@ -115,7 +115,7 @@
     },
     "lot": {
       "update_status": "Faire avancer un Lot",
-      "set_price": "Changer le prix d'un Lot"
+      "set_price": "Corriger le tarif d'un Lot"
     },
     "pressing": {
       "create": "Presser"

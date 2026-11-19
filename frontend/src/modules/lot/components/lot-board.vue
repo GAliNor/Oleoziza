@@ -1,7 +1,7 @@
 <template>
   <p v-show="!isOpen" class="rise body-two">{{ $t('lot.register.boardHint') }}</p>
 
-  <ui-master-detail :is-open="isOpen" :back-label="$t('lot.register.backToBoard')" @close="closeLot">
+  <ui-master-detail :is-open="isOpen" :back-label="$t(fromClientId ? 'lot.register.backToClient' : 'lot.register.backToBoard')" @close="closeLot">
     <template #list>
       <div class="flex snap-x gap-3 overflow-x-auto pb-3">
         <section v-for="column in columns" :key="column.key" class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-card bg-subtle/70 p-3">
@@ -56,7 +56,7 @@ const props = defineProps<{ search: string }>();
 
 // stores
 const { scoped } = useLotRegister();
-const { isOpen, active, openLot, closeLot } = useOpenLot();
+const { isOpen, active, fromClientId, openLot, closeLot } = useOpenLot();
 
 // variables
 const WITHDRAWN_SHOWN = 6;

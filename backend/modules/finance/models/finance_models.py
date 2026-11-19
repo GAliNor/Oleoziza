@@ -158,3 +158,17 @@ class DebtContact(IdMixin, AuditMixin, OfflineEntryMixin, Base):
     kind: Mapped[DebtContactKind] = mapped_column(build_enum_type(DebtContactKind, "debt_contact_kind"))
     note: Mapped[str] = mapped_column(Text)
     promised_on: Mapped[date | None] = mapped_column(Date)
+
+
+class RateCorrection(IdMixin, AuditMixin, Base):
+    """
+    A change of one Lot's Milling Rate after its Reception, with the reason written by created_by.
+    """
+
+    __tablename__ = "rate_corrections"
+    __table_args__ = (CheckConstraint("new_rate_per_kg >= 0", name="new_rate_is_not_negative"),)
+
+    lot_id: Mapped[UUID] = mapped_column(ForeignKey("lots.id"), index=True)
+    previous_rate_per_kg: Mapped[Decimal] = mapped_column(MONEY)
+    new_rate_per_kg: Mapped[Decimal] = mapped_column(MONEY)
+    reason: Mapped[str] = mapped_column(Text)

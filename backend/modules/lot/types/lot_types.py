@@ -120,6 +120,28 @@ class LotDiscountOut(CamelModel):
     refusal_reason: str | None = None
 
 
+class LotRateCorrectionOut(CamelModel):
+    """
+    One correction of the Lot's Milling Rate, oldest first.
+    """
+
+    previous_rate_per_kg: float
+    new_rate_per_kg: float
+    reason: str
+    by: str
+    at: datetime
+
+
+class RateCorrectionIn(CamelModel):
+    """
+    A new Milling Rate for a Lot, with the reason; the id is the action's Audit Event id.
+    """
+
+    id: UUID
+    milling_rate_per_kg: float = Field(ge=0, le=1000)
+    reason: str = Field(min_length=1, max_length=500)
+
+
 class LotNotificationOut(CamelModel):
     """
     A message the Client was sent about the Lot, or could not be sent.
@@ -154,6 +176,7 @@ class LotOut(CamelModel):
     storages: list[LotStorageOut]
     daily_price_per_kg: float | None
     milling_rate_per_kg: float
+    rate_corrections: list[LotRateCorrectionOut] = []
     discount: LotDiscountOut | None
     notification_choice: NotificationChoice
     is_contact_missing: bool
@@ -181,7 +204,8 @@ class LotReceiveIn(CamelModel):
     net_kg: float = Field(gt=0)
     milling_rate_per_kg: float = Field(ge=0)
     notification_choice: NotificationChoice
-    box_numbers: list[int] = Field(min_length=1)
+    box_numbers: list[int] = Field(default_factory=list)
+    are_boxes_ignored: bool = False
     press_line_id: UUID
     planned_start_at: datetime
     entered_at: datetime | None = None

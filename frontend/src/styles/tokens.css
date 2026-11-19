@@ -77,7 +77,7 @@
 
   --shadow-lifted: 0 1px 2px rgb(41 37 36 / 0.06), 0 10px 22px -10px rgb(41 37 36 / 0.22);
 
-  --shadow-action: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(41 37 36 / 0.14), 0 10px 20px -12px rgb(41 37 36 / 0.45);
+  --shadow-action: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(41 37 36 / 0.1);
 
   --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
   /* The curve of an iOS sheet: leaves at once, settles slowly. For content that slides. */

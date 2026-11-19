@@ -4,7 +4,7 @@ import { formatBoxes } from 'lot/composables/lot-boxes';
 import { formatMoney } from 'global/composables/money';
 import { formatKg, formatLitres, formatOil, formatQuintals, formatYield } from 'lot/composables/quantity';
 import { formatFullDate } from 'global/composables/date';
-import type { ILot, ILotDiscount, ILotNotification, ILotStep, ILotStorage, LotStatus, LotStepKey } from 'lot/types/lot';
+import type { ILot, ILotDiscount, ILotNotification, ILotRateCorrection, ILotStep, ILotStorage, LotStatus, LotStepKey } from 'lot/types/lot';
 
 const t = (key: string, values: Record<string, string> = {}): string => i18n.global.t(`lot.timeline.${key}`, values);
 
@@ -12,9 +12,11 @@ const t = (key: string, values: Record<string, string> = {}): string => i18n.glo
 export interface ITimelineContext {
   lineLabel: string | null;
   tankLabel: (tankId: string) => string;
+  /** Rate corrections carry amounts, which an Operator never sees (R17). */
+  isMoneyShown?: boolean;
 }
 
-const NO_CONTEXT: ITimelineContext = { lineLabel: null, tankLabel: (tankId) => tankId };
+const NO_CONTEXT: ITimelineContext = { lineLabel: null, tankLabel: (tankId) => tankId, isMoneyShown: true };
 
 const moveDetail = (lot: ILot, status: LotStatus, context: ITimelineContext): string => {
   if (status === 'waiting') return lot.boxNumbers.length ? `${t('waitingDetail')} · ${formatBoxes(lot.boxNumbers)}` : t('waitingDetail');
@@ -58,12 +60,22 @@ const decisionStep = (discount: ILotDiscount): ILotStep => ({
   imageUrl: null,
 });
 
+const rateStep = (correction: ILotRateCorrection): ILotStep => ({
+  key: 'rate',
+  label: t('rateCorrected'),
+  detail: `${t('rateChange', { from: formatMoney(correction.previousRatePerKg), to: formatMoney(correction.newRatePerKg) })} · ${correction.reason}`,
+  at: correction.at,
+  by: correction.by,
+  imageUrl: null,
+});
+
 /** A Lot's journey, from its Reception through every move it has made. Any step may carry a photo. */
 export const buildLotTimeline = (lot: ILot, context: ITimelineContext = NO_CONTEXT): ILotStep[] => {
   const imageOf = (key: LotStepKey): string | null => lot.stepPhotos[key] ?? null;
   const steps: ILotStep[] = [
     { key: 'reception', label: t('reception'), detail: `${lot.clientName} · ${lot.variety} · ${t('receptionWeight', { net: formatKg(lot.netKg), quintals: formatQuintals(lot.netKg) })}`, at: lot.receivedAt, by: lot.receivedBy, imageUrl: imageOf('reception') },
   ];
+  if (context.isMoneyShown !== false) (lot.rateCorrections ?? []).forEach((correction) => steps.push(rateStep(correction)));
   if (lot.discount) steps.push({ key: 'discount', label: t('discount'), detail: discountDetail(lot.discount), at: lot.discount.givenAt, by: lot.discount.givenBy, imageUrl: null });
   lot.moves.forEach((move) => {
     steps.push({ key: move.status, label: t(move.status), detail: moveDetail(lot, move.status, context), at: move.at, by: move.by, imageUrl: imageOf(move.status) });

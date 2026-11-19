@@ -8,7 +8,7 @@ export interface ILotMoveRecord {
   by: string;
 }
 
-export type LotStepKey = LotStatus | 'reception' | 'stored' | 'discount' | 'notification';
+export type LotStepKey = LotStatus | 'reception' | 'stored' | 'discount' | 'rate' | 'notification';
 
 export type NotificationChoice = 'whatsapp' | 'sms' | 'email' | 'none';
 
@@ -63,6 +63,21 @@ export interface ILotStep {
   imageUrl: string | null;
 }
 
+/** One correction of a Lot's Milling Rate after its Reception, oldest first. */
+export interface ILotRateCorrection {
+  previousRatePerKg: number;
+  newRatePerKg: number;
+  reason: string;
+  by: string;
+  at: string;
+}
+
+export interface IRateCorrection {
+  id: string;
+  millingRatePerKg: number;
+  reason: string;
+}
+
 export interface ILot {
   id: string;
   code: string;
@@ -81,6 +96,7 @@ export interface ILot {
   storages: ILotStorage[];
   dailyPricePerKg: number | null;
   millingRatePerKg: number;
+  rateCorrections?: ILotRateCorrection[];
   discount: ILotDiscount | null;
   notificationChoice: NotificationChoice;
   isContactMissing: boolean;
@@ -149,6 +165,7 @@ export interface ILotService {
   decideDiscount(lotId: string, decision: IDiscountDecision & { by: string }): Promise<ILot>;
   giveDiscount(lotId: string, gift: IDiscountGift & { by: string }): Promise<ILot>;
   scheduleLot(lotId: string, schedule: ILotSchedule): Promise<ILot>;
+  correctRate(lotId: string, correction: IRateCorrection & { by: string }): Promise<ILot>;
 }
 
 export interface ILotStore {

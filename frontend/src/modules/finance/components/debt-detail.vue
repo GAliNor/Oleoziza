@@ -3,17 +3,34 @@
     <section class="flex flex-col gap-2">
       <h3 class="label">{{ $t('finance.debts.unpaidLots') }}</h3>
       <ul class="flex flex-col divide-y divide-subtle rounded-control border border-default">
-        <li v-for="lot in row.lots" :key="lot.id" class="flex items-center justify-between gap-3 px-3 py-2">
-          <span class="min-w-0">
-            <span class="block font-medium text-fg-display">{{ lot.code }}</span>
-            <span class="body-two block truncate">{{ formatShortDate(lot.receivedAt) }} · {{ lot.variety }} · {{ $t(`lot.status.${lot.status}`) }}</span>
-          </span>
-          <span class="shrink-0 figure">{{ formatMoney(amountDue(lot)) }}</span>
+        <li v-for="lot in row.lots" :key="lot.id">
+          <button type="button" class="press flex w-full items-center justify-between gap-3 px-3 py-2 text-start hover:bg-subtle" :aria-expanded="openLotId === lot.id" @click="handleToggleLot(lot.id)">
+            <span class="min-w-0">
+              <span class="block font-medium text-fg-display">{{ lot.code }}</span>
+              <span class="body-two block truncate">{{ formatShortDate(lot.receivedAt) }} · {{ lot.variety }} · {{ $t(`lot.status.${lot.status}`) }}</span>
+            </span>
+            <span class="flex shrink-0 items-center gap-2">
+              <span class="figure">{{ formatMoney(amountDue(lot)) }}</span>
+              <chevron-down-line-icon class="h-4 w-4 text-fg-muted transition-transform duration-300 ease-(--ease-premium)" :class="{ 'rotate-180': openLotId === lot.id }" />
+            </span>
+          </button>
+          <div v-if="openLotId === lot.id" class="border-t border-subtle p-3">
+            <lot-detail :lot="lot" />
+          </div>
         </li>
       </ul>
-      <router-link v-if="row.clientId && siteStore.can('payment.record')" :to="{ name: 'client-page', params: { id: row.clientId }, query: { action: 'payment' } }" class="btn-primary self-start">
+      <quick-payment
+        v-if="isPaying && row.clientId"
+        :client-id="row.clientId"
+        :client-name="row.clientName"
+        :site-id="siteId"
+        :lot-ids="payableIdsComputed"
+        @close="isPaying = false"
+        @saved="isPaying = false"
+      />
+      <button v-else-if="row.clientId && siteStore.can('payment.record')" type="button" class="btn-primary self-start" @click="isPaying = true">
         {{ $t('finance.debts.collect') }}
-      </router-link>
+      </button>
     </section>
 
     <form v-if="row.clientId" class="flex flex-col gap-3 rounded-card bg-subtle p-3" @submit.prevent="handleSave">
@@ -60,15 +77,19 @@ import { useToastStore } from 'global/stores/toast';
 import { createId } from 'global/composables/crypto';
 import { formatDateTime, formatFullDate, formatShortDate, todayIso } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
-import { amountDue } from 'lot/composables/fee';
+import { amountDue, isDiscountPending } from 'lot/composables/fee';
 import type { IDebtRow } from 'finance/composables/debt-follow-up';
 import type { DebtContactKind } from 'finance/types/finance';
 
 import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiField from 'global/components/ui-field.vue';
+import LotDetail from 'lot/components/lot-detail.vue';
+import QuickPayment from 'finance/components/quick-payment.vue';
+import ChevronDownLineIcon from 'global/icons/chevron-down-line.icon.vue';
 
 // props
-const props = defineProps<{ row: IDebtRow; siteId: string }>();
+/** isPayingAtOpen: opened from « Encaisser » on an À faire task, the payment form shows at once. */
+const props = defineProps<{ row: IDebtRow; siteId: string; isPayingAtOpen?: boolean }>();
 
 // stores
 const { t } = useI18n();
@@ -82,11 +103,18 @@ const contactId = ref(createId());
 const kind = ref<DebtContactKind>('call');
 const note = ref('');
 const promisedOn = ref('');
+const openLotId = ref<string | null>(null);
+const isPaying = ref(props.isPayingAtOpen === true);
 
 // computed
 const canSave = computed((): boolean => (!!note.value.trim() || !!promisedOn.value) && !financeStore.isSaving);
+const payableIdsComputed = computed((): string[] => props.row.lots.filter((lot) => !isDiscountPending(lot)).map((lot) => lot.id));
 
 // event handlers
+const handleToggleLot = (lotId: string): void => {
+  openLotId.value = openLotId.value === lotId ? null : lotId;
+};
+
 const handleSave = async (): Promise<void> => {
   if (!canSave.value) return;
   const saved = await financeStore.addDebtContact({ id: contactId.value, siteId: props.siteId, clientId: props.row.clientId, kind: kind.value, note: note.value.trim(), promisedOn: promisedOn.value || null });

@@ -33,7 +33,7 @@ describe('reception store retries', () => {
 
   it('receives one Lot when the same Reception is retried after a lost response', async () => {
     const receptionStore = useReceptionStore();
-    const payload = { id: createId(), siteId: SITE_OUJDA_ID, clientId: CLIENTS_MOCK[1].id, mode: 'service_milling' as const, variety: 'Haouzia', netKg: 1840, millingRatePerKg: 0.5, notificationChoice: 'none' as const, isContactMissing: false, boxNumbers: [3, 4], pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z' };
+    const payload = { id: createId(), siteId: SITE_OUJDA_ID, clientId: CLIENTS_MOCK[1].id, mode: 'service_milling' as const, variety: 'Haouzia', netKg: 1840, millingRatePerKg: 0.5, notificationChoice: 'none' as const, isContactMissing: false, boxNumbers: [3, 4], areBoxesIgnored: false, pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z' };
     loseFirstResponse();
 
     expect((await receptionStore.receiveLot(payload)).isPendingSync).toBe(true);
@@ -47,13 +47,13 @@ describe('reception store retries', () => {
   });
 
   it('keeps the photo taken at the Reception on its first step', async () => {
-    const payload = { id: createId(), siteId: SITE_OUJDA_ID, clientId: CLIENTS_MOCK[1].id, mode: 'service_milling' as const, variety: 'Haouzia', netKg: 250, millingRatePerKg: 0.5, notificationChoice: 'none' as const, isContactMissing: false, boxNumbers: [3], pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z', photoUrl: 'olives.jpg' };
+    const payload = { id: createId(), siteId: SITE_OUJDA_ID, clientId: CLIENTS_MOCK[1].id, mode: 'service_milling' as const, variety: 'Haouzia', netKg: 250, millingRatePerKg: 0.5, notificationChoice: 'none' as const, isContactMissing: false, boxNumbers: [3], areBoxesIgnored: false, pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z', photoUrl: 'olives.jpg' };
     const received = await useReceptionStore().receiveLot(payload);
     expect(received?.stepPhotos).toEqual({ reception: 'olives.jpg' });
   });
 
   it('keeps the Notification Choice on the Lot, with no Discount: only the Accountant gives one', async () => {
-    const payload = { id: createId(), siteId: SITE_OUJDA_ID, clientId: CLIENTS_MOCK[1].id, mode: 'service_milling' as const, variety: 'Haouzia', netKg: 1000, millingRatePerKg: 0.5, notificationChoice: 'email' as const, isContactMissing: true, boxNumbers: [3], pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z' };
+    const payload = { id: createId(), siteId: SITE_OUJDA_ID, clientId: CLIENTS_MOCK[1].id, mode: 'service_milling' as const, variety: 'Haouzia', netKg: 1000, millingRatePerKg: 0.5, notificationChoice: 'email' as const, isContactMissing: true, boxNumbers: [3], areBoxesIgnored: false, pressLineId: 'oj-line-1', plannedStartAt: '2026-11-09T14:00:00.000Z' };
     const received = await useReceptionStore().receiveLot(payload);
     expect(received?.discount).toBeNull();
     expect([received?.notificationChoice, received?.isContactMissing, received?.millingRatePerKg]).toEqual(['email', true, 0.5]);

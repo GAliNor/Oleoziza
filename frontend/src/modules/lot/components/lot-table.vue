@@ -10,7 +10,7 @@
     </div>
   </div>
 
-  <ui-master-detail :is-open="isOpen" :back-label="$t('lot.register.backToLots')" @close="closeLot">
+  <ui-master-detail :is-open="isOpen" :back-label="$t(fromClientId ? 'lot.register.backToClient' : 'lot.register.backToLots')" @close="closeLot">
     <template #list>
       <div class="table-card">
         <table class="data-table">
@@ -87,7 +87,7 @@ const props = defineProps<{ search: string }>();
 
 // stores
 const { scoped } = useLotRegister();
-const { isOpen, active, lastId, openLot, closeLot } = useOpenLot();
+const { isOpen, active, lastId, fromClientId, openLot, closeLot } = useOpenLot();
 
 // variables
 const PAGE_SIZE = 10;

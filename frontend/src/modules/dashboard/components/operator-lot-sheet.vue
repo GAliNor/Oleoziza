@@ -1,5 +1,5 @@
 <template>
-  <section class="flex min-w-0 flex-col gap-5">
+  <section class="flex min-w-0 flex-col gap-8">
     <button type="button" class="btn-secondary min-h-14 self-start" @click="emit('close')">
       <arrow-left-line-icon class="h-5 w-5" />
       {{ $t('dashboard.operator.backToList') }}

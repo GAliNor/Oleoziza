@@ -24,6 +24,7 @@ export const useOpenLot = (): {
   isOpen: ComputedRef<boolean>;
   active: ComputedRef<ILot | undefined>;
   lastId: Ref<string | null>;
+  fromClientId: ComputedRef<string | null>;
   openLot: (id: string) => void;
   closeLot: () => void;
 } => {
@@ -50,9 +51,15 @@ export const useOpenLot = (): {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const fromClientId = computed((): string | null => (typeof route.query.fromClient === 'string' ? route.query.fromClient : null));
+
   const closeLot = (): void => {
+    if (fromClientId.value) {
+      router.push({ name: 'client-page', params: { id: fromClientId.value } });
+      return;
+    }
     router.replace({ query: { ...route.query, lot: undefined } });
   };
 
-  return { isOpen, active, lastId, openLot, closeLot };
+  return { isOpen, active, lastId, fromClientId, openLot, closeLot };
 };

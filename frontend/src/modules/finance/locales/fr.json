@@ -29,7 +29,8 @@
     "tabs": {
       "pending": "À confirmer",
       "all": "Tous les mouvements",
-      "refunds": "Remboursements"
+      "refunds": "Remboursements",
+      "unpaid": "Impayés"
     },
     "back": "Retour aux finances",
     "emptyPending": "Rien à confirmer. Tout est à jour.",
@@ -260,6 +261,26 @@
       "save": "Enregistrer la relance",
       "saved": "Relance enregistrée",
       "error": "La relance n’a pas pu être enregistrée. Réessayez."
+    }
+  },
+  "lotPayments": {
+    "title": "Paiements de ce lot",
+    "none": "Aucun paiement pour l’instant.",
+    "noProof": "Pas encore de justificatif.",
+    "addProof": "Ajouter un justificatif"
+  },
+  "unpaid": {
+    "back": "Retour aux impayés",
+    "summary": "{count} lots · {amount} à encaisser",
+    "empty": "Aucun lot impayé.",
+    "today": "Aujourd’hui",
+    "days": "{count} jour | {count} jour | {count} jours",
+    "columns": {
+      "lot": "Lot",
+      "client": "Client",
+      "age": "Âge",
+      "due": "Reste à payer",
+      "state": "Paiement"
     }
   }
 }

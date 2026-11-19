@@ -57,6 +57,14 @@
         {{ $t(`reception.box.legend.${item.key}`) }}
       </li>
     </ul>
+
+    <label class="flex min-h-12 cursor-pointer items-start gap-3 rounded-control border border-default p-3 hover:border-strong">
+      <input v-model="isIgnored" class="mt-0.5 h-5 w-5 shrink-0 accent-(--color-primary-olive-dark)" type="checkbox" />
+      <span class="min-w-0">
+        <span class="block font-medium text-fg-display">{{ $t('reception.box.ignore') }}</span>
+        <span class="body-two block">{{ $t('reception.box.ignoreDetail') }}</span>
+      </span>
+    </label>
   </section>
 </template>
 
@@ -77,6 +85,8 @@ const props = defineProps<{ modelValue: number[]; boxCount: number; capacityKg: 
 
 // emits
 const emit = defineEmits<{ (event: 'update:modelValue', boxes: number[]): void }>();
+/** Lifts the capacity check: Boxes missing at the mill, or none free, and the Client still needs a ticket. */
+const isIgnored = defineModel<boolean>('ignored', { default: false });
 
 // stores
 const { t } = useI18n();
@@ -121,10 +131,14 @@ const status = computed((): { tone: StatusTone; title: string; detail: string } 
   const selected = props.modelValue;
   const room = formatKg(selected.length * props.capacityKg);
   const weight = formatKg(props.netKg);
+  if (isIgnored.value) {
+    return { tone: 'neutral', title: t('reception.box.ignored'), detail: selected.length ? t('reception.box.ignoredWith', { boxes: formatBoxes(selected) }) : t('reception.box.ignoredNone') };
+  }
   if (!freeBoxes.value.length && !selected.length) return { tone: 'danger', title: t('reception.box.noneFree'), detail: t('reception.box.noneFreeDetail') };
   if (!needed.value && !selected.length) return { tone: 'neutral', title: t('reception.box.waitingWeight'), detail: t('reception.box.waitingWeightDetail', { capacity: formatKg(props.capacityKg) }) };
   if (selected.length < needed.value) {
-    return { tone: 'warning', title: t('reception.box.short', { count: needed.value - selected.length }), detail: t('reception.box.shortDetail', { room, weight }) };
+    const missingKg = formatKg(props.netKg - selected.length * props.capacityKg);
+    return { tone: 'danger', title: t('reception.box.short', { missing: missingKg }), detail: t('reception.box.shortDetail', { room, weight }) };
   }
   const detail = needed.value ? t('reception.box.fits', { room, weight }) : t('reception.box.room', { room });
   if (isManual.value) return { tone: 'neutral', title: t('reception.box.chosen', { boxes: formatBoxes(selected) }), detail };

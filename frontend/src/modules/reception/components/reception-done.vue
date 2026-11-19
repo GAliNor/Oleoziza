@@ -8,6 +8,7 @@
       <h2 class="display-md mt-1 tabular-nums">{{ formatKg(lot.netKg) }}</h2>
       <p class="body-one">{{ formatQuintals(lot.netKg) }} · {{ lot.clientName }}</p>
       <p v-if="lot.boxNumbers.length" class="heading-two mt-3 text-fg-brand tabular-nums">{{ formatBoxes(lot.boxNumbers) }}</p>
+      <p v-else class="heading-two mt-3 text-fg-warning">{{ $t('lot.box.none') }}</p>
       <template v-if="isAmountShown">
       <p class="body-one mt-3 tabular-nums">{{ $t('reception.done.fee', { amount: formatMoney(millingFee(lot)) }) }}</p>
       <p v-if="lot.discount?.state === 'applied'" class="body-two tabular-nums">{{ $t('reception.done.discount', { full: formatMoney(fullFee(lot)), amount: formatMoney(lot.discount.amountDh) }) }}</p>

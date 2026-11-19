@@ -21,6 +21,7 @@ ACCOUNTANT_DEFAULT_PERMISSIONS: tuple[Permission, ...] = (
     Permission.DOCUMENT_ADD,
     Permission.REFUND_MANAGE,
     Permission.DISCOUNT_GIVE,
+    Permission.LOT_SET_PRICE,
     Permission.DEBT_FOLLOW,
     Permission.EXPENSE_RECORD,
 )

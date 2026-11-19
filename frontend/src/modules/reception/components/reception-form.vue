@@ -45,6 +45,7 @@
       v-else
       :key="receptionId"
       v-model="boxNumbers"
+      v-model:ignored="areBoxesIgnored"
       :box-count="settings.boxCount"
       :capacity-kg="settings.boxCapacityKg"
       :net-kg="netKg"
@@ -137,6 +138,7 @@ const client = ref<IClient | null>(null);
 const variety = ref(OLIVE_VARIETIES[0].name);
 const weightTyped = ref<number | ''>('');
 const boxNumbers = ref<number[]>([]);
+const areBoxesIgnored = ref(false);
 const photo = ref<string | null>(null);
 const notificationChoice = ref<NotificationChoice | null>(null);
 const contactTyped = ref('');
@@ -155,6 +157,7 @@ const netKg = computed((): number => {
   const typed = weightTyped.value;
   return typeof typed === 'number' && typed > 0 && !isWeightTooHigh.value ? Math.round(typed * 10) / 10 : 0;
 });
+const isBoxRoomShort = computed((): boolean => !areBoxesIgnored.value && (!boxNumbers.value.length || boxNumbers.value.length * (settings.value?.boxCapacityKg ?? 0) < netKg.value));
 const isContactMissing = computed((): boolean => {
   if (!client.value || notificationChoice.value === null || notificationChoice.value === 'none') return false;
   return notificationChoice.value === 'email' ? !client.value.email : !client.value.phone;
@@ -166,7 +169,7 @@ const missing = computed((): string[] =>
   [
     { isMissing: !client.value, key: 'client' },
     { isMissing: !netKg.value, key: 'weight' },
-    { isMissing: !boxNumbers.value.length, key: 'box' },
+    { isMissing: isBoxRoomShort.value, key: 'box' },
     { isMissing: !pressLineId.value || !plannedStartAt.value, key: 'line' },
     { isMissing: !notificationChoice.value, key: 'notification' },
     { isMissing: isContactRequired.value && !isContactValid.value, key: 'contact' },
@@ -238,6 +241,7 @@ const handleSave = async (): Promise<void> => {
     notificationChoice: notificationChoice.value,
     isContactMissing: isContactMissing.value && !isContactRequired.value,
     boxNumbers: boxNumbers.value,
+    areBoxesIgnored: areBoxesIgnored.value,
     pressLineId: pressLineId.value,
     plannedStartAt: plannedStartAt.value,
     photoUrl: photo.value ?? undefined,
@@ -258,6 +262,7 @@ const handleAgain = (): void => {
   variety.value = OLIVE_VARIETIES[0].name;
   weightTyped.value = '';
   boxNumbers.value = [];
+  areBoxesIgnored.value = false;
   photo.value = null;
   notificationChoice.value = defaultChoice();
   contactTyped.value = '';

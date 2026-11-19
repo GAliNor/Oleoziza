@@ -5,12 +5,13 @@ import type { ITask, ITaskService } from 'task/types/task';
 
 type TaskAnswer = Omit<ITask, 'to'> & { targetId: string };
 
+
 /** Where a task leads: the Discounts queue, the Payment, the Refunds, the Client, or the invited User. */
 const linkOf = (kind: ITask['kind'], targetId: string): ITask['to'] => {
   if (kind === 'discount') return { name: 'discount-queue' };
   if (kind === 'payment' || kind === 'payout') return { name: 'finance', query: { movement: targetId } };
   if (kind === 'refund-make' || kind === 'refund-confirm') return { name: 'finance', query: { tab: 'refunds' } };
-  if (kind === 'client-at-risk') return { name: 'client-search', query: { client: targetId } };
+  if (kind === 'client-at-risk') return { name: 'client-page', params: { id: targetId } };
   return { name: 'user', query: { user: targetId } };
 };
 
@@ -20,7 +21,7 @@ class TaskApiService extends BaseService implements ITaskService {
   /** The whole to-do list in one request, each kind already filtered by the person's rights. */
   async getTasks(siteId: string): Promise<ITask[]> {
     const tasks = await this.request<TaskAnswer[]>({ method: 'GET', url: this._BASE_API_URL, params: siteId === ALL_SITES ? undefined : { siteId } });
-    return tasks.map(({ targetId, ...task }) => ({ ...task, to: linkOf(task.kind, targetId) }));
+    return tasks.map((task) => ({ ...task, to: linkOf(task.kind, task.targetId) }));
   }
 }
 

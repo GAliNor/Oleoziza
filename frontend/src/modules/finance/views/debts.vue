@@ -34,7 +34,7 @@
               </span>
               <span class="shrink-0 figure text-fg-warning">{{ formatMoney(row.dueDh) }}</span>
             </button>
-            <debt-detail v-if="openKey === row.key" class="border-t border-subtle p-3" :row="row" :site-id="siteStore.currentSiteId ?? ''" />
+            <debt-detail v-if="openKey === row.key" class="border-t border-subtle p-3" :row="row" :site-id="siteStore.currentSiteId ?? ''" :is-paying-at-open="row.clientId === route.query.client && route.query.pay === '1'" />
           </li>
         </ul>
         <button v-if="visible.length < shown.length" type="button" class="btn-secondary self-center" @click="limit += PAGE_SIZE">
@@ -48,6 +48,7 @@
 <script setup lang="ts">
 // imports
 import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { useFinanceStore } from 'finance/stores/finance';
 import { useLotStore } from 'lot/stores/lot';
@@ -63,6 +64,7 @@ import UiEmptyState from 'global/components/ui-empty-state.vue';
 import DebtDetail from 'finance/components/debt-detail.vue';
 
 // stores
+const route = useRoute();
 const financeStore = useFinanceStore();
 const lotStore = useLotStore();
 const siteStore = useSiteStore();
@@ -92,6 +94,19 @@ watch(
     if (!siteId || siteStore.isAllSites) return;
     lotStore.fetchLots(siteId);
     financeStore.fetchDebtContacts(siteId);
+  },
+  { immediate: true },
+);
+
+/** Coming from « Client à relancer », the page opens on that Client's debt. */
+watch(
+  [() => route.query.client, rows],
+  ([clientId]) => {
+    const index = rows.value.findIndex((row) => row.clientId === clientId);
+    if (index < 0 || openKey.value) return;
+    filter.value = 'all';
+    limit.value = Math.max(limit.value, index + 1);
+    openKey.value = rows.value[index].key;
   },
   { immediate: true },
 );

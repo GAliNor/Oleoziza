@@ -64,6 +64,7 @@ export interface IClientSiteFigures {
 }
 
 export interface IClientLotLine {
+  id: string;
   code: string;
   siteId: string;
   siteName: string;

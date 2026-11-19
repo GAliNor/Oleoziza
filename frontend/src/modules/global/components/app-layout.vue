@@ -7,10 +7,10 @@
       class="hidden w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-default bg-surface p-4
         md:sticky md:top-0 md:flex md:h-dvh"
     >
-      <div class="px-3">
+      <router-link :to="{ name: HOME_ROUTE_NAME }" class="press self-start rounded-control px-3 py-1 focus-visible:outline-2 focus-visible:outline-focus" :aria-label="$t('global.nav.dashboard')">
         <logo-full-fill-icon class="h-10 w-auto text-fg-brand" />
         <span class="sr-only">{{ $t('global.appName') }}</span>
-      </div>
+      </router-link>
       <nav class="flex flex-col gap-1">
         <router-link
           v-for="item in visibleNavItems"
@@ -48,7 +48,9 @@
         class="sticky top-0 z-40 flex items-center gap-3 border-b border-default bg-surface/90 px-4 py-3
           backdrop-blur md:px-8"
       >
-        <logo-mark-fill-icon class="h-7 w-7 shrink-0 text-fg-brand md:hidden" />
+        <router-link :to="{ name: HOME_ROUTE_NAME }" class="shrink-0 md:hidden" :aria-label="$t('global.nav.dashboard')">
+          <logo-mark-fill-icon class="h-7 w-7 text-fg-brand" />
+        </router-link>
         <app-back-button />
         <site-switcher />
         <slot name="header" />

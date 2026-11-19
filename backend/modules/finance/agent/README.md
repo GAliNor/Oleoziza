@@ -13,7 +13,9 @@ Money between the mill and its [Clients](../../../../GLOSSARY.md): [Discounts](.
   - `GET|POST /debt-contacts` (`debt.follow`; POST idempotent).
   - `GET /sales?siteId=&period=`: figures (revenue = collected + pending + outstanding over the period's Lots), day or week buckets, methods.
   - Discounts through `/api/lot/lots/{id}/discount` (`DiscountService`).
-- Services: `PaymentService`, `FinanceDeskService` (Refunds, Debt Contacts, sales), `DiscountService`.
+  - Rate Corrections through `POST /api/lot/lots/{id}/rate` (`lot.set_price`, `RateCorrectionService`): a new Milling Rate with a required reason, kept as a `RateCorrection` row (old rate, new rate, reason, who) and an Audit Event `lot.rate_corrected`.
+- Services: `PaymentService`, `FinanceDeskService` (Refunds, Debt Contacts, sales), `DiscountService`, `RateCorrectionService`.
+- Business: `check_rate_correction` (`business/rate_correction.py`).
 - Business: `get_fees`, `get_amounts_due`, `list_client_debts` (the debt per Client in one SQL query, for the Tasks list; keep its formula in step with `get_amounts_due`) (`lot_fees.py`), `get_open_credits`, `get_lot_credits`, `use_open_credit` (`client_credit.py`, used at Reception), `build_movement_views`, `build_refund_views`.
 
 ## Refusal codes
@@ -22,6 +24,7 @@ Money between the mill and its [Clients](../../../../GLOSSARY.md): [Discounts](.
 - `surplus_not_settled`, `links_too_high`, `lot_not_payable`, `oil_litres_required`, `method_invalid`, `document_invalid`, `discount_too_high`, `reason_required` (422).
 
 ## Rules and gotchas
+- A rate correction applies until the Lot is paid (`lot_already_paid`); the new fee never drops below what is paid or pending (`rate_below_paid`), nor the full fee below a Discount not refused (`rate_below_discount`), which keeps its DH amount. Other codes: `rates_forbidden` (403), `reason_required`, `rate_unchanged`, `rate_not_applicable` (422).
 - The Milling Fee, a Lot's Payment State and a Client's balance are derived, never stored. A pending Discount counts at full price.
 - Credit Notes are used on the Site that issued them, oldest first, automatically at the next Service Milling Reception.
 - `payment_services.py` and `finance_desk_services.py` sit at the 300-line flag: split the sales into their own service when next touched.

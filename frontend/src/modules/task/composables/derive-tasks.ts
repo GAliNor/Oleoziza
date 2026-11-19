@@ -5,6 +5,7 @@ import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useUserStore } from 'user/stores/user';
 import { formatFullName } from 'user/composables/format';
+import { withClientTaskLinks } from 'task/composables/client-task-links';
 import type { ITask } from 'task/types/task';
 
 /** Whatever has waited longest comes first; undated tasks go last. */
@@ -86,16 +87,21 @@ export const deriveTasks = (): ITask[] => {
     if (!siteStore.can('client.view')) return [];
     return clientStore.records
       .filter((client) => client.followUp === 'at-risk' && isInScope(client.sites.map((site) => site.siteId)))
-      .map((client) => ({
-        id: `client-${client.id}`,
-        kind: 'client-at-risk',
-        group: 'follow',
-        subject: client.name,
-        params: {},
-        amount: client.balance > 0 ? client.balance : null,
-        at: null,
-        to: { name: 'client-search', query: { client: client.id } },
-      }));
+      .map((client) =>
+        withClientTaskLinks(
+          {
+            id: `client-${client.id}`,
+            kind: 'client-at-risk',
+            group: 'follow',
+            subject: client.name,
+            params: {},
+            amount: client.balance > 0 ? client.balance : null,
+            at: null,
+            to: { name: 'client-page', params: { id: client.id } },
+          },
+          client.id,
+        ),
+      );
   };
 
   const invitationTasks = (): ITask[] => {

@@ -7,7 +7,7 @@ import type { ILot } from 'lot/types/lot';
 const lot = (code: string, receivedAt: string, clientId = 'c1'): ILot =>
   ({ id: code, code, clientId, receivedAt, variety: 'Haouzia', netKg: 1000, oilLitres: null, withdrawnLitres: 0, status: 'waiting', millingRatePerKg: 0.5, discount: null, paidDh: 0, pendingDh: 0, creditDh: 0 }) as ILot;
 
-const line = (code: string, receivedOn: string): IClientLotLine => ({ code, siteId: 's', siteName: 's', status: 'withdrawn', kg: 800, oilLitres: 150, millingRatePerKg: 0.5, variety: 'Menara', season: seasonOf(receivedOn), receivedOn });
+const line = (code: string, receivedOn: string): IClientLotLine => ({ id: code, code, siteId: 's', siteName: 's', status: 'withdrawn', kg: 800, oilLitres: 150, millingRatePerKg: 0.5, variety: 'Menara', season: seasonOf(receivedOn), receivedOn });
 
 describe('the Client history', () => {
   it('names a Season from October to September', () => {

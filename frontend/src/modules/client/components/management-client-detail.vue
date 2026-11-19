@@ -64,15 +64,26 @@
       <div class="card flex flex-col gap-5 p-6 lg:p-8">
         <h4 class="heading-four">{{ $t('client.record.history') }}</h4>
         <ul class="flex flex-col divide-y divide-subtle">
-          <li v-for="lot in pageRows" :key="lot.code" class="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
-            <span class="flex min-w-0 flex-col gap-0.5">
-              <span class="font-medium text-fg-display tabular-nums">{{ lot.code }}</span>
-              <span class="body-two">{{ lot.siteName }} · {{ formatOliveKg(lot.kg) }} · {{ formatOil(lot.oilLitres) }}</span>
-            </span>
-            <span class="flex shrink-0 flex-col items-end gap-1">
-              <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
-              <span class="body-three">{{ receivedLabel(lot.receivedOn) }}</span>
-            </span>
+          <li v-for="lot in pageRows" :key="lot.code" class="py-2 first:pt-0 last:pb-0">
+            <component
+              :is="isOpenable(lot) ? 'router-link' : 'div'"
+              :to="isOpenable(lot) ? { name: 'lot', query: { lot: lot.id, fromClient: client.id } } : undefined"
+              class="-mx-3 flex items-center justify-between gap-4 rounded-control px-3 py-2"
+              :class="{ 'press group hover:bg-subtle': isOpenable(lot) }"
+              :aria-label="isOpenable(lot) ? $t('client.record.openLot', { code: lot.code }) : undefined"
+            >
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="font-medium text-fg-display tabular-nums">{{ lot.code }}</span>
+                <span class="body-two">{{ lot.siteName }} · {{ formatOliveKg(lot.kg) }} · {{ formatOil(lot.oilLitres) }}</span>
+              </span>
+              <span class="flex shrink-0 items-center gap-3">
+                <span class="flex flex-col items-end gap-1">
+                  <span class="chip bg-subtle text-fg-primary-paragraph">{{ $t(`lot.status.${lot.status}`) }}</span>
+                  <span class="body-three">{{ receivedLabel(lot.receivedOn) }}</span>
+                </span>
+                <arrow-right-line-icon v-if="isOpenable(lot)" class="h-4 w-4 text-fg-muted transition-transform duration-300 ease-(--ease-premium) group-hover:translate-x-0.5 rtl:-scale-x-100" />
+              </span>
+            </component>
           </li>
         </ul>
         <ui-pagination v-model:page="page" :page-count="pageCount" :total="periodLots.length" :page-size="PAGE_SIZE" />
@@ -91,6 +102,7 @@ import { daysSince, formatFullDate } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { formatKg, formatLitres, formatOil, formatOliveKg, yieldPerQuintal } from 'lot/composables/quantity';
+import { useSeasonStore } from 'season/stores/season';
 import { lotsInPeriod, siteConsumption, summarizeActivity } from 'client/composables/client-activity';
 import type { ClientPeriodKey, IClientActivity, IClientLotLine, IClientRecord, ISiteConsumption } from 'client/types/client';
 
@@ -99,6 +111,7 @@ import UiPagination from 'global/components/ui-pagination.vue';
 import UiProgressBar from 'global/components/ui-progress-bar.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import UiStatTile from 'global/components/ui-stat-tile.vue';
+import ArrowRightLineIcon from 'global/icons/arrow-right-line.icon.vue';
 
 // props
 const props = defineProps<{ client: IClientRecord; isFinanceShown: boolean }>();
@@ -107,6 +120,7 @@ const props = defineProps<{ client: IClientRecord; isFinanceShown: boolean }>();
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const seasonStore = useSeasonStore();
 
 // variables
 const DEFAULT_PERIOD: ClientPeriodKey = 'all';
@@ -133,6 +147,9 @@ watch(periodKey, () => {
 });
 
 // methods
+/** Opérations holds the open Season's Lots only; older ones stay a plain row. */
+const isOpenable = (lot: IClientLotLine): boolean => !!lot.id && (!seasonStore.openSeason || lot.season === seasonStore.openSeason.code);
+
 const receivedLabel = (receivedOn: string): string => {
   const days = daysSince(receivedOn);
   if (days === 0) return t('client.record.today');

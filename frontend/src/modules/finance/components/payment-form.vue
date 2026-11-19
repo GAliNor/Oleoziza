@@ -84,7 +84,8 @@ import UiField from 'global/components/ui-field.vue';
 import UiPhotoCapture from 'global/components/ui-photo-capture.vue';
 
 // props
-const props = defineProps<{ clientId: string; clientName: string; siteId: string; oilStockLitres: number; creditDh: number }>();
+/** lotIds: the Lots ticked when the form opens, from a Lot or a task; the Caisse opens with none. */
+const props = defineProps<{ clientId: string; clientName: string; siteId: string; oilStockLitres: number; creditDh: number; lotIds?: string[] }>();
 
 // emits
 const emit = defineEmits<{
@@ -103,7 +104,7 @@ const toastStore = useToastStore();
 
 // variables
 const paymentId = ref(createId());
-const tickedIds = ref<string[]>([]);
+const tickedIds = ref<string[]>([...(props.lotIds ?? [])]);
 const amount = ref<number | ''>('');
 const method = ref<PaymentMethodKey | null>(null);
 const reference = ref('');
@@ -138,9 +139,13 @@ const canSave = computed((): boolean =>
 );
 
 // watchers
-watch(tickedTotal, (total) => {
-  amount.value = total || '';
-});
+watch(
+  tickedTotal,
+  (total) => {
+    amount.value = total || '';
+  },
+  { immediate: true },
+);
 
 watch(
   () => props.siteId,

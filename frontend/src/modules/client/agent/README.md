@@ -15,3 +15,4 @@ Show a Client from `clientStore.clientById(id)`; call `fetchClients()` in the vi
 - An Individual is typed as first and last name, a Company as its legal name; `name` is the display name the backend builds.
 - A list reload keeps Clients still in the outbox.
 - Until lot and finance are plugged, the mock Lots point at mock Clients that the database doesn't hold.
+- A Lot row of the open Season links to Opérations (`/operations?lot=<id>&fromClient=<clientId>`); closing that Lot comes back to the Client page. Older Seasons' rows stay plain: Opérations holds the open Season only.
