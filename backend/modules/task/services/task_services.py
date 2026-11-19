@@ -1,4 +1,3 @@
-from decimal import Decimal
 from uuid import UUID
 
 from fastapi import Depends
@@ -10,7 +9,7 @@ from core.security import get_current_user
 from core.types import CurrentUser
 from modules.auth.models.auth_models import Invitation
 from modules.client.models.client_models import Client
-from modules.finance.business.lot_fees import get_amounts_due
+from modules.finance.business.lot_fees import list_client_debts
 from modules.finance.models.finance_models import Discount, Payment, Refund
 from modules.finance.types.finance_types import DiscountState, PaymentStatus, RefundStatus
 from modules.lot.business.lot_views import list_user_names
@@ -127,12 +126,7 @@ class TaskService:
         """
         if not site_ids:
             return []
-        lots = list(self.db.scalars(select(Lot).where(Lot.site_id.in_(site_ids))))
-        dues = get_amounts_due(self.db, lots)
-        owed: dict[UUID, Decimal] = {}
-        for lot in lots:
-            owed[lot.client_id] = owed.get(lot.client_id, Decimal(0)) + dues[lot.id]
-        debtors = {client_id: amount for client_id, amount in owed.items() if amount > 0}
+        debtors = list_client_debts(self.db, site_ids)
         clients = {client.id: client for client in self.db.scalars(select(Client).where(Client.id.in_(list(debtors))))} if debtors else {}
         return [TaskOut(id=f"client-{client_id}", kind=TaskKind.CLIENT_AT_RISK, group=TaskGroup.FOLLOW, subject=clients[client_id].display_name, params={}, amount=float(amount), at=None, target_id=client_id) for client_id, amount in debtors.items() if client_id in clients]
 

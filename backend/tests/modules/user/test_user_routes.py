@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from modules.auth.models.auth_models import Invitation
 from modules.auth.services.invitation_services import InvitationService
 from modules.user.models.user_models import User
-from modules.user.types.user_types import Permission
+from modules.user.types.user_types import Permission, Role
 from tests.factories import build_auth_header, create_site, create_staff_user
 
 
@@ -185,3 +185,26 @@ def test_disabling_a_user_cuts_their_next_refresh(client: TestClient, db: Sessio
     response = client.post("/api/auth/refresh", json={"userId": str(manager.id)})
 
     assert response.json() == {"code": "session_expired"}
+
+
+def test_a_manager_lists_only_staff_of_the_sites_they_manage(client: TestClient, db: Session) -> None:
+    """
+    A manager of one Site never sees staff of another Site, nor the other Sites of staff they share (rules A3 and A6); the Owner sees everyone with all their Sites.
+    """
+    oujda, berkane = create_site(db, "OA"), create_site(db, "BA")
+    manager_rights = {berkane.id: [Permission.USER_MANAGE]}
+    manager = create_staff_user(db, "+212669990250", permissions_by_site=manager_rights)
+    oujda_operator = create_staff_user(db, "+212669990251", Role.OPERATOR, {oujda.id: [Permission.RECEPTION_CREATE]})
+    berkane_operator = create_staff_user(db, "+212669990252", Role.OPERATOR, {berkane.id: [Permission.RECEPTION_CREATE]})
+    shared_accountant = create_staff_user(db, "+212669990253", Role.ACCOUNTANT, {oujda.id: [Permission.FINANCE_VIEW], berkane.id: [Permission.FINANCE_VIEW]})
+    owner = create_staff_user(db, "+212669990254", is_owner=True)
+
+    as_manager = {user["id"]: user for user in client.get(API_URL, headers=build_auth_header(manager, manager_rights)).json()}
+    as_owner = {user["id"]: user for user in client.get(API_URL, headers=build_auth_header(owner)).json()}
+
+    assert {str(manager.id), str(berkane_operator.id), str(shared_accountant.id)} <= set(as_manager)
+    assert str(oujda_operator.id) not in as_manager
+    assert str(owner.id) not in as_manager
+    assert set(as_manager[str(shared_accountant.id)]["sites"]) == {str(berkane.id)}
+    assert {str(oujda_operator.id), str(berkane_operator.id), str(owner.id)} <= set(as_owner)
+    assert set(as_owner[str(shared_accountant.id)]["sites"]) == {str(oujda.id), str(berkane.id)}

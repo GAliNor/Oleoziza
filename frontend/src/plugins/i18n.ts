@@ -1,4 +1,3 @@
-// imports
 import { watchEffect } from 'vue';
 import { createI18n } from 'vue-i18n';
 import type { App } from 'vue';
@@ -7,10 +6,9 @@ import { readStorage } from 'global/composables/storage';
 import { DEFAULT_LANGUAGE, LANGUAGE_STORAGE_KEY, RTL_LANGUAGES } from 'global/constants/locale';
 import type { Language } from 'global/types/locale';
 
-// variables
 type LocaleMessages = Record<string, unknown>;
 
-const files = import.meta.glob<LocaleMessages>('../modules/*/locales/*.json', { eager: true, import: 'default' });
+const files = import.meta.glob<LocaleMessages>(['../modules/*/locales/*.json', '!../modules/kit/locales/*.json'], { eager: true, import: 'default' });
 
 /** Lot and Payment codes read left to right inside right-to-left text, or their parts swap places. */
 const CODE_PATTERN = /[A-Z]{1,3}-\d{2,4}(?:-\d{4})?/g;
@@ -40,7 +38,6 @@ export const i18n = createI18n({
 
 isRtlNow = (): boolean => RTL_LANGUAGES.includes(i18n.global.locale.value as Language);
 
-// methods
 export const install = (app: App): void => {
   app.use(i18n);
   watchEffect(() => {

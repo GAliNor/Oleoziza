@@ -104,6 +104,27 @@ describe('Outbox', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
+  it('shows the next person none of the last one\'s failed writes, and lets them neither retry nor discard them', async () => {
+    let userId = 'operator-a';
+    const outbox = new Outbox({ storage: createMemoryOutboxStorage(), now: () => 1, isOnline: () => true, currentUserId: () => userId });
+    const handler = vi.fn().mockRejectedValueOnce(refused('lot_state_changed')).mockResolvedValue(undefined);
+    outbox.register('lot.move', handler);
+    await outbox.enqueue('lot.move', 'k1', 'lot-1', 'press');
+    await outbox.drain();
+    userId = 'operator-b';
+    await outbox.discard('k1');
+    await outbox.retry('k1');
+    const seenByB = await outbox.entries();
+    userId = 'operator-a';
+    const seenByA = await outbox.entries();
+    expect(seenByB).toEqual([]);
+    expect(seenByA.map((entry) => [entry.key, entry.status])).toEqual([['k1', 'failed']]);
+    await outbox.retry('k1');
+    await outbox.drain();
+    expect(await outbox.entries()).toEqual([]);
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
+
   it('reports every change, so the pending badge stays true', async () => {
     const counts: number[] = [];
     const outbox = new Outbox({ storage: createMemoryOutboxStorage(), now: () => 1, isOnline: () => true, onChange: (entries) => counts.push(entries.length) });

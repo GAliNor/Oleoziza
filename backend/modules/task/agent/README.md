@@ -12,4 +12,4 @@ Management's to-do list: what waits on the signed-in person, read from the recor
 
 ## Rules and gotchas
 - A Refund made by the caller isn't their task: someone else confirms it.
-- « Client who owes » sums `get_amounts_due` over the Site's Lots (one pass over the Lots in scope).
+- « Client who owes » comes from `list_client_debts`: one SQL aggregate over every Season's Lots on the Sites in scope, with the same figures as `get_amounts_due` summed per Client (checked equal on 108,000 Lots).

@@ -1,11 +1,13 @@
 from collections.abc import Iterator
+from datetime import date
 from decimal import Decimal
+from uuid import uuid4
 from typing import Any
 
 import pytest
 
 from fastapi.testclient import TestClient
-from sqlalchemy import func, select
+from sqlalchemy import event, func, select
 from sqlalchemy.orm import Session
 
 from core.helpers import get_local_midnight
@@ -13,7 +15,10 @@ from core.integrations.rustfs.rustfs_client import get_rustfs_client
 from main import app
 from modules.configuration.models.configuration_models import SiteSetting
 from modules.configuration.types.configuration_types import SettingKey
+from modules.file.models.file_models import File
+from modules.file.types.file_types import FileBucket
 from modules.site.models.site_models import Season
+from modules.site.types.site_types import SeasonStatus
 from modules.user.types.user_types import Permission
 from tests.factories import build_auth_header, create_site, create_staff_user, open_fresh_season
 
@@ -173,3 +178,53 @@ def test_a_banner_must_be_an_image(client: TestClient, db: Session, storage: Fak
 
     assert response.json() == {"code": "unsupported_type"}
     assert storage.keys == []
+
+
+@pytest.mark.parametrize("season_count", [1, 10])
+def test_season_banners_are_read_in_one_query(client: TestClient, db: Session, storage: FakeStorage, season_count: int) -> None:
+    """
+    A cold Season list reads all banners together and preserves public URLs, missing art and chronological order.
+    """
+    blank_season = open_fresh_season(db)
+    blank_id = str(blank_season.id)
+    owner = create_staff_user(db, "+212669990307", is_owner=True)
+    headers = build_auth_header(owner)
+    expected_urls: dict[str, tuple[str, str]] = {}
+    for number in range(season_count):
+        year = 1990 + number
+        light = File(bucket=FileBucket.PUBLIC, storage_key=f"tests/{uuid4()}/light.webp", original_name="light.webp", content_type="image/webp", size_in_bytes=1)
+        dark = File(bucket=FileBucket.PUBLIC, storage_key=f"tests/{uuid4()}/dark.webp", original_name="dark.webp", content_type="image/webp", size_in_bytes=1)
+        db.add_all([light, dark])
+        db.flush()
+        season = Season(code=f"{year % 100:02d}{(year + 1) % 100:02d}", label=f"Saison {year}", starts_on=date(year, 11, 1), status=SeasonStatus.CLOSED, illustration_file_id=light.id, illustration_dark_file_id=dark.id)
+        db.add(season)
+        db.flush()
+        expected_urls[str(season.id)] = (storage.build_public_url(light.storage_key), storage.build_public_url(dark.storage_key))
+    db.commit()
+    db.expunge_all()
+    statements: list[str] = []
+
+    def record_query(connection: Any, cursor: Any, statement: str, parameters: Any, context: Any, executemany: bool) -> None:
+        """
+        Count reads during the request, excluding transaction control statements.
+        """
+        if statement.lstrip().upper().startswith("SELECT"):
+            statements.append(statement)
+
+    connection = db.get_bind()
+    event.listen(connection, "before_cursor_execute", record_query)
+    try:
+        response = client.get(API_URL, headers=headers)
+    finally:
+        event.remove(connection, "before_cursor_execute", record_query)
+
+    assert response.status_code == 200
+    assert len(statements) == 2
+    body = response.json()
+    assert [season["startsOn"] for season in body] == sorted(season["startsOn"] for season in body)
+    by_id = {season["id"]: season for season in body}
+    assert by_id[blank_id]["illustrationUrl"] is None
+    assert by_id[blank_id]["illustrationDarkUrl"] is None
+    for season_id, (light_url, dark_url) in expected_urls.items():
+        assert by_id[season_id]["illustrationUrl"] == light_url
+        assert by_id[season_id]["illustrationDarkUrl"] == dark_url

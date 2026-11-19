@@ -49,7 +49,7 @@ class UserService:
 
     def list_staff(self) -> list[StaffUserOut]:
         """
-        List every staff User (Management, Operators, Accountants) for the Users page.
+        List the staff Users (Management, Operators, Accountants) the actor may manage for the Users page: everyone for the Owner, otherwise those assigned to one of the actor's user.manage Sites (rules A3 and A6).
 
         Returns:
             list[StaffUserOut]: Staff Users, by last then first name.
@@ -57,9 +57,14 @@ class UserService:
         Raises:
             RefusedError: users_forbidden without user.manage on any Site.
         """
-        if not self._get_manageable_site_ids():
+        manageable_site_ids = self._get_manageable_site_ids()
+        if not manageable_site_ids:
             raise RefusedError("users_forbidden", 403)
-        users = self.db.scalars(select(User).where(User.role != Role.CLIENT).order_by(User.last_name, User.first_name)).all()
+        query = select(User).where(User.role != Role.CLIENT)
+        if not self.current_user.is_owner:
+            assigned_user_ids = select(SiteAssignment.user_id).where(SiteAssignment.site_id.in_([UUID(site_id) for site_id in manageable_site_ids]))
+            query = query.where(User.id.in_(assigned_user_ids))
+        users = self.db.scalars(query.order_by(User.last_name, User.first_name)).all()
         return [self._build_staff_user(user) for user in users]
 
     def create_staff_user(self, payload: StaffUserCreateIn) -> StaffUserOut:
@@ -410,7 +415,7 @@ class UserService:
 
     def _build_staff_user(self, user: User) -> StaffUserOut:
         """
-        Shape a staff User as the Users page shows it, with Permissions per Site and the last Invitation date.
+        Shape a staff User as the Users page shows it, with Permissions per Site and the last Invitation date; a manager who is not the Owner sees only the Sites they manage.
 
         Args:
             user (User): User to show.
@@ -428,6 +433,9 @@ class UserService:
             site_permissions = sites.setdefault(str(site_id), [])
             if permission is not None:
                 site_permissions.append(permission)
+        if not self.current_user.is_owner:
+            manageable_site_ids = self._get_manageable_site_ids()
+            sites = {site_id: permissions for site_id, permissions in sites.items() if site_id in manageable_site_ids}
         login_methods = self.db.scalars(select(UserLoginMethod.method).where(UserLoginMethod.user_id == user.id)).all()
         invited_at = self.db.scalar(select(func.max(Invitation.created_at)).where(Invitation.user_id == user.id))
         location = LocationOut(province=user.province_id, city=user.city or "", address=user.address or "") if user.province_id else None

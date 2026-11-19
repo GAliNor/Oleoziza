@@ -25,6 +25,11 @@ export const startOutbox = async (): Promise<void> => {
   document.addEventListener('visibilitychange', handleWake);
   setInterval(() => void outbox.drain(), DRAIN_INTERVAL_MS);
   void navigator.storage?.persist?.();
+  await resumeOutbox();
+};
+
+/** Shows the signed-in person's waiting writes and sends those that are due; runs at start and after each sign-in. */
+export const resumeOutbox = async (): Promise<void> => {
   useSyncStore().setOutboxEntries(await outbox.entries());
   await outbox.drain();
 };

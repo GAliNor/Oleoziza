@@ -1,11 +1,13 @@
-// imports
-import type { App } from 'vue';
-import { VueDatePicker } from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css';
+import { defineAsyncComponent, type App } from 'vue';
+import type { VueDatePicker } from '@vuepic/vue-datepicker';
 
-// methods
+const AsyncVueDatePicker = defineAsyncComponent(async () => {
+  const [{ VueDatePicker }] = await Promise.all([import('@vuepic/vue-datepicker'), import('@vuepic/vue-datepicker/dist/main.css')]);
+  return VueDatePicker;
+});
+
 export const install = (app: App): void => {
-  app.component('VueDatePicker', VueDatePicker);
+  app.component('VueDatePicker', AsyncVueDatePicker);
 };
 
 declare module 'vue' {

@@ -25,6 +25,6 @@ def publish_task(task_name: str, *args: Any) -> bool:
     try:
         celery_app.send_task(task_name, args=args, retry=True, retry_policy=PUBLISH_RETRY_POLICY)
     except (OperationalError, OSError):
-        logger.exception("Could not publish task %s with %s", task_name, args)
+        logger.exception("Could not publish task %s", task_name)
         return False
     return True

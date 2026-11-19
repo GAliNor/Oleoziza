@@ -1,5 +1,5 @@
 /* The date picker (@vuepic/vue-datepicker) painted with our semantic tokens, so it follows light, dark and RTL like the rest. */
-:root {
+html:root {
   --dp-font-family: inherit;
   --dp-font-size: 1rem;
   --dp-preview-font-size: 0.875rem;
@@ -20,7 +20,7 @@
   --dp-animation-duration: 0.15s;
 }
 
-[dir='rtl'] {
+:root[dir='rtl'] {
   --dp-direction: rtl;
 }
 

@@ -14,7 +14,7 @@ Money between the mill and its [Clients](../../../../GLOSSARY.md): [Discounts](.
   - `GET /sales?siteId=&period=`: figures (revenue = collected + pending + outstanding over the period's Lots), day or week buckets, methods.
   - Discounts through `/api/lot/lots/{id}/discount` (`DiscountService`).
 - Services: `PaymentService`, `FinanceDeskService` (Refunds, Debt Contacts, sales), `DiscountService`.
-- Business: `get_fees`, `get_amounts_due` (`lot_fees.py`), `get_open_credits`, `get_lot_credits`, `use_open_credit` (`client_credit.py`, used at Reception), `build_movement_views`, `build_refund_views`.
+- Business: `get_fees`, `get_amounts_due`, `list_client_debts` (the debt per Client in one SQL query, for the Tasks list; keep its formula in step with `get_amounts_due`) (`lot_fees.py`), `get_open_credits`, `get_lot_credits`, `use_open_credit` (`client_credit.py`, used at Reception), `build_movement_views`, `build_refund_views`.
 
 ## Refusal codes
 - `payment_not_found`, `refund_not_found`, `client_not_found` (404); `payments_forbidden`, `refunds_forbidden`, `debts_forbidden`, `refund_own`, `discounts_forbidden`, `discount_own` (403).

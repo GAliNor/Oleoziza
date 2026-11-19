@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from kombu.exceptions import OperationalError
+from pytest import LogCaptureFixture
 from sqlalchemy.orm import configure_mappers
 
 from core.app_init import init_models
@@ -58,3 +59,18 @@ def test_publish_task_never_raises_when_the_broker_is_down() -> None:
     """
     with patch("core.integrations.celery.celery_publisher.celery_app.send_task", side_effect=OperationalError("Connection refused")):
         assert publish_task("health.ping") is False
+
+
+def test_publish_failure_keeps_sensitive_arguments_out_of_logs(caplog: LogCaptureFixture) -> None:
+    """
+    A failed Invitation publish retains task and exception context without logging its bearer token.
+    """
+    invitation_id = "audit-fixture-invitation-id"
+    invitation_token = "audit-dummy-invitation-token-not-a-real-secret"
+    with patch("core.integrations.celery.celery_publisher.celery_app.send_task", side_effect=OperationalError("Connection refused")):
+        assert publish_task("auth.send_invitation", invitation_id, invitation_token) is False
+    assert "auth.send_invitation" in caplog.text
+    assert "Connection refused" in caplog.text
+    assert invitation_id not in caplog.text
+    assert invitation_token not in caplog.text
+    assert any(record.exc_info for record in caplog.records)

@@ -55,15 +55,18 @@ export class Outbox {
     void this.drain();
   }
 
+  /** Puts one of the signed-in person's failed writes back in line; another person's entry is left alone. */
   async retry(key: string): Promise<void> {
-    const entry = (await this.options.storage.readAll()).find((item) => item.key === key);
+    const entry = (await this.entries()).find((item) => item.key === key);
     if (!entry) return;
     await this.options.storage.put({ ...entry, status: 'pending', errorCode: null, nextAttemptAt: this.now() });
     await this.notify();
     void this.drain();
   }
 
+  /** Drops one of the signed-in person's writes; another person's entry is left alone. */
   async discard(key: string): Promise<void> {
+    if (!(await this.entries()).some((item) => item.key === key)) return;
     await this.options.storage.remove(key);
     await this.notify();
     void this.drain();
@@ -86,7 +89,13 @@ export class Outbox {
     }
   }
 
+  /** The signed-in person's writes, oldest first: what the app shows and lets them retry or discard. */
   async entries(): Promise<IOutboxEntry[]> {
+    const userId = this.currentUserId();
+    return (await this.allEntries()).filter((entry) => entry.userId === userId);
+  }
+
+  private async allEntries(): Promise<IOutboxEntry[]> {
     return (await this.options.storage.readAll()).sort((first, second) => first.createdAt - second.createdAt);
   }
 
@@ -94,7 +103,7 @@ export class Outbox {
   private async runDrain(): Promise<boolean> {
     if (!this.isOnline()) return false;
     const blockedRecords = new Set<string>();
-    for (const entry of await this.entries()) {
+    for (const entry of await this.allEntries()) {
       if (entry.status === 'failed' || blockedRecords.has(entry.recordId)) {
         blockedRecords.add(entry.recordId);
         continue;

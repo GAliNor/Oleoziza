@@ -181,10 +181,13 @@
 <script setup lang="ts">
 // imports
 import { onBeforeUnmount, ref } from 'vue';
+import { i18n } from '~/plugins/i18n';
 
 import tokensCss from '~/styles/tokens.css?raw';
 import typographyCss from '~/styles/typography.css?raw';
 import { readClasses, readTokens } from 'kit/composables/stylesheet';
+import arMessages from 'kit/locales/ar.json';
+import frMessages from 'kit/locales/fr.json';
 
 import KitDemo from 'kit/components/kit-demo.vue';
 import KitSection from 'kit/components/kit-section.vue';
@@ -244,5 +247,7 @@ const handleToggleDark = (): void => {
 };
 
 // lifecycle
+i18n.global.mergeLocaleMessage('fr', { kit: frMessages });
+i18n.global.mergeLocaleMessage('ar', { kit: arMessages });
 onBeforeUnmount(() => document.documentElement.classList.remove('dark'));
 </script>

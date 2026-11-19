@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
+import { resetStoresExcept } from '~/plugins/pinia';
 import { invalidateLoads } from 'global/composables/cached-load';
-import { startOutbox } from 'global/services/app-outbox';
+import { resumeOutbox, startOutbox } from 'global/services/app-outbox';
 
 import AuthService from 'auth/services/auth';
 import TokenService from 'auth/services/token';
@@ -9,7 +10,7 @@ import { useSiteStore } from 'site/stores/site';
 import { setAccessToken, setTokenRefresher } from 'global/services/access-token';
 import { readStorage, writeStorage } from 'global/composables/storage';
 import { logDevError } from 'global/composables/with-status';
-import { REFRESH_MARGIN_MS, STORAGE_KEYS } from 'auth/constants/auth';
+import { REFRESH_MARGIN_MS, STORAGE_KEYS, STORES_KEPT_ON_SIGN_OUT } from 'auth/constants/auth';
 import type {
   CredentialKind,
   IAccessClaims,
@@ -138,6 +139,7 @@ export const useAuthStore = defineStore('auth', {
       useSiteStore().reset();
       await this.applyToken(result.accessToken);
       this.setCredentialChange(result.mustChangeCredential, result.canSkipCredentialChange, result.credentialKind);
+      void resumeOutbox();
     },
     setCredentialChange(mustChange: boolean, canSkip: boolean, kind: CredentialKind | null): void {
       this.mustChangeCredential = mustChange;
@@ -180,6 +182,7 @@ export const useAuthStore = defineStore('auth', {
       writeStorage(STORAGE_KEYS.accessToken, null);
       this.setCredentialChange(false, false, null);
       useSiteStore().reset();
+      resetStoresExcept(STORES_KEPT_ON_SIGN_OUT);
       invalidateLoads();
     },
   },

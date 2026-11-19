@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from uuid import UUID
@@ -56,7 +57,8 @@ class SeasonService:
             list[SeasonOut]: The Seasons.
         """
         seasons = self.db.scalars(select(Season).order_by(Season.starts_on)).all()
-        return [self._build_season(season) for season in seasons]
+        banner_urls = self._list_banner_urls(seasons)
+        return [self._build_season(season, banner_urls) for season in seasons]
 
     def upload_illustration(self, season_id: UUID, variant: SeasonArtVariant, upload: UploadFile) -> SeasonOut:
         """
@@ -87,33 +89,38 @@ class SeasonService:
         self.db.commit()
         return self._build_season(season)
 
-    def _build_season(self, season: Season) -> SeasonOut:
+    def _build_season(self, season: Season, banner_urls: dict[UUID, str] | None = None) -> SeasonOut:
         """
         Shape a Season for the front, with the public URLs of its banners when they exist.
 
         Args:
             season (Season): Season to show.
+            banner_urls (dict[UUID, str] | None): Banner URLs by File id, already read for a list; read for this Season alone when None.
 
         Returns:
             SeasonOut: The Season.
         """
+        urls = banner_urls if banner_urls is not None else self._list_banner_urls([season])
         season_out = SeasonOut.model_validate(season, from_attributes=True)
-        season_out.illustration_url = self._build_file_url(season.illustration_file_id)
-        season_out.illustration_dark_url = self._build_file_url(season.illustration_dark_file_id)
+        season_out.illustration_url = urls.get(season.illustration_file_id) if season.illustration_file_id else None
+        season_out.illustration_dark_url = urls.get(season.illustration_dark_file_id) if season.illustration_dark_file_id else None
         return season_out
 
-    def _build_file_url(self, file_id: UUID | None) -> str | None:
+    def _list_banner_urls(self, seasons: Sequence[Season]) -> dict[UUID, str]:
         """
-        Give the public URL of a stored banner.
+        Read the stored banners of some Seasons in one query and give their public URLs.
 
         Args:
-            file_id (UUID | None): File id, or None when no banner was uploaded.
+            seasons (Sequence[Season]): Seasons whose light and dark banners are needed.
 
         Returns:
-            str | None: Public URL, or None.
+            dict[UUID, str]: Public URL by File id; Seasons without a banner add nothing.
         """
-        file = self.db.get(File, file_id) if file_id else None
-        return self.storage.build_public_url(file.storage_key) if file else None
+        file_ids = {file_id for season in seasons for file_id in (season.illustration_file_id, season.illustration_dark_file_id) if file_id}
+        if not file_ids:
+            return {}
+        stored_files = self.db.execute(select(File.id, File.storage_key).where(File.id.in_(file_ids)))
+        return {file_id: self.storage.build_public_url(storage_key) for file_id, storage_key in stored_files}
 
     def prepare_next_season(self) -> SeasonOut:
         """
