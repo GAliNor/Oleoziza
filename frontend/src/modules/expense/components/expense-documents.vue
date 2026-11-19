@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-3">
-    <TransitionGroup v-if="documents.length" tag="ul" name="row-in" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <TransitionGroup v-if="documents.length" tag="ul" name="row-in" class="grid grid-cols-2 gap-2 @xl:grid-cols-4">
       <li v-for="document in documents" :key="document.id" class="group relative">
         <a :href="document.url" :download="document.name" target="_blank" rel="noopener" class="flex h-full flex-col gap-1 rounded-card bg-emphasis/40 p-2 hover:bg-emphasis/70">
           <span v-if="document.isPdf" class="flex h-24 items-center justify-center rounded-control bg-surface text-sm font-semibold text-fg-primary-paragraph">PDF</span>

@@ -24,7 +24,6 @@
   "register": {
     "search": "Description, fournisseur, n° de pièce ou de facture",
     "category": "Catégorie",
-    "allCategories": "Toutes les catégories",
     "columns": {
       "date": "Date",
       "label": "Charge",
@@ -143,7 +142,8 @@
     "electricity": "Électricité",
     "water": "Eau",
     "generator_diesel": "Gasoil du groupe électrogène",
-    "site_fuel": "Carburant utilisé sur le site",
+    "site_fuel": "Gasoil",
+    "olive_pomace": "Grignon d’olive",
     "energy_other": "Autre (énergie)",
     "maintenance": "Maintenance & consommables",
     "machine_upkeep": "Entretien des machines",
@@ -293,5 +293,17 @@
     "nameRequired": "Le nom est obligatoire.",
     "iceInvalid": "L’ICE compte 15 chiffres.",
     "error": "Création impossible. Vérifiez le réseau et réessayez."
+  },
+  "view": {
+    "label": "Affichage des charges",
+    "byType": "Par type",
+    "all": "Toutes les charges"
+  },
+  "byType": {
+    "count": "aucune pièce | {count} pièce | {count} pièces",
+    "open": "Voir les charges « {type} »",
+    "focus": "Seulement « {category} »",
+    "allTypes": "Voir tous les types",
+    "investmentNote": "Gardés à part du résultat"
   }
 }

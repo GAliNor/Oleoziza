@@ -1,11 +1,20 @@
 @layer components {
   /* One look for every dropdown: the site switcher's panel, generalised. */
   .menu-panel {
-    @apply absolute inset-s-0 top-full z-50 mt-2 w-max min-w-full max-w-[min(24rem,calc(100vw-2rem))] origin-top rounded-card border border-default/70 bg-surface p-1.5 shadow-overlay;
+    @apply absolute inset-s-0 top-full z-50 mt-2 flex w-max min-w-full max-w-[min(24rem,calc(100vw-2rem))] origin-top flex-col rounded-card border border-default/70 bg-surface p-1.5 shadow-overlay;
+  }
+
+  /* A teleported panel: useFloatingPanel sets its place, width and height against its anchor. */
+  .menu-panel-floating {
+    @apply fixed inset-s-auto inset-e-auto top-auto mt-0 min-w-0 max-w-[min(24rem,calc(100vw-1rem))];
+  }
+
+  .menu-panel-floating[data-placement='above'] {
+    @apply origin-bottom;
   }
 
   .menu-list {
-    @apply flex max-h-72 flex-col gap-0.5 overflow-y-auto overscroll-contain;
+    @apply flex max-h-72 min-h-0 flex-1 touch-pan-y flex-col gap-0.5 overflow-y-auto overscroll-contain;
   }
 
   .menu-group {
@@ -26,7 +35,7 @@
   }
 
   .menu-search {
-    @apply mb-1.5 min-h-10 w-full rounded-control border border-default bg-page/60 px-3 text-sm text-fg-default
+    @apply mb-1.5 shrink-0 min-h-10 w-full rounded-control border border-default bg-page/60 px-3 text-sm text-fg-default
       placeholder:text-fg-muted focus:border-brand focus:bg-surface focus:outline-none;
   }
 
@@ -58,6 +67,11 @@
 .menu-pop-leave-to {
   opacity: 0;
   transform: translateY(-4px) scale(0.98);
+}
+
+.menu-pop-enter-from[data-placement='above'],
+.menu-pop-leave-to[data-placement='above'] {
+  transform: translateY(4px) scale(0.98);
 }
 
 @media (prefers-reduced-motion: reduce) {

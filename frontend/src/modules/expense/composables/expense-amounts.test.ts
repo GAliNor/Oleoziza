@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { amountExclVat, groupCategories, resultOf, summarizeExpenses, vatOf } from 'expense/composables/expense-amounts';
+import { amountExclVat, groupByType, groupCategories, resultOf, summarizeExpenses, vatOf } from 'expense/composables/expense-amounts';
 import { EXPENSE_CATEGORIES_MOCK } from 'expense/constants/expense-categories';
 import type { IExpense } from 'expense/types/expense';
 
@@ -52,11 +52,21 @@ describe('Expense summary and Result', () => {
   it('files each sub-category under its category and leaves cancelled Expenses out', () => {
     const summary = summarizeExpenses(expenses, EXPENSE_CATEGORIES_MOCK);
     expect(summary.byCategory).toEqual([
-      { categoryId: 'investment', amount: 120000 },
-      { categoryId: 'staff', amount: 36000 },
-      { categoryId: 'energy', amount: 1140 },
+      { categoryId: 'investment', amount: 120000, count: 1 },
+      { categoryId: 'staff', amount: 36000, count: 2 },
+      { categoryId: 'energy', amount: 1140, count: 1 },
     ]);
     expect(summary.count).toBe(4);
+  });
+
+  it('tells how much each sub-category cost: « j’appuie salaire, je sais combien »', () => {
+    const summary = summarizeExpenses([...expenses, expense('salaries', 2000)], EXPENSE_CATEGORIES_MOCK);
+    expect(summary.bySubcategory.map(({ categoryId, parentId, amount, count }) => [categoryId, parentId, amount, count])).toEqual([
+      ['machines', 'investment', 120000, 1],
+      ['salaries', 'staff', 32000, 2],
+      ['cnss', 'staff', 6000, 1],
+      ['electricity', 'energy', 1140, 1],
+    ]);
   });
 
   it('keeps Investments apart from the operating Expenses', () => {
@@ -64,6 +74,19 @@ describe('Expense summary and Result', () => {
     expect(summary.total).toBe(157140);
     expect(summary.investments).toBe(120000);
     expect(summary.operating).toBe(37140);
+  });
+
+  it('groups sub-category totals under their category, Investments last', () => {
+    const groups = groupByType(summarizeExpenses(expenses, EXPENSE_CATEGORIES_MOCK));
+    expect(groups.map((group) => [group.categoryId, group.rows.map((row) => row.categoryId)])).toEqual([
+      ['staff', ['salaries', 'cnss']],
+      ['energy', ['electricity']],
+      ['investment', ['machines']],
+    ]);
+  });
+
+  it('keeps only the category a link from the Dashboard asks for', () => {
+    expect(groupByType(summarizeExpenses(expenses, EXPENSE_CATEGORIES_MOCK), 'energy').map((group) => group.categoryId)).toEqual(['energy']);
   });
 
   it('takes the Result as Revenue less operating Expenses, not Investments', () => {

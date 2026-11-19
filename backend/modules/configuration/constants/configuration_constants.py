@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from modules.configuration.types.configuration_types import ConfigurationValueKey, PaymentMethod, SettingKey
+from modules.configuration.types.configuration_types import ConfigurationValueKey, NotificationChannel, PaymentMethod, SettingKey
 
 
 SETTING_KEY_BY_VALUE_KEY: dict[ConfigurationValueKey, SettingKey] = {
@@ -24,3 +24,7 @@ MAX_DISCOUNT_LIMIT_PERCENT = Decimal("100")
 HISTORY_LENGTH = 50
 
 CONFIGURATION_CHANGED_ACTION = "configuration.changed"
+
+NOTIFICATION_CHANNEL_ORDER: tuple[NotificationChannel, ...] = (NotificationChannel.WHATSAPP, NotificationChannel.SMS, NotificationChannel.EMAIL)
+
+IMPLEMENTED_NOTIFICATION_CHANNELS: frozenset[NotificationChannel] = frozenset({NotificationChannel.EMAIL})

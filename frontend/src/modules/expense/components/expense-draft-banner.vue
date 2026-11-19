@@ -1,5 +1,5 @@
 <template>
-  <div class="rise flex flex-col gap-3 rounded-card border border-warning/40 bg-warning-subtle p-4 sm:flex-row sm:items-center" role="status">
+  <div class="rise flex flex-col gap-3 rounded-card border border-warning/40 bg-warning-subtle p-4 @xl:flex-row @xl:items-center" role="status">
     <span class="grid h-10 w-10 shrink-0 place-items-center rounded-card bg-surface text-fg-warning shadow-raised">
       <receipt-line-icon class="h-5 w-5" />
     </span>

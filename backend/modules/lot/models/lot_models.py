@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from core.database import Base
 from core.model_mixins import EMAIL_LENGTH, KILOGRAMS, LITRES, MONEY, AuditMixin, HumanCodeMixin, IdMixin, OfflineEntryMixin, TimestampMixin, build_enum_type
-from modules.auth.types.auth_types import MessageChannel
+from modules.configuration.types.configuration_types import NotificationChannel
 from modules.lot.types.lot_types import LotMode, LotPhotoStep, LotStatus, NotificationChoice, NotificationEvent, NotificationStatus, PauseReason
 
 
@@ -93,7 +93,7 @@ class Notification(IdMixin, TimestampMixin, Base):
 
     lot_id: Mapped[UUID] = mapped_column(ForeignKey("lots.id"))
     event: Mapped[NotificationEvent] = mapped_column(build_enum_type(NotificationEvent, "notification_event"))
-    channel: Mapped[MessageChannel] = mapped_column(build_enum_type(MessageChannel, "notification_channel"))
+    channel: Mapped[NotificationChannel] = mapped_column(build_enum_type(NotificationChannel, "notification_channel"))
     sent_to: Mapped[str] = mapped_column(String(EMAIL_LENGTH))
     sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     status: Mapped[NotificationStatus] = mapped_column(build_enum_type(NotificationStatus, "notification_status"))

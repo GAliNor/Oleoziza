@@ -1,6 +1,6 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import ConfigurationMockService from 'configuration/services/configuration.mock';
-import type { IConfiguration, IConfigurationService, IConfigurationUpdatePayload } from 'configuration/types/configuration';
+import type { IConfiguration, IConfigurationService, IConfigurationUpdatePayload, INotificationChannelSetting, NotificationChannel } from 'configuration/types/configuration';
 
 class ConfigurationApiService extends BaseService implements IConfigurationService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL;
@@ -10,6 +10,10 @@ class ConfigurationApiService extends BaseService implements IConfigurationServi
     const params = new URLSearchParams(siteIds.map((siteId) => ['siteId', siteId]));
     if (seasonId) params.append('seasonId', seasonId);
     return this.request<IConfiguration[]>({ method: 'GET', url: `${this._BASE_API_URL}/configuration`, params });
+  }
+
+  updateNotificationChannel(channel: NotificationChannel, isEnabled: boolean): Promise<INotificationChannelSetting[]> {
+    return this.request<INotificationChannelSetting[]>({ method: 'PUT', url: `${this._BASE_API_URL}/configuration/notification-channels/${channel}`, data: { isEnabled } });
   }
 
   cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration> {

@@ -1,51 +1,17 @@
 <template>
   <section class="card flex min-w-0 flex-col gap-4 p-5">
-    <header class="flex items-baseline justify-between gap-3">
-      <h2 class="heading-four">{{ title ?? $t('expense.breakdown.title') }}</h2>
-      <button v-if="isInteractive && activeId" type="button" class="btn-plain text-sm" @click="emit('select', null)">{{ $t('expense.register.allCategories') }}</button>
-    </header>
+    <h2 class="heading-four">{{ title ?? $t('expense.breakdown.title') }}</h2>
 
     <p v-if="!rowsComputed.length" class="body-two">{{ $t('expense.breakdown.empty') }}</p>
-
-    <template v-else-if="layout === 'bar'">
-      <div class="flex h-3 w-full gap-0.5 overflow-hidden rounded-control bg-neutral-100" aria-hidden="true">
-        <span
-          v-for="row in rowsComputed"
-          :key="row.categoryId"
-          class="bar h-full transition-opacity"
-          :class="{ 'opacity-30': activeId && row.categoryId !== activeId }"
-          :style="{ width: `${row.shareOfTotal}%`, background: EXPENSE_CATEGORY_COLORS[row.categoryId] }"
-        />
-      </div>
-      <ul class="flex flex-wrap gap-2">
-        <li v-for="row in rowsComputed" :key="row.categoryId">
-          <component
-            :is="isInteractive ? 'button' : 'span'"
-            :type="isInteractive ? 'button' : undefined"
-            class="flex items-center gap-2 rounded-control border border-subtle px-3 py-1.5 text-sm"
-            :class="[isInteractive ? 'transition hover:bg-page' : '', row.categoryId === activeId ? 'bg-selected/60' : '', activeId && row.categoryId !== activeId ? 'opacity-55' : '']"
-            :aria-pressed="isInteractive ? row.categoryId === activeId : undefined"
-            :aria-label="isInteractive ? $t('expense.breakdown.filter', { category: row.label }) : undefined"
-            @click="isInteractive && handleSelect(row.categoryId)"
-          >
-            <span class="h-2.5 w-2.5 shrink-0 rounded-full" :style="{ background: EXPENSE_CATEGORY_COLORS[row.categoryId] }" />
-            <span class="text-fg-primary-paragraph">{{ row.label }}</span>
-            <span class="tabular-nums text-fg-display">{{ formatMoneyRounded(row.amount) }}</span>
-          </component>
-        </li>
-      </ul>
-    </template>
 
     <ul v-else class="flex flex-col gap-1">
       <li v-for="row in rowsComputed" :key="row.categoryId">
         <component
-          :is="isInteractive ? 'button' : 'div'"
-          :type="isInteractive ? 'button' : undefined"
+          :is="linkQuery ? 'router-link' : 'div'"
+          :to="linkQuery ? { name: 'expense', query: { ...linkQuery, category: row.categoryId } } : undefined"
           class="flex w-full flex-col gap-1.5 rounded-control px-2 py-1.5 text-start"
-          :class="[isInteractive ? 'transition hover:bg-page' : '', row.categoryId === activeId ? 'bg-selected/50' : '', activeId && row.categoryId !== activeId ? 'opacity-55' : '']"
-          :aria-pressed="isInteractive ? row.categoryId === activeId : undefined"
-          :aria-label="isInteractive ? $t('expense.breakdown.filter', { category: row.label }) : undefined"
-          @click="isInteractive && handleSelect(row.categoryId)"
+          :class="{ 'transition hover:bg-page focus-visible:bg-page focus-visible:outline-none': linkQuery }"
+          :aria-label="linkQuery ? $t('expense.breakdown.filter', { category: row.label }) : undefined"
         >
           <span class="flex items-baseline justify-between gap-3 text-sm">
             <span class="flex min-w-0 items-center gap-2 text-fg-primary-paragraph">
@@ -73,15 +39,15 @@ import { EXPENSE_CATEGORY_COLORS } from 'expense/constants/expense';
 import type { IExpenseSummary } from 'expense/types/expense';
 
 // props
-const props = withDefaults(defineProps<{ summary: IExpenseSummary; activeId?: string | null; isInteractive?: boolean; title?: string; layout?: 'list' | 'bar' }>(), {
-  activeId: null,
-  isInteractive: false,
-  title: undefined,
-  layout: 'list',
-});
-
-// emits
-const emit = defineEmits<{ (event: 'select', categoryId: string | null): void }>();
+const props = withDefaults(
+  defineProps<{
+    summary: IExpenseSummary;
+    title?: string;
+    /** When given, each row opens the Charges page « Par type » on its category, with this query (the period) kept. */
+    linkQuery?: Record<string, string | undefined> | null;
+  }>(),
+  { title: undefined, linkQuery: null },
+);
 
 // stores
 const { t } = useI18n();
@@ -89,12 +55,8 @@ const { t } = useI18n();
 // computed
 const rowsComputed = computed(() => {
   const largest = props.summary.byCategory[0]?.amount || 1;
-  const total = props.summary.total || 1;
-  return props.summary.byCategory.map((row) => ({ ...row, label: t(`expense.categories.${row.categoryId}`), shareOfLargest: (row.amount / largest) * 100, shareOfTotal: (row.amount / total) * 100 }));
+  return props.summary.byCategory.map((row) => ({ ...row, label: t(`expense.categories.${row.categoryId}`), shareOfLargest: (row.amount / largest) * 100 }));
 });
-
-// event handlers
-const handleSelect = (categoryId: string): void => emit('select', categoryId === props.activeId ? null : categoryId);
 </script>
 
 <style scoped>

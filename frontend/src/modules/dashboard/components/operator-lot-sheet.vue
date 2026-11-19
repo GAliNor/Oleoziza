@@ -5,7 +5,7 @@
       {{ $t('dashboard.operator.backToList') }}
     </button>
 
-    <lot-missing-contact v-if="lot.isContactMissing && lot.notificationChoice !== 'none'" :lot="lot" :channel="lot.notificationChoice" />
+    <lot-missing-contact v-if="lot.isContactMissing && isChannelEnabled(lot.notificationChoice)" :lot="lot" :channel="lot.notificationChoice" />
 
     <lot-detail :lot="lot" />
 
@@ -32,9 +32,11 @@
 // imports
 import { ref } from 'vue';
 
+import { useConfigurationStore } from 'configuration/stores/configuration';
+
 import { LOT_MOVE_TONES } from 'lot/constants/lot';
-import type { IPressLineSetting } from 'configuration/types/configuration';
-import type { ILot } from 'lot/types/lot';
+import type { IPressLineSetting, NotificationChannel } from 'configuration/types/configuration';
+import type { ILot, NotificationChoice } from 'lot/types/lot';
 
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
 import ClientTag from 'client/components/client-tag.vue';
@@ -51,6 +53,13 @@ const emit = defineEmits<{
   (event: 'move', lot: ILot): void;
 }>();
 
+// stores
+const configurationStore = useConfigurationStore();
+
 // variables
 const isScheduling = ref(false);
+
+// methods
+/** A missing contact is asked for only while the Lot's channel is still enabled: a switched-off channel sends nothing anyway. */
+const isChannelEnabled = (choice: NotificationChoice): choice is NotificationChannel => choice !== 'none' && configurationStore.enabledNotificationChannels.includes(choice);
 </script>

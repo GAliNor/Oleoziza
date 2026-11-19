@@ -13,6 +13,7 @@ import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import { pressingOn } from 'lot/composables/press-schedule';
 import { CONFIGURATIONS_MOCK } from 'configuration/constants/mock-configuration';
+import ConfigurationMockService from 'configuration/services/configuration.mock';
 import type { ILot } from 'lot/types/lot';
 
 const lot = (id: string, status: ILot['status'], isPendingSync = false): ILot => ({ id, code: `L-${id}`, status, isPendingSync }) as ILot;
@@ -150,14 +151,23 @@ describe('moving a Lot', () => {
     expect([updated?.status, updated?.withdrawnLitres]).toEqual(['withdrawn', pressed.oilLitres]);
   });
 
-  it('tells the Client the oil is ready, or shows it could not, when pressing ends', async () => {
+  it('tells the Client the oil is ready through an enabled channel, and sends nothing through one switched off', async () => {
     const lotStore = useLotStore();
-    const lot = await pressingLot();
-    lot.notificationChoice = 'sms';
-    LOTS_MOCK_DB.find((item) => item.id === lot.id)!.notificationChoice = 'sms';
-    const updated = await lotStore.moveLot(lot, { id: createId(), oilLitres: 300 });
-    expect(updated?.notifications.at(-1)).toMatchObject({ event: 'pressed', channel: 'sms', isFailed: false });
-    LOTS_MOCK_DB.find((item) => item.id === lot.id)!.notificationChoice = 'none';
+    const channels = new ConfigurationMockService();
+    const smsLot = await pressingLot();
+    LOTS_MOCK_DB.find((item) => item.id === smsLot.id)!.notificationChoice = 'sms';
+    const smsPressed = await lotStore.moveLot(smsLot, { id: createId(), oilLitres: 300 });
+    expect(smsPressed?.notifications.at(-1)).toMatchObject({ event: 'pressed', channel: 'sms', isFailed: true, failureReason: 'channel_disabled' });
+    LOTS_MOCK_DB.find((item) => item.id === smsLot.id)!.notificationChoice = 'none';
+
+    await channels.updateNotificationChannel('email', true);
+    const emailLot = await pressingLot();
+    const mockLot = LOTS_MOCK_DB.find((item) => item.id === emailLot.id)!;
+    Object.assign(mockLot, { notificationChoice: 'email', isContactMissing: false });
+    const emailPressed = await lotStore.moveLot(emailLot, { id: createId(), oilLitres: 300 });
+    expect(emailPressed?.notifications.at(-1)).toMatchObject({ event: 'pressed', channel: 'email', isFailed: false });
+    Object.assign(mockLot, { notificationChoice: 'none' });
+    await channels.updateNotificationChannel('email', false);
   });
 
   it('keeps the photo taken at a move on the step it reached', async () => {

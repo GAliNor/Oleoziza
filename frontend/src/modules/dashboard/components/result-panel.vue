@@ -31,7 +31,12 @@
         {{ $t('dashboard.management.result.investments', { amount: formatMoneyRounded(summaryComputed.investments) }) }}
       </p>
     </div>
-    <expense-breakdown class="lg:col-span-2" :summary="operatingSummaryComputed" :title="$t('dashboard.management.result.byCategory')" />
+    <expense-breakdown
+      class="lg:col-span-2"
+      :summary="operatingSummaryComputed"
+      :title="$t('dashboard.management.result.byCategory')"
+      :link-query="canOpenExpenses ? { period: period.key === DEFAULT_PERIOD ? undefined : period.key } : null"
+    />
   </section>
 </template>
 

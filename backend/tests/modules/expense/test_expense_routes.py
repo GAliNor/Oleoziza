@@ -28,6 +28,7 @@ def prepare(db: Session) -> tuple:
         db.add(ExpenseCategory(id="energy", type=ExpenseCategoryType.CATEGORY, position=2, vat_nature=ExpenseVatNature.NONE))
         db.flush()
         db.add(ExpenseCategory(id="electricity", type=ExpenseCategoryType.SUBCATEGORY, parent_id="energy", position=1, account_code="61251", vat_nature=ExpenseVatNature.GOOD))
+        db.add(ExpenseCategory(id="water", type=ExpenseCategoryType.SUBCATEGORY, parent_id="energy", position=2, account_code="61251", vat_nature=ExpenseVatNature.GOOD))
     accountant = create_staff_user(db, "+212669991001", permissions_by_site={site.id: [Permission.EXPENSE_RECORD]})
     db.commit()
     return site, season, build_auth_header(accountant, {site.id: [Permission.EXPENSE_RECORD]})
@@ -82,7 +83,25 @@ def test_a_cancelled_expense_leaves_the_totals(client: TestClient, db: Session) 
 
     summary = client.get(f"{API_URL}/expenses/summary", params={"siteId": str(site.id), "period": "season"}, headers=headers).json()
 
-    assert (summary["total"], summary["vat"], summary["count"], summary["byCategory"]) == (1200, 200, 1, [{"categoryId": "energy", "amount": 1200}])
+    assert (summary["total"], summary["vat"], summary["count"], summary["byCategory"]) == (1200, 200, 1, [{"categoryId": "energy", "amount": 1200, "count": 1}])
+
+
+def test_the_summary_tells_how_much_each_subcategory_cost(client: TestClient, db: Session) -> None:
+    """
+    « J'appuie électricité, je sais combien »: each sub-category with spending has its total and its count, and its category sums them.
+    """
+    site, season, headers = prepare(db)
+    for body in (build_expense(site.id, amount=1200), build_expense(site.id, amount=800), build_expense(site.id, categoryId="water", amount=300, vatRate=None)):
+        client.post(f"{API_URL}/expenses", json=body, headers=headers)
+
+    summary = client.get(f"{API_URL}/expenses/summary", params={"siteId": str(site.id)}, headers=headers).json()
+
+    assert summary["bySubcategory"] == [
+        {"categoryId": "electricity", "parentId": "energy", "amount": 2000.0, "vat": round(2000 * 20 / 120, 2), "count": 2},
+        {"categoryId": "water", "parentId": "energy", "amount": 300.0, "vat": 0.0, "count": 1},
+    ]
+    assert summary["byCategory"] == [{"categoryId": "energy", "amount": 2300.0, "count": 3}]
+    assert summary["count"] == 3
 
 
 def test_the_register_pages_and_filters_by_category(client: TestClient, db: Session) -> None:

@@ -23,9 +23,15 @@ const moveDetail = (lot: ILot, status: LotStatus, context: ITimelineContext): st
   return `${formatLitres(lot.withdrawnLitres)} · ${t('withdrawnContainers')}`;
 };
 
+/** A message never sent because its channel was switched off reads differently from one that could not reach the Client. */
+const notificationLabelKey = (notification: ILotNotification): string => {
+  if (!notification.isFailed) return 'notification';
+  return notification.failureReason === 'channel_disabled' ? 'notificationSkipped' : 'notificationFailed';
+};
+
 const notificationStep = (lot: ILot, notification: ILotNotification): ILotStep => ({
   key: 'notification',
-  label: t(notification.isFailed ? 'notificationFailed' : 'notification'),
+  label: t(notificationLabelKey(notification)),
   detail: t(`notificationEvents.${notification.event}`, { channel: t(`notificationChannels.${notification.channel}`) }),
   at: notification.at,
   by: lot.clientName,

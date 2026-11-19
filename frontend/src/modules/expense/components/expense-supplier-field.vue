@@ -17,11 +17,11 @@
           <p class="label">{{ $t('expense.supplier.title') }}</p>
           <p class="body-three">{{ $t('expense.supplier.hint') }}</p>
         </div>
-        <div class="grid gap-3 md:grid-cols-3">
-          <ui-field v-slot="{ id: nameId }" class="md:col-span-3" :label="$t('expense.supplier.name')">
+        <div class="grid gap-3 @2xl:grid-cols-3">
+          <ui-field v-slot="{ id: nameId }" class="@2xl:col-span-3" :label="$t('expense.supplier.name')">
             <input :id="nameId" ref="nameInput" v-model="newSupplier.name" class="input" type="text" />
           </ui-field>
-          <ui-field v-slot="{ id: iceId }" class="md:col-span-2" :label="$t('expense.form.ice')">
+          <ui-field v-slot="{ id: iceId }" class="@2xl:col-span-2" :label="$t('expense.form.ice')">
             <input :id="iceId" v-model="newSupplier.ice" class="input tabular-nums" type="text" inputmode="numeric" maxlength="15" :placeholder="$t('expense.form.iceHint')" />
           </ui-field>
           <ui-field v-slot="{ id: taxId }" :label="$t('expense.form.if')">

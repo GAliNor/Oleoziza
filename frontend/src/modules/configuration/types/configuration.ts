@@ -1,3 +1,4 @@
+import type { NotificationChoice } from 'lot/types/lot';
 import type { PaymentMethodKey } from 'finance/types/finance';
 import type { SeasonStatus } from 'season/types/season';
 
@@ -71,6 +72,8 @@ export interface IConfiguration extends IConfigurationValues {
   tanks: ITankSetting[];
   pressLines: IPressLineSetting[];
   history: IConfigurationChange[];
+  /** The company's Notification Channels, carried by every Configuration so Reception needs no extra request. */
+  notificationChannels: INotificationChannelSetting[];
 }
 
 /** `id` is minted when the change starts, so a retry after a lost response never records it twice. */
@@ -88,8 +91,19 @@ export interface IConfigurationUpdatePayload extends IConfigurationUpdate {
   by: string;
 }
 
+/** A way the mill messages Clients about their Lots (glossary: Notification Channel). */
+export type NotificationChannel = Exclude<NotificationChoice, 'none'>;
+
+export interface INotificationChannelSetting {
+  channel: NotificationChannel;
+  /** The mill can really send through it; a channel not implemented can't be switched on. */
+  isImplemented: boolean;
+  isEnabled: boolean;
+}
+
 export interface IConfigurationService {
   getAll(siteIds: string[], seasonId?: string): Promise<IConfiguration[]>;
+  updateNotificationChannel(channel: NotificationChannel, isEnabled: boolean): Promise<INotificationChannelSetting[]>;
   update(siteId: string, update: IConfigurationUpdatePayload): Promise<IConfiguration>;
   cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration>;
 }
@@ -97,6 +111,8 @@ export interface IConfigurationService {
 export interface IConfigurationStore {
   bySite: Record<string, IConfiguration>;
   bySeason: Record<string, IConfiguration>;
+  /** The company's channels, last known on this device until read again; null before the first read. */
+  notificationChannels: INotificationChannelSetting[] | null;
   isLoading: boolean;
   isSaving: boolean;
   hasError: boolean;

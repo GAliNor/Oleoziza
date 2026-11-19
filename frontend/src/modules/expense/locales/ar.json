@@ -24,7 +24,6 @@
   "register": {
     "search": "الوصف أو المورد أو رقم القطعة أو الفاتورة",
     "category": "الفئة",
-    "allCategories": "كل الفئات",
     "columns": {
       "date": "التاريخ",
       "label": "المصروف",
@@ -143,7 +142,8 @@
     "electricity": "الكهرباء",
     "water": "الماء",
     "generator_diesel": "غازوال المولّد الكهربائي",
-    "site_fuel": "الوقود المستعمل في الموقع",
+    "site_fuel": "الغازوال",
+    "olive_pomace": "فيتور الزيتون",
     "energy_other": "أخرى (الطاقة)",
     "maintenance": "الصيانة والمستهلكات",
     "machine_upkeep": "صيانة الآلات",
@@ -293,5 +293,17 @@
     "nameRequired": "الاسم ضروري.",
     "iceInvalid": "يتكون ICE من 15 رقمًا.",
     "error": "تعذّر الإنشاء. تحقق من الشبكة وأعد المحاولة."
+  },
+  "view": {
+    "label": "عرض المصاريف",
+    "byType": "حسب النوع",
+    "all": "كل المصاريف"
+  },
+  "byType": {
+    "count": "لا قطعة | قطعة واحدة | {count} قطع",
+    "open": "عرض مصاريف « {type} »",
+    "focus": "« {category} » فقط",
+    "allTypes": "عرض كل الأنواع",
+    "investmentNote": "خارج النتيجة"
   }
 }

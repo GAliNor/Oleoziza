@@ -6,14 +6,19 @@ import { SEASONS_MOCK_DB } from 'season/services/season.mock';
 import { SEASON_CURRENT_ID, SEASON_PAST_ID } from 'season/constants/mock-seasons';
 import { equipmentInUse } from 'configuration/composables/equipment';
 import { CONFIGURATIONS_MOCK, DEFAULT_CONFIGURATION } from 'configuration/constants/mock-configuration';
+import { NOTIFICATION_CHANNELS_MOCK } from 'configuration/constants/configuration';
 import type { ISeason } from 'season/types/season';
-import type { ConfigurationValueKey, IConfiguration, IConfigurationService, IConfigurationUpdatePayload, IPriceChange } from 'configuration/types/configuration';
+import type { ConfigurationValueKey, IConfiguration, IConfigurationService, IConfigurationUpdatePayload, INotificationChannelSetting, IPriceChange, NotificationChannel } from 'configuration/types/configuration';
 
 const VALUE_KEYS: ConfigurationValueKey[] = ['millingRate', 'discountLimit', 'oilPrice'];
 const PAST_VALUES: Record<ConfigurationValueKey, number> = { millingRate: 0.45, discountLimit: 5, oilPrice: 36 };
 
 const configurations: Record<string, IConfiguration> = structuredClone(CONFIGURATIONS_MOCK);
 const priceChanges: Record<string, Omit<IPriceChange, 'isScheduled'>[]> = {};
+let notificationChannels: INotificationChannelSetting[] = structuredClone([...NOTIFICATION_CHANNELS_MOCK]);
+
+/** Whether the mock company may message Clients through a channel: implemented and switched on, as the backend decides at pressing. */
+export const isChannelEnabledMock = (channel: NotificationChannel): boolean => notificationChannels.some((item) => item.channel === channel && item.isImplemented && item.isEnabled);
 
 const startOf = (day: string): string => new Date(`${day}T00:00:00`).toISOString();
 
@@ -61,6 +66,7 @@ const build = (siteId: string, season: ISeason): IConfiguration => {
     discountLimit: valueIn(changes, 'discountLimit', season),
     oilPrice: valueIn(changes, 'oilPrice', season),
     priceChanges: [...changes].sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom)).map((change) => ({ ...change, isScheduled: change.effectiveFrom > now })),
+    notificationChannels: structuredClone(notificationChannels),
   };
 };
 
@@ -107,6 +113,14 @@ export default class ConfigurationMockService implements IConfigurationService {
       configuration.history.unshift({ id: update.id, key, value: null, method: { isEnabled, needsProof }, by: update.by, at });
     }
     return mockResolve(build(siteId, season));
+  }
+
+  updateNotificationChannel(channel: NotificationChannel, isEnabled: boolean): Promise<INotificationChannelSetting[]> {
+    const setting = notificationChannels.find((item) => item.channel === channel);
+    if (!setting) return mockReject({ code: 'validation_error' });
+    if (isEnabled && !setting.isImplemented) return mockReject({ code: 'notification_channel_not_implemented' });
+    notificationChannels = notificationChannels.map((item) => (item.channel === channel ? { ...item, isEnabled } : item));
+    return mockResolve(structuredClone(notificationChannels));
   }
 
   cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration> {

@@ -5,8 +5,8 @@
         <tr>
           <th class="px-4 py-3 font-semibold">{{ $t('expense.register.columns.date') }}</th>
           <th class="px-4 py-3 font-semibold">{{ $t('expense.register.columns.label') }}</th>
-          <th class="hidden px-4 py-3 font-semibold lg:table-cell">{{ $t('expense.register.columns.supplier') }}</th>
-          <th class="hidden px-4 py-3 font-semibold md:table-cell">{{ $t('expense.register.columns.paidBy') }}</th>
+          <th class="hidden px-4 py-3 font-semibold @4xl:table-cell">{{ $t('expense.register.columns.supplier') }}</th>
+          <th class="hidden px-4 py-3 font-semibold @2xl:table-cell">{{ $t('expense.register.columns.paidBy') }}</th>
           <th class="px-4 py-3 text-end font-semibold">{{ $t('expense.register.columns.amount') }}</th>
         </tr>
       </thead>
@@ -25,13 +25,13 @@
             <p class="font-medium" :class="expense.status === 'cancelled' ? 'line-through' : 'text-fg-display'">{{ expense.description }}</p>
             <p class="body-two">
               <span class="me-1.5 inline-block h-2 w-2 rounded-full align-middle" :style="{ background: EXPENSE_CATEGORY_COLORS[categoryIdOf(categories, expense.categoryId)] }" />
-              {{ $t(`expense.categories.${expense.categoryId}`) }}<span class="hidden sm:inline"> · {{ expense.code }}</span>
+              {{ $t(`expense.categories.${expense.categoryId}`) }}<span class="hidden whitespace-nowrap @xl:inline"> · {{ expense.code }}</span>
               <span v-if="expense.status === 'cancelled'" class="chip ms-1 bg-danger-subtle text-fg-danger">{{ $t('expense.register.cancelled') }}</span>
               <span v-else-if="hasWarning(expense)" class="chip ms-1 bg-warning-subtle text-fg-warning">{{ $t('expense.register.warning') }}</span>
             </p>
           </td>
-          <td class="hidden px-4 py-3 text-fg-primary-paragraph lg:table-cell">{{ expense.supplier }}</td>
-          <td class="hidden px-4 py-3 whitespace-nowrap md:table-cell">
+          <td class="hidden px-4 py-3 text-fg-primary-paragraph @4xl:table-cell">{{ expense.supplier }}</td>
+          <td class="hidden px-4 py-3 whitespace-nowrap @2xl:table-cell">
             {{ $t(`expense.paidBy.${expense.paidBy}`) }}
             <span v-if="expense.documents.length" class="chip ms-1 bg-subtle text-fg-primary-paragraph">{{ $t('expense.register.documents', expense.documents.length) }}</span>
             <span v-else class="chip ms-1 bg-subtle text-fg-secondary-paragraph">{{ $t('expense.register.noDocument') }}</span>

@@ -88,13 +88,15 @@
   },
   "notification": {
     "title": "Prévenir le Client",
+    "whatsapp": "WhatsApp",
     "sms": "SMS",
     "email": "Email",
     "none": "Aucune",
     "offline": "Hors ligne : impossible de vérifier si le Client a un email ou un téléphone.",
     "missing": {
       "email": "Email du Client",
-      "sms": "Téléphone du Client"
+      "sms": "Téléphone du Client",
+      "whatsapp": "Téléphone du Client (WhatsApp)"
     }
   },
   "line": {

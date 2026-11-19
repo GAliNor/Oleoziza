@@ -47,4 +47,16 @@ describe('the configuration store', () => {
     await useConfigurationStore().update(SITE_OUJDA_ID, { id: createId(), value: { key: 'discountLimit', amount: 12 } });
     expect(receptionStore.loadedSiteId).toBeNull();
   });
+
+  it('offers a notification channel only once it is implemented and switched on, every channel starting off', async () => {
+    const store = useConfigurationStore();
+    expect(store.notificationChannels?.map((item) => item.channel)).toEqual(['whatsapp', 'sms', 'email']);
+    expect(store.enabledNotificationChannels).toEqual([]);
+
+    expect(await store.updateNotificationChannel('whatsapp', true)).toBe(false);
+    expect(await store.updateNotificationChannel('email', true)).toBe(true);
+    expect(store.enabledNotificationChannels).toEqual(['email']);
+
+    await store.updateNotificationChannel('email', false);
+  });
 });

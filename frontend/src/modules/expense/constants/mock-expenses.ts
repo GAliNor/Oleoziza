@@ -61,9 +61,11 @@ const recent = (today: string): ISeedExpense[] => {
   const rows: ISeedExpense[] = [];
   for (let daysAgo = 1; daysAgo <= 42; daysAgo += 1) {
     const date = shiftDate(today, -daysAgo);
-    if (daysAgo % 4 === 1) rows.push({ siteId: SITE_OUJDA_ID, date, categoryId: 'generator_diesel', description: `Gasoil groupe, ${190 + (daysAgo % 3) * 10} L`, amount: 2350 + (daysAgo % 3) * 120, vatRate: 10, supplier: 'Station-service route de Taourirt', supplierIce: '001622390000071', invoiceNumber: `BON-${date}`, paidBy: 'cash' });
+    const fuelId = daysAgo > 35 ? 'generator_diesel' : 'site_fuel';
+    if (daysAgo % 4 === 1) rows.push({ siteId: SITE_OUJDA_ID, date, categoryId: fuelId, description: `Gasoil, ${190 + (daysAgo % 3) * 10} L`, amount: 2350 + (daysAgo % 3) * 120, vatRate: 10, supplier: 'Station-service route de Taourirt', supplierIce: '001622390000071', invoiceNumber: `BON-${date}`, paidBy: 'cash' });
     if (daysAgo % 6 === 2) rows.push({ siteId: SITE_OUJDA_ID, date, categoryId: 'staff_meals', description: 'Café, eau et casse-croûte de l’équipe', amount: 640, vatRate: null, supplier: 'Café Al Andalous', paidBy: 'cash' });
-    if (daysAgo % 7 === 3) rows.push({ siteId: SITE_BERKANE_ID, date, categoryId: 'generator_diesel', description: 'Gasoil groupe, 140 L', amount: 1780, vatRate: 10, supplier: 'Station-service Berkane centre', supplierIce: '001733120000045', invoiceNumber: `BON-${date}`, paidBy: 'cash' });
+    if (daysAgo % 8 === 6) rows.push({ siteId: SITE_OUJDA_ID, date, categoryId: 'olive_pomace', description: 'Grignon d’olive pour la chaudière, 4 t', amount: 2400, vatRate: null, supplier: 'Huilerie Al Baraka (grignon)', paidBy: 'cash' });
+    if (daysAgo % 7 === 3) rows.push({ siteId: SITE_BERKANE_ID, date, categoryId: fuelId, description: 'Gasoil, 140 L', amount: 1780, vatRate: 10, supplier: 'Station-service Berkane centre', supplierIce: '001733120000045', invoiceNumber: `BON-${date}`, paidBy: 'cash' });
     if (daysAgo % 9 === 4) rows.push({ siteId: SITE_OUJDA_ID, date, categoryId: 'cleaning_products', description: 'Produits de nettoyage et gants', amount: 860, vatRate: 20, supplier: 'Droguerie Al Wahda', invoiceNumber: `DW-${date}`, paidBy: 'cash' });
     if (daysAgo % 10 === 5) rows.push({ siteId: SITE_OUJDA_ID, date, categoryId: 'greasing', description: 'Graisse pour les malaxeurs et le décanteur', amount: 1150, vatRate: 20, supplier: 'Lubrifiants de l’Oriental', supplierIce: '002011876000033', invoiceNumber: `LO-${date}`, paidBy: 'cash' });
     if (daysAgo % 12 === 2) rows.push({ siteId: SITE_OUJDA_ID, date, categoryId: 'olives', description: 'Picholine, 1,1 t, verger de Sidi Bouhria', amount: 9200, vatRate: null, supplier: 'Ahmed Bensaid (agriculteur)', paidBy: 'cash' });

@@ -10,7 +10,7 @@ export interface ILotMoveRecord {
 
 export type LotStepKey = LotStatus | 'reception' | 'stored' | 'discount' | 'notification';
 
-export type NotificationChoice = 'sms' | 'email' | 'none';
+export type NotificationChoice = 'whatsapp' | 'sms' | 'email' | 'none';
 
 export type DiscountState = 'applied' | 'pending' | 'approved' | 'refused';
 
@@ -36,6 +36,8 @@ export interface ILotNotification {
   channel: Exclude<NotificationChoice, 'none'>;
   at: string;
   isFailed: boolean;
+  /** `channel_disabled`, `contact_missing`, or the mail server's error. */
+  failureReason?: string | null;
 }
 
 export type StorageOwnerKind = 'client' | 'mill';

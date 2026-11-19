@@ -12,6 +12,7 @@ from core.helpers import get_local_midnight, get_local_today
 from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
 from modules.audit.models.audit_models import AuditEvent
+from modules.configuration.business.notification_channels import build_notification_channel_views
 from modules.configuration.constants.configuration_constants import (
     CONFIGURATION_CHANGED_ACTION,
     DEFAULT_BOX_CAPACITY_IN_KG,
@@ -557,6 +558,7 @@ class ConfigurationService:
             tanks=[TankSettingOut(id=tank.id, number=tank.number, capacity_litres=float(tank.capacity_in_litres)) for tank in tanks],
             press_lines=[PressLineSettingOut(id=line.id, number=line.number, name=line.name or "") for line in press_lines],
             history=self._get_history(site_id),
+            notification_channels=build_notification_channel_views(self.db),
         )
 
 

@@ -157,7 +157,7 @@ def build_moves(lot: Lot, last_withdrawal: Withdrawal | None, names: dict[UUID, 
 
 def is_contact_missing(choice: NotificationChoice, client: Client | None) -> bool:
     """
-    Tell whether the Client can't be reached the way they chose: an SMS without a phone, an email without an address.
+    Tell whether the Client can't be reached the way they chose: WhatsApp or SMS without a phone, an email without an address.
 
     Args:
         choice (NotificationChoice): Channel chosen at Reception.
@@ -168,7 +168,7 @@ def is_contact_missing(choice: NotificationChoice, client: Client | None) -> boo
     """
     if client is None or choice == NotificationChoice.NONE:
         return False
-    return not client.phone if choice == NotificationChoice.SMS else not client.email
+    return not client.email if choice == NotificationChoice.EMAIL else not client.phone
 
 
 def list_user_names(db: Session, user_ids: set[UUID]) -> dict[UUID, str]:
@@ -275,7 +275,7 @@ def list_notifications(db: Session, lot_ids: list[UUID]) -> dict[UUID, list[LotN
     """
     notifications: dict[UUID, list[LotNotificationOut]] = defaultdict(list)
     for notification in db.scalars(select(Notification).where(Notification.lot_id.in_(lot_ids)).order_by(Notification.sent_at)):
-        notifications[notification.lot_id].append(LotNotificationOut(event=notification.event, channel=notification.channel.value, at=notification.sent_at, is_failed=notification.status == NotificationStatus.FAILED))
+        notifications[notification.lot_id].append(LotNotificationOut(event=notification.event, channel=notification.channel.value, at=notification.sent_at, is_failed=notification.status == NotificationStatus.FAILED, failure_reason=notification.failure_reason))
     return notifications
 
 

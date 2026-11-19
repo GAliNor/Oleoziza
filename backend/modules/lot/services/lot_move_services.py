@@ -7,18 +7,19 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from core.database import get_db
+from core.integrations.celery.celery_publisher import publish_task
 from core.exceptions import RefusedError
 from core.security import get_current_user
 from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
 from modules.audit.models.audit_models import AuditEvent
-from modules.auth.types.auth_types import MessageChannel
 from modules.client.models.client_models import Client
 from modules.configuration.models.configuration_models import PressLine, Tank
-from modules.lot.business.lot_views import build_lot_views, is_contact_missing
+from modules.lot.business.lot_notifications import build_pressed_notification
+from modules.lot.business.lot_views import build_lot_views
 from modules.lot.models.lot_models import BoxOccupancy, Lot, Notification
 from modules.lot.services.lot_services import LotService
-from modules.lot.types.lot_types import LotMode, LotMoveIn, LotOut, LotScheduleIn, LotStatus, NotificationChoice, NotificationEvent, NotificationStatus, TankPourIn
+from modules.lot.types.lot_types import SEND_LOT_NOTIFICATION_TASK, LotMode, LotMoveIn, LotOut, LotScheduleIn, LotStatus, NotificationStatus, TankPourIn
 from modules.oil.business.tank_fill import get_storage_remainders, get_tank_fills
 from modules.oil.models.oil_models import Storage, StorageDraw, Withdrawal, WithdrawalLine
 from modules.oil.types.oil_types import StorageDrawReason, StorageOwner, WithdrawalKind
@@ -45,6 +46,7 @@ class LotMoveService:
         self.db = db
         self.current_user = current_user
         self.lots = LotService(db, current_user)
+        self.queued_notifications: list[Notification] = []
 
     def move_lot(self, lot_id: UUID, payload: LotMoveIn) -> LotOut:
         """
@@ -78,6 +80,8 @@ class LotMoveService:
         self.db.flush()
         record_audit_event(self.db, self.current_user.id, LOT_MOVED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, before={"status": before.value}, after={"status": lot.status.value}, event_id=payload.id)
         self.db.commit()
+        for notification in self.queued_notifications:
+            publish_task(SEND_LOT_NOTIFICATION_TASK, str(notification.id))
         return build_lot_views(self.db, [lot])[0]
 
     def schedule_lot(self, lot_id: UUID, payload: LotScheduleIn) -> LotOut:
@@ -245,29 +249,18 @@ class LotMoveService:
 
     def _notify_pressed(self, lot: Lot, now: datetime) -> None:
         """
-        Tell the Client their oil is ready the way they chose; without that contact the message is recorded as failed. Sending is simulated.
+        Record the message telling the Client their oil is ready; an email is kept to be sent once the transaction is committed.
 
         Args:
             lot (Lot): Lot just pressed.
             now (datetime): When it was pressed.
         """
-        if lot.notification_choice == NotificationChoice.NONE:
+        notification = build_pressed_notification(self.db, lot, now)
+        if notification is None:
             return
-        client = self.db.get(Client, lot.client_id)
-        is_missing = is_contact_missing(lot.notification_choice, client)
-        contact = (client.phone if lot.notification_choice == NotificationChoice.SMS else client.email) if client else None
-        self.db.add(
-            Notification(
-                lot_id=lot.id,
-                event=NotificationEvent.PRESSED,
-                channel=MessageChannel(lot.notification_choice.value),
-                sent_to=contact or "",
-                sent_at=now,
-                status=NotificationStatus.FAILED if is_missing else NotificationStatus.SIMULATED,
-                failure_reason="contact_missing" if is_missing else None,
-            )
-        )
-
+        self.db.add(notification)
+        if notification.status == NotificationStatus.QUEUED:
+            self.queued_notifications.append(notification)
 
 def get_lot_move_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)) -> LotMoveService:
     """

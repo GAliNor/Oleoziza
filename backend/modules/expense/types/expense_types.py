@@ -190,11 +190,24 @@ class ExpensePageOut(CamelModel):
 
 class ExpenseCategoryTotalOut(CamelModel):
     """
-    The period's total for one category.
+    The period's total for one category, with how many Expenses make it.
     """
 
     category_id: str
     amount: float
+    count: int
+
+
+class ExpenseSubcategoryTotalOut(CamelModel):
+    """
+    The period's total for one sub-category (« Salaires », « Électricité »), with its category, its TVA and how many Expenses make it.
+    """
+
+    category_id: str
+    parent_id: str
+    amount: float
+    vat: float
+    count: int
 
 
 class ExpenseSummaryOut(CamelModel):
@@ -208,3 +221,4 @@ class ExpenseSummaryOut(CamelModel):
     vat: float
     count: int
     by_category: list[ExpenseCategoryTotalOut]
+    by_subcategory: list[ExpenseSubcategoryTotalOut]

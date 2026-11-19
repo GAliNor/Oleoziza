@@ -24,45 +24,47 @@
       <check-line-icon v-if="selectedComputed && !isOpen" class="pointer-events-none absolute inset-e-4 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-brand" />
     </div>
 
-    <Transition name="menu-pop">
-      <div v-if="isOpen && (filteredComputed.length || canCreateComputed)" class="menu-panel">
-        <ul :id="listId" role="listbox" :aria-label="label" class="menu-list">
-          <li
-            v-for="(option, index) in filteredComputed"
-            :id="`${listId}-${index}`"
-            :key="option.value"
-            role="option"
-            class="menu-option"
-            :class="{ 'menu-option-active': index === activeIndex }"
-            :aria-selected="option.value === modelValue"
-            @mousedown.prevent
-            @mousemove="activeIndex = index"
-            @click="handlePick(option)"
-          >
-            <span class="min-w-0 flex-1">
-              <span class="block truncate">{{ option.label }}</span>
-              <span v-if="option.detail" class="block truncate body-three">{{ option.detail }}</span>
-            </span>
-            <check-line-icon v-if="option.value === modelValue" class="h-4 w-4 shrink-0 text-fg-brand" />
-          </li>
-          <li
-            v-if="canCreateComputed"
-            :id="`${listId}-${filteredComputed.length}`"
-            role="option"
-            class="menu-option border-t border-subtle"
-            :class="{ 'menu-option-active': activeIndex === filteredComputed.length }"
-            aria-selected="false"
-            @mousedown.prevent
-            @mousemove="activeIndex = filteredComputed.length"
-            @click="handleCreate"
-          >
-            <add-line-icon class="h-4 w-4 shrink-0 text-fg-brand" />
-            <span class="min-w-0 flex-1 truncate font-medium text-fg-brand">{{ $t('global.combobox.create', { query: query.trim() }) }}</span>
-            <span class="chip bg-selected text-fg-brand">{{ $t('global.combobox.createHint') }}</span>
-          </li>
-        </ul>
-      </div>
-    </Transition>
+    <Teleport to="body">
+      <Transition name="menu-pop">
+        <div v-if="isOpen && (filteredComputed.length || canCreateComputed)" ref="panel" class="menu-panel menu-panel-floating" :style="panelStyle" :data-placement="placement">
+          <ul :id="listId" role="listbox" :aria-label="label" class="menu-list">
+            <li
+              v-for="(option, index) in filteredComputed"
+              :id="`${listId}-${index}`"
+              :key="option.value"
+              role="option"
+              class="menu-option"
+              :class="{ 'menu-option-active': index === activeIndex }"
+              :aria-selected="option.value === modelValue"
+              @mousedown.prevent
+              @mousemove="activeIndex = index"
+              @click="handlePick(option)"
+            >
+              <span class="min-w-0 flex-1">
+                <span class="block truncate">{{ option.label }}</span>
+                <span v-if="option.detail" class="block truncate body-three">{{ option.detail }}</span>
+              </span>
+              <check-line-icon v-if="option.value === modelValue" class="h-4 w-4 shrink-0 text-fg-brand" />
+            </li>
+            <li
+              v-if="canCreateComputed"
+              :id="`${listId}-${filteredComputed.length}`"
+              role="option"
+              class="menu-option border-t border-subtle"
+              :class="{ 'menu-option-active': activeIndex === filteredComputed.length }"
+              aria-selected="false"
+              @mousedown.prevent
+              @mousemove="activeIndex = filteredComputed.length"
+              @click="handleCreate"
+            >
+              <add-line-icon class="h-4 w-4 shrink-0 text-fg-brand" />
+              <span class="min-w-0 flex-1 truncate font-medium text-fg-brand">{{ $t('global.combobox.create', { query: query.trim() }) }}</span>
+              <span class="chip bg-selected text-fg-brand">{{ $t('global.combobox.createHint') }}</span>
+            </li>
+          </ul>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -71,6 +73,7 @@
 import { computed, ref, useId, watch } from 'vue';
 
 import { filterOptions, foldText } from 'global/composables/select-options';
+import { useFloatingPanel } from 'global/composables/use-floating-panel';
 import type { ISelectOption } from 'global/types/select';
 
 import AddLineIcon from 'global/icons/add-line.icon.vue';
@@ -93,9 +96,11 @@ const MAX_SHOWN = 8;
 const listId = useId();
 const root = ref<HTMLElement | null>(null);
 const input = ref<HTMLInputElement | null>(null);
+const panel = ref<HTMLElement | null>(null);
 const isOpen = ref(false);
 const query = ref('');
 const activeIndex = ref(-1);
+const { panelStyle, placement } = useFloatingPanel(root, panel, isOpen, () => close());
 
 // computed
 const selectedComputed = computed((): ISelectOption | undefined => props.options.find((option) => option.value === modelValue.value));

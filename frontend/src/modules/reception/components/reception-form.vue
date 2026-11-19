@@ -60,7 +60,14 @@
       :lots="siteLots"
     />
 
-    <notification-choice-field v-model="notificationChoice" v-model:contact="contactTyped" :is-contact-missing="isContactMissing" :is-unchecked="isContactUnchecked" />
+    <notification-choice-field
+      v-if="channelsComputed.length"
+      v-model="notificationChoice"
+      v-model:contact="contactTyped"
+      :channels="channelsComputed"
+      :is-contact-missing="isContactMissing"
+      :is-unchecked="isContactUnchecked"
+    />
 
     <ui-photo-capture v-model="photo" :label="$t('reception.open.photo')" />
 
@@ -84,6 +91,7 @@ import { useToastStore } from 'global/stores/toast';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useClientStore } from 'client/stores/client';
 import { useLotStore } from 'lot/stores/lot';
+import { useConfigurationStore } from 'configuration/stores/configuration';
 import { createId } from 'global/composables/crypto';
 import { normalizePhone } from 'global/composables/phone';
 import { useOnlineStatus } from 'global/composables/use-online-status';
@@ -92,6 +100,7 @@ import { formatKg, formatQuintals } from 'lot/composables/quantity';
 import { OLIVE_VARIETIES, RECEPTION_MAX_KG } from 'reception/constants/reception';
 import type { IClient } from 'client/types/client';
 import type { ILot, NotificationChoice } from 'lot/types/lot';
+import type { NotificationChannel } from 'configuration/types/configuration';
 import type { ISiteReceptionSettings } from 'reception/types/reception';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';
@@ -118,6 +127,7 @@ const toastStore = useToastStore();
 const receptionStore = useReceptionStore();
 const clientStore = useClientStore();
 const lotStore = useLotStore();
+const configurationStore = useConfigurationStore();
 const { isOnline } = useOnlineStatus();
 
 // variables
@@ -135,6 +145,7 @@ const pressLineId = ref('');
 const plannedStartAt = ref('');
 
 // computed
+const channelsComputed = computed((): NotificationChannel[] => configurationStore.enabledNotificationChannels);
 const siteId = computed((): string => siteStore.currentSite?.id ?? '');
 const settings = computed((): ISiteReceptionSettings | null => receptionStore.settings);
 const siteLots = computed((): ILot[] => lotStore.lots.filter((lot) => lot.siteId === siteId.value));
@@ -177,6 +188,18 @@ watch(
 );
 
 
+/** With no channel enabled the question is hidden and « Aucune » saved; once one is enabled, the Operator must choose again. */
+watch(
+  channelsComputed,
+  (channels, previous) => {
+    const choice = notificationChoice.value;
+    if (!channels.length) notificationChoice.value = 'none';
+    else if (previous && !previous.length && choice === 'none') notificationChoice.value = null;
+    else if (choice && choice !== 'none' && !channels.includes(choice)) notificationChoice.value = null;
+  },
+  { immediate: true },
+);
+
 watch(
   [() => route.query.client, () => clientStore.clients.length],
   ([clientId]) => {
@@ -184,6 +207,9 @@ watch(
   },
   { immediate: true },
 );
+
+// methods
+const defaultChoice = (): NotificationChoice | null => (channelsComputed.value.length ? null : 'none');
 
 // event handlers
 const handleRetry = (): void => {
@@ -233,7 +259,7 @@ const handleAgain = (): void => {
   weightTyped.value = '';
   boxNumbers.value = [];
   photo.value = null;
-  notificationChoice.value = null;
+  notificationChoice.value = defaultChoice();
   contactTyped.value = '';
   pressLineId.value = '';
   plannedStartAt.value = '';

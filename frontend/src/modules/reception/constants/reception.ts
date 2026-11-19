@@ -1,4 +1,3 @@
-import type { NotificationChoice } from 'lot/types/lot';
 
 export const OLIVE_VARIETIES: readonly { slug: string; name: string }[] = [
   { slug: 'moroccan-picholine', name: 'Picholine marocaine' },
@@ -23,4 +22,3 @@ export const ORIGIN_SUGGESTIONS: readonly string[] = [
   'Aklim',
 ];
 
-export const NOTIFICATION_CHOICES: readonly NotificationChoice[] = ['sms', 'email', 'none'];

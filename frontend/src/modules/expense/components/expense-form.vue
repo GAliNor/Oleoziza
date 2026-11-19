@@ -9,7 +9,7 @@
     </header>
     <p v-if="hasDroppedDocuments" class="body-two rounded-card bg-warning-subtle px-4 py-3 text-fg-warning">{{ $t('expense.draft.documentsNotKept') }}</p>
 
-    <div class="grid gap-4 md:grid-cols-2">
+    <div class="grid gap-4 @2xl:grid-cols-2">
       <ui-field v-slot="{ id }" :label="$t('expense.form.date')">
         <ui-date-picker :id="id" v-model="draft.date" :label="$t('expense.form.date')" :min="SEASON_START" :max="todayIso()" required />
       </ui-field>
@@ -23,7 +23,7 @@
       <p v-if="isInvestmentComputed" class="body-three">{{ $t('expense.form.investmentHint') }}</p>
     </ui-field>
 
-    <div class="grid gap-4 md:grid-cols-2">
+    <div class="grid gap-4 @2xl:grid-cols-2">
       <ui-field v-slot="{ id }" :label="$t('expense.form.amount')">
         <div class="relative">
           <input :id="id" v-model.number="draft.amount" class="input pe-14 text-xl figure" type="number" inputmode="decimal" min="0" step="0.01" required />
@@ -43,7 +43,7 @@
 
     <section class="flex flex-col gap-2">
       <h3 class="label">{{ $t('expense.form.paidBy') }}</h3>
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div class="grid grid-cols-2 gap-2 @xl:grid-cols-4">
         <button v-for="option in EXPENSE_PAID_BY" :key="option" type="button" class="toggle-tile" :class="{ 'toggle-tile-active': draft.paidBy === option }" @click="draft.paidBy = option">
           {{ $t(`expense.paidBy.${option}`) }}
         </button>
@@ -51,7 +51,7 @@
     </section>
 
     <ui-disclosure v-model:is-open="isInvoiceOpen" :title="$t('expense.form.invoiceSection')">
-      <div class="grid gap-4 md:grid-cols-2">
+      <div class="grid gap-4 @2xl:grid-cols-2">
         <ui-field v-slot="{ id }" :label="$t('expense.form.invoiceNumber')">
           <input :id="id" v-model="draft.invoiceNumber" class="input" type="text" />
         </ui-field>
@@ -64,7 +64,7 @@
         <ui-field v-slot="{ id }" :label="$t('expense.form.if')">
           <input :id="id" v-model="draft.supplierIf" class="input tabular-nums" type="text" inputmode="numeric" />
         </ui-field>
-        <ui-field v-if="draft.paidBy !== 'cash'" v-slot="{ id }" class="md:col-span-2" :label="$t('expense.form.paymentReference')">
+        <ui-field v-if="draft.paidBy !== 'cash'" v-slot="{ id }" class="@2xl:col-span-2" :label="$t('expense.form.paymentReference')">
           <input :id="id" v-model="draft.paymentReference" class="input" type="text" :placeholder="$t('expense.form.paymentReferencePlaceholder')" />
         </ui-field>
       </div>

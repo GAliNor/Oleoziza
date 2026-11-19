@@ -5,7 +5,9 @@ import { useReceptionStore } from 'reception/stores/reception';
 import { useSessionStore } from 'global/stores/session';
 import { withStatus } from 'global/composables/with-status';
 import { cachedLoad, LOAD_TTL_MS } from 'global/composables/cached-load';
-import type { IConfiguration, IConfigurationStore, IConfigurationUpdate } from 'configuration/types/configuration';
+import { readStorage, writeStorage } from 'global/composables/storage';
+import { NOTIFICATION_CHANNELS_STORAGE_KEY } from 'configuration/constants/configuration';
+import type { IConfiguration, IConfigurationStore, IConfigurationUpdate, INotificationChannelSetting, NotificationChannel } from 'configuration/types/configuration';
 
 const configurationService = new ConfigurationService();
 
@@ -15,11 +17,26 @@ export const useConfigurationStore = defineStore('configuration', {
   state: (): IConfigurationStore => ({
     bySite: {},
     bySeason: {},
+    notificationChannels: readStorage<INotificationChannelSetting[] | null>(NOTIFICATION_CHANNELS_STORAGE_KEY, null),
     isLoading: false,
     isSaving: false,
     hasError: false,
   }),
+  getters: {
+    /** Channels Reception may offer: implemented and switched on, in the fixed order WhatsApp, SMS, email. */
+    enabledNotificationChannels: (state): NotificationChannel[] => (state.notificationChannels ?? []).filter((item) => item.isImplemented && item.isEnabled).map((item) => item.channel),
+  },
   actions: {
+    async updateNotificationChannel(channel: NotificationChannel, isEnabled: boolean): Promise<boolean> {
+      const updated = await withStatus(this, 'isSaving', () => configurationService.updateNotificationChannel(channel, isEnabled));
+      if (updated) this.keepChannels(updated);
+      return Boolean(updated);
+    },
+    /** Every Configuration answer carries the channels, so Configuration and Reception never ask for them apart; kept on the device for an Operator offline. */
+    keepChannels(channels: INotificationChannelSetting[]): void {
+      this.notificationChannels = channels;
+      writeStorage(NOTIFICATION_CHANNELS_STORAGE_KEY, channels);
+    },
     /** Loads the Sites' Configurations for the open Season in one request, the one Reception, Payments and equipment pickers read. */
     async fetchSites(siteIds: string[]): Promise<void> {
       await this.load(siteIds);
@@ -58,6 +75,7 @@ export const useConfigurationStore = defineStore('configuration', {
     },
     /** Files a Configuration under its Season, and as the Site's current one when its Season is open; Site settings are shared by every Season. */
     keep(configuration: IConfiguration): void {
+      if (configuration.notificationChannels) this.keepChannels(configuration.notificationChannels);
       this.bySeason[seasonKey(configuration.siteId, configuration.seasonId)] = configuration;
       const current = this.bySite[configuration.siteId];
       if (configuration.seasonStatus === 'open' || !current) this.bySite[configuration.siteId] = configuration;

@@ -40,8 +40,9 @@ EXPENSE_CATEGORY_TREE: tuple[tuple[str, tuple[tuple[str, str | None, str, bool],
         (
             ("electricity", "61251", "good", False),
             ("water", "61251", "good", False),
-            ("generator_diesel", "61223", "good", False),
             ("site_fuel", "61223", "good", False),
+            ("olive_pomace", "61223", "good", False),
+            ("generator_diesel", "61223", "good", False),
             ("energy_other", "6125", "good", False),
         ),
     ),
@@ -157,3 +158,5 @@ EXPENSE_CATEGORY_TREE: tuple[tuple[str, tuple[tuple[str, str | None, str, bool],
         ),
     ),
 )
+
+RETIRED_EXPENSE_CATEGORY_IDS: frozenset[str] = frozenset({"generator_diesel"})

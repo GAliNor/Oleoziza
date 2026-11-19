@@ -5,10 +5,45 @@ from fastapi import APIRouter, Depends, Query
 from core.security import get_current_user
 from core.types import CurrentUser
 from modules.configuration.services.configuration_services import ConfigurationService, get_configuration_service
-from modules.configuration.types.configuration_types import ConfigurationOut, ConfigurationUpdateIn
+from modules.configuration.services.notification_channel_services import NotificationChannelService, get_notification_channel_service
+from modules.configuration.types.configuration_types import ConfigurationOut, ConfigurationUpdateIn, NotificationChannel, NotificationChannelOut, NotificationChannelUpdateIn
 
 
 router = APIRouter(tags=["configuration"])
+
+
+@router.get("/notification-channels", response_model=list[NotificationChannelOut])
+def list_notification_channels(notification_channel_service: NotificationChannelService = Depends(get_notification_channel_service)) -> list[NotificationChannelOut]:
+    """
+    Read the company's Notification Channels, declared before /{site_id} so the path is not read as a Site.
+
+    Args:
+        notification_channel_service (NotificationChannelService): Injected service.
+
+    Returns:
+        list[NotificationChannelOut]: WhatsApp, SMS and email with whether each is implemented and enabled.
+    """
+    return notification_channel_service.list_channels()
+
+
+@router.put("/notification-channels/{channel}", response_model=list[NotificationChannelOut])
+def update_notification_channel(
+    channel: NotificationChannel,
+    payload: NotificationChannelUpdateIn,
+    notification_channel_service: NotificationChannelService = Depends(get_notification_channel_service),
+) -> list[NotificationChannelOut]:
+    """
+    Switch one Notification Channel on or off for every Site.
+
+    Args:
+        channel (NotificationChannel): Channel to switch.
+        payload (NotificationChannelUpdateIn): On or off.
+        notification_channel_service (NotificationChannelService): Injected service.
+
+    Returns:
+        list[NotificationChannelOut]: Every channel after the change.
+    """
+    return notification_channel_service.update_channel(channel, payload)
 
 
 @router.get("", response_model=list[ConfigurationOut])

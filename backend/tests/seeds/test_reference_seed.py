@@ -20,5 +20,5 @@ def test_expense_categories_are_unique_and_each_closes_on_an_other() -> None:
     subcategory_ids = [subcategory[0] for _, subcategories in EXPENSE_CATEGORY_TREE for subcategory in subcategories]
 
     assert len(category_ids) == 11
-    assert len(set(category_ids + subcategory_ids)) == len(category_ids) + len(subcategory_ids) == 89
+    assert len(set(category_ids + subcategory_ids)) == len(category_ids) + len(subcategory_ids) == 90
     assert all(subcategories[-1][0] == f"{category_id}_other" for category_id, subcategories in EXPENSE_CATEGORY_TREE)

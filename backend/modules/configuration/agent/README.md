@@ -1,14 +1,18 @@
 # Configuration
 
 ## Business
-A [Site](../../../../GLOSSARY.md)'s [Configuration](../../../../GLOSSARY.md) for one [Season](../../../../GLOSSARY.md): prices with their dated and scheduled changes, the [Payment Methods](../../../../GLOSSARY.md) it accepts, its [Boxes](../../../../GLOSSARY.md), [Tanks](../../../../GLOSSARY.md) and [Press Lines](../../../../GLOSSARY.md) (« Malaxeurs » on screen), and the [olive varieties](../../../../GLOSSARY.md). Every change is an [Audit Event](../../../../GLOSSARY.md), which is also the page's history.
+A [Site](../../../../GLOSSARY.md)'s [Configuration](../../../../GLOSSARY.md) for one [Season](../../../../GLOSSARY.md): prices with their dated and scheduled changes, the [Payment Methods](../../../../GLOSSARY.md) it accepts, its [Boxes](../../../../GLOSSARY.md), [Tanks](../../../../GLOSSARY.md) and [Press Lines](../../../../GLOSSARY.md) (« Malaxeurs » on screen), and the [olive varieties](../../../../GLOSSARY.md); and, for the whole company, the [Notification Channels](../../../../GLOSSARY.md) the mill may message Clients through. Every change is an [Audit Event](../../../../GLOSSARY.md), which is also the page's history.
 
 ## Exposes
 - Endpoints (`/api/configuration`):
   - `GET /{site_id}` (`?seasonId=` for another Season): the whole Configuration with its history. Any User with the Site.
   - `PATCH /{site_id}`: one change per request (a price, a Payment Method, equipment), idempotent by the front's event id. `configuration.manage`.
   - `DELETE /{site_id}/price-changes/{change_id}`: cancel a scheduled price change.
-- Services: `ConfigurationService.get_configuration` (the reception settings read it).
+  - `GET /notification-channels`: WhatsApp, SMS, email with `isImplemented` and `isEnabled`. Any signed-in staff member. Declared before `/{site_id}`.
+  - `PUT /notification-channels/{channel}` `{isEnabled}`: switch one channel for every Site. The Owner, or `configuration.manage` on every Site.
+- Every Configuration answer also carries `notificationChannels`, so Reception reads them without another request.
+- Services: `ConfigurationService.get_configuration` (the reception settings read it); `NotificationChannelService` (`notification_channel_services.py`).
+- Business: `list_enabled_notification_channels(db)` (switched on and implemented; the lot module reads it at pressing), `build_notification_channel_views(db)`.
 
 ## Refusal codes
 - `site_not_found`, `season_not_found`, `price_change_not_found` (404); `site_forbidden`, `configuration_forbidden` (403).
@@ -16,9 +20,11 @@ A [Site](../../../../GLOSSARY.md)'s [Configuration](../../../../GLOSSARY.md) for
 - `date_in_past`, `date_outside_season`, `discount_limit_too_high`, `number_taken`, `one_change_per_request` (422).
 - `change_in_force` (409): a change already in force can't be cancelled.
 - `box_in_use`, `tank_in_use`, `line_in_use`, `last_method` (409): equipment holding a Lot, or the last Payment Method.
+- `notification_channel_not_implemented` (409): switching on a channel the mill can't send through yet.
 
 ## Rules and gotchas
 - Prices are versioned rows (Site Setting with `effective_from`), never overwritten; a change dated ahead is « scheduled ».
 - Equipment is retired (`retired_at`), never deleted. The demo seed keeps the front mock's Tank and Press Line ids.
 - `service` is 540 lines: split by sub-resource (prices, equipment) when next touched.
-- Models: SiteSetting, PaymentMethodSetting, Box, Tank, PressLine, OliveVariety.
+- Notification Channels: one row per channel, no row means off (every channel starts off). Which ones can send is `IMPLEMENTED_NOTIFICATION_CHANNELS` in `constants/` (email only): add a channel there once its sending is wired.
+- Models: SiteSetting, PaymentMethodSetting, NotificationChannelSetting, Box, Tank, PressLine, OliveVariety.

@@ -8,7 +8,7 @@ A Client's olives from [Reception](../../../../GLOSSARY.md) to oil: the [Lot](..
   - `GET ""?siteId=…&seasonId=` (Sites held): the Lots of one Season (open by default), newest first.
   - `POST ""` (`reception.create`): one Reception becomes a waiting Lot in its Boxes, on a Press Line's queue; a replay of the same id answers the stored Lot (outbox-safe).
   - `GET /{id}`: one Lot.
-  - `POST /{id}/moves` (`pressing.create` or `lot.update_status`): one step. Waiting → pressing (frees the Boxes; `line_busy` when another Lot presses on the Line); pressing → pressed (`oilLitres`, `handedLitres` handed at once as a Withdrawal, `pours` into Tanks as Storages, `plannedUntil`; nothing stored means withdrawn at once; the « pressed » Notification, simulated); pressed → withdrawn (draws what is left). Keyed by its Audit Event id.
+  - `POST /{id}/moves` (`pressing.create` or `lot.update_status`): one step. Waiting → pressing (frees the Boxes; `line_busy` when another Lot presses on the Line); pressing → pressed (`oilLitres`, `handedLitres` handed at once as a Withdrawal, `pours` into Tanks as Storages, `plannedUntil`; nothing stored means withdrawn at once; the « pressed » Notification: `failed` with `channel_disabled` when its channel is off for the company or `contact_missing`, else `queued` for an email (sent by the `lot.send_notification` task after commit: `sent`, or `failed` with the mail error after 5 retries) and `simulated` for the others); pressed → withdrawn (draws what is left). Keyed by its Audit Event id.
   - `PUT /{id}/schedule`: another Line or start while waiting.
   - `POST /{id}/discount`, `POST /{id}/discount/decision`: served by `finance`'s `DiscountService`.
   - `POST /{id}/contact-found`: reads the Lot again (the flag is derived).

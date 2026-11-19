@@ -6,7 +6,8 @@ import { useSiteStore } from 'site/stores/site';
 import { usePeriod } from 'global/composables/use-period';
 import { DEFAULT_PERIOD } from 'global/constants/period';
 import { PAGE_SIZE } from 'global/constants/page';
-import type { IExpense } from 'expense/types/expense';
+import { categoryIdOf } from 'expense/composables/expense-amounts';
+import type { ExpenseView, IExpense } from 'expense/types/expense';
 import type { PeriodKey } from 'global/types/period';
 
 const SEARCH_DELAY_MS = 300;
@@ -16,7 +17,7 @@ const queryNumber = (value: unknown): number => {
   return Number.isInteger(number) && number > 0 ? number : 1;
 };
 
-/** The Charges page: period, type, page and open Expense kept in the URL; each page read from the server when it is shown. */
+/** The Charges page: view, period, type, page and open Expense kept in the URL; « Par type » reads only the summary, « Toutes les charges » each page from the server when it is shown. */
 export const useExpensePage = () => {
   // stores
   const route = useRoute();
@@ -32,6 +33,8 @@ export const useExpensePage = () => {
 
   // computed
   const categoryId = computed((): string | null => (typeof route.query.category === 'string' && expenseStore.categories.some((item) => item.id === route.query.category) ? route.query.category : null));
+  const view = computed((): ExpenseView => (route.query.view === 'list' ? 'list' : 'type'));
+  const focusId = computed((): string | null => (categoryId.value ? categoryIdOf(expenseStore.categories, categoryId.value) : null));
   const page = computed((): number => queryNumber(route.query.page));
   const openId = computed((): string | null => (typeof route.query.expense === 'string' ? route.query.expense : null));
   const openExpense = computed((): IExpense | null => {
@@ -48,6 +51,12 @@ export const useExpensePage = () => {
 
   const selectCategory = (id: string | null): void => setQuery({ category: id ?? undefined, page: undefined, expense: undefined });
 
+  /** « Toutes les charges » keeps the type in view; « Par type » shows every category again. */
+  const selectView = (next: ExpenseView): void => setQuery({ view: next === 'list' ? 'list' : undefined, category: next === 'list' ? (categoryId.value ?? undefined) : undefined, page: undefined, expense: undefined });
+
+  /** A tap on a total opens the Expenses behind it; none clears the « Par type » focus. */
+  const openType = (id: string | null): void => setQuery({ view: id ? 'list' : undefined, category: id ?? undefined, page: undefined, expense: undefined });
+
   const selectPeriod = (key: PeriodKey): void => setQuery({ period: key === DEFAULT_PERIOD ? undefined : key, page: undefined, expense: undefined });
 
   const selectPage = (number: number): void => setQuery({ page: number > 1 ? String(number) : undefined });
@@ -61,7 +70,7 @@ export const useExpensePage = () => {
     if (!siteId) return;
     expenseStore.fetchCategories();
     expenseStore.fetchSummary(siteId, period.value.key);
-    expenseStore.fetchPage({ siteId, period: period.value.key, categoryId: categoryId.value, search: searched.value }, page.value, isForced);
+    if (view.value === 'list') expenseStore.fetchPage({ siteId, period: period.value.key, categoryId: categoryId.value, search: searched.value }, page.value, isForced);
   };
 
   // watchers
@@ -72,7 +81,7 @@ export const useExpensePage = () => {
       if (page.value > 1) selectPage(1);
     }, SEARCH_DELAY_MS);
   });
-  watch([() => siteStore.currentSiteId, () => period.value.key, categoryId, searched, page], () => load(), { immediate: true });
+  watch([() => siteStore.currentSiteId, () => period.value.key, view, categoryId, searched, page], () => load(), { immediate: true });
   watch(
     () => expenseStore.list.total,
     (total) => {
@@ -88,5 +97,5 @@ export const useExpensePage = () => {
     { immediate: true },
   );
 
-  return { period, periodOptions, selectPeriod, search, categoryId, selectCategory, page, selectPage, openId, openExpense, open, close, isReadOnly, canManage, reload: () => load(true) };
+  return { view, selectView, openType, focusId, period, periodOptions, selectPeriod, search, categoryId, selectCategory, page, selectPage, openId, openExpense, open, close, isReadOnly, canManage, reload: () => load(true) };
 };

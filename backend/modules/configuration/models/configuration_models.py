@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from core.database import Base
 from core.model_mixins import KILOGRAMS, LITRES, NAME_LENGTH, ActiveMixin, AuditMixin, IdMixin, RetiredMixin, SlugIdMixin, TimestampMixin, build_enum_type
-from modules.configuration.types.configuration_types import PaymentMethod, SettingKey
+from modules.configuration.types.configuration_types import NotificationChannel, PaymentMethod, SettingKey
 
 
 SETTING_VALUE = Numeric(12, 2)
@@ -40,6 +40,17 @@ class PaymentMethodSetting(IdMixin, AuditMixin, Base):
     is_enabled: Mapped[bool]
     is_proof_required: Mapped[bool]
     effective_from: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class NotificationChannelSetting(AuditMixin, Base):
+    """
+    Whether Management lets the mill message Clients through one Notification Channel, for every Site; no row means off.
+    """
+
+    __tablename__ = "notification_channel_settings"
+
+    channel: Mapped[NotificationChannel] = mapped_column(build_enum_type(NotificationChannel, "notification_channel_setting_channel"), primary_key=True)
+    is_enabled: Mapped[bool] = mapped_column(default=False, server_default="false")
 
 
 class Box(IdMixin, AuditMixin, RetiredMixin, Base):

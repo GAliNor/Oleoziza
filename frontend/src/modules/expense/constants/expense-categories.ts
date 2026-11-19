@@ -17,8 +17,9 @@ const TREE: Record<string, SubcategorySeed[]> = {
   energy: [
     ['electricity', '61251', 'good'],
     ['water', '61251', 'good'],
-    ['generator_diesel', '61223', 'good'],
     ['site_fuel', '61223', 'good'],
+    ['olive_pomace', '61223', 'good'],
+    ['generator_diesel', '61223', 'good'],
     ['energy_other', '6125', 'good'],
   ],
   maintenance: [
@@ -107,10 +108,13 @@ const TREE: Record<string, SubcategorySeed[]> = {
 
 export const INVESTMENT_CATEGORY_ID = 'investment';
 
+/** Kept for the Expenses already filed under them, no longer offered: the mill has no generator any more (owner, 2026-11-19). */
+const RETIRED_IDS: readonly string[] = ['generator_diesel'];
+
 /** Costs the cash limits of the CGI leave out: staff, taxes, and olives bought from farmers. */
 export const CASH_LIMIT_EXEMPT_IDS: readonly string[] = ['staff', 'olives', 'taxes_and_fees', 'onssa', 'civil_protection'];
 
 export const EXPENSE_CATEGORIES_MOCK: IExpenseCategory[] = Object.entries(TREE).flatMap(([categoryId, children], categoryIndex) => [
   { id: categoryId, type: 'category' as const, parentId: null, position: categoryIndex + 1, isActive: true, accountCode: null, vatNature: 'none' as const, isVatNeverDeductible: false },
-  ...children.map(([id, accountCode, vatNature, isVatNeverDeductible = false], index) => ({ id, type: 'subcategory' as const, parentId: categoryId, position: index + 1, isActive: true, accountCode, vatNature, isVatNeverDeductible })),
+  ...children.map(([id, accountCode, vatNature, isVatNeverDeductible = false], index) => ({ id, type: 'subcategory' as const, parentId: categoryId, position: index + 1, isActive: !RETIRED_IDS.includes(id), accountCode, vatNature, isVatNeverDeductible })),
 ]);

@@ -6,7 +6,7 @@ Money a [Site](../../../../GLOSSARY.md) already paid to run, stock or equip itse
 ## Exposes
 - Endpoints (`/api/expense`, « Gérer les charges » = `expense.record` for writes):
   - `GET /categories` (reference, cached a day).
-  - `GET /expenses?siteId=&period=&category=&search=&offset=&limit=` → `{items, total}`; `GET /expenses/summary?siteId=&period=`; `GET /expenses/export?siteId=&from=&to=`; `GET /expenses/{id}`.
+  - `GET /expenses?siteId=&period=&category=&search=&offset=&limit=` → `{items, total}`; `GET /expenses/summary?siteId=&period=` → totals, `byCategory` and `bySubcategory` (amount, TVA, count per sub-category with its `parentId`), built in `business/expense_summary.py`; `GET /expenses/export?siteId=&from=&to=`; `GET /expenses/{id}`.
   - `POST /expenses` (idempotent on the id; code `<Site>-C<Season>-…`; Supplier created from a typed name), `PUT /expenses/{id}`, `POST /expenses/{id}/cancel` (reason; repeat answers it as it is).
   - `GET /suppliers`, `POST /suppliers` (an existing name gives back that Supplier).
 - Services: `ExpenseService`. Business: `build_expense_views`.

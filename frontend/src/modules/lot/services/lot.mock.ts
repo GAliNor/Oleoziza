@@ -7,7 +7,7 @@ import { ALL_SITES } from 'site/constants/site';
 import { amountDue } from 'lot/composables/fee';
 import { pressingOn } from 'lot/composables/press-schedule';
 import { checkPours, isStorageActive, tankStates } from 'lot/composables/storage';
-import { configurationOf } from 'configuration/services/configuration.mock';
+import { configurationOf, isChannelEnabledMock } from 'configuration/services/configuration.mock';
 import type { IDiscountDecision, IDiscountGift, ILot, ILotMovePayload, ILotSchedule, ILotService, NotificationEvent } from 'lot/types/lot';
 
 export const LOTS_MOCK_DB: ILot[] = structuredClone(LOTS_MOCK);
@@ -26,10 +26,11 @@ syncLotPayments(MOVEMENTS_MOCK);
 
 const appliedMoves = new Set<string>();
 
-/** Simulates the message: a Lot whose contact is missing shows it could not go. */
+/** Simulates the message: nothing goes through a channel switched off, nor without the contact. */
 export const notifyClient = (lot: ILot, event: NotificationEvent): void => {
   if (lot.notificationChoice === 'none') return;
-  lot.notifications.push({ event, channel: lot.notificationChoice, at: new Date().toISOString(), isFailed: lot.isContactMissing });
+  const failureReason = !isChannelEnabledMock(lot.notificationChoice) ? 'channel_disabled' : lot.isContactMissing ? 'contact_missing' : null;
+  lot.notifications.push({ event, channel: lot.notificationChoice, at: new Date().toISOString(), isFailed: Boolean(failureReason), failureReason });
 };
 
 export default class LotMockService implements ILotService {

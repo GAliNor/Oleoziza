@@ -73,6 +73,7 @@
     "discount": "Remise",
     "notification": "Client prévenu",
     "notificationFailed": "Notification impossible",
+    "notificationSkipped": "Non envoyé : canal coupé",
     "discountStates": {
       "applied": "{amount} ({percent} %), appliquée",
       "pending": "{amount} ({percent} %), en attente d’approbation",
@@ -80,6 +81,7 @@
       "refused": "{amount} ({percent} %)"
     },
     "notificationChannels": {
+      "whatsapp": "WhatsApp",
       "sms": "SMS",
       "email": "Email"
     },
@@ -128,7 +130,8 @@
   "contact": {
     "missing": {
       "email": "Notification impossible : ce Client n’a pas d’email. Saisissez-le.",
-      "sms": "Notification impossible : ce Client n’a pas de téléphone. Saisissez-le."
+      "sms": "Notification impossible : ce Client n’a pas de téléphone. Saisissez-le.",
+      "whatsapp": "Notification impossible : ce Client n’a pas de téléphone. Saisissez-le."
     },
     "save": "Enregistrer le contact",
     "saved": "Contact enregistré"

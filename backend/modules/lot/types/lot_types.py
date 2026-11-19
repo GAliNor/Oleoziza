@@ -32,6 +32,7 @@ class NotificationChoice(StrEnum):
     How a Client wants to hear about one Lot, asked at Reception.
     """
 
+    WHATSAPP = "whatsapp"
     SMS = "sms"
     EMAIL = "email"
     NONE = "none"
@@ -73,6 +74,7 @@ class NotificationStatus(StrEnum):
     What happened to a message sent to a Client.
     """
 
+    QUEUED = "queued"
     SENT = "sent"
     FAILED = "failed"
     SIMULATED = "simulated"
@@ -127,6 +129,7 @@ class LotNotificationOut(CamelModel):
     channel: str
     at: datetime
     is_failed: bool
+    failure_reason: str | None = None
 
 
 class LotOut(CamelModel):
@@ -239,3 +242,14 @@ class DiscountDecisionIn(CamelModel):
     id: UUID
     is_approved: bool
     reason: str | None = Field(default=None, max_length=500)
+
+
+SEND_LOT_NOTIFICATION_TASK = "lot.send_notification"
+
+CHANNEL_DISABLED_REASON = "channel_disabled"
+
+CONTACT_MISSING_REASON = "contact_missing"
+
+PRESSED_EMAIL_SUBJECT = "Votre huile est prête · {site}"
+
+PRESSED_EMAIL_BODY = "Bonjour,\n\nVotre lot {code} a été pressé à {site} : {litres} L d'huile.\nVous pouvez venir la retirer.\n\n{site}"

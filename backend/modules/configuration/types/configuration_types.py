@@ -18,6 +18,16 @@ class SettingKey(StrEnum):
     DAILY_PRICE_PER_KG = "daily_price_per_kg"
 
 
+class NotificationChannel(StrEnum):
+    """
+    A way the mill messages Clients about their Lots; offered only when implemented and enabled for the company.
+    """
+
+    WHATSAPP = "whatsapp"
+    SMS = "sms"
+    EMAIL = "email"
+
+
 class PaymentMethod(StrEnum):
     """
     The four fixed ways a Payment is made.
@@ -103,6 +113,7 @@ class ConfigurationOut(CamelModel):
     tanks: list[TankSettingOut]
     press_lines: list[PressLineSettingOut]
     history: list[ConfigurationChangeOut]
+    notification_channels: list["NotificationChannelOut"]
 
 
 class ValueUpdate(CamelModel):
@@ -124,3 +135,21 @@ class ConfigurationUpdateIn(CamelModel):
     boxes: BoxesUpdate | None = None
     tanks: list[TankSettingOut] | None = None
     press_lines: list[PressLineSettingOut] | None = None
+
+
+class NotificationChannelOut(CamelModel):
+    """
+    One Notification Channel as Configuration shows it: whether the mill can send through it yet, and whether Management switched it on.
+    """
+
+    channel: NotificationChannel
+    is_implemented: bool
+    is_enabled: bool
+
+
+class NotificationChannelUpdateIn(CamelModel):
+    """
+    Switch one Notification Channel on or off for the whole company.
+    """
+
+    is_enabled: bool

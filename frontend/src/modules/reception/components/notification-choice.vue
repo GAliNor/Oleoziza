@@ -28,14 +28,21 @@
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { NOTIFICATION_CHOICES } from 'reception/constants/reception';
 import type { NotificationChoice } from 'lot/types/lot';
+import type { NotificationChannel } from 'configuration/types/configuration';
 
 import UiField from 'global/components/ui-field.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 
 // props
-defineProps<{ modelValue: NotificationChoice | null; contact: string; isContactMissing: boolean; isUnchecked: boolean }>();
+const props = defineProps<{
+  modelValue: NotificationChoice | null;
+  contact: string;
+  isContactMissing: boolean;
+  isUnchecked: boolean;
+  /** The channels Management enabled; « Aucune » is always offered after them. */
+  channels: NotificationChannel[];
+}>();
 
 // emits
 const emit = defineEmits<{
@@ -48,6 +55,6 @@ const { t } = useI18n();
 
 // computed
 const choiceOptionsComputed = computed((): { key: NotificationChoice; label: string }[] =>
-  NOTIFICATION_CHOICES.map((choice) => ({ key: choice, label: t(`reception.notification.${choice}`) })),
+  [...props.channels, 'none' as const].map((choice) => ({ key: choice, label: t(`reception.notification.${choice}`) })),
 );
 </script>

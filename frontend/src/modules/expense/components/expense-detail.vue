@@ -1,5 +1,5 @@
 <template>
-  <div class="stagger grid gap-5 rounded-card bg-subtle p-3 shadow-hairline sm:p-6 xl:grid-cols-[minmax(0,1fr)_24rem] xl:gap-x-8">
+  <div class="stagger grid gap-5 rounded-card bg-subtle p-3 shadow-hairline @xl:p-6 @4xl:grid-cols-[minmax(0,1fr)_24rem] @4xl:gap-x-8">
     <div class="flex min-w-0 flex-col gap-5">
       <header class="flex flex-col gap-1">
         <p class="eyebrow">{{ expense.code }} · {{ categoryLineComputed }}</p>
@@ -13,7 +13,7 @@
       </p>
       <expense-warning-list v-else :warnings="warningsComputed" />
 
-      <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2">
+      <dl class="grid gap-x-6 gap-y-3 @xl:grid-cols-2">
         <div v-for="row in factsComputed" :key="row.label" class="flex min-w-0 flex-col">
           <dt class="body-three">{{ row.label }}</dt>
           <dd class="truncate text-fg-display" :class="{ 'tabular-nums': row.isNumber }">{{ row.value }}</dd>

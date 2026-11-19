@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+  <div class="grid grid-cols-2 gap-3 @xl:grid-cols-3">
     <ui-stat-tile
       v-for="tile in tiles"
       :key="tile.key"
@@ -8,7 +8,7 @@
       :format="formatMoneyRounded"
       :sub="tile.sub"
       :value-class="tile.tone"
-      :class="{ 'col-span-2 sm:col-span-1': tile.key === 'operating' }"
+      :class="{ 'col-span-2 @xl:col-span-1': tile.key === 'operating' }"
     />
   </div>
 </template>

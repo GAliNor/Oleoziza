@@ -1,5 +1,5 @@
 import { INVESTMENT_CATEGORY_ID } from 'expense/constants/expense-categories';
-import type { IExpense, IExpenseCategory, IExpenseCategoryGroup, IExpenseSummary } from 'expense/types/expense';
+import type { IExpense, IExpenseCategory, IExpenseCategoryGroup, IExpenseCategoryTotal, IExpenseSubcategoryTotal, IExpenseSummary, IExpenseTypeGroup } from 'expense/types/expense';
 
 const roundCentimes = (amount: number): number => Math.round(amount * 100) / 100;
 
@@ -21,25 +21,47 @@ export const groupCategories = (categories: readonly IExpenseCategory[]): IExpen
       subcategories: categories.filter((item) => item.parentId === category.id && item.isActive).sort((first, second) => first.position - second.position),
     }));
 
-/** Totals of the recorded Expenses: Investments apart from the operating ones, and one line per category, largest first. */
+const byAmount = (first: IExpenseCategoryTotal, second: IExpenseCategoryTotal): number => second.amount - first.amount || first.categoryId.localeCompare(second.categoryId);
+
+/** One total per sub-category with recorded Expenses, largest first, as the backend summary returns them. */
+export const totalBySubcategory = (expenses: readonly IExpense[], categories: readonly IExpenseCategory[]): IExpenseSubcategoryTotal[] => {
+  const rows = new Map<string, IExpenseSubcategoryTotal>();
+  expenses
+    .filter((expense) => expense.status === 'recorded')
+    .forEach((expense) => {
+      const row = rows.get(expense.categoryId) ?? { categoryId: expense.categoryId, parentId: categoryIdOf(categories, expense.categoryId), amount: 0, vat: 0, count: 0 };
+      rows.set(expense.categoryId, { ...row, amount: row.amount + expense.amount, vat: row.vat + vatOf(expense.amount, expense.vatRate), count: row.count + 1 });
+    });
+  return [...rows.values()].map((row) => ({ ...row, amount: roundCentimes(row.amount), vat: roundCentimes(row.vat) })).sort(byAmount);
+};
+
+/** Totals of the recorded Expenses: Investments apart from the operating ones, one line per category and one per sub-category, largest first. */
 export const summarizeExpenses = (expenses: readonly IExpense[], categories: readonly IExpenseCategory[]): IExpenseSummary => {
-  const recorded = expenses.filter((expense) => expense.status === 'recorded');
-  const byCategory = new Map<string, number>();
-  recorded.forEach((expense) => {
-    const categoryId = categoryIdOf(categories, expense.categoryId);
-    byCategory.set(categoryId, (byCategory.get(categoryId) ?? 0) + expense.amount);
+  const bySubcategory = totalBySubcategory(expenses, categories);
+  const byCategory = new Map<string, IExpenseCategoryTotal>();
+  bySubcategory.forEach((row) => {
+    const total = byCategory.get(row.parentId) ?? { categoryId: row.parentId, amount: 0, count: 0 };
+    byCategory.set(row.parentId, { ...total, amount: roundCentimes(total.amount + row.amount), count: total.count + row.count });
   });
-  const total = roundCentimes(recorded.reduce((sum, expense) => sum + expense.amount, 0));
-  const investments = roundCentimes(byCategory.get(INVESTMENT_CATEGORY_ID) ?? 0);
+  const total = roundCentimes(bySubcategory.reduce((sum, row) => sum + row.amount, 0));
+  const investments = byCategory.get(INVESTMENT_CATEGORY_ID)?.amount ?? 0;
   return {
     total,
     operating: roundCentimes(total - investments),
     investments,
-    vat: roundCentimes(recorded.reduce((sum, expense) => sum + vatOf(expense.amount, expense.vatRate), 0)),
-    count: recorded.length,
-    byCategory: [...byCategory].map(([categoryId, amount]) => ({ categoryId, amount: roundCentimes(amount) })).sort((first, second) => second.amount - first.amount),
+    vat: roundCentimes(bySubcategory.reduce((sum, row) => sum + row.vat, 0)),
+    count: bySubcategory.reduce((sum, row) => sum + row.count, 0),
+    byCategory: [...byCategory.values()].sort(byAmount),
+    bySubcategory,
   };
 };
+
+/** The « Par type » view: each category with spending and its sub-categories, largest first, Investments last since they stay out of the Result; `focusId` keeps one category. */
+export const groupByType = (summary: IExpenseSummary, focusId: string | null = null): IExpenseTypeGroup[] =>
+  summary.byCategory
+    .filter((total) => !focusId || total.categoryId === focusId)
+    .map((total) => ({ ...total, rows: summary.bySubcategory.filter((row) => row.parentId === total.categoryId) }))
+    .sort((first, second) => Number(first.categoryId === INVESTMENT_CATEGORY_ID) - Number(second.categoryId === INVESTMENT_CATEGORY_ID));
 
 /** What the Site earned: Revenue less every Expense but Investments. */
 export const resultOf = (revenue: number, summary: IExpenseSummary): number => roundCentimes(revenue - summary.operating);

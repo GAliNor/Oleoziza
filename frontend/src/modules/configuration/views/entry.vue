@@ -39,6 +39,7 @@
           :title="siteStore.isAllSites ? item.name : undefined"
           :is-read-only="siteStore.isAllSites"
         />
+        <configuration-notifications class="mt-2" />
       </template>
     </section>
   </app-layout>
@@ -60,6 +61,7 @@ import type { ISeason } from 'season/types/season';
 
 import AppLayout from 'global/components/app-layout.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
+import ConfigurationNotifications from 'configuration/components/configuration-notifications.vue';
 import ConfigurationSite from 'configuration/components/configuration-site.vue';
 import SeasonBanner from 'configuration/components/season-banner.vue';
 import SeasonPriceAgenda from 'configuration/components/season-price-agenda.vue';

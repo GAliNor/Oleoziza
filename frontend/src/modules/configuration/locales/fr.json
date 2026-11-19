@@ -126,5 +126,22 @@
   "site": {
     "title": "Réglages du moulin",
     "hint": "Ce qui ne change pas avec la saison : modes de paiement, Box, malaxeurs et cuves."
+  },
+  "notifications": {
+    "title": "Notifications aux clients",
+    "hint": "Pour tous les sites. La réception ne propose que les canaux activés ; un Lot dont le canal a été coupé n’envoie rien au pressage.",
+    "channels": {
+      "whatsapp": "WhatsApp",
+      "sms": "SMS",
+      "email": "Email"
+    },
+    "states": {
+      "unavailable": "Pas encore disponible : l’envoi n’est pas encore développé.",
+      "on": "Proposé à la réception",
+      "off": "Non proposé"
+    },
+    "notImplemented": "Bientôt",
+    "noneEnabled": "Aucun canal activé : la réception ne demande pas comment prévenir le client.",
+    "readOnly": "Seul le propriétaire, ou qui gère la configuration de tous les sites, change les canaux."
   }
 }

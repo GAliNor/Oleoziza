@@ -13,15 +13,14 @@ from core.integrations.rustfs.rustfs_client import RustFSClient, get_rustfs_clie
 from core.security import get_current_user
 from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
+from modules.expense.business.expense_summary import build_expense_summary, sum_expenses_by_subcategory
 from modules.expense.business.expense_views import build_expense_views
 from modules.expense.models.expense_models import Expense, ExpenseCategory, ExpenseDocument, Supplier
 from modules.expense.types.expense_types import (
     ICE_LENGTH,
-    INVESTMENT_CATEGORY_ID,
     VAT_RATES,
     ExpenseCancelIn,
     ExpenseCategoryOut,
-    ExpenseCategoryTotalOut,
     ExpenseCategoryType,
     ExpenseIn,
     ExpenseOut,
@@ -106,7 +105,7 @@ class ExpenseService:
 
     def get_summary(self, site_ids: list[UUID], period: str) -> ExpenseSummaryOut:
         """
-        Total the period's Expenses by category, cancelled ones left out, Investments apart; TVA derived as TTC × rate / (100 + rate).
+        Total the period's Expenses by sub-category and by category, cancelled ones left out, Investments apart.
 
         Args:
             site_ids (list[UUID]): Sites to read.
@@ -117,17 +116,7 @@ class ExpenseService:
         """
         scoped = resolve_site_ids(self.db, self.current_user, site_ids)
         starts_on, ends_on = get_period_range(self.db, period)
-        vat = func.coalesce(Expense.amount * Expense.vat_rate / (100 + Expense.vat_rate), 0)
-        rows = self.db.execute(
-            select(ExpenseCategory.parent_id, func.sum(Expense.amount), func.sum(vat), func.count())
-            .join(ExpenseCategory, ExpenseCategory.id == Expense.category_id)
-            .where(Expense.site_id.in_(scoped), Expense.status == ExpenseStatus.RECORDED, Expense.date >= starts_on, Expense.date <= ends_on)
-            .group_by(ExpenseCategory.parent_id)
-        ).all()
-        by_category = [ExpenseCategoryTotalOut(category_id=category_id, amount=float(amount)) for category_id, amount, _, _ in rows]
-        total = sum((amount for _, amount, _, _ in rows), Decimal(0))
-        investments = sum((amount for category_id, amount, _, _ in rows if category_id == INVESTMENT_CATEGORY_ID), Decimal(0))
-        return ExpenseSummaryOut(total=float(total), operating=float(total - investments), investments=float(investments), vat=round(float(sum((row[2] for row in rows), Decimal(0))), 2), count=sum(row[3] for row in rows), by_category=sorted(by_category, key=lambda item: -item.amount))
+        return build_expense_summary(sum_expenses_by_subcategory(self.db, scoped, starts_on, ends_on))
 
     def get_expense(self, expense_id: UUID) -> ExpenseOut:
         """

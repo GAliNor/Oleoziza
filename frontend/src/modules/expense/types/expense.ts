@@ -106,7 +106,21 @@ export interface IExpenseListQuery {
 export interface IExpenseCategoryTotal {
   categoryId: string;
   amount: number;
+  count: number;
 }
+
+/** The period's total for one sub-category (« Salaires », « Électricité »), with its category. */
+export interface IExpenseSubcategoryTotal extends IExpenseCategoryTotal {
+  parentId: string;
+  vat: number;
+}
+
+/** One category of the « Par type » view: its total and its sub-categories with spending. */
+export interface IExpenseTypeGroup extends IExpenseCategoryTotal {
+  rows: IExpenseSubcategoryTotal[];
+}
+
+export type ExpenseView = 'type' | 'list';
 
 /** The period's Expenses, cancelled ones left out. */
 export interface IExpenseSummary {
@@ -116,6 +130,7 @@ export interface IExpenseSummary {
   vat: number;
   count: number;
   byCategory: IExpenseCategoryTotal[];
+  bySubcategory: IExpenseSubcategoryTotal[];
 }
 
 export interface IExpenseService {
