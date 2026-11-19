@@ -12,6 +12,7 @@ class SeedPart(StrEnum):
     REFERENCE = "reference"
     DEMO = "demo"
     OWNER = "owner"
+    AUDIT = "audit"
 
 
 @dataclass(frozen=True)

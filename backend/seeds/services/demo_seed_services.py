@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -76,7 +77,7 @@ class DemoSeedService:
         if self.db.scalar(select(Province.id).limit(1)) is None:
             raise SeedRefusedError("reference_missing")
         self._seed_sites_and_season()
-        self._seed_configuration(UUID(SITE_OUJDA_ID))
+        self._seed_configuration(UUID(SITE_OUJDA_ID), TANKS, PRESS_LINES)
         self._seed_user(OWNER)
         banner_count = self._seed_season_illustrations()
         self.db.commit()
@@ -94,12 +95,14 @@ class DemoSeedService:
         self.db.merge(Season(id=UUID(SEASON_ID), code=SEASON_CODE, label=SEASON_LABEL, starts_on=SEASON_STARTS_ON, ends_on=SEASON_ENDS_ON, status=SeasonStatus.OPEN))
         self.db.flush()
 
-    def _seed_configuration(self, site_id: UUID) -> None:
+    def _seed_configuration(self, site_id: UUID, tanks: tuple[tuple[str, int, Decimal], ...], press_lines: tuple[tuple[str, int, str | None], ...]) -> None:
         """
-        Write a Site's prices for the open Season, its Payment Methods, Boxes, Tanks and Press Lines, with the ids the front mocks use.
+        Write a Site's prices for the open Season, its Payment Methods, Boxes, Tanks and Press Lines; Tanks and Press Lines keep the fixed ids they are given, which for Oujda are the ones the front mocks use.
 
         Args:
             site_id (UUID): Site configured.
+            tanks (tuple[tuple[str, int, Decimal], ...]): Id, number and capacity in litres of each Tank.
+            press_lines (tuple[tuple[str, int, str | None], ...]): Id, number and name of each Press Line.
         """
         season_start = get_local_midnight(SEASON_STARTS_ON)
         for key, value, day in PAST_PRICE_CHANGES:
@@ -110,9 +113,9 @@ class DemoSeedService:
             self.db.merge(PaymentMethodSetting(id=build_seed_id("payment-method", site_id, method.value), site_id=site_id, method=method, is_enabled=is_enabled, is_proof_required=is_proof_required, effective_from=season_start))
         for number in range(1, BOX_COUNT + 1):
             self.db.merge(Box(id=build_seed_id("box", site_id, str(number)), site_id=site_id, number=number, capacity_in_kg=BOX_CAPACITY_IN_KG, retired_at=None))
-        for tank_id, number, capacity in TANKS:
+        for tank_id, number, capacity in tanks:
             self.db.merge(Tank(id=UUID(tank_id), site_id=site_id, number=number, capacity_in_litres=capacity, retired_at=None))
-        for line_id, number, name in PRESS_LINES:
+        for line_id, number, name in press_lines:
             self.db.merge(PressLine(id=UUID(line_id), site_id=site_id, number=number, name=name, retired_at=None))
         self.db.flush()
 

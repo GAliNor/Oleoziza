@@ -47,6 +47,7 @@ First start, after `docker compose up -d --build` (the backend runs `alembic upg
 ```bash
 docker compose exec oleoziza_backend python -m seeds reference   # Provinces, towns, olive varieties, Expense Categories
 docker compose exec oleoziza_backend python -m seeds demo        # dev only: Oujda, the open Season, its Configuration and the Owner (m.taibi@oleoziza.ma / Oleoziza2026, or 0661100001 + PIN 1234)
+docker compose exec oleoziza_backend python -m seeds audit       # dev only, after demo: a second mill (Berkane) and four Users for Site-isolation and load tests, password AuditLocal2026
 ```
 
 The front's `VITE_API_MODULES` (in `env_files/<env>/frontend.env`) lists the modules served by the backend; `auth`, `configuration`, `season` and `user` are plugged, the rest stays on mocks. Every other User is created from the Users page: with a first password (default) or an Invitation, whose email lands in MailHog and whose SMS is written to the worker log (`docker compose logs oleoziza_worker`). In production, create the first Owner with `python -m seeds owner` (`SEED_OWNER_*` settings).
