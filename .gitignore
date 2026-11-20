@@ -11,10 +11,12 @@ research/
 docs/
 GLOSSARY.md
 !/.env
-!/rustfs/.env
 __pycache__/
 .venv/
 .pytest_cache/
 
 # real production settings live only on the server; the committed *.env.example files are the templates
 env_files/production/*.env
+
+# the production database dump written by the oleoziza_db_dump service
+/backups/

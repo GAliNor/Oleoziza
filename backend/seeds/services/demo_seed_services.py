@@ -1,5 +1,4 @@
 from decimal import Decimal
-from pathlib import Path
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from sqlalchemy import delete, select
@@ -13,9 +12,8 @@ from modules.auth.business.auth_secrets import hash_secret
 from modules.auth.models.auth_models import Credential
 from modules.auth.types.auth_types import CredentialKind
 from modules.configuration.models.configuration_models import Box, PaymentMethodSetting, PressLine, SiteSetting, Tank
-from modules.site.models.site_models import Season, Site
-from modules.site.business.season_art import store_season_illustration
-from modules.site.types.site_types import SeasonArtVariant, SeasonStatus
+from modules.site.models.site_models import Season, SeasonIllustration, Site
+from modules.site.types.site_types import SeasonStatus
 from modules.territory.models.territory_models import Province
 from modules.user.models.user_models import SiteAssignment, SiteAssignmentPermission, User, UserLoginMethod
 from seeds.constants.demo_seed_constants import (
@@ -40,12 +38,12 @@ from seeds.constants.demo_seed_constants import (
     SITES,
     TANKS,
 )
+from seeds.services.illustration_seed_services import IllustrationSeedService
 from seeds.types.seed_types import UserSeed
 
 
 PRODUCTION_ENVIRONMENT = "production"
 
-SEASON_ART_DIRECTORY = Path(__file__).resolve().parent.parent / "fixtures" / "seasons"
 
 
 class DemoSeedService:
@@ -79,9 +77,9 @@ class DemoSeedService:
         self._seed_sites_and_season()
         self._seed_configuration(UUID(SITE_OUJDA_ID), TANKS, PRESS_LINES)
         self._seed_user(OWNER)
-        banner_count = self._seed_season_illustrations()
+        illustrated_count = self._attach_season_illustrations()
         self.db.commit()
-        return {"season banners uploaded": banner_count, "sites": len(SITES), "seasons": 2, "boxes": BOX_COUNT, "tanks": len(TANKS), "press lines": len(PRESS_LINES), "users": 1}
+        return {"seasons illustrated": illustrated_count, "sites": len(SITES), "seasons": 2, "boxes": BOX_COUNT, "tanks": len(TANKS), "press lines": len(PRESS_LINES), "users": 1}
 
     def _seed_sites_and_season(self) -> None:
         """
@@ -119,26 +117,25 @@ class DemoSeedService:
             self.db.merge(PressLine(id=UUID(line_id), site_id=site_id, number=number, name=name, retired_at=None))
         self.db.flush()
 
-    def _seed_season_illustrations(self) -> int:
+    def _attach_season_illustrations(self) -> int:
         """
-        Upload to RustFS the banners kept in seeds/fixtures/seasons (<code>.webp and <code>-dark.webp) for each Season that has none yet; skipped when RustFS is unreachable.
+        Register the Season Illustrations from seeds/fixtures/seasons (as the illustrations seed does), then give each Season without one the Season Illustration of its own code; registration is skipped when RustFS is unreachable.
 
         Returns:
-            int: Number of banners uploaded.
+            int: Number of Seasons given a Season Illustration.
         """
-        uploaded = 0
-        for season in self.db.scalars(select(Season)):
-            for variant, suffix, current in ((SeasonArtVariant.LIGHT, "", season.illustration_file_id), (SeasonArtVariant.DARK, "-dark", season.illustration_dark_file_id)):
-                path = SEASON_ART_DIRECTORY / f"{season.code}{suffix}.webp"
-                if current is not None or not path.exists():
-                    continue
-                try:
-                    store_season_illustration(self.db, self.storage, season, variant, path.read_bytes(), "image/webp", "webp", path.name, None)
-                except StorageError:
-                    print(f"demo: RustFS unreachable, banner {path.name} skipped")
-                    continue
-                uploaded += 1
-        return uploaded
+        try:
+            IllustrationSeedService(self.db, self.storage).run()
+        except StorageError:
+            print("demo: RustFS unreachable, Season Illustrations skipped")
+            return 0
+        illustration_id_by_code = {code: illustration_id for code, illustration_id in self.db.execute(select(SeasonIllustration.code, SeasonIllustration.id))}
+        illustrated_count = 0
+        for season in self.db.scalars(select(Season).where(Season.season_illustration_id.is_(None))):
+            if season.code in illustration_id_by_code:
+                season.season_illustration_id = illustration_id_by_code[season.code]
+                illustrated_count += 1
+        return illustrated_count
 
     def _seed_user(self, user_seed: UserSeed) -> None:
         """

@@ -1,0 +1,10 @@
+{
+	email {$ACME_EMAIL}
+	skip_install_trust
+}
+
+{$PUBLIC_HOST} {
+	reverse_proxy oleoziza_frontend:80 {
+		header_up CF-Connecting-IP {remote_host}
+	}
+}

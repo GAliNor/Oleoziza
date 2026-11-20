@@ -1,9 +1,9 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile, status
+from fastapi import APIRouter, Body, Depends, File, Query, UploadFile, status
 
 from modules.site.services.season_services import SeasonService, get_season_service
-from modules.site.types.site_types import SeasonArtVariant, SeasonOut
+from modules.site.types.site_types import SeasonArtVariant, SeasonIllustrationChoiceIn, SeasonOut
 
 
 router = APIRouter(prefix="/seasons", tags=["season"])
@@ -24,17 +24,34 @@ def list_seasons(season_service: SeasonService = Depends(get_season_service)) ->
 
 
 @router.post("", response_model=SeasonOut, status_code=status.HTTP_201_CREATED)
-def prepare_next_season(season_service: SeasonService = Depends(get_season_service)) -> SeasonOut:
+def prepare_next_season(choice: SeasonIllustrationChoiceIn | None = Body(default=None), season_service: SeasonService = Depends(get_season_service)) -> SeasonOut:
     """
-    Prepare the next Season with the prices carried over.
+    Prepare the next Season with the prices carried over, using the Season Illustration picked, if any.
 
     Args:
+        choice (SeasonIllustrationChoiceIn | None): Season Illustration picked; no body for none.
         season_service (SeasonService): Injected season service.
 
     Returns:
         SeasonOut: The planned Season.
     """
-    return season_service.prepare_next_season()
+    return season_service.prepare_next_season(choice.season_illustration_id if choice else None)
+
+
+@router.put("/{season_id}/season-illustration", response_model=SeasonOut)
+def choose_season_illustration(season_id: UUID, choice: SeasonIllustrationChoiceIn, season_service: SeasonService = Depends(get_season_service)) -> SeasonOut:
+    """
+    Make a Season use one of the available Season Illustrations, or none.
+
+    Args:
+        season_id (UUID): Season illustrated.
+        choice (SeasonIllustrationChoiceIn): Season Illustration picked, null for none.
+        season_service (SeasonService): Injected season service.
+
+    Returns:
+        SeasonOut: The Season with its banner URLs.
+    """
+    return season_service.choose_illustration(season_id, choice.season_illustration_id)
 
 
 @router.post("/{season_id}/open", response_model=SeasonOut)

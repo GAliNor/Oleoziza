@@ -88,6 +88,7 @@
   "season": {
     "tabsLabel": "Saisons",
     "prepare": "+ Préparer {label}",
+    "prepareSubmit": "Préparer {label}",
     "prepared": "{label} préparée : ses prix reprennent ceux de la saison en cours.",
     "open": "Ouvrir cette saison",
     "openConfirm": "Confirmer : {current} sera clôturée",
@@ -99,10 +100,9 @@
     "noSeason": "Aucune saison pour l’instant. Préparez la première.",
     "readOnlyClosed": "Saison clôturée : ses prix se consultent, ils ne changent plus.",
     "art": {
-      "light": "Illustration",
-      "dark": "Illustration sombre",
-      "uploaded": "Illustration enregistrée.",
-      "uploadError": "Envoi impossible : une image WebP, PNG ou JPEG de 5 Mo au plus."
+      "change": "Changer l’illustration",
+      "chosen": "Illustration changée.",
+      "chooseError": "Changement impossible, réessayez."
     }
   },
   "agenda": {

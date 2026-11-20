@@ -42,7 +42,7 @@ class CodeKind(StrEnum):
 
 class SeasonArtVariant(StrEnum):
     """
-    Which banner of a Season is uploaded: the daylight one, or the dusk one shown in dark mode.
+    Which picture of a Season Illustration: the daylight one, or the dusk one shown in dark mode.
     """
 
     LIGHT = "light"
@@ -57,8 +57,28 @@ class SeasonOut(CamelModel):
     ends_on: date | None
     status: SeasonStatus
     closed_at: datetime | None
+    season_illustration_id: UUID | None = None
     illustration_url: str | None = None
     illustration_dark_url: str | None = None
+
+
+class SeasonIllustrationOut(CamelModel):
+    """
+    One available Season Illustration, as the Season form's picker shows it.
+    """
+
+    id: UUID
+    code: str
+    illustration_url: str
+    illustration_dark_url: str
+
+
+class SeasonIllustrationChoiceIn(CamelModel):
+    """
+    The Season Illustration a Season uses; None leaves it with the drawn sketch.
+    """
+
+    season_illustration_id: UUID | None = None
 
 
 SITE_CODE_PATTERN = r"^[A-Z]{2}$"

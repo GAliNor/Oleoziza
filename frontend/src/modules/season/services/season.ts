@@ -1,16 +1,21 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import SeasonMockService from 'season/services/season.mock';
-import type { ISeason, ISeasonService, SeasonArtVariant } from 'season/types/season';
+import type { ISeason, ISeasonIllustration, ISeasonService } from 'season/types/season';
 
 class SeasonApiService extends BaseService implements ISeasonService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/site/seasons';
+  private _ILLUSTRATIONS_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/site/season-illustrations';
 
   getAll(): Promise<ISeason[]> {
     return this.request<ISeason[]>({ method: 'GET', url: this._BASE_API_URL });
   }
 
-  prepareNext(): Promise<ISeason> {
-    return this.request<ISeason>({ method: 'POST', url: this._BASE_API_URL });
+  getIllustrations(): Promise<ISeasonIllustration[]> {
+    return this.request<ISeasonIllustration[]>({ method: 'GET', url: this._ILLUSTRATIONS_API_URL });
+  }
+
+  prepareNext(seasonIllustrationId: string | null): Promise<ISeason> {
+    return this.request<ISeason>({ method: 'POST', url: this._BASE_API_URL, data: { seasonIllustrationId } });
   }
 
   open(id: string): Promise<ISeason> {
@@ -21,10 +26,8 @@ class SeasonApiService extends BaseService implements ISeasonService {
     return this.request<ISeason>({ method: 'POST', url: `${this._BASE_API_URL}/${id}/close` });
   }
 
-  uploadIllustration(id: string, variant: SeasonArtVariant, file: File): Promise<ISeason> {
-    const data = new FormData();
-    data.append('file', file);
-    return this.request<ISeason>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/illustration`, params: { variant }, data, headers: { 'Content-Type': 'multipart/form-data' } });
+  chooseIllustration(id: string, seasonIllustrationId: string | null): Promise<ISeason> {
+    return this.request<ISeason>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/season-illustration`, data: { seasonIllustrationId } });
   }
 }
 

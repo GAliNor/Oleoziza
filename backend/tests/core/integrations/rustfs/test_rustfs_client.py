@@ -1,9 +1,11 @@
 import io
+import json
 from collections.abc import Iterator
 from urllib.parse import parse_qs, urlparse
 
 import boto3
 import pytest
+from botocore.exceptions import ClientError
 from moto import mock_aws
 
 from core.exceptions import StorageError
@@ -160,3 +162,40 @@ def test_upload_to_missing_bucket_raises_storage_error(config: RustFSConfig, s3_
 
     with pytest.raises(StorageError):
         client.upload_object("library/fes.png", io.BytesIO(b"image"), "image/png", is_private=False)
+
+
+def read_policy_actions(s3: object, bucket: str) -> list[tuple[str, list[str], list[str]]]:
+    """
+    Read who may do what on a bucket, from its policy.
+
+    Args:
+        s3 (object): boto3 S3 client.
+        bucket (str): Bucket name.
+
+    Returns:
+        list[tuple[str, list[str], list[str]]]: Effect, actions and principals of each statement.
+    """
+    statements = json.loads(s3.get_bucket_policy(Bucket=bucket)["Policy"])["Statement"]
+    return [(statement["Effect"], statement["Action"], statement["Principal"]["AWS"]) for statement in statements]
+
+
+def test_ensure_buckets_creates_both_and_opens_only_the_public_one_to_reading(config: RustFSConfig, s3_server: object) -> None:
+    s3_server.delete_bucket(Bucket=PRIVATE_BUCKET)
+    s3_server.delete_bucket(Bucket=PUBLIC_BUCKET)
+
+    RustFSClient(config).ensure_buckets()
+
+    assert {bucket["Name"] for bucket in s3_server.list_buckets()["Buckets"]} == {PRIVATE_BUCKET, PUBLIC_BUCKET}
+    assert read_policy_actions(s3_server, PUBLIC_BUCKET) == [("Allow", ["s3:GetObject"], ["*"])]
+    with pytest.raises(ClientError):
+        s3_server.get_bucket_policy(Bucket=PRIVATE_BUCKET)
+
+
+def test_ensure_buckets_again_keeps_stored_objects(client: RustFSClient, s3_server: object) -> None:
+    client.upload_object("proofs/7.jpg", io.BytesIO(b"proof"), "image/jpeg", is_private=True)
+    client.ensure_buckets()
+
+    client.ensure_buckets()
+
+    assert list_keys(s3_server, PRIVATE_BUCKET) == ["proofs/7.jpg"]
+    assert read_policy_actions(s3_server, PUBLIC_BUCKET) == [("Allow", ["s3:GetObject"], ["*"])]

@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from uuid import UUID
@@ -16,11 +15,10 @@ from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
 from modules.configuration.models.configuration_models import SiteSetting
 from modules.configuration.types.configuration_types import SettingKey
-from modules.file.models.file_models import File
-from modules.site.business.season_art import store_season_illustration
+from modules.site.business.season_art import read_season_illustrations, store_season_illustration
 from modules.site.constants.site_constants import ILLUSTRATION_EXTENSION_BY_CONTENT_TYPE, MAX_ILLUSTRATION_SIZE_IN_BYTES
-from modules.site.models.site_models import Season, Site
-from modules.site.types.site_types import SeasonArtVariant, SeasonOut, SeasonStatus, SiteStatus
+from modules.site.models.site_models import Season, SeasonIllustration, Site
+from modules.site.types.site_types import SeasonArtVariant, SeasonIllustrationOut, SeasonOut, SeasonStatus, SiteStatus
 from modules.user.types.user_types import Permission
 
 
@@ -57,8 +55,32 @@ class SeasonService:
             list[SeasonOut]: The Seasons.
         """
         seasons = self.db.scalars(select(Season).order_by(Season.starts_on)).all()
-        banner_urls = self._list_banner_urls(seasons)
-        return [self._build_season(season, banner_urls) for season in seasons]
+        illustrations = read_season_illustrations(self.db, self.storage, {season.season_illustration_id for season in seasons if season.season_illustration_id})
+        return [self._build_season(season, illustrations) for season in seasons]
+
+    def choose_illustration(self, season_id: UUID, season_illustration_id: UUID | None) -> SeasonOut:
+        """
+        Make a Season use one of the available Season Illustrations, or none, which brings back the drawn sketch.
+
+        Args:
+            season_id (UUID): Season illustrated.
+            season_illustration_id (UUID | None): Season Illustration picked, None for none.
+
+        Returns:
+            SeasonOut: The Season with its banner URLs.
+
+        Raises:
+            RefusedError: season_forbidden, season_not_found, season_illustration_not_found.
+        """
+        self._check_can_manage()
+        season = self._get_season(season_id)
+        self._check_illustration_exists(season_illustration_id)
+        season.season_illustration_id = season_illustration_id
+        season.updated_by_id = self.current_user.id
+        after = {"seasonIllustrationId": str(season_illustration_id) if season_illustration_id else None}
+        record_audit_event(self.db, self.current_user.id, "season.illustration_chosen", entity_type="season", entity_id=season.id, after=after)
+        self.db.commit()
+        return self._build_season(season)
 
     def upload_illustration(self, season_id: UUID, variant: SeasonArtVariant, upload: UploadFile) -> SeasonOut:
         """
@@ -89,50 +111,41 @@ class SeasonService:
         self.db.commit()
         return self._build_season(season)
 
-    def _build_season(self, season: Season, banner_urls: dict[UUID, str] | None = None) -> SeasonOut:
+    def _build_season(self, season: Season, illustrations: dict[UUID, SeasonIllustrationOut] | None = None) -> SeasonOut:
         """
-        Shape a Season for the front, with the public URLs of its banners when they exist.
+        Shape a Season for the front, with the public URLs of its Season Illustration when it uses one.
 
         Args:
             season (Season): Season to show.
-            banner_urls (dict[UUID, str] | None): Banner URLs by File id, already read for a list; read for this Season alone when None.
+            illustrations (dict[UUID, SeasonIllustrationOut] | None): Season Illustrations already read for a list; read for this Season alone when None.
 
         Returns:
             SeasonOut: The Season.
         """
-        urls = banner_urls if banner_urls is not None else self._list_banner_urls([season])
+        if illustrations is None:
+            illustrations = read_season_illustrations(self.db, self.storage, {season.season_illustration_id} if season.season_illustration_id else set())
         season_out = SeasonOut.model_validate(season, from_attributes=True)
-        season_out.illustration_url = urls.get(season.illustration_file_id) if season.illustration_file_id else None
-        season_out.illustration_dark_url = urls.get(season.illustration_dark_file_id) if season.illustration_dark_file_id else None
+        illustration = illustrations.get(season.season_illustration_id) if season.season_illustration_id else None
+        if illustration is not None:
+            season_out.illustration_url = illustration.illustration_url
+            season_out.illustration_dark_url = illustration.illustration_dark_url
         return season_out
 
-    def _list_banner_urls(self, seasons: Sequence[Season]) -> dict[UUID, str]:
+    def prepare_next_season(self, season_illustration_id: UUID | None = None) -> SeasonOut:
         """
-        Read the stored banners of some Seasons in one query and give their public URLs.
+        Prepare the Season after the latest one, November to January, using the Season Illustration picked, with each Site's prices carried over from the Season under way, or the latest one when none is open.
 
         Args:
-            seasons (Sequence[Season]): Seasons whose light and dark banners are needed.
-
-        Returns:
-            dict[UUID, str]: Public URL by File id; Seasons without a banner add nothing.
-        """
-        file_ids = {file_id for season in seasons for file_id in (season.illustration_file_id, season.illustration_dark_file_id) if file_id}
-        if not file_ids:
-            return {}
-        stored_files = self.db.execute(select(File.id, File.storage_key).where(File.id.in_(file_ids)))
-        return {file_id: self.storage.build_public_url(storage_key) for file_id, storage_key in stored_files}
-
-    def prepare_next_season(self) -> SeasonOut:
-        """
-        Prepare the Season after the latest one, November to January, with each Site's prices carried over from the Season under way, or the latest one when none is open.
+            season_illustration_id (UUID | None): Season Illustration the new Season uses, None for the drawn sketch.
 
         Returns:
             SeasonOut: The planned Season.
 
         Raises:
-            RefusedError: season_forbidden without season.manage, season_already_planned when one is already prepared.
+            RefusedError: season_forbidden without season.manage, season_already_planned when one is already prepared, season_illustration_not_found.
         """
         self._check_can_manage()
+        self._check_illustration_exists(season_illustration_id)
         if self.db.scalar(select(Season.id).where(Season.status == SeasonStatus.PLANNED)) is not None:
             raise RefusedError("season_already_planned")
         latest = self.db.scalar(select(Season).order_by(Season.starts_on.desc(), Season.created_at.desc()).limit(1))
@@ -144,6 +157,7 @@ class SeasonService:
             starts_on=date(start_year, SEASON_START_MONTH, SEASON_START_DAY),
             ends_on=date(start_year + 1, SEASON_END_MONTH, SEASON_END_DAY),
             status=SeasonStatus.PLANNED,
+            season_illustration_id=season_illustration_id,
             created_by_id=self.current_user.id,
         )
         self.db.add(season)
@@ -252,6 +266,19 @@ class SeasonService:
         if season is None:
             raise RefusedError("season_not_found", 404)
         return season
+
+    def _check_illustration_exists(self, season_illustration_id: UUID | None) -> None:
+        """
+        Refuse a Season Illustration id that names none.
+
+        Args:
+            season_illustration_id (UUID | None): Season Illustration picked, None for none.
+
+        Raises:
+            RefusedError: season_illustration_not_found.
+        """
+        if season_illustration_id is not None and self.db.get(SeasonIllustration, season_illustration_id) is None:
+            raise RefusedError("season_illustration_not_found", 404)
 
     def _check_can_manage(self) -> None:
         """

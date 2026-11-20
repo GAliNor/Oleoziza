@@ -1,7 +1,7 @@
 import { mockReject, mockResolve } from 'global/services/mock';
 import { createId } from 'global/composables/crypto';
-import { SEASONS_MOCK } from 'season/constants/mock-seasons';
-import type { ISeason, ISeasonService, SeasonArtVariant } from 'season/types/season';
+import { SEASON_ILLUSTRATIONS_MOCK, SEASONS_MOCK } from 'season/constants/mock-seasons';
+import type { ISeason, ISeasonIllustration, ISeasonService } from 'season/types/season';
 
 /** The mock Seasons, read by the configuration mock to date its prices. */
 export const SEASONS_MOCK_DB: ISeason[] = structuredClone(SEASONS_MOCK);
@@ -11,8 +11,14 @@ export default class SeasonMockService implements ISeasonService {
     return mockResolve([...SEASONS_MOCK_DB].sort((a, b) => a.startsOn.localeCompare(b.startsOn)));
   }
 
-  prepareNext(): Promise<ISeason> {
+  getIllustrations(): Promise<ISeasonIllustration[]> {
+    return mockResolve([...SEASON_ILLUSTRATIONS_MOCK]);
+  }
+
+  prepareNext(seasonIllustrationId: string | null): Promise<ISeason> {
     if (SEASONS_MOCK_DB.some((season) => season.status === 'planned')) return mockReject({ code: 'season_already_planned' });
+    const illustration = findIllustration(seasonIllustrationId);
+    if (illustration === undefined) return mockReject({ code: 'season_illustration_not_found' });
     const latest = [...SEASONS_MOCK_DB].sort((a, b) => b.startsOn.localeCompare(a.startsOn))[0];
     const year = Number(latest.startsOn.slice(0, 4)) + 1;
     const season: ISeason = {
@@ -23,8 +29,7 @@ export default class SeasonMockService implements ISeasonService {
       endsOn: `${year + 1}-01-31`,
       status: 'planned',
       closedAt: null,
-      illustrationUrl: null,
-      illustrationDarkUrl: null,
+      ...buildIllustrationFields(illustration),
     };
     SEASONS_MOCK_DB.push(season);
     return mockResolve(season);
@@ -45,10 +50,21 @@ export default class SeasonMockService implements ISeasonService {
     return mockResolve(season);
   }
 
-  uploadIllustration(id: string, variant: SeasonArtVariant, file: File): Promise<ISeason> {
+  chooseIllustration(id: string, seasonIllustrationId: string | null): Promise<ISeason> {
     const season = SEASONS_MOCK_DB.find((item) => item.id === id);
     if (!season) return mockReject({ code: 'season_not_found' });
-    season[variant === 'dark' ? 'illustrationDarkUrl' : 'illustrationUrl'] = URL.createObjectURL(file);
+    const illustration = findIllustration(seasonIllustrationId);
+    if (illustration === undefined) return mockReject({ code: 'season_illustration_not_found' });
+    Object.assign(season, buildIllustrationFields(illustration));
     return mockResolve(season);
   }
 }
+
+const findIllustration = (seasonIllustrationId: string | null): ISeasonIllustration | null | undefined =>
+  seasonIllustrationId === null ? null : SEASON_ILLUSTRATIONS_MOCK.find((illustration) => illustration.id === seasonIllustrationId);
+
+const buildIllustrationFields = (illustration: ISeasonIllustration | null): Pick<ISeason, 'seasonIllustrationId' | 'illustrationUrl' | 'illustrationDarkUrl'> => ({
+  seasonIllustrationId: illustration?.id ?? null,
+  illustrationUrl: illustration?.illustrationUrl ?? null,
+  illustrationDarkUrl: illustration?.illustrationDarkUrl ?? null,
+});

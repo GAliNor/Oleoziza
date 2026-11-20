@@ -10,6 +10,7 @@ class SeedPart(StrEnum):
     """
 
     REFERENCE = "reference"
+    ILLUSTRATIONS = "illustrations"
     DEMO = "demo"
     OWNER = "owner"
     AUDIT = "audit"

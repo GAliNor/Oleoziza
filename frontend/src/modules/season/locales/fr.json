@@ -6,5 +6,11 @@
   },
   "art": {
     "sketch": "Esquisse : l’illustration de la saison prendra sa place"
+  },
+  "illustration": {
+    "pick": "Illustration de la saison",
+    "none": "Aucune : le dessin",
+    "empty": "Aucune illustration disponible pour l’instant : la bannière garde son dessin.",
+    "loadError": "Impossible de charger les illustrations."
   }
 }

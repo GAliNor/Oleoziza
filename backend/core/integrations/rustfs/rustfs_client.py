@@ -1,3 +1,4 @@
+import json
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 
 from core.config import get_settings
 from core.exceptions import StorageError
+from core.integrations.rustfs.rustfs_payload_builders import build_public_read_policy
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,23 @@ class RustFSClient:
         self.config = config
         self.internal_s3 = build_s3_client(config, config.internal_endpoint_url)
         self.public_s3 = build_s3_client(config, config.public_endpoint_url)
+
+    def ensure_buckets(self) -> None:
+        """
+        Create the private and public buckets when they are missing, and let anyone read the public one; safe to run on every start.
+
+        Raises:
+            StorageError: If RustFS rejects or fails a bucket operation.
+        """
+        with translate_storage_errors():
+            existing_buckets = {bucket["Name"] for bucket in self.internal_s3.list_buckets()["Buckets"]}
+            for bucket in (self.config.private_bucket, self.config.public_bucket):
+                if bucket not in existing_buckets:
+                    self.internal_s3.create_bucket(Bucket=bucket)
+            self.internal_s3.put_bucket_policy(
+                Bucket=self.config.public_bucket,
+                Policy=json.dumps(build_public_read_policy(self.config.public_bucket)),
+            )
 
     def upload_object(self, key: str, content: BinaryIO, content_type: str, is_private: bool) -> None:
         """

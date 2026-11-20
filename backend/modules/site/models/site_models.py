@@ -13,6 +13,8 @@ SITE_CODE_LENGTH = 2
 
 SEASON_CODE_LENGTH = 4
 
+SEASON_ILLUSTRATION_CODE_LENGTH = 40
+
 
 class Site(IdMixin, AuditMixin, LocationMixin, Base):
     """
@@ -28,6 +30,18 @@ class Site(IdMixin, AuditMixin, LocationMixin, Base):
     company_identifier: Mapped[str | None] = mapped_column(String(REFERENCE_LENGTH))
     onssa_authorisation: Mapped[str | None] = mapped_column(String(REFERENCE_LENGTH))
     status: Mapped[SiteStatus] = mapped_column(build_enum_type(SiteStatus, "site_status"), default=SiteStatus.ACTIVE, server_default=SiteStatus.ACTIVE.value)
+
+
+class SeasonIllustration(IdMixin, AuditMixin, Base):
+    """
+    A daylight picture and its dusk version, stored in RustFS, that Seasons pick for their banner; several Seasons may use the same one.
+    """
+
+    __tablename__ = "season_illustrations"
+
+    code: Mapped[str] = mapped_column(String(SEASON_ILLUSTRATION_CODE_LENGTH), unique=True)
+    light_file_id: Mapped[UUID] = mapped_column(ForeignKey("files.id"))
+    dark_file_id: Mapped[UUID] = mapped_column(ForeignKey("files.id"))
 
 
 class Season(IdMixin, AuditMixin, Base):
@@ -48,8 +62,7 @@ class Season(IdMixin, AuditMixin, Base):
     status: Mapped[SeasonStatus] = mapped_column(build_enum_type(SeasonStatus, "season_status"), default=SeasonStatus.OPEN, server_default=SeasonStatus.OPEN.value)
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     closed_by_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
-    illustration_file_id: Mapped[UUID | None] = mapped_column(ForeignKey("files.id"))
-    illustration_dark_file_id: Mapped[UUID | None] = mapped_column(ForeignKey("files.id"))
+    season_illustration_id: Mapped[UUID | None] = mapped_column(ForeignKey("season_illustrations.id"))
 
 
 class CodeSequence(IdMixin, TimestampMixin, Base):

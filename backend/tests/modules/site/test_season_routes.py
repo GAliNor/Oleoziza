@@ -17,7 +17,7 @@ from modules.configuration.models.configuration_models import SiteSetting
 from modules.configuration.types.configuration_types import SettingKey
 from modules.file.models.file_models import File
 from modules.file.types.file_types import FileBucket
-from modules.site.models.site_models import Season
+from modules.site.models.site_models import Season, SeasonIllustration
 from modules.site.types.site_types import SeasonStatus
 from modules.user.types.user_types import Permission
 from tests.factories import build_auth_header, create_site, create_staff_user, open_fresh_season
@@ -153,18 +153,22 @@ def storage() -> Iterator[FakeStorage]:
     app.dependency_overrides.pop(get_rustfs_client, None)
 
 
-def test_a_season_banner_is_stored_in_the_public_bucket(client: TestClient, db: Session, storage: FakeStorage) -> None:
+def test_an_uploaded_banner_becomes_the_season_illustration_named_after_the_season(client: TestClient, db: Session, storage: FakeStorage) -> None:
     """
-    Uploading the dusk banner stores it under the Season's code and returns its public URL.
+    The first picture uploaded serves both versions until the other one is uploaded; the Season uses that Season Illustration.
     """
     season = open_fresh_season(db)
     owner = create_staff_user(db, "+212669990305", is_owner=True)
+    upload_url = f"{API_URL}/{season.id}/illustration"
 
-    body = client.put(f"{API_URL}/{season.id}/illustration", params={"variant": "dark"}, files={"file": ("dusk.webp", b"RIFF0000WEBP", "image/webp")}, headers=build_auth_header(owner)).json()
+    first = client.put(upload_url, params={"variant": "dark"}, files={"file": ("dusk.webp", b"RIFF0000WEBP", "image/webp")}, headers=build_auth_header(owner)).json()
+    second = client.put(upload_url, params={"variant": "light"}, files={"file": ("day.webp", b"RIFF0000WEBP", "image/webp")}, headers=build_auth_header(owner)).json()
 
+    dusk_url, day_url = (f"https://storage.test/public/{key}" for key in storage.keys)
     assert storage.keys[0].startswith(f"seasons/{season.code}/dark-")
-    assert body["illustrationDarkUrl"] == f"https://storage.test/public/{storage.keys[0]}"
-    assert body["illustrationUrl"] is None
+    assert (first["illustrationUrl"], first["illustrationDarkUrl"]) == (dusk_url, dusk_url)
+    assert (second["illustrationUrl"], second["illustrationDarkUrl"]) == (day_url, dusk_url)
+    assert second["seasonIllustrationId"] == str(db.scalar(select(SeasonIllustration.id).where(SeasonIllustration.code == season.code)))
 
 
 def test_a_banner_must_be_an_image(client: TestClient, db: Session, storage: FakeStorage) -> None:
@@ -192,11 +196,11 @@ def test_season_banners_are_read_in_one_query(client: TestClient, db: Session, s
     expected_urls: dict[str, tuple[str, str]] = {}
     for number in range(season_count):
         year = 1990 + number
-        light = File(bucket=FileBucket.PUBLIC, storage_key=f"tests/{uuid4()}/light.webp", original_name="light.webp", content_type="image/webp", size_in_bytes=1)
-        dark = File(bucket=FileBucket.PUBLIC, storage_key=f"tests/{uuid4()}/dark.webp", original_name="dark.webp", content_type="image/webp", size_in_bytes=1)
-        db.add_all([light, dark])
+        light, dark = create_illustration_files(db)
+        illustration = SeasonIllustration(code=f"test-{uuid4().hex[:8]}", light_file_id=light.id, dark_file_id=dark.id)
+        db.add(illustration)
         db.flush()
-        season = Season(code=f"{year % 100:02d}{(year + 1) % 100:02d}", label=f"Saison {year}", starts_on=date(year, 11, 1), status=SeasonStatus.CLOSED, illustration_file_id=light.id, illustration_dark_file_id=dark.id)
+        season = Season(code=f"{year % 100:02d}{(year + 1) % 100:02d}", label=f"Saison {year}", starts_on=date(year, 11, 1), status=SeasonStatus.CLOSED, season_illustration_id=illustration.id)
         db.add(season)
         db.flush()
         expected_urls[str(season.id)] = (storage.build_public_url(light.storage_key), storage.build_public_url(dark.storage_key))
@@ -228,3 +232,121 @@ def test_season_banners_are_read_in_one_query(client: TestClient, db: Session, s
     for season_id, (light_url, dark_url) in expected_urls.items():
         assert by_id[season_id]["illustrationUrl"] == light_url
         assert by_id[season_id]["illustrationDarkUrl"] == dark_url
+
+
+def create_illustration_files(db: Session) -> tuple[File, File]:
+    """
+    Record the daylight and dusk pictures of a test Season Illustration.
+
+    Args:
+        db (Session): Test session.
+
+    Returns:
+        tuple[File, File]: The daylight File and the dusk File, flushed.
+    """
+    light = File(bucket=FileBucket.PUBLIC, storage_key=f"tests/{uuid4()}/light.webp", original_name="light.webp", content_type="image/webp", size_in_bytes=1)
+    dark = File(bucket=FileBucket.PUBLIC, storage_key=f"tests/{uuid4()}/dark.webp", original_name="dark.webp", content_type="image/webp", size_in_bytes=1)
+    db.add_all([light, dark])
+    db.flush()
+    return light, dark
+
+
+def create_season_illustration(db: Session) -> SeasonIllustration:
+    """
+    Add an available Season Illustration with its two pictures.
+
+    Args:
+        db (Session): Test session.
+
+    Returns:
+        SeasonIllustration: The flushed Season Illustration.
+    """
+    light, dark = create_illustration_files(db)
+    illustration = SeasonIllustration(code=f"test-{uuid4().hex[:8]}", light_file_id=light.id, dark_file_id=dark.id)
+    db.add(illustration)
+    db.flush()
+    return illustration
+
+
+def test_the_available_season_illustrations_are_listed_with_both_pictures(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    The Season form's picker gets every Season Illustration with its daylight and dusk URLs.
+    """
+    illustration = create_season_illustration(db)
+    owner = create_staff_user(db, "+212669990308", is_owner=True)
+
+    body = client.get("/api/site/season-illustrations", headers=build_auth_header(owner)).json()
+
+    listed = next(item for item in body if item["id"] == str(illustration.id))
+    assert listed["code"] == illustration.code
+    assert listed["illustrationUrl"].endswith("/light.webp")
+    assert listed["illustrationDarkUrl"].endswith("/dark.webp")
+
+
+def test_a_season_is_prepared_with_the_season_illustration_picked(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Creating a Season with a picked Season Illustration shows its pictures on the new Season at once.
+    """
+    open_fresh_season(db)
+    illustration = create_season_illustration(db)
+    owner = create_staff_user(db, "+212669990309", is_owner=True)
+    db.commit()
+
+    body = client.post(API_URL, json={"seasonIllustrationId": str(illustration.id)}, headers=build_auth_header(owner)).json()
+
+    assert body["status"] == "planned"
+    assert body["seasonIllustrationId"] == str(illustration.id)
+    assert body["illustrationUrl"].endswith("/light.webp")
+
+
+def test_several_seasons_may_share_a_season_illustration_and_drop_it(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Two Seasons pick the same Season Illustration; choosing none brings one back to the drawn sketch without touching the other.
+    """
+    current = open_fresh_season(db)
+    past = Season(code="9797", label="Saison passée", starts_on=date(1997, 11, 1), status=SeasonStatus.CLOSED)
+    db.add(past)
+    illustration = create_season_illustration(db)
+    owner = create_staff_user(db, "+212669990310", is_owner=True)
+    db.commit()
+    headers = build_auth_header(owner)
+
+    for season in (current, past):
+        client.put(f"{API_URL}/{season.id}/season-illustration", json={"seasonIllustrationId": str(illustration.id)}, headers=headers)
+    dropped = client.put(f"{API_URL}/{current.id}/season-illustration", json={"seasonIllustrationId": None}, headers=headers).json()
+    db.refresh(past)
+
+    assert dropped["seasonIllustrationId"] is None
+    assert dropped["illustrationUrl"] is None
+    assert past.season_illustration_id == illustration.id
+
+
+def test_picking_an_unknown_season_illustration_is_refused(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    An id that names no Season Illustration is refused, on creation as on change.
+    """
+    season = open_fresh_season(db)
+    owner = create_staff_user(db, "+212669990311", is_owner=True)
+    db.commit()
+    unknown = {"seasonIllustrationId": str(uuid4())}
+
+    on_change = client.put(f"{API_URL}/{season.id}/season-illustration", json=unknown, headers=build_auth_header(owner))
+    on_creation = client.post(API_URL, json=unknown, headers=build_auth_header(owner))
+
+    assert (on_change.status_code, on_change.json()) == (404, {"code": "season_illustration_not_found"})
+    assert (on_creation.status_code, on_creation.json()) == (404, {"code": "season_illustration_not_found"})
+
+
+def test_picking_a_season_illustration_needs_season_manage(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Staff without season.manage cannot change a Season's Season Illustration.
+    """
+    site = create_site(db)
+    season = open_fresh_season(db)
+    illustration = create_season_illustration(db)
+    rights = {site.id: [Permission.CONFIGURATION_MANAGE]}
+    manager = create_staff_user(db, "+212669990312", permissions_by_site=rights)
+
+    response = client.put(f"{API_URL}/{season.id}/season-illustration", json={"seasonIllustrationId": str(illustration.id)}, headers=build_auth_header(manager, rights))
+
+    assert response.json() == {"code": "season_forbidden"}

@@ -4,7 +4,7 @@
 A [Site](../../../../../GLOSSARY.md)'s [Configuration](../../../../../GLOSSARY.md) for a [Season](../../../../../GLOSSARY.md): prices and their dated changes, [Payment Methods](../../../../../GLOSSARY.md), Boxes, Tanks and [Press Lines](../../../../../GLOSSARY.md); and, for the whole company, the [Notification Channels](../../../../../GLOSSARY.md) the mill may message Clients through.
 
 ## Exposes
-- View: `/configuration` → `views/entry.vue`: Season tabs and banner, the price agenda per Site, the Site's settings (`configuration-site`), then « Notifications aux clients » (`configuration-notifications`).
+- View: `/configuration` → `views/entry.vue`: Season tabs (« + Préparer » opens a panel with the Season Illustration picker) and banner (« Changer l’illustration » opens the same picker), the price agenda per Site, the Site's settings (`configuration-site`), then « Notifications aux clients » (`configuration-notifications`).
 - Store: `useConfigurationStore`: `bySite` (open Season), `bySeason`, `notificationChannels` (from any Configuration answer, kept on the device), getter `enabledNotificationChannels`; actions `fetchSites`, `fetchSeason`, `update`, `cancelPriceChange`, `updateNotificationChannel`.
 - Service: `ConfigurationService` (`GET /configuration?siteId=`, `PATCH /configuration/{siteId}`, `PUT /configuration/notification-channels/{channel}`).
 

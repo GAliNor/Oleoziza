@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import SeasonService from 'season/services/season';
 import { withStatus } from 'global/composables/with-status';
 import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
-import type { ISeason, ISeasonStore, SeasonArtVariant } from 'season/types/season';
+import type { ISeason, ISeasonStore } from 'season/types/season';
 
 const seasonService = new SeasonService();
 
@@ -11,9 +11,12 @@ const seasonService = new SeasonService();
 export const useSeasonStore = defineStore('season', {
   state: (): ISeasonStore => ({
     seasons: [],
+    illustrations: [],
     isLoading: false,
+    isLoadingIllustrations: false,
     isSaving: false,
     hasError: false,
+    hasIllustrationsError: false,
   }),
   getters: {
     openSeason: (state): ISeason | undefined => state.seasons.find((season) => season.status === 'open'),
@@ -40,8 +43,19 @@ export const useSeasonStore = defineStore('season', {
         { errorFlag: 'hasError' },
       );
     },
-    async prepareNext(): Promise<ISeason | null> {
-      const season = await withStatus(this, 'isSaving', () => seasonService.prepareNext());
+    async fetchIllustrations(): Promise<void> {
+      await withStatus(
+        this,
+        'isLoadingIllustrations',
+        () =>
+          cachedLoad('season-illustrations', LOAD_TTL_MS.configuration, async () => {
+            this.illustrations = await seasonService.getIllustrations();
+          }),
+        { errorFlag: 'hasIllustrationsError' },
+      );
+    },
+    async prepareNext(seasonIllustrationId: string | null): Promise<ISeason | null> {
+      const season = await withStatus(this, 'isSaving', () => seasonService.prepareNext(seasonIllustrationId));
       if (season) this.seasons.push(season);
       return season;
     },
@@ -52,8 +66,8 @@ export const useSeasonStore = defineStore('season', {
       await this.fetchSeasons(true);
       return season;
     },
-    async uploadIllustration(id: string, variant: SeasonArtVariant, file: File): Promise<ISeason | null> {
-      const season = await withStatus(this, 'isSaving', () => seasonService.uploadIllustration(id, variant, file));
+    async chooseIllustration(id: string, seasonIllustrationId: string | null): Promise<ISeason | null> {
+      const season = await withStatus(this, 'isSaving', () => seasonService.chooseIllustration(id, seasonIllustrationId));
       if (season) this.seasons = this.seasons.map((item) => (item.id === season.id ? season : item));
       return season;
     },

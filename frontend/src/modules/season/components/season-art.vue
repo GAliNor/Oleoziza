@@ -29,10 +29,10 @@
 // imports
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
-import type { ISeason } from 'season/types/season';
+import type { SeasonArtImages } from 'season/types/season';
 
 // props
-const props = withDefaults(defineProps<{ season: Pick<ISeason, 'code' | 'illustrationUrl' | 'illustrationDarkUrl'>; frameClass?: string; isSketchNoted?: boolean }>(), {
+const props = withDefaults(defineProps<{ season: SeasonArtImages; frameClass?: string; isSketchNoted?: boolean }>(), {
   frameClass: 'h-40',
   isSketchNoted: false,
 });

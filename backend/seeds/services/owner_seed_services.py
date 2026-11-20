@@ -24,14 +24,16 @@ class OwnerSeedService:
 
     def run(self) -> bool:
         """
-        Create the first Owner, who logs in by email and password, unless a User already has that email.
+        Create the first Owner, who logs in by email and password and must replace that seeded password at first login; once an Owner exists, nothing is read or written, so the SEED_OWNER_* settings may then be emptied.
 
         Returns:
-            bool: True when the Owner was created, False when it already existed.
+            bool: True when the Owner was created, False when an Owner, or a User with that email, already existed.
 
         Raises:
-            SeedRefusedError: owner_settings_missing when an SEED_OWNER_* setting is empty.
+            SeedRefusedError: owner_settings_missing when no Owner exists yet and an SEED_OWNER_* setting is empty.
         """
+        if self.db.scalar(select(User.id).where(User.is_owner.is_(True)).limit(1)) is not None:
+            return False
         settings = self.settings
         if not all((settings.SEED_OWNER_EMAIL, settings.SEED_OWNER_PASSWORD, settings.SEED_OWNER_FIRST_NAME, settings.SEED_OWNER_LAST_NAME)):
             raise SeedRefusedError("owner_settings_missing")
@@ -45,6 +47,7 @@ class OwnerSeedService:
             last_name=settings.SEED_OWNER_LAST_NAME,
             email=email,
             status=UserStatus.ACTIVE,
+            must_change_credential=True,
         )
         self.db.add(owner)
         self.db.flush()

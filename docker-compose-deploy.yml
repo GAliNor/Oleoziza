@@ -1,6 +1,30 @@
 services:
+  oleoziza_caddy:
+    image: caddy:${CADDY_VERSION}
+    container_name: oleoziza_caddy_${CURRENT_ENV}
+    profiles: ['caddy']
+    restart: always
+    read_only: true
+    security_opt:
+      - 'no-new-privileges:true'
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST in docker.env}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in docker.env}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./config/caddy:/etc/caddy:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - oleoziza_frontend
+    networks:
+      - app-network
+
   oleoziza_frontend:
-    image: <REGISTRY>/oleoziza/oleoziza-frontend:<APP_VERSION>
+    image: oleoziza-frontend:${CURRENT_ENV}
     build:
       context: .
       dockerfile: ./docker/frontend/Dockerfile-deploy
@@ -16,6 +40,7 @@ services:
   oleoziza_cloudflared:
     image: cloudflare/cloudflared:${CLOUDFLARED_VERSION}
     container_name: oleoziza_cloudflared_${CURRENT_ENV}
+    profiles: ['tunnel']
     restart: always
     command: ['tunnel', '--no-autoupdate', 'run']
     environment:
@@ -29,21 +54,36 @@ services:
       - app-network
 
   oleoziza_backend:
-    image: <REGISTRY>/oleoziza/oleoziza-backend:<APP_VERSION>
+    image: oleoziza-backend:${CURRENT_ENV}
     build:
       context: .
       dockerfile: ./docker/backend/Dockerfile-deploy
     container_name: oleoziza_backend_${CURRENT_ENV}
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 6
     depends_on:
       oleoziza_db_backend:
         condition: service_healthy
       oleoziza_redis:
+        condition: service_healthy
+      oleoziza_rustfs:
         condition: service_healthy
     restart: always
     env_file:
       - ./env_files/${CURRENT_ENV}/backend.env
     environment:
       CURRENT_ENV: ${CURRENT_ENV}
+      DB_USER: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_DATABASE}
+      CORS_ALLOWED_ORIGINS: https://${PUBLIC_HOST}
+      RUSTFS_PUBLIC_ENDPOINT_URL: https://${PUBLIC_HOST}
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
     networks:
       - app-network
 
@@ -66,6 +106,26 @@ services:
     networks:
       - app-network
 
+  oleoziza_db_dump:
+    image: postgres:${POSTGRE_BACKEND_VERSION}
+    container_name: oleoziza_db_dump_${CURRENT_ENV}
+    restart: always
+    entrypoint: ['sh', '/usr/local/bin/db-dump.sh']
+    environment:
+      TZ: Africa/Casablanca
+      DUMP_HOUR: '03'
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+    volumes:
+      - ./docker/db-dump/db-dump.sh:/usr/local/bin/db-dump.sh:ro
+      - ./backups:/backups
+    depends_on:
+      oleoziza_db_backend:
+        condition: service_healthy
+    networks:
+      - app-network
+
   oleoziza_redis:
     image: redis:${REDIS_VERSION}
     container_name: oleoziza_redis_${CURRENT_ENV}
@@ -81,13 +141,43 @@ services:
     networks:
       - app-network
 
+  oleoziza_rustfs:
+    image: rustfs/rustfs:${RUSTFS_VERSION}
+    container_name: oleoziza_rustfs_${CURRENT_ENV}
+    restart: always
+    security_opt:
+      - 'no-new-privileges:true'
+    environment:
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: 'true'
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1:9000/health/ready']
+      interval: 5s
+      timeout: 5s
+      start_period: 10s
+      retries: 12
+    volumes:
+      - rustfs_data:/data
+      - rustfs_logs:/logs
+    networks:
+      app-network:
+        aliases:
+          - oleoziza-rustfs
+
   oleoziza_worker:
-    image: <REGISTRY>/oleoziza/oleoziza-backend:<APP_VERSION>
+    image: oleoziza-backend:${CURRENT_ENV}
+    pull_policy: never
     container_name: oleoziza_worker_${CURRENT_ENV}
     depends_on:
       oleoziza_db_backend:
         condition: service_healthy
       oleoziza_redis:
+        condition: service_healthy
+      oleoziza_rustfs:
         condition: service_healthy
     restart: always
     entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'worker', '--loglevel=INFO', '--concurrency=2']
@@ -95,6 +185,13 @@ services:
       - ./env_files/${CURRENT_ENV}/backend.env
     environment:
       CURRENT_ENV: ${CURRENT_ENV}
+      DB_USER: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_DATABASE}
+      CORS_ALLOWED_ORIGINS: https://${PUBLIC_HOST}
+      RUSTFS_PUBLIC_ENDPOINT_URL: https://${PUBLIC_HOST}
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
     networks:
       - app-network
 
@@ -104,5 +201,9 @@ networks:
     driver: bridge
 
 volumes:
+  caddy_data:
+  caddy_config:
   db_backend:
   redis_data:
+  rustfs_data:
+  rustfs_logs:
