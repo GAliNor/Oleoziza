@@ -8,3 +8,14 @@
 		header_up CF-Connecting-IP {remote_host}
 	}
 }
+
+# Maroc Voyages' test stack shares this server and its ports 80 and 443 (see its docker/vm-dev.sh): this Caddy terminates
+# its HTTPS and forwards to the ports that stack publishes on the host. Unset, the hosts default to .localhost names that
+# never ask Let's Encrypt for anything. The Host header passes through unchanged, so presigned RustFS URLs still verify.
+{$MV_PUBLIC_HOST:maroc-voyages.localhost} {
+	reverse_proxy host.docker.internal:{$MV_FRONTEND_PORT:32601}
+}
+
+{$MV_FILES_HOST:maroc-voyages-files.localhost} {
+	reverse_proxy host.docker.internal:{$MV_RUSTFS_PORT:32690}
+}

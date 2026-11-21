@@ -10,6 +10,10 @@ services:
     environment:
       PUBLIC_HOST: ${PUBLIC_HOST:?set PUBLIC_HOST in docker.env}
       ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in docker.env}
+      MV_PUBLIC_HOST: ${MV_PUBLIC_HOST:-}
+      MV_FILES_HOST: ${MV_FILES_HOST:-}
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     ports:
       - '80:80'
       - '443:443'
