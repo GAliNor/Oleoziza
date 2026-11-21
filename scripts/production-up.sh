@@ -36,8 +36,8 @@ check_settings() {
   profile=$(read_value "$DOCKER_ENV" COMPOSE_PROFILES)
   case "$profile" in
     caddy)
-      [[ -n "$(read_value "$DOCKER_ENV" PUBLIC_HOST)" ]] || refuse "PUBLIC_HOST is empty in $DOCKER_ENV."
-      [[ -n "$(read_value "$DOCKER_ENV" ACME_EMAIL)" ]] || refuse "ACME_EMAIL is empty in $DOCKER_ENV."
+      [[ "$(read_value "$DOCKER_ENV" PUBLIC_HOST)" =~ ^[A-Za-z0-9.-]+$ ]] || refuse "PUBLIC_HOST in $DOCKER_ENV must be a bare host name, such as 51.75.28.177.sslip.io (no http://, no slash, no port)."
+      [[ "$(read_value "$DOCKER_ENV" ACME_EMAIL)" =~ ^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$ ]] || refuse "ACME_EMAIL in $DOCKER_ENV must be an email address (Let's Encrypt refuses anything else)."
       ;;
     tunnel)
       [[ -n "$(read_value "$DOCKER_ENV" CLOUDFLARE_TUNNEL_TOKEN)" ]] || refuse "CLOUDFLARE_TUNNEL_TOKEN is empty in $DOCKER_ENV."

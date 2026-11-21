@@ -37,10 +37,17 @@ export const useSiteStore = defineStore('site', {
         return sites[siteId]?.includes(permission) ?? false;
       };
     },
-    /** Whether the current Site grants the Permission, or any one of a list. */
+    /** Whether the current Site grants the Permission, or any one of a list; an Owner awaiting their first Site may only manage Sites. */
     can(state): (permission: Permission | readonly Permission[]) => boolean {
-      return (permission: Permission | readonly Permission[]): boolean =>
-        (typeof permission === 'string' ? [permission] : permission).some((item) => this.hasPermission(item, state.currentSiteId));
+      return (permission: Permission | readonly Permission[]): boolean => {
+        const permissions = typeof permission === 'string' ? [permission] : permission;
+        if (this.isAwaitingFirstSite) return permissions.includes('site.manage');
+        return permissions.some((item) => this.hasPermission(item, state.currentSiteId));
+      };
+    },
+    /** A fresh production start: the Owner is signed in and no Site exists yet, so every other page has nothing to show. */
+    isAwaitingFirstSite(state): boolean {
+      return useSessionStore().session?.isOwner === true && state.loadedForUserId !== null && state.sites.length === 0;
     },
     accessibleSites(state): ISite[] {
       const session = useSessionStore().session;
@@ -92,6 +99,7 @@ export const useSiteStore = defineStore('site', {
       const index = this.sites.findIndex((item) => item.id === site.id);
       if (index === -1) this.sites.push(site);
       else this.sites.splice(index, 1, site);
+      if (!this.currentSiteId) this.selectSite(site.id);
       return site;
     },
     async remove(id: string): Promise<boolean> {

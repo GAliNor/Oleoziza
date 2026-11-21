@@ -12,6 +12,7 @@ BACKEND_ENV=$ENV_DIR/backend.env
 FRONTEND_ENV=$ENV_DIR/frontend.env
 COMPOSE=(docker compose -f docker-compose-deploy.yml --env-file "$DOCKER_ENV")
 PASSWORD_MIN_LENGTH=8
+EMAIL_PATTERN='^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'
 
 read_value() {
   local line
@@ -43,13 +44,29 @@ ask() {
 }
 
 fill_asked() {
-  local file=$1 key=$2 question=$3 default=${4:-}
+  local file=$1 key=$2 question=$3 default=${4:-} pattern=${5:-.}
   is_unset "$(read_value "$file" "$key")" || return 0
   local value=${!key:-}
-  while is_unset "$value"; do
+  while is_unset "$value" || [[ ! "$value" =~ $pattern ]]; do
+    is_unset "$value" || echo "  \"$value\" doesn't look right, try again."
     value=$(ask "$question" "$default")
   done
   write_value "$file" "$key" "$value"
+}
+
+fill_public_host() {
+  is_unset "$(read_value "$DOCKER_ENV" PUBLIC_HOST)" || return 0
+  local value=${PUBLIC_HOST:-}
+  while true; do
+    value=${value#http://}
+    value=${value#https://}
+    value=${value%/}
+    [[ "$value" =~ ^[0-9]+(\.[0-9]+){3}$ ]] && value=$value.sslip.io
+    [[ "$value" =~ ^[A-Za-z0-9.-]+$ ]] && break
+    [[ -n "$value" ]] && echo "  Only the host name, such as 51.75.28.177.sslip.io: no http://, no slash, no port."
+    value=$(ask "Public host name (<server-ip>.sslip.io until a domain is bought)" "$(suggest_public_host)")
+  done
+  write_value "$DOCKER_ENV" PUBLIC_HOST "$value"
 }
 
 fill_secret() {
@@ -115,12 +132,12 @@ owner_is_new=false
 is_unset "$(read_value "$BACKEND_ENV" SEED_OWNER_EMAIL)" && owner_is_new=true
 
 echo "Public address and the first Owner:"
-fill_asked "$DOCKER_ENV" PUBLIC_HOST "Public host name (<server-ip>.sslip.io until a domain is bought)" "$(suggest_public_host)"
+fill_public_host
 fill_asked "$BACKEND_ENV" SEED_OWNER_FIRST_NAME "Owner's first name"
 fill_asked "$BACKEND_ENV" SEED_OWNER_LAST_NAME "Owner's last name"
-fill_asked "$BACKEND_ENV" SEED_OWNER_EMAIL "Owner's email (their login)"
+fill_asked "$BACKEND_ENV" SEED_OWNER_EMAIL "Owner's email (their login)" "" "$EMAIL_PATTERN"
 [[ "$owner_is_new" == true ]] && fill_owner_password
-fill_asked "$DOCKER_ENV" ACME_EMAIL "Email for Let's Encrypt notices" "$(read_value "$BACKEND_ENV" SEED_OWNER_EMAIL)"
+fill_asked "$DOCKER_ENV" ACME_EMAIL "Email for Let's Encrypt notices (an address, not yes/no)" "$(read_value "$BACKEND_ENV" SEED_OWNER_EMAIL)" "$EMAIL_PATTERN"
 
 echo "Secrets:"
 fill_secret "$DOCKER_ENV" DB_PASSWORD 24

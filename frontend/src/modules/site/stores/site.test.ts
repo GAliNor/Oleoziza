@@ -148,3 +148,40 @@ describe('site store saving', () => {
     expect(siteStore.hasSaveError).toBe(false);
   });
 });
+
+describe('site store before the first Site', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => undefined, removeItem: () => undefined });
+    signIn({}, true);
+    const siteStore = useSiteStore();
+    siteStore.sites = [];
+    siteStore.loadedForUserId = 'u1';
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('lets an Owner without any Site reach only the Sites page', () => {
+    const siteStore = useSiteStore();
+    expect(siteStore.isAwaitingFirstSite).toBe(true);
+    expect([siteStore.can('site.manage'), siteStore.can('dashboard.view'), siteStore.can(['finance.view', 'site.manage'])]).toEqual([true, false, true]);
+  });
+
+  it('opens the first Site created, which unlocks every page for the Owner', async () => {
+    const siteStore = useSiteStore();
+    const created = await siteStore.save(taourirtForm);
+    expect(siteStore.currentSiteId).toBe(created?.id);
+    expect([siteStore.isAwaitingFirstSite, siteStore.can('dashboard.view')]).toEqual([false, true]);
+  });
+
+  it('never applies to a staff member without Sites, nor before the Sites are read', () => {
+    const siteStore = useSiteStore();
+    signIn({});
+    expect([siteStore.isAwaitingFirstSite, siteStore.can('site.manage')]).toEqual([false, false]);
+    signIn({}, true);
+    siteStore.loadedForUserId = null;
+    expect(siteStore.isAwaitingFirstSite).toBe(false);
+  });
+});
