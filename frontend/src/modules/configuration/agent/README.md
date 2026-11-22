@@ -17,3 +17,4 @@ const channels = useConfigurationStore().enabledNotificationChannels; // ['email
 - A channel is offered only when implemented (declared by the backend) and switched on; every channel starts off. Switching needs the Owner or `configuration.manage` on every Site; the section shows read-only otherwise.
 - Reception hides the notification question when no channel is enabled and saves « Aucune »; the Operator Lot sheet asks for a missing contact only while the Lot's channel is enabled.
 - The channels have no read of their own: they ride on every Configuration answer, which Reception and this page already load.
+- A fresh install has no Season: the Configuration request is refused (`season_not_open`) until one is open, so the page keeps the Season tabs (« Préparer ») visible even when the Configuration load failed, and hides the notifications card until channels or a Season exist.

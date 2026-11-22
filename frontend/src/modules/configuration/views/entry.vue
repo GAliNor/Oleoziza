@@ -8,7 +8,7 @@
       <p v-if="siteStore.isAllSites" class="chip self-start bg-subtle text-fg-primary-paragraph">{{ $t('configuration.readOnly') }}</p>
       <p v-else-if="!isOnline" class="chip self-start bg-warning-subtle text-fg-warning" role="status">{{ $t('configuration.offline') }}</p>
 
-      <ui-empty-state v-if="seasonStore.hasError || configurationStore.hasError" class="card" tone="danger" size="compact" :message="$t('configuration.loadError')">
+      <ui-empty-state v-if="seasonStore.hasError" class="card" tone="danger" size="compact" :message="$t('configuration.loadError')">
         <template #action>
           <button type="button" class="btn-secondary" @click="load">{{ $t('configuration.retry') }}</button>
         </template>
@@ -16,6 +16,11 @@
       <template v-else>
         <season-tabs v-model="selectedSeasonId" :can-manage="canManageSeasons" :is-locked="!isOnline || seasonStore.isSaving" @changed="load" />
         <ui-empty-state v-if="!seasonStore.isLoading && !seasonStore.seasons.length" class="card" size="compact" :message="$t('configuration.season.noSeason')" />
+        <ui-empty-state v-else-if="configurationStore.hasError" class="card" tone="danger" size="compact" :message="$t('configuration.loadError')">
+          <template #action>
+            <button type="button" class="btn-secondary" @click="load">{{ $t('configuration.retry') }}</button>
+          </template>
+        </ui-empty-state>
         <div v-else-if="!selectedSeason || !seasonShown.length" class="flex flex-col gap-3">
           <div class="skeleton h-52 rounded-card" />
           <div class="skeleton h-48 rounded-card" />
@@ -39,7 +44,7 @@
           :title="siteStore.isAllSites ? item.name : undefined"
           :is-read-only="siteStore.isAllSites"
         />
-        <configuration-notifications class="mt-2" />
+        <configuration-notifications v-if="configurationStore.notificationChannels || seasonStore.seasons.length" class="mt-2" />
       </template>
     </section>
   </app-layout>
