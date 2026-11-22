@@ -68,12 +68,12 @@ On a new server, from the repo root (Docker and Git installed, ports 80 and 443 
 
 ```bash
 scripts/production-init.sh   # once: asks the public host (<server-ip>.sslip.io until a domain is bought), the Owner and the Let's Encrypt email; generates every secret
-scripts/production-up.sh     # after every git pull: builds, starts, loads reference data, Season Illustrations and the Owner, then runs the check
+scripts/production-up.sh     # after every git pull: builds, starts, loads reference data, Season Illustrations, the Oujda Site and the Owner, then runs the check
 ```
 
 `production-init.sh` fills only values that are empty or still `change-me` in `env_files/production/*.env` (mode 600), so running it again changes nothing. `production-up.sh` refuses a missing or `change-me` setting, warns when there is no SMTP provider, and ends with `scripts/production-check.sh` (HTTPS and HSTS, same-origin `/api`, CORS, buckets unlistable, forged client IP ignored, only Caddy's ports published; after the Owner's creation, also login, the refresh cookie and a Season Illustration). `CHECK_RATE_LIMIT=1 scripts/production-check.sh` adds the login rate limit (it blocks logins from that machine for about two minutes).
 
-The first Owner logs in with the password given to `production-init.sh` and must choose a new one. Then delete `SEED_OWNER_PASSWORD` from `env_files/production/backend.env`. Moving to a domain: point its A record at the server, change `PUBLIC_HOST` in `docker.env`, and run `scripts/production-up.sh` again. Installed PWAs and sessions stay tied to the old address.
+The Oujda mill (code OJ) is created only while no Site exists; its prices and equipment are set on the Configuration page. The first Owner logs in with the password given to `production-init.sh` and must choose a new one. Then delete `SEED_OWNER_PASSWORD` from `env_files/production/backend.env`. Moving to a domain: point its A record at the server, change `PUBLIC_HOST` in `docker.env`, and run `scripts/production-up.sh` again. Installed PWAs and sessions stay tied to the old address.
 
 Browser checklist after a first start or a change of address:
 1. Log in as the Owner, choose the new password, and reach the Home.

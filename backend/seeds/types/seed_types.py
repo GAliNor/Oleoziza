@@ -11,6 +11,7 @@ class SeedPart(StrEnum):
 
     REFERENCE = "reference"
     ILLUSTRATIONS = "illustrations"
+    SITE = "site"
     DEMO = "demo"
     OWNER = "owner"
     AUDIT = "audit"

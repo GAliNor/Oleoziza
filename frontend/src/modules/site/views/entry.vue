@@ -12,6 +12,11 @@
         </button>
       </header>
 
+      <div v-if="siteStore.isAwaitingFirstSite" class="card rise flex flex-col gap-1 p-4 ring-2 ring-selected" role="status">
+        <p class="heading-three">{{ $t('site.firstSite.title') }}</p>
+        <p class="body-two">{{ $t('site.firstSite.text') }}</p>
+      </div>
+
       <div v-show="!isOpen" class="rise flex flex-col gap-3 md:flex-row md:items-center">
         <input v-model="search" class="input md:max-w-xs" type="search" :placeholder="$t('site.searchPlaceholder')" />
       </div>
@@ -88,6 +93,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { useSiteStore } from 'site/stores/site';
+import { NEW_SITE } from 'site/constants/site';
 import { siteErrorMessage } from 'site/composables/site-errors';
 import { useToastStore } from 'global/stores/toast';
 import type { ISite } from 'site/types/site';
@@ -110,7 +116,6 @@ const router = useRouter();
 
 // variables
 const PAGE_SIZE = 10;
-const NEW_SITE = 'new';
 const search = ref('');
 const lastSiteId = ref<string | null>(null);
 

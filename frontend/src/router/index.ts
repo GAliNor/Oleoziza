@@ -6,6 +6,7 @@ import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useNavigation } from 'global/composables/use-navigation';
 import { HOME_ROUTE_NAME } from 'global/constants/navigation';
+import { NEW_SITE } from 'site/constants/site';
 
 // variables
 const modules = import.meta.glob<RouteRecordRaw[]>('../modules/*/routes/index.ts', { eager: true, import: 'default' });
@@ -34,6 +35,7 @@ router.beforeEach(async (to) => {
   if (sessionStore.isStaff) await useSiteStore().fetchSites();
   if (to.meta.permission && !siteStore.can(to.meta.permission)) return { name: HOME_ROUTE_NAME };
   if (to.name === HOME_ROUTE_NAME) {
+    if (siteStore.isAwaitingFirstSite) return { name: 'site', query: { site: NEW_SITE } };
     const { canOpenHome, getLandingRoute } = useNavigation();
     if (!canOpenHome()) return getLandingRoute() ?? true;
   }

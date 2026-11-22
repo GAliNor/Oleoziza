@@ -36,5 +36,9 @@
     "site_has_records": "Ce site a déjà de l'activité : il ne peut plus être supprimé.",
     "sites_forbidden": "Seul le propriétaire peut créer ou supprimer un site.",
     "province_not_found": "Choisissez une province de l'Oriental."
+  },
+  "firstSite": {
+    "title": "Commencez par créer votre premier site",
+    "text": "Oleoziza s’organise par site, c’est-à-dire par moulin. Dès que ce premier site est enregistré, tout le reste s’ouvre : tableau de bord, réceptions, clients, finances, utilisateurs et configuration."
   }
 }

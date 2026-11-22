@@ -11,6 +11,7 @@ from seeds.services.demo_seed_services import DemoSeedService
 from seeds.services.illustration_seed_services import IllustrationSeedService
 from seeds.services.owner_seed_services import OwnerSeedService
 from seeds.services.reference_seed_services import ReferenceSeedService
+from seeds.services.site_seed_services import SiteSeedService
 from seeds.types.seed_types import SeedPart
 
 
@@ -19,9 +20,9 @@ def parse_arguments() -> argparse.Namespace:
     Read the seed part to run.
 
     Returns:
-        argparse.Namespace: part (reference, illustrations, demo, owner or audit).
+        argparse.Namespace: part (reference, illustrations, site, demo, owner or audit).
     """
-    parser = argparse.ArgumentParser(prog="python -m seeds", description="Load Oleoziza reference data, the Season Illustrations, demo data, the first Owner, or the local audit fixtures.")
+    parser = argparse.ArgumentParser(prog="python -m seeds", description="Load Oleoziza reference data, the Season Illustrations, the first Site, demo data, the first Owner, or the local audit fixtures.")
     parser.add_argument("part", choices=[part.value for part in SeedPart])
     return parser.parse_args()
 
@@ -31,7 +32,7 @@ def run_seed(part: SeedPart) -> int:
     Run one seed part in its own session and print what it wrote.
 
     Args:
-        part (SeedPart): reference, illustrations, demo, owner or audit.
+        part (SeedPart): reference, illustrations, site, demo, owner or audit.
 
     Returns:
         int: Process exit code, 0 on success and 1 when the seed refused to run.
@@ -46,6 +47,8 @@ def run_seed(part: SeedPart) -> int:
             elif part == SeedPart.ILLUSTRATIONS:
                 added_codes = IllustrationSeedService(db, get_rustfs_client()).run()
                 print(f"illustrations: {', '.join(added_codes) if added_codes else 'none new'} added")
+            elif part == SeedPart.SITE:
+                print("site: Oujda created" if SiteSeedService(db).run() else "site: a Site already exists, kept")
             elif part == SeedPart.DEMO:
                 for label, count in DemoSeedService(db, settings, get_rustfs_client()).run().items():
                     print(f"demo: {label}: {count}")

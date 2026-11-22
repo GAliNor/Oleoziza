@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Run on the server after every git pull, the first install included, once scripts/production-init.sh has filled
 # env_files/production. Builds the images first, then recreates what changed (a few seconds of downtime), loads the
-# reference data, the Season Illustrations and the first Owner, and ends with scripts/production-check.sh.
+# reference data, the Season Illustrations, the Oujda Site (only while no Site exists) and the first Owner, and ends
+# with scripts/production-check.sh.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -64,6 +65,7 @@ echo "Starting the stack..."
 echo "Loading the data..."
 run_seed reference
 run_seed illustrations
+run_seed site
 owner_result=$(run_seed owner)
 echo "$owner_result"
 
