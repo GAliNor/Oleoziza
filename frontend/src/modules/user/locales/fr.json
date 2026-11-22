@@ -73,7 +73,9 @@
     "siteRemoved": "Site retiré.",
     "lastSite": "Un membre du personnel garde au moins un Site ; désactivez-le plutôt.",
     "error": "Impossible d’enregistrer la modification.",
-    "address": "Adresse"
+    "address": "Adresse",
+    "civility": "Civilité",
+    "civilitySaved": "Civilité enregistrée."
   },
   "actions": {
     "resendInvitation": "Renvoyer l’invitation",
@@ -211,7 +213,9 @@
     "passwordInvalid": "Le mot de passe compte au moins 8 caractères.",
     "error": "Impossible de créer l’utilisateur ; le téléphone ou l’e-mail est peut-être déjà utilisé.",
     "created": "{name} est créé ; il changera son code à sa première connexion.",
-    "invited": "Invitation envoyée à {to}."
+    "invited": "Invitation envoyée à {to}.",
+    "civility": "Civilité",
+    "noCivility": "Aucune"
   },
   "location": {
     "add": "Ajouter",

@@ -5,7 +5,7 @@ import { getAccessToken } from 'global/services/access-token';
 import { createId } from 'global/composables/crypto';
 import { MOCK_INVITATIONS_DB, MOCK_USERS_DB } from 'auth/services/users.mock-db';
 import type { LoginMethod } from 'auth/types/auth';
-import type { Permission } from 'global/types/session';
+import type { Permission, UserTitle } from 'global/types/session';
 import type { ILocation } from 'territory/types/territory';
 import type { IMockUser } from 'auth/types/mock-auth';
 import type { IStaffForm, IStaffUser, IUserService, StaffRole, StaffStatus } from 'user/types/user';
@@ -61,6 +61,7 @@ export default class UserMockService implements IUserService {
       id: createId(),
       role: form.role,
       clientId: null,
+      title: form.title ?? undefined,
       firstName: form.firstName,
       lastName: form.lastName,
       phone: form.phone,
@@ -114,6 +115,13 @@ export default class UserMockService implements IUserService {
     const user = findEditable(id);
     if (user instanceof Error) return mockReject(user);
     user.status = status === 'active' && !user.lastLoginAt && user.invitedAt ? 'invited' : status;
+    return mockResolve(toStaffUser(user));
+  }
+
+  updateTitle(id: string, title: UserTitle | null): Promise<IStaffUser> {
+    const user = findEditable(id);
+    if (user instanceof Error) return mockReject(user);
+    user.title = title ?? undefined;
     return mockResolve(toStaffUser(user));
   }
 

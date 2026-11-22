@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 
+import { i18n } from '~/plugins/i18n';
+
 import { restoreUserLanguage } from 'global/composables/language';
 import { readStorage, writeStorage } from 'global/composables/storage';
 import { OPERATOR_MODE_STORAGE_KEY } from 'global/constants/navigation';
@@ -25,7 +27,7 @@ export const useSessionStore = defineStore('session', {
     fullName: (state): string => (state.session ? `${state.session.firstName} ${state.session.lastName}` : ''),
     salutation(state): string {
       if (!state.session) return '';
-      return state.session.title ? `${state.session.title} ${state.session.lastName}` : this.fullName;
+      return state.session.title ? `${i18n.global.t(`global.titles.${state.session.title}`)} ${state.session.lastName}` : this.fullName;
     },
   },
   actions: {

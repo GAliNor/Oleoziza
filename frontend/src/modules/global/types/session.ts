@@ -1,5 +1,8 @@
 export type Role = 'management' | 'operator' | 'accountant' | 'client';
 
+/** The civility printed before a name; labels live under `global.titles`. */
+export type UserTitle = 'mr' | 'mrs' | 'dr' | 'prof' | 'counsel' | 'hajj' | 'hajja';
+
 export type Permission =
   | 'reception.create'
   | 'lot.update_status'
@@ -39,7 +42,7 @@ export interface ISession {
   role: Role;
   isOwner: boolean;
   sites: Record<string, Permission[]>;
-  title?: string;
+  title?: UserTitle;
   firstName: string;
   lastName: string;
   credentialKinds?: ('pin' | 'password')[];

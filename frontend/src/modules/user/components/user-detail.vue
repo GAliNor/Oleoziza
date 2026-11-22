@@ -3,7 +3,7 @@
     <header class="flex items-center gap-3">
       <user-avatar :user="user" class="h-12 w-12" />
       <div class="min-w-0 flex-1">
-        <h2 class="heading-four truncate">{{ user.title ? `${user.title} ` : '' }}{{ formatFullName(user) }}</h2>
+        <h2 class="heading-four truncate">{{ user.title ? `${$t(`global.titles.${user.title}`)} ` : '' }}{{ formatFullName(user) }}</h2>
         <p class="flex flex-wrap items-center gap-2 body-two">
           <span>{{ $t(`user.roles.${user.role}`) }}</span>
           <span v-if="user.isOwner" class="chip bg-highlight/30 text-fg-accent">{{ $t('user.owner') }}</span>
@@ -22,6 +22,13 @@
       <div class="flex flex-col gap-3">
         <p class="eyebrow">{{ $t('user.detail.contact') }}</p>
         <dl class="flex flex-col gap-2">
+          <div>
+            <dt class="label">{{ $t('user.detail.civility') }}</dt>
+            <dd v-if="canEditTitleComputed" class="max-w-48">
+              <ui-select :model-value="user.title ?? ''" :options="titleOptionsComputed" :label="$t('user.detail.civility')" :is-disabled="userStore.isSaving" @update:model-value="handleTitle" />
+            </dd>
+            <dd v-else class="text-fg-display">{{ user.title ? $t(`global.titles.${user.title}`) : '—' }}</dd>
+          </div>
           <div>
             <dt class="label">{{ $t('user.detail.phone') }}</dt>
             <dd class="text-fg-display tabular-nums">{{ user.phone ? formatPhone(user.phone) : '—' }}</dd>
@@ -105,11 +112,13 @@ import { useUserRights } from 'user/composables/use-user-rights';
 import { formatPhone } from 'global/composables/phone';
 import { formatFullName } from 'user/composables/format';
 import { LOGIN_METHODS } from 'user/constants/user';
+import { useTitleOptions } from 'user/composables/use-title-options';
 import type { LoginMethod } from 'auth/types/auth';
 import type { IStaffUser } from 'user/types/user';
 import { formatDateTime } from 'global/composables/date';
 
 import UiConfirmButton from 'global/components/ui-confirm-button.vue';
+import UiSelect from 'global/components/ui-select.vue';
 import UserAvatar from 'user/components/user-avatar.vue';
 import UserLocation from 'user/components/user-location.vue';
 import UserSiteRights from 'user/components/user-site-rights.vue';
@@ -127,6 +136,7 @@ const toastStore = useToastStore();
 const userStore = useUserStore();
 const { t } = useI18n();
 const { manageableSiteIds, canEdit, defaultsFor } = useUserRights();
+const { titleOptionsComputed, toTitle } = useTitleOptions();
 
 // variables
 const isDisableArmed = ref(false);
@@ -135,6 +145,7 @@ const isDisableArmed = ref(false);
 const isMe = computed((): boolean => props.user.id === sessionStore.session?.userId);
 const assignedSiteIds = computed((): string[] => Object.keys(props.user.sites).sort((first, second) => siteName(first).localeCompare(siteName(second), 'fr')));
 const unassignedSiteIds = computed((): string[] => manageableSiteIds.value.filter((siteId) => !(siteId in props.user.sites)));
+const canEditTitleComputed = computed((): boolean => canEdit(props.user) || (isMe.value && props.user.isOwner));
 const contact = computed((): string => props.user.email ?? formatPhone(props.user.phone ?? ''));
 
 // watchers
@@ -163,6 +174,12 @@ const handleLoginMethod = async (method: LoginMethod): Promise<void> => {
   }
   const isSaved = await userStore.setLoginMethods(props.user.id, methods.includes(method) ? methods.filter((item) => item !== method) : [...methods, method]);
   if (!isSaved) toastStore.push(t('user.detail.error'), 'danger');
+};
+
+const handleTitle = async (value: string | null): Promise<void> => {
+  const title = toTitle(value);
+  if (title === (props.user.title ?? null)) return;
+  notify(await userStore.setTitle(props.user.id, title), t('user.detail.civilitySaved'));
 };
 
 const handleInvite = async (): Promise<void> => {

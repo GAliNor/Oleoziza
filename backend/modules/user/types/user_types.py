@@ -137,6 +137,7 @@ class StaffUserOut(CamelModel):
 
 class StaffUserCreateIn(CamelModel):
     role: StaffRole
+    title: Title | None = None
     first_name: str
     last_name: str
     phone: str | None = None
@@ -157,3 +158,7 @@ class LoginMethodsIn(CamelModel):
 
 class StatusIn(CamelModel):
     status: StaffStatusChange
+
+
+class TitleIn(CamelModel):
+    title: Title | None

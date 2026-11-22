@@ -1,5 +1,5 @@
 import type { LoginMethod } from 'auth/types/auth';
-import type { Permission, Role } from 'global/types/session';
+import type { Permission, Role, UserTitle } from 'global/types/session';
 import type { ILocation } from 'territory/types/territory';
 
 export type StaffRole = Exclude<Role, 'client'>;
@@ -14,7 +14,7 @@ export interface IStaffUser {
   id: string;
   role: StaffRole;
   isOwner: boolean;
-  title?: string;
+  title?: UserTitle | null;
   firstName: string;
   lastName: string;
   phone: string | null;
@@ -29,6 +29,7 @@ export interface IStaffUser {
 
 export interface IStaffForm {
   role: StaffRole;
+  title: UserTitle | null;
   firstName: string;
   lastName: string;
   phone: string | null;
@@ -50,6 +51,7 @@ export interface IUserService {
   updateSitePermissions(id: string, siteId: string, permissions: Permission[] | null): Promise<IStaffUser>;
   updateLoginMethods(id: string, loginMethods: LoginMethod[]): Promise<IStaffUser>;
   updateStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<IStaffUser>;
+  updateTitle(id: string, title: UserTitle | null): Promise<IStaffUser>;
   updateLocation(id: string, location: ILocation | null): Promise<IStaffUser>;
   sendInvitation(id: string): Promise<IStaffUser>;
   resetCredential(id: string): Promise<void>;

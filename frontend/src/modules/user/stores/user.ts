@@ -4,7 +4,7 @@ import UserService from 'user/services/user';
 import { withStatus } from 'global/composables/with-status';
 import { cachedLoad, LOAD_TTL_MS } from 'global/composables/cached-load';
 import type { LoginMethod } from 'auth/types/auth';
-import type { Permission } from 'global/types/session';
+import type { Permission, UserTitle } from 'global/types/session';
 import type { ILocation } from 'territory/types/territory';
 import type { IStaffForm, IStaffUser, IUserStore, StaffStatus } from 'user/types/user';
 
@@ -53,6 +53,9 @@ export const useUserStore = defineStore('user', {
     },
     async setStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<boolean> {
       return this.apply(() => userService.updateStatus(id, status));
+    },
+    async setTitle(id: string, title: UserTitle | null): Promise<boolean> {
+      return this.apply(() => userService.updateTitle(id, title));
     },
     async setLocation(id: string, location: ILocation | null): Promise<boolean> {
       return this.apply(() => userService.updateLocation(id, location));

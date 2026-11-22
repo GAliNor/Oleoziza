@@ -208,3 +208,52 @@ def test_a_manager_lists_only_staff_of_the_sites_they_manage(client: TestClient,
     assert set(as_manager[str(shared_accountant.id)]["sites"]) == {str(berkane.id)}
     assert {str(oujda_operator.id), str(berkane_operator.id), str(owner.id)} <= set(as_owner)
     assert set(as_owner[str(shared_accountant.id)]["sites"]) == {str(oujda.id), str(berkane.id)}
+
+
+def test_the_owner_sees_themselves_on_every_active_site(client: TestClient, db: Session) -> None:
+    """
+    The Owner holds every Site without a Site Assignment (rule A5), so the Users page lists them on each active Site with every Permission.
+    """
+    oujda, berkane = create_site(db, "OC"), create_site(db, "BC")
+    owner = create_staff_user(db, "+212669990280", is_owner=True)
+
+    listed = {user["id"]: user for user in client.get(API_URL, headers=build_auth_header(owner)).json()}
+
+    assert {str(oujda.id), str(berkane.id)} <= set(listed[str(owner.id)]["sites"])
+    assert set(listed[str(owner.id)]["sites"][str(oujda.id)]) == {permission.value for permission in Permission}
+
+
+def test_a_user_is_created_with_a_civility_that_can_change_later(client: TestClient, db: Session, published: list) -> None:
+    """
+    The civility chosen at creation is kept, and a manager of the User's Site can change or clear it.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990290", is_owner=True)
+    headers = build_auth_header(owner)
+
+    created = client.post(API_URL, json=build_operator_form(str(site.id), "0669990291", title="hajj"), headers=headers).json()
+    changed = client.put(f"{API_URL}/{created['id']}/title", json={"title": "mr"}, headers=headers).json()
+    cleared = client.put(f"{API_URL}/{created['id']}/title", json={"title": None}, headers=headers).json()
+
+    assert created["title"] == "hajj"
+    assert changed["title"] == "mr"
+    assert cleared["title"] is None
+
+
+def test_only_the_owner_sets_their_own_civility(client: TestClient, db: Session) -> None:
+    """
+    The Owner may set their own civility (rule A5); a manager changes neither their own account nor the Owner's (rule B9).
+    """
+    site = create_site(db)
+    rights = {site.id: [Permission.USER_MANAGE]}
+    owner = create_staff_user(db, "+212669990295", is_owner=True)
+    manager = create_staff_user(db, "+212669990296", permissions_by_site=rights)
+    manager_headers = build_auth_header(manager, rights)
+
+    by_owner = client.put(f"{API_URL}/{owner.id}/title", json={"title": "mr"}, headers=build_auth_header(owner))
+    on_self = client.put(f"{API_URL}/{manager.id}/title", json={"title": "mrs"}, headers=manager_headers)
+    on_owner = client.put(f"{API_URL}/{owner.id}/title", json={"title": "dr"}, headers=manager_headers)
+
+    assert by_owner.json()["title"] == "mr"
+    assert on_self.json() == {"code": "user_locked"}
+    assert on_owner.json() == {"code": "user_locked"}

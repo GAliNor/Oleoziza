@@ -13,14 +13,14 @@ from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
 from modules.auth.business.auth_secrets import hash_secret
 from modules.auth.helpers.auth_identifiers import normalize_identifier
-from modules.auth.models.auth_models import Credential, Invitation
+from modules.auth.models.auth_models import Credential
 from modules.auth.services.auth_services import AuthService
 from modules.auth.services.invitation_services import InvitationService
 from modules.auth.types.auth_types import SEND_INVITATION_TASK, CredentialKind
 from modules.site.models.site_models import Site
+from modules.user.business.staff_users import build_staff_user
 from modules.user.models.user_models import SiteAssignment, SiteAssignmentPermission, User, UserLoginMethod
 from modules.user.types.user_types import (
-    LocationOut,
     LoginMethod,
     Permission,
     Role,
@@ -28,6 +28,7 @@ from modules.user.types.user_types import (
     StaffStatusChange,
     StaffUserCreateIn,
     StaffUserOut,
+    Title,
     UserStatus,
 )
 
@@ -101,6 +102,7 @@ class UserService:
             raise RefusedError("invalid_first_secret", 422)
         user = User(
             role=Role(payload.role.value),
+            title=payload.title,
             first_name=first_name,
             last_name=last_name,
             phone=phone,
@@ -183,6 +185,31 @@ class UserService:
         for method in methods:
             self.db.add(UserLoginMethod(user_id=user.id, method=method, created_by_id=self.current_user.id))
         record_audit_event(self.db, self.current_user.id, "user.login_methods_set", entity_type="user", entity_id=user.id, after={"loginMethods": [method.value for method in methods]})
+        self.db.commit()
+        return self._build_staff_user(user)
+
+    def set_title(self, user_id: UUID, title: Title | None) -> StaffUserOut:
+        """
+        Set or clear the civility printed before a staff User's name; the Owner may also set their own (rule A5).
+
+        Args:
+            user_id (UUID): User changed.
+            title (Title | None): New civility, None to clear it.
+
+        Returns:
+            StaffUserOut: The User after the change.
+
+        Raises:
+            RefusedError: user_not_found, user_locked, site_forbidden.
+        """
+        is_owner_self = self.current_user.is_owner and user_id == self.current_user.id
+        user = self.db.get(User, user_id) if is_owner_self else self._get_managed_user(user_id)
+        if user is None:
+            raise RefusedError("user_not_found", 404)
+        before = user.title.value if user.title else None
+        user.title = title
+        user.updated_by_id = self.current_user.id
+        record_audit_event(self.db, self.current_user.id, "user.title_set", entity_type="user", entity_id=user.id, before={"title": before}, after={"title": title.value if title else None})
         self.db.commit()
         return self._build_staff_user(user)
 
@@ -415,7 +442,7 @@ class UserService:
 
     def _build_staff_user(self, user: User) -> StaffUserOut:
         """
-        Shape a staff User as the Users page shows it, with Permissions per Site and the last Invitation date; a manager who is not the Owner sees only the Sites they manage.
+        Shape a staff User for the Users page; a manager who is not the Owner sees only the Sites they manage.
 
         Args:
             user (User): User to show.
@@ -423,38 +450,7 @@ class UserService:
         Returns:
             StaffUserOut: The User as the front reads it.
         """
-        rows = self.db.execute(
-            select(SiteAssignment.site_id, SiteAssignmentPermission.permission)
-            .outerjoin(SiteAssignmentPermission, SiteAssignmentPermission.site_assignment_id == SiteAssignment.id)
-            .where(SiteAssignment.user_id == user.id)
-        ).all()
-        sites: dict[str, list[Permission]] = {}
-        for site_id, permission in rows:
-            site_permissions = sites.setdefault(str(site_id), [])
-            if permission is not None:
-                site_permissions.append(permission)
-        if not self.current_user.is_owner:
-            manageable_site_ids = self._get_manageable_site_ids()
-            sites = {site_id: permissions for site_id, permissions in sites.items() if site_id in manageable_site_ids}
-        login_methods = self.db.scalars(select(UserLoginMethod.method).where(UserLoginMethod.user_id == user.id)).all()
-        invited_at = self.db.scalar(select(func.max(Invitation.created_at)).where(Invitation.user_id == user.id))
-        location = LocationOut(province=user.province_id, city=user.city or "", address=user.address or "") if user.province_id else None
-        return StaffUserOut(
-            id=user.id,
-            role=user.role,
-            is_owner=user.is_owner,
-            title=user.title,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            phone=user.phone,
-            email=user.email,
-            location=location,
-            login_methods=[method for method in LoginMethod if method in login_methods],
-            status=user.status,
-            sites=sites,
-            last_login_at=user.last_login_at,
-            invited_at=invited_at,
-        )
+        return build_staff_user(self.db, user, None if self.current_user.is_owner else self._get_manageable_site_ids())
 
 
 def get_user_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)) -> UserService:

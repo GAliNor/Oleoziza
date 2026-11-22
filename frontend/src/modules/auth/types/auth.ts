@@ -1,4 +1,4 @@
-import type { Permission, Role } from 'global/types/session';
+import type { Permission, Role, UserTitle } from 'global/types/session';
 
 export type LoginMethod = 'phone_pin' | 'email_password' | 'phone_otp';
 
@@ -29,7 +29,7 @@ export interface IAccessClaims {
   role: Role;
   isOwner: boolean;
   sites: Record<string, Permission[]>;
-  title?: string;
+  title?: UserTitle;
   firstName: string;
   lastName: string;
   credentialKinds?: CredentialKind[];

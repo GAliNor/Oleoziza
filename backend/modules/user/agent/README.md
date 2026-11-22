@@ -5,12 +5,14 @@ Staff [Users](../../../../GLOSSARY.md) (Management, Operators, Accountants; the 
 
 ## Exposes
 - Endpoints (`/api/user`, `user.manage` on the Sites concerned):
-  - `GET ""`: the staff list for the Users page: every staff User for the Owner; otherwise only those assigned to one of the actor's `user.manage` Sites, each showing only those Sites (rules A3, A6).
-  - `POST ""`: create a staff User with a first secret to change, or with an Invitation.
+  - `GET ""`: the staff list for the Users page: every staff User for the Owner; otherwise only those assigned to one of the actor's `user.manage` Sites, each showing only those Sites (rules A3, A6). The Owner's own row lists every active Site with every Permission, though they have no Site Assignment.
+  - `POST ""`: create a staff User, with an optional `title` (civility), and a first secret to change or an Invitation.
+  - `PUT /{user_id}/title` `{title}` (`null` clears it): change a staff User's civility; the Owner may also set their own.
   - `PUT /{user_id}/sites/{site_id}`, `DELETE /{user_id}/sites/{site_id}`: give, change or take away a Site and its Permissions.
   - `PUT /{user_id}/login-methods`, `PUT /{user_id}/status`.
   - `POST /{user_id}/invitation`, `POST /{user_id}/reset`: send a new Invitation or a reset link.
 - Services: `UserService`. Publishes `auth.send_invitation` by name.
+- Business: `build_staff_user(db, user, visible_site_ids)` and `list_site_permissions(db, user)` in `business/staff_users.py`.
 
 ## Refusal codes
 - `user_not_found` (404); `users_forbidden`, `site_forbidden`, `permission_not_held`, `user_locked` (403).
@@ -21,5 +23,5 @@ Staff [Users](../../../../GLOSSARY.md) (Management, Operators, Accountants; the 
 - An actor only grants Permissions they hold, on Sites they hold.
 - Disabling a User bumps `token_version`: they are signed out at their next refresh.
 - Default Permissions per Role are in `constants/user_constants.py` (`ACCOUNTANT_DEFAULT_PERMISSIONS` includes `expense.record`).
-- `user_services.py` is 399 non-blank lines, at the split limit: split by use case (staff list, Site Permissions, login methods) when next touched. `list_staff` still reads Assignments, Login Methods and Invitations per User (3 queries a row).
+- `user_services.py` is 391 non-blank lines, near the split limit: split by use case (staff list, Site Permissions, login methods) when next touched. `list_staff` still reads Assignments, Login Methods and Invitations per User (3 queries a row).
 - Models: User, UserLoginMethod, SiteAssignment, SiteAssignmentPermission.

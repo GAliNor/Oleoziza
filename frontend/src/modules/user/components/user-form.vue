@@ -11,13 +11,19 @@
       </div>
     </div>
 
-    <div class="grid gap-3 sm:grid-cols-2">
+    <div class="grid gap-3 sm:grid-cols-[9rem_1fr_1fr]">
+      <ui-field v-slot="{ id }" :label="$t('user.form.civility')">
+        <ui-select :id="id" v-model="form.title" :options="titleOptionsComputed" :label="$t('user.form.civility')" />
+      </ui-field>
       <ui-field v-slot="{ id }" :label="$t('user.form.firstName')">
         <input :id="id" v-model="form.firstName" class="input" type="text" autocomplete="off" required />
       </ui-field>
       <ui-field v-slot="{ id }" :label="$t('user.form.lastName')">
         <input :id="id" v-model="form.lastName" class="input" type="text" autocomplete="off" required />
       </ui-field>
+    </div>
+
+    <div class="grid gap-3 sm:grid-cols-2">
       <ui-field v-slot="{ id }" :label="$t('user.form.phone')">
         <input :id="id" v-model="form.phone" class="input" type="tel" inputmode="tel" placeholder="06 61 00 00 00" />
       </ui-field>
@@ -93,10 +99,12 @@ import { formatPhone, normalizePhone } from 'global/composables/phone';
 import { normalizeIdentifier } from 'auth/composables/normalize-identifier';
 import { formatFullName } from 'user/composables/format';
 import { STAFF_ROLES } from 'user/constants/user';
+import { useTitleOptions } from 'user/composables/use-title-options';
 import { PIN_LENGTH } from 'auth/constants/auth';
 import type { IStaffUser, StaffRole } from 'user/types/user';
 
 import UiField from 'global/components/ui-field.vue';
+import UiSelect from 'global/components/ui-select.vue';
 
 // emits
 const emit = defineEmits<{
@@ -110,6 +118,7 @@ const toastStore = useToastStore();
 const userStore = useUserStore();
 const { t } = useI18n();
 const { manageableSiteIds, defaultsFor } = useUserRights();
+const { titleOptionsComputed, toTitle } = useTitleOptions();
 
 // variables
 const PIN_PATTERN = new RegExp(`^\\d{${PIN_LENGTH}}$`);
@@ -117,6 +126,7 @@ const MIN_PASSWORD_LENGTH = 8;
 const initialSiteId = manageableSiteIds.value.includes(siteStore.currentSiteId ?? '') ? siteStore.currentSiteId : manageableSiteIds.value[0];
 const form = reactive({
   role: 'operator' as StaffRole,
+  title: '',
   firstName: '',
   lastName: '',
   phone: '',
@@ -161,6 +171,7 @@ const handleSubmit = async (): Promise<void> => {
   if (error.value) return;
   const user = await userStore.create({
     role: form.role,
+    title: toTitle(form.title),
     firstName: form.firstName.trim(),
     lastName: form.lastName.trim(),
     phone,

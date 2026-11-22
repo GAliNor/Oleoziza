@@ -1,7 +1,7 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import UserMockService from 'user/services/user.mock';
 import type { LoginMethod } from 'auth/types/auth';
-import type { Permission } from 'global/types/session';
+import type { Permission, UserTitle } from 'global/types/session';
 import type { ILocation } from 'territory/types/territory';
 import type { IStaffForm, IStaffUser, IUserService, StaffStatus } from 'user/types/user';
 
@@ -34,6 +34,10 @@ class UserApiService extends BaseService implements IUserService {
 
   updateStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<IStaffUser> {
     return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/status`, data: { status } });
+  }
+
+  updateTitle(id: string, title: UserTitle | null): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/title`, data: { title } });
   }
 
   sendInvitation(id: string): Promise<IStaffUser> {

@@ -1,12 +1,12 @@
 import type { LoginMethod } from 'auth/types/auth';
-import type { Permission, Role } from 'global/types/session';
+import type { Permission, Role, UserTitle } from 'global/types/session';
 import type { ILocation } from 'territory/types/territory';
 
 export interface IMockUser {
   id: string;
   role: Role;
   clientId: string | null;
-  title?: string;
+  title?: UserTitle;
   firstName: string;
   lastName: string;
   phone: string | null;

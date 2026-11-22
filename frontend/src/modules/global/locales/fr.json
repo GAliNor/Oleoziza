@@ -173,5 +173,14 @@
       "client.create": "Nouveau client",
       "reception.receive": "Réception"
     }
+  },
+  "titles": {
+    "mr": "M.",
+    "mrs": "Mme",
+    "dr": "Dr",
+    "prof": "Pr",
+    "counsel": "Maître",
+    "hajj": "Haj",
+    "hajja": "Hajja"
   }
 }

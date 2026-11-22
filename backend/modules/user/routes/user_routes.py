@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 
 from modules.user.services.user_services import UserService, get_user_service
-from modules.user.types.user_types import LoginMethodsIn, SitePermissionsIn, StaffUserCreateIn, StaffUserOut, StatusIn
+from modules.user.types.user_types import LoginMethodsIn, SitePermissionsIn, StaffUserCreateIn, StaffUserOut, StatusIn, TitleIn
 
 
 router = APIRouter(tags=["user"])
@@ -101,6 +101,22 @@ def set_status(user_id: UUID, payload: StatusIn, user_service: UserService = Dep
         StaffUserOut: The User after the change.
     """
     return user_service.set_status(user_id, payload.status)
+
+
+@router.put("/{user_id}/title", response_model=StaffUserOut)
+def set_title(user_id: UUID, payload: TitleIn, user_service: UserService = Depends(get_user_service)) -> StaffUserOut:
+    """
+    Set or clear a staff User's civility.
+
+    Args:
+        user_id (UUID): User changed.
+        payload (TitleIn): Civility, or null to clear it.
+        user_service (UserService): Injected user service.
+
+    Returns:
+        StaffUserOut: The User after the change.
+    """
+    return user_service.set_title(user_id, payload.title)
 
 
 @router.post("/{user_id}/invitation", response_model=StaffUserOut)
