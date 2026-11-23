@@ -32,7 +32,7 @@ import { useFinanceStore } from 'finance/stores/finance';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
-import { readDocuments } from 'finance/composables/read-documents';
+import { readFiles } from 'global/composables/read-files';
 import { formatMoney } from 'global/composables/money';
 import { formatShortDate } from 'global/composables/date';
 import { MOVEMENT_STATUS_TONES } from 'finance/constants/finance';
@@ -61,7 +61,9 @@ const canAddProof = (payment: IMovement): boolean => siteStore.hasPermission('do
 
 // event handlers
 const handleAddFiles = async (payment: IMovement, files: File[]): Promise<void> => {
-  const updated = await financeStore.addDocuments(payment, await readDocuments(files, sessionStore.fullName));
+  const documents = await readFiles(files, sessionStore.fullName);
+  if (!documents.length) return;
+  const updated = await financeStore.addDocuments(payment, documents);
   toastStore.push(t(updated ? 'finance.documents.added' : 'finance.toasts.error'), updated ? 'success' : 'danger');
 };
 </script>

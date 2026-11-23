@@ -6,7 +6,7 @@ from pydantic import Field
 
 from core.types import CamelModel
 from modules.lot.types.lot_types import LotStatus
-from modules.territory.types.territory_types import LocationIn
+from modules.territory.types.territory_types import OptionalLocationIn
 from modules.user.types.user_types import Title
 
 
@@ -73,7 +73,7 @@ class ClientCreateIn(CamelModel):
     site_id: UUID
     identifier: str | None = Field(default=None, max_length=20)
     email: str | None = Field(default=None, max_length=254)
-    location: LocationIn
+    location: OptionalLocationIn | None = None
     entered_at: datetime | None = None
     recorded_offline: bool = False
     device_label: str | None = Field(default=None, max_length=120)
@@ -81,11 +81,12 @@ class ClientCreateIn(CamelModel):
 
 class ClientContactIn(CamelModel):
     """
-    A Client's phone or email, changed from their page.
+    A Client's phone, email or place, changed from their page; a place left out stays, an empty one is removed.
     """
 
     phone: str | None = Field(default=None, min_length=6, max_length=20)
     email: str | None = Field(default=None, max_length=254)
+    location: OptionalLocationIn | None = None
 
 
 class ClientLotLineOut(CamelModel):

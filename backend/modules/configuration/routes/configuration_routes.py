@@ -113,22 +113,22 @@ def update_configuration(
 
 
 @router.delete("/{site_id}/price-changes/{change_id}", response_model=ConfigurationOut)
-def cancel_price_change(
+def delete_price_change(
     site_id: UUID,
     change_id: UUID,
     current_user: CurrentUser = Depends(get_current_user),
     configuration_service: ConfigurationService = Depends(get_configuration_service),
 ) -> ConfigurationOut:
     """
-    Cancel a scheduled price change before it takes effect.
+    Delete a price version: a scheduled one, or one already in force (Owner only).
 
     Args:
         site_id (UUID): Site of the change.
-        change_id (UUID): Scheduled price version.
+        change_id (UUID): Price version.
         current_user (CurrentUser): User from the access token.
         configuration_service (ConfigurationService): Injected configuration service.
 
     Returns:
         ConfigurationOut: The Configuration of the change's Season.
     """
-    return configuration_service.cancel_price_change(site_id, change_id, current_user)
+    return configuration_service.delete_price_change(site_id, change_id, current_user)

@@ -25,6 +25,10 @@ HISTORY_LENGTH = 50
 
 CONFIGURATION_CHANGED_ACTION = "configuration.changed"
 
+PRICE_CHANGE_CANCELLED_ACTION = "configuration.price_change_cancelled"
+
+PRICE_CHANGE_DELETED_ACTION = "configuration.price_change_deleted"
+
 NOTIFICATION_CHANNEL_ORDER: tuple[NotificationChannel, ...] = (NotificationChannel.WHATSAPP, NotificationChannel.SMS, NotificationChannel.EMAIL)
 
 IMPLEMENTED_NOTIFICATION_CHANNELS: frozenset[NotificationChannel] = frozenset({NotificationChannel.EMAIL})

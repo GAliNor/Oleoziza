@@ -1,4 +1,6 @@
-import type { ExpensePaidBy } from 'expense/types/expense';
+import type { ExpenseFrequency, ExpensePaidBy } from 'expense/types/expense';
+
+export const EXPENSE_ROUTE_NAME = 'expense';
 
 /** Where an Expense being typed is kept, per person and Site, so a reload or a crash doesn't lose it. */
 export const EXPENSE_DRAFT_STORAGE_KEY = 'oleoziza.expense-draft.v1';
@@ -25,3 +27,8 @@ export const EXPENSE_CATEGORY_COLORS: Record<string, string> = {
   stock_purchase: 'var(--color-accent-brown)',
   investment: 'var(--color-neutral-700)',
 };
+
+export const EXPENSE_FREQUENCIES: readonly ExpenseFrequency[] = ['monthly', 'quarterly', 'yearly'];
+
+/** Key of « Sans TVA » among the rates. */
+export const NO_VAT = 'none';

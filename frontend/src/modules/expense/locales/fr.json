@@ -14,7 +14,12 @@
     "vat": "TVA sur factures",
     "vatSub": "à transmettre au comptable",
     "count": "Pièces",
-    "countSub": "{count} pièce enregistrée | {count} pièce enregistrée | {count} pièces enregistrées"
+    "countSub": "{count} pièce enregistrée | {count} pièce enregistrée | {count} pièces enregistrées",
+    "toPay": "À payer",
+    "toPayNone": "rien à payer",
+    "toPayCount": "{count} charge | {count} charge | {count} charges",
+    "toPayLate": "{count} en retard | {count} en retard | {count} en retard",
+    "toPayUnknown": "{count} sans montant | {count} sans montant | {count} sans montant"
   },
   "breakdown": {
     "title": "Par catégorie",
@@ -31,7 +36,7 @@
       "paidBy": "Payé par",
       "amount": "Montant TTC"
     },
-    "empty": "Aucune charge ne correspond.",
+    "empty": "Aucune charge payée ne correspond.",
     "back": "Retour aux charges",
     "cancelled": "Annulée",
     "documents": "{count} pièce jointe | {count} pièce jointe | {count} pièces jointes",
@@ -44,44 +49,41 @@
   "actions": {
     "new": "Nouvelle charge",
     "export": "Exporter",
-    "edit": "Modifier",
     "duplicate": "Dupliquer",
     "cancel": "Annuler la charge",
     "confirmCancel": "Confirmer l’annulation",
     "cancelReason": "Motif de l’annulation",
     "cancelReasonPlaceholder": "Ex. : saisie en double",
     "cancelled": "Charge annulée.",
-    "closed": "Saison clôturée : cette charge ne change plus."
+    "closed": "Saison clôturée : cette charge ne change plus.",
+    "unpay": "Remettre à payer",
+    "confirmUnpay": "Confirmer : elle ne comptera plus",
+    "unpaid": "Charge remise à payer.",
+    "stopRecurrence": "Arrêter la récurrence",
+    "confirmStopRecurrence": "Confirmer : plus de prochaine",
+    "recurrenceStopped": "Récurrence arrêtée.",
+    "delete": "Supprimer",
+    "confirmDelete": "Confirmer la suppression",
+    "confirmDeleteRecurring": "Confirmer : passer à la prochaine",
+    "deleted": "Charge à payer supprimée."
   },
   "detail": {
-    "date": "Payée le",
-    "category": "Catégorie",
-    "supplier": "Fournisseur",
-    "ice": "ICE",
-    "if": "IF",
-    "invoice": "Facture",
-    "invoiceDate": "Date de facture",
-    "paidBy": "Payée par",
-    "reference": "Référence du paiement",
-    "inclVat": "Montant TTC",
     "exclVat": "Montant HT",
     "vat": "TVA {rate} %",
     "exempt": "Exonéré de TVA",
-    "noVat": "Sans TVA",
     "recordedBy": "Saisie par {name}, {at}",
     "updatedBy": "Modifiée par {name}, {at}",
     "cancelledBy": "Annulée par {name}, {at} : {reason}",
-    "documents": "Justificatifs",
     "noDocuments": "Aucune facture jointe.",
-    "accountLabel": "Compte CGNC suggéré"
+    "accountLabel": "Compte CGNC suggéré",
+    "recordedByApp": "Créée automatiquement, {at}"
   },
   "form": {
     "titleNew": "Nouvelle charge",
-    "titleEdit": "Modifier {code}",
-    "titleDuplicate": "Copie de {code}",
+    "titleDuplicate": "Copie de « {title} »",
     "date": "Payée le",
-    "category": "Catégorie",
-    "categoryPlaceholder": "Choisir une catégorie",
+    "category": "Type de charge",
+    "categoryPlaceholder": "Choisir un type",
     "description": "Description",
     "descriptionPlaceholder": "Ex. : Salaires novembre, Malaxeur n° 5",
     "investmentHint": "Nommez le bien acheté : le comptable l’inscrit dans ses immobilisations.",
@@ -103,15 +105,29 @@
     "paymentReference": "Référence du paiement",
     "paymentReferencePlaceholder": "N° de chèque ou de virement",
     "documents": "Justificatifs",
-    "save": "Enregistrer la charge",
-    "saveEdit": "Enregistrer les modifications",
+    "save": "Enregistrer, payée",
     "close": "Fermer",
-    "saved": "Charge {code} enregistrée.",
-    "updated": "Charge {code} modifiée.",
-    "required": "Date, catégorie, description, montant et fournisseur sont obligatoires.",
+    "saved": "Charge {code} enregistrée · {scope}.",
     "iceInvalid": "L’ICE compte 15 chiffres.",
-    "backToExpense": "Retour à la charge",
-    "removeDocument": "Retirer {name}"
+    "removeDocument": "Retirer {name}",
+    "paymentState": "La charge est",
+    "state": {
+      "paid": "Déjà payée",
+      "to_pay": "À payer"
+    },
+    "stateHint": {
+      "paid": "Compte dans le résultat",
+      "to_pay": "Rappelée avant l’échéance"
+    },
+    "dueOn": "À payer le",
+    "dueOnHint": "Rappel 7 jours avant ; 30 jours pour une charge trimestrielle ou annuelle.",
+    "amountLaterHint": "Peut rester vide jusqu’au paiement.",
+    "frequency": "Récurrence",
+    "frequencyHint": "La prochaine charge à payer se crée toute seule.",
+    "nextDue": "Prochaine à payer le {date}.",
+    "saveToPay": "Enregistrer, à payer",
+    "savedToPay": "À payer le {date} · {scope}.",
+    "backToExpense": "Retour à la charge"
   },
   "warnings": {
     "cash_over_daily_limit": "Plus de 5 000 DH en espèces à un fournisseur dans la journée : la TVA et une partie de la charge ne seront pas déductibles.",
@@ -275,8 +291,7 @@
   },
   "draft": {
     "title": "Une charge n’a pas été enregistrée",
-    "titleEdit": "Une modification n’a pas été enregistrée",
-    "untitled": "Sans description",
+    "untitled": "Sans titre",
     "keptAt": "gardée le {at}",
     "resume": "Reprendre",
     "discard": "Supprimer",
@@ -292,12 +307,16 @@
     "cancel": "Annuler",
     "nameRequired": "Le nom est obligatoire.",
     "iceInvalid": "L’ICE compte 15 chiffres.",
-    "error": "Création impossible. Vérifiez le réseau et réessayez."
+    "error": "Création impossible. Vérifiez le réseau et réessayez.",
+    "add": "Nouveau fournisseur",
+    "clear": "Sans fournisseur"
   },
   "view": {
     "label": "Affichage des charges",
     "byType": "Par type",
-    "all": "Toutes les charges"
+    "due": "À payer",
+    "dueCount": "À payer ({count})",
+    "paid": "Payées"
   },
   "byType": {
     "count": "aucune pièce | {count} pièce | {count} pièces",
@@ -305,5 +324,45 @@
     "focus": "Seulement « {category} »",
     "allTypes": "Voir tous les types",
     "investmentNote": "Gardés à part du résultat"
+  },
+  "season": {
+    "counted": "Comptée dans {season} · {site}",
+    "countedOff": "Hors saison : comptée dans {season}, la dernière commencée · {site}"
+  },
+  "state": {
+    "paid": "Payée",
+    "to_pay": "À payer",
+    "late": "En retard"
+  },
+  "frequency": {
+    "once": "Une seule fois",
+    "monthly": "Chaque mois",
+    "quarterly": "Chaque trimestre",
+    "yearly": "Chaque année"
+  },
+  "due": {
+    "empty": "Rien à payer pour l’instant.",
+    "groups": {
+      "late": "En retard",
+      "soon": "Dans les 30 jours",
+      "later": "Plus tard"
+    },
+    "unknownAmount": "Montant à préciser",
+    "lateBy": "en retard de {count} jour | en retard de {count} jour | en retard de {count} jours",
+    "inDays": "aujourd’hui | demain | dans {count} jours"
+  },
+  "pay": {
+    "open": "Marquer payée",
+    "title": "Paiement de la charge",
+    "submit": "Confirmer le paiement",
+    "dueOn": "À payer le {date}",
+    "notCounted": "Pas encore comptée dans le résultat.",
+    "done": "Charge {code} payée · {scope}."
+  },
+  "sections": {
+    "payment": "Montant et paiement",
+    "charge": "Charge",
+    "supplier": "Fournisseur",
+    "invoice": "Facture et justificatifs"
   }
 }

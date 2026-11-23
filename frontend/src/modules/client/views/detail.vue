@@ -63,7 +63,7 @@
       <client-history v-if="!isManagement && siteStore.currentSiteId" class="mt-2" :client="client" :site-id="siteStore.currentSiteId" />
 
       <template v-if="managementClient">
-        <client-coordinates class="mt-6" :client="managementClient" />
+        <client-coordinates class="mt-6" :client="managementClient" :can-edit="siteStore.can('client.edit')" />
         <management-client-detail class="mt-6" :client="managementClient" :is-finance-shown="siteStore.can('finance.view')" />
       </template>
     </section>

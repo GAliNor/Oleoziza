@@ -4,7 +4,7 @@ from sqlalchemy import CheckConstraint, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.database import Base
-from core.model_mixins import EMAIL_LENGTH, NAME_LENGTH, PHONE_LENGTH, AuditMixin, IdMixin, LocationMixin, OfflineEntryMixin, build_enum_type
+from core.model_mixins import EMAIL_LENGTH, NAME_LENGTH, PHONE_LENGTH, AuditMixin, IdMixin, OptionalLocationMixin, OfflineEntryMixin, build_enum_type
 from modules.client.types.client_types import ClientKind, ClientStatus
 from modules.user.types.user_types import Title
 
@@ -14,7 +14,7 @@ NATIONAL_ID_NUMBER_LENGTH = 10
 COMPANY_IDENTIFIER_LENGTH = 15
 
 
-class Client(IdMixin, AuditMixin, OfflineEntryMixin, LocationMixin, Base):
+class Client(IdMixin, AuditMixin, OfflineEntryMixin, OptionalLocationMixin, Base):
     """
     An Individual or a Company that brings olives to a Site, shared across all Sites.
     """

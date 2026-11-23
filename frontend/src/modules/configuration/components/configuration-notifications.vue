@@ -1,14 +1,10 @@
 <template>
-  <article class="card flex flex-col gap-3">
-    <div>
-      <h2 class="heading-five">{{ $t('configuration.notifications.title') }}</h2>
-      <p class="body-two">{{ $t('configuration.notifications.hint') }}</p>
-    </div>
+  <ui-section :title="$t('configuration.notifications.title')" :icon="BellLineIcon" :hint="$t('configuration.notifications.hint')">
     <div v-if="!configurationStore.notificationChannels" class="flex flex-col gap-2">
       <div v-for="index in 3" :key="index" class="skeleton h-12 rounded-control" />
     </div>
-    <ul v-else class="flex flex-col divide-y divide-subtle">
-      <li v-for="item in configurationStore.notificationChannels" :key="item.channel" class="py-1.5">
+    <ul v-else class="grid divide-y divide-subtle @3xl:grid-cols-3 @3xl:divide-x @3xl:divide-y-0 rtl:divide-x-reverse">
+      <li v-for="item in configurationStore.notificationChannels" :key="item.channel" class="px-2 py-1.5">
         <button
           type="button"
           role="switch"
@@ -29,8 +25,8 @@
     <p v-if="configurationStore.notificationChannels && !configurationStore.enabledNotificationChannels.length" class="rounded-control bg-subtle p-3 body-two">
       {{ $t('configuration.notifications.noneEnabled') }}
     </p>
-    <p v-if="!canManageComputed" class="body-three">{{ $t('configuration.notifications.readOnly') }}</p>
-  </article>
+    <p v-if="!canManageComputed" class="px-2 pb-1 body-three">{{ $t('configuration.notifications.readOnly') }}</p>
+  </ui-section>
 </template>
 
 <script setup lang="ts">
@@ -44,7 +40,9 @@ import { useToastStore } from 'global/stores/toast';
 import { useOnlineStatus } from 'global/composables/use-online-status';
 import type { INotificationChannelSetting, NotificationChannel } from 'configuration/types/configuration';
 
+import UiSection from 'global/components/ui-section.vue';
 import UiSwitch from 'global/components/ui-switch.vue';
+import BellLineIcon from 'global/icons/bell-line.icon.vue';
 
 // stores
 const { t } = useI18n();

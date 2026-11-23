@@ -48,6 +48,25 @@ class ExpenseStatus(StrEnum):
     CANCELLED = "cancelled"
 
 
+class ExpensePaymentState(StrEnum):
+    """
+    Whether an Expense is still to pay or paid; only paid ones count in totals, TVA and the export.
+    """
+
+    TO_PAY = "to_pay"
+    PAID = "paid"
+
+
+class ExpenseFrequency(StrEnum):
+    """
+    How often a Recurring Expense comes back.
+    """
+
+    MONTHLY = "monthly"
+    QUARTERLY = "quarterly"
+    YEARLY = "yearly"
+
+
 INVESTMENT_CATEGORY_ID = "investment"
 
 VAT_RATES = (0, 10, 20)
@@ -105,25 +124,48 @@ class ExpenseDocumentIn(CamelModel):
 
 class ExpenseIn(CamelModel):
     """
-    An Expense as the form sends it; the id is minted when the form opens.
+    An Expense as the form sends it; the id is minted when the form opens. One to pay needs its due date only, one paid its date, amount and way of paying.
     """
 
     id: UUID
     site_id: UUID
-    date: CalendarDate
+    payment_state: ExpensePaymentState = ExpensePaymentState.PAID
+    due_on: CalendarDate | None = None
+    frequency: ExpenseFrequency | None = None
+    date: CalendarDate | None = None
     category_id: str
-    description: str = Field(min_length=1)
-    amount: float = Field(gt=0)
+    description: str = ""
+    amount: float | None = Field(default=None, gt=0)
     vat_rate: int | None = None
     supplier_id: UUID | None = None
-    supplier: str = Field(min_length=1, max_length=120)
+    supplier: str = Field(default="", max_length=120)
     supplier_ice: str = Field(default="", max_length=15)
     supplier_if: str = Field(default="", max_length=100)
     invoice_number: str = Field(default="", max_length=100)
     invoice_date: CalendarDate | None = None
-    paid_by: ExpensePaidBy
+    paid_by: ExpensePaidBy | None = None
     payment_reference: str = Field(default="", max_length=100)
     documents: list[ExpenseDocumentIn] = []
+
+
+class ExpensePayIn(CamelModel):
+    """
+    An Expense marked paid; the id is the action's Audit Event, so a replay never pays it twice.
+    """
+
+    id: UUID
+    date: CalendarDate
+    amount: float = Field(gt=0)
+    paid_by: ExpensePaidBy
+    payment_reference: str = Field(default="", max_length=100)
+
+
+class ExpenseActionIn(CamelModel):
+    """
+    An action without details; the id is its Audit Event.
+    """
+
+    id: UUID
 
 
 class ExpenseCancelIn(CamelModel):
@@ -155,10 +197,17 @@ class ExpenseOut(CamelModel):
     id: UUID
     code: str | None
     site_id: UUID
-    date: CalendarDate
+    season_id: UUID | None
+    season_label: str | None
+    is_locked: bool
+    payment_state: ExpensePaymentState
+    due_on: CalendarDate | None
+    recurring_expense_id: UUID | None
+    frequency: ExpenseFrequency | None
+    date: CalendarDate | None
     category_id: str
     description: str
-    amount: float
+    amount: float | None
     vat_rate: int | None
     supplier_id: UUID | None
     supplier: str
@@ -166,7 +215,7 @@ class ExpenseOut(CamelModel):
     supplier_if: str
     invoice_number: str
     invoice_date: CalendarDate | None
-    paid_by: ExpensePaidBy
+    paid_by: ExpensePaidBy | None
     payment_reference: str
     documents: list[ExpenseDocumentOut]
     status: ExpenseStatus
@@ -210,10 +259,23 @@ class ExpenseSubcategoryTotalOut(CamelModel):
     count: int
 
 
+class ExpenseToPayOut(CamelModel):
+    """
+    What is still to pay, whatever the period: how many, for how much, how many are late and how many have no amount yet.
+    """
+
+    count: int
+    amount: float
+    late_count: int
+    unknown_amount_count: int
+
+
 class ExpenseSummaryOut(CamelModel):
     """
-    The period's Expenses, cancelled ones left out: operating costs and Investments apart.
+    The period's paid Expenses, cancelled ones left out: operating costs and Investments apart; and what is still to pay.
     """
+
+    to_pay: ExpenseToPayOut
 
     total: float
     operating: float

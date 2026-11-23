@@ -18,7 +18,7 @@
       </section>
     </div>
 
-    <div class="flex min-w-0 flex-col gap-3">
+    <div :ref="setFormRoot" class="flex min-w-0 flex-col gap-3">
       <p v-if="isReadOnly" class="body-two rounded-card bg-surface/70 p-4 shadow-hairline">{{ $t('finance.detail.readOnly') }}</p>
       <p v-else-if="!isOnline && (movement.status === 'pending' || movement.status === 'confirmed')" class="body-two rounded-card border border-warning-subtle bg-warning-subtle p-4">
         {{ $t('finance.detail.offlineHint') }}
@@ -26,20 +26,20 @@
 
       <template v-if="movement.status === 'pending' && canConfirm">
         <div v-if="mode === 'reject'" class="flex flex-col gap-3 rounded-card bg-surface p-4 shadow-hairline">
-          <ui-field v-slot="{ id }" :label="$t('finance.detail.rejectReason')">
-            <textarea :id="id" v-model="note" class="input min-h-20" :placeholder="$t('finance.detail.rejectPlaceholder')" />
+          <ui-field v-slot="{ id, describedBy, isInvalid }" name="note" :label="$t('finance.detail.rejectReason')" :error="errorOf('note')" @leave="touch('note')">
+            <textarea :id="id" v-model="note" :aria-invalid="isInvalid" :aria-describedby="describedBy" class="input min-h-20" :placeholder="$t('finance.detail.rejectPlaceholder')" />
           </ui-field>
           <p v-if="movement.method === 'oil'" class="body-two">{{ $t('finance.detail.oilReturns', { quantity: formatOil(movement.oilLitres ?? 0) }) }}</p>
           <div class="flex flex-wrap justify-end gap-2">
             <button type="button" class="btn-secondary" @click="mode = 'idle'">{{ $t('finance.detail.back') }}</button>
-            <button type="button" class="btn-primary bg-danger hover:bg-danger/90" :disabled="!note.trim() || !isOnline || financeStore.isSaving" @click="handleReject">{{ $t('finance.detail.reject') }}</button>
+            <button type="button" class="btn-primary bg-danger hover:bg-danger/90" :disabled="!isOnline || financeStore.isSaving" @click="handleReject">{{ $t('finance.detail.reject') }}</button>
           </div>
         </div>
         <div v-else class="flex flex-col items-center gap-1">
           <movement-link-lots v-if="!isReadOnly && (!movement.lotLinks.length || surplus > 0)" class="w-full" :movement="movement" :is-online="isOnline" />
           <p v-if="!movement.lotLinks.length" class="body-two rounded-card bg-warning-subtle p-4 text-center text-fg-warning">{{ $t('finance.detail.notLinked') }}</p>
           <template v-else>
-            <div v-if="surplus > 0" class="flex w-full flex-col gap-2 rounded-card bg-surface p-4 shadow-hairline">
+            <div v-if="surplus > 0" class="flex w-full flex-col gap-2 rounded-card bg-surface p-4 shadow-hairline" data-field="settlement">
               <p class="label">{{ $t('finance.settle.surplus', { amount: formatMoney(surplus) }) }}</p>
               <div class="grid gap-2 sm:grid-cols-2">
                 <button
@@ -54,8 +54,9 @@
                   <span class="block text-xs font-normal opacity-80">{{ $t(`finance.settlements.${key}.hint`) }}</span>
                 </button>
               </div>
+              <p v-if="errorOf('settlement')" class="form-error" role="alert">{{ errorOf('settlement') }}</p>
             </div>
-            <button type="button" class="btn-primary min-h-14 w-full text-md" :disabled="!isOnline || financeStore.isSaving || (surplus > 0 && !surplusSettlement)" @click="handleConfirm">{{ $t('finance.detail.confirm', { amount: formatMoney(movement.amount) }) }}</button>
+            <button type="button" class="btn-primary min-h-14 w-full text-md" :disabled="!isOnline || financeStore.isSaving" @click="handleConfirm">{{ $t('finance.detail.confirm', { amount: formatMoney(movement.amount) }) }}</button>
           </template>
           <button type="button" class="btn-plain text-fg-danger hover:bg-danger-subtle" @click="mode = 'reject'">{{ $t('finance.detail.rejectStart') }}</button>
         </div>
@@ -63,8 +64,8 @@
 
       <template v-else-if="movement.status === 'confirmed' && movement.kind === 'payment' && canCancel">
         <div v-if="mode === 'cancel'" class="flex flex-col gap-3 rounded-card bg-surface p-4 shadow-hairline">
-          <ui-field v-slot="{ id }" :label="$t('finance.detail.cancelReason')">
-            <textarea :id="id" v-model="note" class="input min-h-20" :placeholder="$t('finance.detail.cancelPlaceholder')" />
+          <ui-field v-slot="{ id, describedBy, isInvalid }" name="note" :label="$t('finance.detail.cancelReason')" :error="errorOf('note')" @leave="touch('note')">
+            <textarea :id="id" v-model="note" :aria-invalid="isInvalid" :aria-describedby="describedBy" class="input min-h-20" :placeholder="$t('finance.detail.cancelPlaceholder')" />
           </ui-field>
           <div class="grid gap-2 sm:grid-cols-2">
             <button
@@ -81,7 +82,7 @@
           </div>
           <div class="flex flex-wrap justify-end gap-2">
             <button type="button" class="btn-secondary" @click="mode = 'idle'">{{ $t('finance.detail.back') }}</button>
-            <button type="button" class="btn-primary bg-danger hover:bg-danger/90" :disabled="!note.trim() || !isOnline || financeStore.isSaving" @click="handleCancel">{{ $t('finance.detail.cancel') }}</button>
+            <button type="button" class="btn-primary bg-danger hover:bg-danger/90" :disabled="!isOnline || financeStore.isSaving" @click="handleCancel">{{ $t('finance.detail.cancel') }}</button>
           </div>
         </div>
         <button v-else type="button" class="btn-plain self-center text-fg-danger hover:bg-danger-subtle" @click="mode = 'cancel'">{{ $t('finance.detail.cancelStart') }}</button>
@@ -99,10 +100,11 @@ import { useI18n } from 'vue-i18n';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useSessionStore } from 'global/stores/session';
 import { useFinance } from 'finance/composables/use-finance';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { formatMoney } from 'global/composables/money';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
-import { readDocuments } from 'finance/composables/read-documents';
+import { readFiles } from 'global/composables/read-files';
 import { surplusOf } from 'finance/composables/settle';
 import { formatOil } from 'lot/composables/quantity';
 import type { IMovement, Settlement } from 'finance/types/finance';
@@ -136,7 +138,14 @@ const surplus = computed((): number => surplusOf(props.movement));
 const settlementChoices = computed((): Settlement[] => (siteStore.can('refund.manage') ? ['credit_note', 'refund'] : ['credit_note']));
 const canAddDocuments = computed((): boolean => !isReadOnly.value && siteStore.can('document.add') && (props.movement.status === 'pending' || props.movement.status === 'confirmed'));
 
+const { setFormRoot, errorOf, touch, attempt, reset } = useFormFeedback(() =>
+  mode.value === 'idle'
+    ? [{ key: 'settlement', label: t('finance.settle.missing'), error: surplus.value > 0 && !surplusSettlement.value ? t('finance.settle.missing') : null }]
+    : [{ key: 'note', label: t(`finance.detail.${mode.value}Reason`), isMissing: !note.value.trim() }],
+);
+
 // watchers
+watch(mode, reset);
 watch(
   () => props.movement.id,
   () => {
@@ -146,20 +155,16 @@ watch(
 );
 
 // event handlers
-const handleConfirm = (): void => {
-  confirm(props.movement, surplus.value > 0 ? (surplusSettlement.value ?? undefined) : undefined);
-};
+const handleConfirm = (): void => attempt(() => confirm(props.movement, surplus.value > 0 ? (surplusSettlement.value ?? undefined) : undefined));
 
 const handleAddFiles = async (files: File[]): Promise<void> => {
-  const updated = await financeStore.addDocuments(props.movement, await readDocuments(files, sessionStore.fullName));
+  const documents = await readFiles(files, sessionStore.fullName);
+  if (!documents.length) return;
+  const updated = await financeStore.addDocuments(props.movement, documents);
   toastStore.push(t(updated ? 'finance.documents.added' : 'finance.toasts.error'), updated ? 'success' : 'danger');
 };
 
-const handleReject = (): void => {
-  reject(props.movement, note.value);
-};
+const handleReject = (): void => attempt(() => reject(props.movement, note.value));
 
-const handleCancel = (): void => {
-  cancel(props.movement, note.value, settlement.value);
-};
+const handleCancel = (): void => attempt(() => cancel(props.movement, note.value, settlement.value));
 </script>

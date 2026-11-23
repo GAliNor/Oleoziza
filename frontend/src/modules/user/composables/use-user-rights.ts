@@ -21,6 +21,17 @@ export const useUserRights = () => {
 
   const canEdit = (user: IStaffUser): boolean => !user.isOwner && user.id !== sessionStore.session?.userId;
 
+  const isOwner = computed((): boolean => sessionStore.session?.isOwner === true);
+
+  /** Names and contact: an Owner also changes their own and another Owner's. */
+  const canEditProfile = (user: IStaffUser): boolean => canEdit(user) || (isOwner.value && (user.isOwner || user.id === sessionStore.session?.userId));
+
+  /** Role and password set directly are an Owner's, never on another Owner or on oneself. */
+  const canOwn = (user: IStaffUser): boolean => isOwner.value && canEdit(user);
+
+  /** Making an Owner, or withdrawing one; the server keeps the last active one. */
+  const canSetOwnership = (user: IStaffUser): boolean => isOwner.value && (user.isOwner || (user.role === 'management' && user.status === 'active'));
+
   const canManageSite = (user: IStaffUser, siteId: string): boolean => canEdit(user) && manageableSiteIds.value.includes(siteId);
 
   const canGrant = (user: IStaffUser, siteId: string, permission: Permission): boolean => canManageSite(user, siteId) && holds(siteId, permission);
@@ -33,5 +44,5 @@ export const useUserRights = () => {
 
   const defaultsFor = (role: StaffRole, siteId: string): Permission[] => ROLE_DEFAULT_PERMISSIONS[role].filter((permission) => holds(siteId, permission));
 
-  return { manageableSiteIds, holds, canEdit, canManageSite, canGrant, isDefault, offeredFor, defaultsFor };
+  return { manageableSiteIds, holds, canEdit, canEditProfile, canOwn, canSetOwnership, canManageSite, canGrant, isDefault, offeredFor, defaultsFor };
 };

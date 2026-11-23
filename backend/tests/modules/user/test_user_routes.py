@@ -47,7 +47,6 @@ def build_operator_form(site_id: str, phone: str = "0669990201", **overrides: An
         "firstName": "Hamid",
         "lastName": "Zerrouki",
         "phone": phone,
-        "location": {"province": "oujda-angad", "city": "Oujda", "address": "Hay Al Andalous"},
         "sites": {site_id: ["reception.create"]},
         "isInvited": False,
         "firstSecret": "1111",
@@ -70,19 +69,6 @@ def test_management_creates_an_operator_with_a_first_pin(client: TestClient, db:
     assert response.json()["loginMethods"] == ["phone_pin"]
     assert created.must_change_credential is True
     assert published == []
-
-
-def test_an_operator_is_created_without_a_location(client: TestClient, db: Session, published: list) -> None:
-    """
-    Province, city and address are left for later, so creating an Operator stays quick.
-    """
-    site = create_site(db)
-    owner = create_staff_user(db, "+212669990220", is_owner=True)
-
-    response = client.post(API_URL, json=build_operator_form(str(site.id), "0669990221", location=None), headers=build_auth_header(owner))
-
-    assert response.status_code == 201
-    assert response.json()["location"] is None
 
 
 def test_an_invited_user_receives_a_link_that_activates_them(client: TestClient, db: Session, published: list) -> None:
@@ -113,7 +99,7 @@ def test_a_contact_already_used_is_refused(client: TestClient, db: Session, publ
 
     response = client.post(API_URL, json=build_operator_form(str(site.id), "0669990220"), headers=build_auth_header(owner))
 
-    assert response.json() == {"code": "identifier_taken"}
+    assert response.json() == {"code": "phone_taken"}
 
 
 def test_a_manager_cannot_grant_a_permission_they_lack(client: TestClient, db: Session, published: list) -> None:
@@ -223,37 +209,13 @@ def test_the_owner_sees_themselves_on_every_active_site(client: TestClient, db: 
     assert set(listed[str(owner.id)]["sites"][str(oujda.id)]) == {permission.value for permission in Permission}
 
 
-def test_a_user_is_created_with_a_civility_that_can_change_later(client: TestClient, db: Session, published: list) -> None:
+def test_a_user_is_created_with_a_civility(client: TestClient, db: Session, published: list) -> None:
     """
-    The civility chosen at creation is kept, and a manager of the User's Site can change or clear it.
+    The civility chosen at creation is kept.
     """
     site = create_site(db)
     owner = create_staff_user(db, "+212669990290", is_owner=True)
-    headers = build_auth_header(owner)
 
-    created = client.post(API_URL, json=build_operator_form(str(site.id), "0669990291", title="hajj"), headers=headers).json()
-    changed = client.put(f"{API_URL}/{created['id']}/title", json={"title": "mr"}, headers=headers).json()
-    cleared = client.put(f"{API_URL}/{created['id']}/title", json={"title": None}, headers=headers).json()
+    created = client.post(API_URL, json=build_operator_form(str(site.id), "0669990291", title="hajj"), headers=build_auth_header(owner)).json()
 
     assert created["title"] == "hajj"
-    assert changed["title"] == "mr"
-    assert cleared["title"] is None
-
-
-def test_only_the_owner_sets_their_own_civility(client: TestClient, db: Session) -> None:
-    """
-    The Owner may set their own civility (rule A5); a manager changes neither their own account nor the Owner's (rule B9).
-    """
-    site = create_site(db)
-    rights = {site.id: [Permission.USER_MANAGE]}
-    owner = create_staff_user(db, "+212669990295", is_owner=True)
-    manager = create_staff_user(db, "+212669990296", permissions_by_site=rights)
-    manager_headers = build_auth_header(manager, rights)
-
-    by_owner = client.put(f"{API_URL}/{owner.id}/title", json={"title": "mr"}, headers=build_auth_header(owner))
-    on_self = client.put(f"{API_URL}/{manager.id}/title", json={"title": "mrs"}, headers=manager_headers)
-    on_owner = client.put(f"{API_URL}/{owner.id}/title", json={"title": "dr"}, headers=manager_headers)
-
-    assert by_owner.json()["title"] == "mr"
-    assert on_self.json() == {"code": "user_locked"}
-    assert on_owner.json() == {"code": "user_locked"}

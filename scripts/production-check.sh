@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Front-back check of the running production stack, run by scripts/production-up.sh and safe to run alone.
+# Front-back check of the running production stack (edge, API, migrations, the worker's schedule), run by
+# scripts/production-up.sh and safe to run alone.
 # CHECK_LOGIN=1 adds a login and refresh round trip with SEED_OWNER_* (only while that password still works: a wrong one
 # counts toward the Owner's lockout). CHECK_RATE_LIMIT=1 adds the login rate-limit test, which blocks logins from this
 # machine's address for about two minutes.
@@ -110,6 +111,20 @@ check_login() {
   expect "a Season Illustration loads" "$("${CURL[@]}" -o /dev/null -w '%{http_code} %{content_type}' "$illustration_url")" "200 image/webp"
 }
 
+check_backend_and_worker() {
+  local attempt
+  expect "the database is at the latest migration" "$("${COMPOSE[@]}" exec -T oleoziza_backend alembic current 2> /dev/null | grep -c '(head)')" "1"
+  for attempt in $(seq 1 15); do
+    "${COMPOSE[@]}" logs oleoziza_worker 2> /dev/null | grep -q 'beat: Starting' && break
+    sleep 2
+  done
+  if "${COMPOSE[@]}" logs oleoziza_worker 2> /dev/null | grep -q 'beat: Starting'; then
+    report ok "the worker runs the schedule (beat: due Charges, reminders)"
+  else
+    report fail "the worker runs the schedule" "no 'beat: Starting' in its log"
+  fi
+}
+
 check_rate_limit() {
   local codes
   codes=$(for _ in $(seq 1 25); do "${CURL[@]}" -o /dev/null -w '%{http_code}\n' -H 'Content-Type: application/json' -d '{"identifier": "rate-limit-check@invalid.test", "method": "email_password", "secret": "wrong-secret"}' "$BASE/api/auth/login"; done | sort | uniq -c | tr -s ' ' | tr '\n' ',')
@@ -120,6 +135,7 @@ echo "Checking $BASE ($PROFILE):"
 check_exposure
 check_https
 check_forged_ip
+check_backend_and_worker
 [[ "${CHECK_LOGIN:-}" == 1 ]] && check_login
 [[ "${CHECK_RATE_LIMIT:-}" == 1 ]] && check_rate_limit
 if (( FAILURES > 0 )); then

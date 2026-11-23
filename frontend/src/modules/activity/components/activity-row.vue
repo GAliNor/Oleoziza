@@ -5,52 +5,31 @@
       <component :is="ACTIVITY_GROUP_ICONS[event.group]" class="h-4.5 w-4.5" />
     </span>
     <span class="min-w-0 flex-1">
-      <span class="block truncate font-medium text-fg-display">{{ title }}</span>
-      <span class="body-two block truncate">{{ subject }} · {{ $t('activity.by', { name: event.by }) }}</span>
+      <span class="block font-medium text-pretty text-fg-display">{{ titleComputed }}</span>
+      <span class="body-two block truncate">{{ subjectComputed ? `${subjectComputed} · ` : '' }}{{ $t('activity.by', { name: event.by }) }}</span>
     </span>
-    <span v-if="figure" class="shrink-0 figure text-fg-display">{{ figure }}</span>
+    <span v-if="figureComputed" class="shrink-0 figure text-fg-display">{{ figureComputed }}</span>
   </component>
 </template>
 
 <script setup lang="ts">
 // imports
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 
-import { formatTank } from 'configuration/composables/equipment';
-import { formatFullDate, formatTime } from 'global/composables/date';
+import { activitySubject, activityTitle } from 'activity/composables/activity-text';
+import { formatTime } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
 import { formatKg, formatLitresRounded } from 'lot/composables/quantity';
 import { ACTIVITY_GROUP_ICONS, ACTIVITY_GROUP_TONES } from 'activity/constants/activity';
-import type { ITankSetting } from 'configuration/types/configuration';
 import type { IActivity } from 'activity/types/activity';
 
 // props
-const props = defineProps<{ event: IActivity; tanks: ITankSetting[] }>();
-
-// stores
-const { t } = useI18n();
+const props = defineProps<{ event: IActivity }>();
 
 // computed
-const title = computed((): string => {
-  const { params } = props.event;
-  const tank = props.tanks.find((item) => item.id === params.tankId);
-  return t(`activity.kinds.${props.event.kind}`, {
-    ...params,
-    method: params.method ? t(`finance.methods.${params.method}`) : '',
-    tank: tank ? formatTank(tank) : String(params.tankId ?? ''),
-    contact: params.contact ? t(`finance.debts.kinds.${params.contact}`) : '',
-    setting: params.key ? t(`activity.settings.${params.key}`) : '',
-    category: params.category ? t(`expense.categories.${params.category}`) : '',
-  });
-});
-const subject = computed((): string => {
-  const { event } = props;
-  if (event.kind === 'configuration') return t('activity.settingsSubject');
-  if (event.kind === 'debt_contact' && event.params.promisedOn) return `${event.subject} · ${t('activity.promised', { date: formatFullDate(String(event.params.promisedOn)) })}`;
-  return event.subject;
-});
-const figure = computed((): string => {
+const titleComputed = computed((): string => activityTitle(props.event));
+const subjectComputed = computed((): string => activitySubject(props.event));
+const figureComputed = computed((): string => {
   const { event } = props;
   if (event.amount !== null) return formatMoney(event.amount);
   if (event.litres !== null) return formatLitresRounded(event.litres);

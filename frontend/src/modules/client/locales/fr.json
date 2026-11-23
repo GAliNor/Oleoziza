@@ -98,7 +98,9 @@
     "phone": "Téléphone",
     "email": "Email",
     "noEmail": "Non renseigné",
-    "address": "Adresse"
+    "address": "Adresse",
+    "saveError": "La modification a échoué, réessayez.",
+    "noPlace": "Adresse non renseignée"
   },
   "quick": {
     "kindLabel": "Type de client",
@@ -108,26 +110,16 @@
     "company": "Société",
     "companyName": "Nom de la société",
     "fullName": "Prénom et nom",
-    "phone": "06 61 00 00 00",
     "create": "Créer le client",
     "created": "Client créé · sera synchronisé",
     "receiveNow": "Réceptionner maintenant",
     "later": "Plus tard",
     "offlineHint": "Hors ligne, le client est créé sur ce poste ; un doublon éventuel sera fusionné par la Direction.",
     "phoneLabel": "Téléphone",
-    "email": "Email (facultatif)",
-    "emailInvalid": "Cet email n’est pas valide.",
-    "missing": "Il manque : {items}",
-    "missingItems": {
-      "name": "le nom",
-      "phone": "le téléphone",
-      "province": "la province",
-      "city": "la ville",
-      "address": "l’adresse"
-    },
+    "email": "E-mail",
     "identifier": {
-      "individual": "CIN (facultatif)",
-      "company": "ICE (facultatif)"
+      "individual": "CIN",
+      "company": "ICE"
     },
     "identifierPlaceholder": {
       "individual": "F486168",
@@ -139,13 +131,15 @@
     },
     "duplicate": {
       "individual": "Ce CIN appartient déjà à {name}",
-      "company": "Cet ICE appartient déjà à {name}"
+      "company": "Cet ICE appartient déjà à {name}",
+      "phone": "Ce téléphone est déjà celui de {name}"
     },
     "openDuplicate": "Voir sa fiche",
     "receiveDuplicate": "Réceptionner pour ce client",
     "createAnyway": "Créer quand même",
     "firstName": "Prénom",
-    "lastName": "Nom"
+    "lastName": "Nom",
+    "addPlace": "Ajouter une adresse"
   },
   "history": {
     "title": "Historique sur ce Site",

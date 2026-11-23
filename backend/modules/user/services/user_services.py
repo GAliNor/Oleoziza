@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import Depends
-from sqlalchemy import delete, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy import delete, func, select
+from sqlalchemy.orm import InstrumentedAttribute, Session
 
 from core.database import get_db
 from core.exceptions import RefusedError
@@ -28,7 +28,6 @@ from modules.user.types.user_types import (
     StaffStatusChange,
     StaffUserCreateIn,
     StaffUserOut,
-    Title,
     UserStatus,
 )
 
@@ -58,7 +57,7 @@ class UserService:
         Raises:
             RefusedError: users_forbidden without user.manage on any Site.
         """
-        manageable_site_ids = self._get_manageable_site_ids()
+        manageable_site_ids = self.get_manageable_site_ids()
         if not manageable_site_ids:
             raise RefusedError("users_forbidden", 403)
         query = select(User).where(User.role != Role.CLIENT)
@@ -66,7 +65,7 @@ class UserService:
             assigned_user_ids = select(SiteAssignment.user_id).where(SiteAssignment.site_id.in_([UUID(site_id) for site_id in manageable_site_ids]))
             query = query.where(User.id.in_(assigned_user_ids))
         users = self.db.scalars(query.order_by(User.last_name, User.first_name)).all()
-        return [self._build_staff_user(user) for user in users]
+        return [self.build_view(user) for user in users]
 
     def create_staff_user(self, payload: StaffUserCreateIn) -> StaffUserOut:
         """
@@ -79,17 +78,16 @@ class UserService:
             StaffUserOut: The new User.
 
         Raises:
-            RefusedError: names_required, contact_invalid, contact_required, identifier_taken, site_required, or a rights or secret refusal.
+            RefusedError: names_required, contact_invalid, contact_required, phone_taken, email_taken, site_required, or a rights or secret refusal.
         """
         first_name, last_name = payload.first_name.strip(), payload.last_name.strip()
         if not first_name or not last_name:
             raise RefusedError("names_required", 422)
-        phone = self._normalize_contact(payload.phone)
-        email = self._normalize_contact(payload.email)
+        phone = self.normalize_contact(payload.phone)
+        email = self.normalize_contact(payload.email)
         if phone is None and email is None:
             raise RefusedError("contact_required", 422)
-        self._check_identifiers_free(phone, email)
-        location = payload.location
+        self.check_contacts_free(phone, email)
         if not payload.sites:
             raise RefusedError("site_required", 422)
         for site_id, permissions in payload.sites.items():
@@ -107,9 +105,6 @@ class UserService:
             last_name=last_name,
             phone=phone,
             email=email,
-            province_id=(location.province or None) if location else None,
-            city=(location.city.strip() or None) if location else None,
-            address=(location.address.strip() or None) if location else None,
             status=UserStatus.INVITED if payload.is_invited else UserStatus.ACTIVE,
             must_change_credential=not payload.is_invited,
             created_by_id=self.current_user.id,
@@ -120,13 +115,13 @@ class UserService:
         if not payload.is_invited:
             self.db.add(Credential(user_id=user.id, kind=credential_kind, hash=hash_secret(payload.first_secret or ""), created_by_id=self.current_user.id))
         for site_id, permissions in payload.sites.items():
-            self._write_site_permissions(user.id, site_id, permissions)
+            self.write_site_permissions(user.id, site_id, permissions)
         invitation = InvitationService(self.db).create_invitation(user, self.current_user.id) if payload.is_invited else None
         record_audit_event(self.db, self.current_user.id, "user.created", entity_type="user", entity_id=user.id, after={"role": user.role.value, "isInvited": payload.is_invited})
         self.db.commit()
         if invitation:
             publish_task(SEND_INVITATION_TASK, str(invitation[0].id), invitation[1])
-        return self._build_staff_user(user)
+        return self.build_view(user)
 
     def set_site_permissions(self, user_id: UUID, site_id: UUID, permissions: list[Permission] | None) -> StaffUserOut:
         """
@@ -150,14 +145,14 @@ class UserService:
             site_count = self.db.scalar(select(func.count()).select_from(SiteAssignment).where(SiteAssignment.user_id == user.id))
             if site_count <= 1:
                 raise RefusedError("last_site")
-            self._delete_site_assignment(user.id, site_id)
+            self.delete_site_assignment(user.id, site_id)
         else:
             self._check_can_grant(site_id, permissions)
-            self._delete_site_assignment(user.id, site_id)
-            self._write_site_permissions(user.id, site_id, permissions)
+            self.delete_site_assignment(user.id, site_id)
+            self.write_site_permissions(user.id, site_id, permissions)
         record_audit_event(self.db, self.current_user.id, "user.site_permissions_set", site_id=site_id, entity_type="user", entity_id=user.id, after={"permissions": [permission.value for permission in permissions] if permissions is not None else None})
         self.db.commit()
-        return self._build_staff_user(user)
+        return self.build_view(user)
 
     def set_login_methods(self, user_id: UUID, login_methods: list[LoginMethod]) -> StaffUserOut:
         """
@@ -173,7 +168,7 @@ class UserService:
         Raises:
             RefusedError: user_locked, last_login_method, method_needs_identifier.
         """
-        user = self._get_managed_user(user_id)
+        user = self.get_managed_user(user_id)
         methods = list(dict.fromkeys(login_methods))
         if not methods:
             raise RefusedError("last_login_method")
@@ -186,32 +181,7 @@ class UserService:
             self.db.add(UserLoginMethod(user_id=user.id, method=method, created_by_id=self.current_user.id))
         record_audit_event(self.db, self.current_user.id, "user.login_methods_set", entity_type="user", entity_id=user.id, after={"loginMethods": [method.value for method in methods]})
         self.db.commit()
-        return self._build_staff_user(user)
-
-    def set_title(self, user_id: UUID, title: Title | None) -> StaffUserOut:
-        """
-        Set or clear the civility printed before a staff User's name; the Owner may also set their own (rule A5).
-
-        Args:
-            user_id (UUID): User changed.
-            title (Title | None): New civility, None to clear it.
-
-        Returns:
-            StaffUserOut: The User after the change.
-
-        Raises:
-            RefusedError: user_not_found, user_locked, site_forbidden.
-        """
-        is_owner_self = self.current_user.is_owner and user_id == self.current_user.id
-        user = self.db.get(User, user_id) if is_owner_self else self._get_managed_user(user_id)
-        if user is None:
-            raise RefusedError("user_not_found", 404)
-        before = user.title.value if user.title else None
-        user.title = title
-        user.updated_by_id = self.current_user.id
-        record_audit_event(self.db, self.current_user.id, "user.title_set", entity_type="user", entity_id=user.id, before={"title": before}, after={"title": title.value if title else None})
-        self.db.commit()
-        return self._build_staff_user(user)
+        return self.build_view(user)
 
     def set_status(self, user_id: UUID, status: StaffStatusChange) -> StaffUserOut:
         """
@@ -227,7 +197,7 @@ class UserService:
         Raises:
             RefusedError: user_locked.
         """
-        user = self._get_managed_user(user_id)
+        user = self.get_managed_user(user_id)
         if status == StaffStatusChange.DISABLED:
             user.status = UserStatus.DISABLED
             user.disabled_at = datetime.now(timezone.utc)
@@ -238,7 +208,7 @@ class UserService:
         user.updated_by_id = self.current_user.id
         record_audit_event(self.db, self.current_user.id, "user.status_set", entity_type="user", entity_id=user.id, after={"status": user.status.value})
         self.db.commit()
-        return self._build_staff_user(user)
+        return self.build_view(user)
 
     def send_invitation(self, user_id: UUID) -> StaffUserOut:
         """
@@ -253,11 +223,11 @@ class UserService:
         Raises:
             RefusedError: user_locked, not_invited when the User is not waiting for an Invitation.
         """
-        user = self._get_managed_user(user_id)
+        user = self.get_managed_user(user_id)
         if user.status != UserStatus.INVITED:
             raise RefusedError("not_invited")
         self._invite(user, "user.invitation_sent")
-        return self._build_staff_user(user)
+        return self.build_view(user)
 
     def reset_credential(self, user_id: UUID) -> None:
         """
@@ -269,7 +239,7 @@ class UserService:
         Raises:
             RefusedError: user_locked, not_active when the User is not active.
         """
-        user = self._get_managed_user(user_id)
+        user = self.get_managed_user(user_id)
         if user.status != UserStatus.ACTIVE:
             raise RefusedError("not_active")
         self._invite(user, "user.credential_reset")
@@ -287,7 +257,7 @@ class UserService:
         self.db.commit()
         publish_task(SEND_INVITATION_TASK, str(invitation.id), token)
 
-    def _get_manageable_site_ids(self) -> set[str]:
+    def get_manageable_site_ids(self) -> set[str]:
         """
         List the Sites where the actor may manage staff: every active Site for the Owner.
 
@@ -308,7 +278,7 @@ class UserService:
         Returns:
             bool: True when allowed.
         """
-        return str(site_id) in self._get_manageable_site_ids()
+        return str(site_id) in self.get_manageable_site_ids()
 
     def _check_can_grant(self, site_id: UUID, permissions: list[Permission]) -> None:
         """
@@ -346,7 +316,7 @@ class UserService:
             raise RefusedError("user_locked", 403)
         return user
 
-    def _get_managed_user(self, user_id: UUID) -> User:
+    def get_managed_user(self, user_id: UUID) -> User:
         """
         Load an editable staff User assigned to at least one Site the actor manages.
 
@@ -361,11 +331,11 @@ class UserService:
         """
         user = self._get_editable_user(user_id)
         user_site_ids = {str(site_id) for site_id in self.db.scalars(select(SiteAssignment.site_id).where(SiteAssignment.user_id == user.id))}
-        if not user_site_ids & self._get_manageable_site_ids():
+        if not user_site_ids & self.get_manageable_site_ids():
             raise RefusedError("site_forbidden", 403)
         return user
 
-    def _normalize_contact(self, raw_contact: str | None) -> str | None:
+    def normalize_contact(self, raw_contact: str | None) -> str | None:
         """
         Normalize an optional phone or email, refusing one typed but invalid.
 
@@ -385,22 +355,41 @@ class UserService:
             raise RefusedError("contact_invalid", 422)
         return contact
 
-    def _check_identifiers_free(self, phone: str | None, email: str | None) -> None:
+    def check_contacts_free(self, phone: str | None, email: str | None, except_user_id: UUID | None = None) -> None:
         """
         Refuse a phone or email another User already logs in with.
 
         Args:
             phone (str | None): Normalized phone.
             email (str | None): Normalized email.
+            except_user_id (UUID | None): User being edited.
 
         Raises:
-            RefusedError: identifier_taken.
+            RefusedError: phone_taken, email_taken.
         """
-        conditions = [column == value for column, value in ((User.phone, phone), (User.email, email)) if value is not None]
-        if self.db.scalar(select(User.id).where(or_(*conditions)).limit(1)) is not None:
-            raise RefusedError("identifier_taken")
+        if self.find_holder(User.phone, phone, except_user_id) is not None:
+            raise RefusedError("phone_taken")
+        if self.find_holder(User.email, email, except_user_id) is not None:
+            raise RefusedError("email_taken")
 
-    def _write_site_permissions(self, user_id: UUID, site_id: UUID, permissions: list[Permission]) -> None:
+    def find_holder(self, column: InstrumentedAttribute, value: str | None, except_user_id: UUID | None = None) -> User | None:
+        """
+        Find the User holding a phone or an email, whatever its case.
+
+        Args:
+            column (InstrumentedAttribute): User.phone or User.email.
+            value (str | None): Normalized contact, None finds nobody.
+            except_user_id (UUID | None): User left out.
+
+        Returns:
+            User | None: The holder.
+        """
+        if value is None:
+            return None
+        query = select(User).where(func.lower(column) == value.lower())
+        return self.db.scalar(query.where(User.id != except_user_id) if except_user_id else query)
+
+    def write_site_permissions(self, user_id: UUID, site_id: UUID, permissions: list[Permission]) -> None:
         """
         Add a Site Assignment with one row per Permission.
 
@@ -415,7 +404,7 @@ class UserService:
         for permission in dict.fromkeys(permissions):
             self.db.add(SiteAssignmentPermission(site_assignment_id=assignment.id, permission=permission, created_by_id=self.current_user.id))
 
-    def _delete_site_assignment(self, user_id: UUID, site_id: UUID) -> None:
+    def delete_site_assignment(self, user_id: UUID, site_id: UUID) -> None:
         """
         Remove a User's assignment to a Site with its Permissions.
 
@@ -440,7 +429,7 @@ class UserService:
         """
         return self.db.scalar(select(Credential.id).where(Credential.user_id == user_id).limit(1)) is not None
 
-    def _build_staff_user(self, user: User) -> StaffUserOut:
+    def build_view(self, user: User) -> StaffUserOut:
         """
         Shape a staff User for the Users page; a manager who is not the Owner sees only the Sites they manage.
 
@@ -450,7 +439,7 @@ class UserService:
         Returns:
             StaffUserOut: The User as the front reads it.
         """
-        return build_staff_user(self.db, user, None if self.current_user.is_owner else self._get_manageable_site_ids())
+        return build_staff_user(self.db, user, None if self.current_user.is_owner else self.get_manageable_site_ids())
 
 
 def get_user_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)) -> UserService:

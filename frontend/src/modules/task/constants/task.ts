@@ -6,6 +6,7 @@ import type { TaskGroup, TaskKind } from 'task/types/task';
 import CoinsLineIcon from 'global/icons/coins-line.icon.vue';
 import GroupLineIcon from 'global/icons/group-line.icon.vue';
 import PercentLineIcon from 'global/icons/percent-line.icon.vue';
+import ReceiptLineIcon from 'global/icons/receipt-line.icon.vue';
 import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
 
@@ -14,12 +15,13 @@ export const TASK_ROUTE_NAME = 'task';
 export const TASK_GROUPS: TaskGroup[] = ['decide', 'money', 'follow'];
 
 /** Holding any of these gives a person something on the To-do page. */
-export const TASK_PERMISSIONS: readonly Permission[] = ['discount.approve', 'payment.confirm', 'refund.manage', 'user.manage'];
+export const TASK_PERMISSIONS: readonly Permission[] = ['discount.approve', 'payment.confirm', 'refund.manage', 'expense.record', 'user.manage'];
 
 export const TASK_ICONS: Record<TaskKind, Component> = {
   discount: PercentLineIcon,
   payment: CoinsLineIcon,
   payout: CoinsLineIcon,
+  'expense-due': ReceiptLineIcon,
   'refund-make': RefreshLineIcon,
   'refund-confirm': RefreshLineIcon,
   'client-at-risk': GroupLineIcon,

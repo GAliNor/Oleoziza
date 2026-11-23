@@ -19,6 +19,7 @@ const dayFeed = (siteId: string, day: string): IActivity[] => {
       expenses: ofSite(EXPENSES_DB),
       debtContacts: ofSite(DEBT_CONTACTS_DB),
       configurationChanges: configurationOf(siteId).history,
+      tankNumbers: Object.fromEntries(configurationOf(siteId).tanks.map((tank) => [tank.id, tank.number])),
       clientNames: Object.fromEntries(CLIENTS_MOCK_DB.map((client) => [client.id, client.name])),
     },
     day,

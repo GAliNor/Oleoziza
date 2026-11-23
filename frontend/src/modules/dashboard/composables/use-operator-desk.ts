@@ -50,13 +50,18 @@ export const useOperatorDesk = () => {
   const siteLots = computed((): ILot[] => [...lotStore.lots].sort((first, second) => second.receivedAt.localeCompare(first.receivedAt)));
   const activeLots = computed((): ILot[] => siteLots.value.filter((lot) => lot.status !== 'withdrawn'));
   const pressedCount = computed((): number => siteLots.value.filter((lot) => lot.status === 'pressed').length);
+  const siteId = computed((): string | undefined => siteStore.currentSite?.id);
+  /** The server's count, plus what this device has not sent yet. */
+  const withoutLineCount = computed((): number => lotStore.withoutLine.total + lotStore.lots.filter((lot) => lot.isPendingSync && lot.status === 'waiting' && !lot.pressLineId).length);
   const lineBoards = useLineBoards(() => siteLots.value, pressLines);
 
   // watchers
   watch(
     () => siteStore.currentSite?.id,
     (siteId) => {
-      if (siteId) receptionStore.fetchSite(siteId);
+      if (!siteId) return;
+      receptionStore.fetchSite(siteId);
+      lotStore.fetchWithoutLine(siteId);
     },
     { immediate: true },
   );
@@ -143,5 +148,5 @@ export const useOperatorDesk = () => {
     router.push({ name: 'reception-new', query: clientId ? { client: clientId } : {} });
   };
 
-  return { activeLots, lineBoards, pressedCount, pressLines, tanks, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, deskClientOf, nextLabel, move, receive, createClient };
+  return { siteId, withoutLineCount, activeLots, lineBoards, pressedCount, pressLines, tanks, avatarVariantOf, searchClients, stageSentence, ageLabel, accountLines, deskClientOf, nextLabel, move, receive, createClient };
 };

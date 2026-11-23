@@ -16,7 +16,7 @@ class ConfigurationApiService extends BaseService implements IConfigurationServi
     return this.request<INotificationChannelSetting[]>({ method: 'PUT', url: `${this._BASE_API_URL}/configuration/notification-channels/${channel}`, data: { isEnabled } });
   }
 
-  cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration> {
+  deletePriceChange(siteId: string, changeId: string): Promise<IConfiguration> {
     return this.request<IConfiguration>({ method: 'DELETE', url: `${this._BASE_API_URL}/configuration/${siteId}/price-changes/${changeId}` });
   }
 

@@ -4,8 +4,11 @@ import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useUserStore } from 'user/stores/user';
+import { daysUntil, isAlerted } from 'expense/composables/expense-due';
+import { todayIso } from 'global/composables/date';
 import { formatFullName } from 'user/composables/format';
 import { withClientTaskLinks } from 'task/composables/client-task-links';
+import type { IExpense } from 'expense/types/expense';
 import type { ITask } from 'task/types/task';
 
 /** Whatever has waited longest comes first; undated tasks go last. */
@@ -23,6 +26,21 @@ export const loadTaskSources = async (siteId: string): Promise<void> => {
     siteStore.can('user.manage') ? useUserStore().fetchUsers() : null,
   ]);
 };
+
+/** The Expenses to pay worth an alert. */
+export const deriveExpenseTasks = (expenses: readonly IExpense[]): ITask[] =>
+  expenses
+    .filter((expense) => isAlerted(expense, todayIso()))
+    .map((expense) => ({
+      id: `expense-${expense.id}`,
+      kind: 'expense-due',
+      group: 'money',
+      subject: expense.description || expense.supplier,
+      params: { category: expense.categoryId, dueOn: expense.dueOn ?? '', daysLeft: daysUntil(expense.dueOn ?? todayIso(), todayIso()) },
+      amount: expense.amount,
+      at: `${expense.dueOn}T00:00:00`,
+      to: { name: 'expense', query: { view: 'due', expense: expense.id } },
+    }));
 
 /** What Management has to act on in the current scope, read from the records each task comes from (the mock's rules; the backend applies the same). */
 export const deriveTasks = (): ITask[] => {

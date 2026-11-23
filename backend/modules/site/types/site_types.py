@@ -62,6 +62,15 @@ class SeasonOut(CamelModel):
     illustration_dark_url: str | None = None
 
 
+class SeasonDatesIn(CamelModel):
+    """
+    The first and last day of a Season.
+    """
+
+    starts_on: date
+    ends_on: date
+
+
 class SeasonIllustrationOut(CamelModel):
     """
     One available Season Illustration, as the Season form's picker shows it.

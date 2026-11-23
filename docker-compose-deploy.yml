@@ -184,7 +184,7 @@ services:
       oleoziza_rustfs:
         condition: service_healthy
     restart: always
-    entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'worker', '--loglevel=INFO', '--concurrency=2']
+    entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'worker', '--beat', '--schedule=/tmp/celerybeat-schedule', '--loglevel=INFO', '--concurrency=2']
     env_file:
       - ./env_files/${CURRENT_ENV}/backend.env
     environment:

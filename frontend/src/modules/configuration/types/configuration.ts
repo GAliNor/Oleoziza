@@ -47,6 +47,8 @@ export interface IConfigurationChange {
   value: number | null;
   method: Omit<IPaymentMethodSetting, 'key'> | null;
   equipment?: IEquipmentSnapshot;
+  /** The setting before the change, kept by the mock so its Journal tells old and new values. */
+  before?: Pick<IConfigurationChange, 'value' | 'method' | 'equipment'>;
   by: string;
   at: string;
 }
@@ -62,15 +64,19 @@ export interface IPriceChange {
 
 export interface IConfiguration extends IConfigurationValues {
   siteId: string;
-  seasonId: string;
-  seasonLabel: string;
-  seasonStatus: SeasonStatus;
+  /** Season of the prices; null when none is open: the prices are then the defaults and the rest still holds. */
+  seasonId: string | null;
+  seasonLabel: string | null;
+  seasonStatus: SeasonStatus | null;
   priceChanges: IPriceChange[];
   methods: IPaymentMethodSetting[];
   boxCount: number;
   boxCapacityKg: number;
   tanks: ITankSetting[];
   pressLines: IPressLineSetting[];
+  /** Next numbers the Site may give: a retired one keeps its number (B18). */
+  nextTankNumber: number;
+  nextPressLineNumber: number;
   history: IConfigurationChange[];
   /** The company's Notification Channels, carried by every Configuration so Reception needs no extra request. */
   notificationChannels: INotificationChannelSetting[];
@@ -105,7 +111,7 @@ export interface IConfigurationService {
   getAll(siteIds: string[], seasonId?: string): Promise<IConfiguration[]>;
   updateNotificationChannel(channel: NotificationChannel, isEnabled: boolean): Promise<INotificationChannelSetting[]>;
   update(siteId: string, update: IConfigurationUpdatePayload): Promise<IConfiguration>;
-  cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration>;
+  deletePriceChange(siteId: string, changeId: string): Promise<IConfiguration>;
 }
 
 export interface IConfigurationStore {

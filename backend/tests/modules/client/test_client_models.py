@@ -28,7 +28,7 @@ def test_client_phone_and_location_are_required_and_records_offline_entry() -> N
     clients = get_registered_table("clients")
 
     assert clients.c.phone.nullable is False
-    assert clients.c.province_id.nullable is False
+    assert clients.c.province_id.nullable is True
     assert clients.c.entered_at.nullable is False
     assert clients.c.was_recorded_offline.nullable is False
 

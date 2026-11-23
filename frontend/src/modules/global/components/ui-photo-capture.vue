@@ -5,7 +5,8 @@
     </p>
 
     <div v-if="modelValue" class="relative overflow-hidden rounded-card bg-subtle">
-      <img class="h-52 w-full object-contain" :src="modelValue" :alt="label" />
+      <img v-if="!isUnshowable" class="h-52 w-full object-contain" :src="modelValue" :alt="label" @error="isUnshowable = true" />
+      <p v-else class="grid h-52 place-items-center px-4 text-center body-two">{{ $t('global.photo.ready') }}</p>
       <button type="button" class="btn-secondary absolute inset-e-2 bottom-2 min-h-12 bg-surface shadow-raised hover:bg-surface" @click="emit('update:modelValue', null)">
         <close-line-icon class="h-5 w-5" />
         {{ $t('global.photo.remove') }}
@@ -21,7 +22,7 @@
       <label class="btn-secondary min-h-14 px-3 has-focus-visible:outline-2 has-focus-visible:outline-focus" :class="{ 'opacity-40': isReading }">
         <image-line-icon class="h-5 w-5 shrink-0" />
         {{ isReading ? $t('global.photo.reading') : $t('global.photo.upload') }}
-        <input class="sr-only" type="file" accept="image/*" :disabled="isReading" @change="handlePick" />
+        <input class="sr-only" type="file" accept="image/*,.heic,.heif" :disabled="isReading" @change="handlePick" />
       </label>
     </div>
 
@@ -33,7 +34,7 @@
 // imports
 import { ref } from 'vue';
 
-import { readPhoto } from 'global/composables/image';
+import { readLightPhoto } from 'global/composables/read-files';
 
 import CameraLineIcon from 'global/icons/camera-line.icon.vue';
 import CloseLineIcon from 'global/icons/close-line.icon.vue';
@@ -49,6 +50,7 @@ const emit = defineEmits<{ (event: 'update:modelValue', photo: string | null): v
 const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
 const isReading = ref(false);
 const hasError = ref(false);
+const isUnshowable = ref(false);
 
 // event handlers
 const handlePick = async (event: Event): Promise<void> => {
@@ -58,8 +60,9 @@ const handlePick = async (event: Event): Promise<void> => {
   if (!file) return;
   isReading.value = true;
   hasError.value = false;
+  isUnshowable.value = false;
   try {
-    emit('update:modelValue', await readPhoto(file));
+    emit('update:modelValue', await readLightPhoto(file));
   } catch {
     hasError.value = true;
   } finally {

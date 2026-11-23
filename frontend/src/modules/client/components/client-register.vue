@@ -65,7 +65,7 @@
       <template v-if="activeClient" #detail>
         <div :key="activeClient.id" class="stagger flex flex-col gap-10">
           <client-header :client="activeClient" :is-finance-shown="isFinanceShown" />
-          <client-coordinates :client="activeClient" />
+          <client-coordinates :client="activeClient" :can-edit="siteStore.can('client.edit')" />
           <management-client-detail :client="activeClient" :is-finance-shown="isFinanceShown" />
         </div>
       </template>

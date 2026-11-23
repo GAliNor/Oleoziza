@@ -13,12 +13,12 @@
           @submit="handleIdentifierSubmit"
         />
 
-        <form v-else-if="step === 'code'" class="flex flex-col gap-5" @submit.prevent="handleCodeSubmit">
-          <ui-field v-slot="{ id }" :label="$t('auth.login.secretLabel.otp')">
+        <form v-else-if="step === 'code'" :ref="setFormRoot" class="flex flex-col gap-5" novalidate @submit.prevent="handleCodeSubmit">
+          <ui-field v-slot="{ id }" name="code" :label="$t('auth.login.secretLabel.otp')" :error="errorOf('code')">
             <code-input :id="id" v-model="code" :length="OTP_LENGTH" @complete="handleCodeSubmit" />
           </ui-field>
           <p v-if="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
-          <button type="submit" class="btn-primary w-full" :disabled="code.length !== OTP_LENGTH">
+          <button type="submit" class="btn-primary w-full" :disabled="isLoading">
             {{ $t('auth.login.continue') }}
             <arrow-right-line-icon class="h-4 w-4" />
           </button>
@@ -47,6 +47,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { useAuthStore, isAuthError } from 'auth/stores/auth';
 import { useToastStore } from 'global/stores/toast';
 import { useAuthError } from 'auth/composables/use-auth-error';
@@ -84,6 +85,8 @@ const isLoading = ref(false);
 
 // computed
 const subtitle = computed((): string => t(`auth.reset.subtitle.${step.value}`));
+
+const { setFormRoot, errorOf, attempt } = useFormFeedback(() => [{ key: 'code', label: t('auth.login.secretLabel.otp'), isMissing: code.value.length !== OTP_LENGTH }]);
 
 // methods
 const requestReset = async (): Promise<void> => {
@@ -139,11 +142,11 @@ const handleIdentifierSubmit = (): void => {
   requestReset();
 };
 
-const handleCodeSubmit = (): void => {
-  if (code.value.length !== OTP_LENGTH) return;
-  clearError();
-  step.value = 'newSecret';
-};
+const handleCodeSubmit = (): void =>
+  attempt(() => {
+    clearError();
+    step.value = 'newSecret';
+  });
 
 const handleSecretSubmit = (secret: string): void => {
   resetCredential(secret);

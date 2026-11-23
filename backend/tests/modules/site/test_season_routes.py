@@ -13,14 +13,15 @@ from sqlalchemy.orm import Session
 from core.helpers import get_local_midnight
 from core.integrations.rustfs.rustfs_client import get_rustfs_client
 from main import app
-from modules.configuration.models.configuration_models import SiteSetting
+from modules.configuration.models.configuration_models import PressLine, SiteSetting
 from modules.configuration.types.configuration_types import SettingKey
 from modules.file.models.file_models import File
 from modules.file.types.file_types import FileBucket
-from modules.site.models.site_models import Season, SeasonIllustration
-from modules.site.types.site_types import SeasonStatus
+from modules.site.models.site_models import CodeSequence, Season, SeasonIllustration
+from modules.site.types.site_types import CodeKind, SeasonStatus
+from modules.site.services.season_services import get_harvest_year
 from modules.user.types.user_types import Permission
-from tests.factories import build_auth_header, create_site, create_staff_user, open_fresh_season
+from tests.factories import build_auth_header, create_lot, create_site, create_staff_user, open_fresh_season
 
 
 API_URL = "/api/site/seasons"
@@ -41,7 +42,7 @@ def test_preparing_the_next_season_carries_prices_over(client: TestClient, db: S
     carried = db.scalar(select(SiteSetting.value).where(SiteSetting.season_id == body["id"], SiteSetting.site_id == site.id, SiteSetting.key == SettingKey.MILLING_RATE_PER_KG))
 
     assert body["status"] == "planned"
-    assert body["startsOn"] == f"{latest_start.year + 1}-11-01"
+    assert body["startsOn"] == f"{get_harvest_year(latest_start) + 1}-11-01"
     assert carried == Decimal("0.55")
 
 
@@ -350,3 +351,130 @@ def test_picking_a_season_illustration_needs_season_manage(client: TestClient, d
     response = client.put(f"{API_URL}/{season.id}/season-illustration", json={"seasonIllustrationId": str(illustration.id)}, headers=build_auth_header(manager, rights))
 
     assert response.json() == {"code": "season_forbidden"}
+
+
+def close_only_season(client: TestClient, db: Session, headers: dict[str, str]) -> Season:
+    """
+    Open a fresh Season, the latest one, and close it through the API.
+
+    Args:
+        client (TestClient): Test client.
+        db (Session): Test session.
+        headers (dict[str, str]): Who closes it.
+
+    Returns:
+        Season: The closed Season.
+    """
+    season = open_fresh_season(db)
+    for other in db.scalars(select(Season).where(Season.id != season.id, Season.starts_on >= season.starts_on)):
+        other.starts_on = date(2020, 1, 1)
+    db.commit()
+    client.post(f"{API_URL}/{season.id}/close", headers=headers)
+    return season
+
+
+def test_an_owner_reopens_the_latest_closed_season_as_it_was(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Q22: testing again in the same Season: close, reopen, receive a Lot; its prices are still there and the prepared one stays prepared.
+    """
+    site = create_site(db)
+    headers = build_auth_header(create_staff_user(db, "+212669990340", is_owner=True))
+    season = close_only_season(client, db, headers)
+    db.add(SiteSetting(site_id=site.id, season_id=season.id, key=SettingKey.MILLING_RATE_PER_KG, value=Decimal("0.55"), effective_from=get_local_midnight(season.starts_on)))
+    planned = Season(code="9595", label="Saison préparée", starts_on=date(2040, 11, 1), status=SeasonStatus.PLANNED)
+    db.add(planned)
+    db.commit()
+
+    body = client.post(f"{API_URL}/{season.id}/reopen", headers=headers).json()
+
+    assert (body["status"], body["closedAt"]) == ("open", None)
+    assert client.get(f"/api/configuration/{site.id}", headers=headers).json()["millingRate"] == 0.55
+    assert db.get(Season, planned.id).status == SeasonStatus.PLANNED
+
+
+def test_only_the_latest_closed_season_reopens_and_only_while_none_is_open(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Q22: one open Season at a time, and never an older one.
+    """
+    headers = build_auth_header(create_staff_user(db, "+212669990341", is_owner=True))
+    older = open_fresh_season(db)
+    older.starts_on = date(2019, 11, 1)
+    latest = close_only_season_after(client, db, headers)
+
+    older_refused = client.post(f"{API_URL}/{older.id}/reopen", headers=headers).json()
+    client.post(f"{API_URL}/{latest.id}/reopen", headers=headers)
+    again = client.post(f"{API_URL}/{older.id}/reopen", headers=headers).json()
+
+    assert older_refused == {"code": "season_not_latest"}
+    assert again == {"code": "season_already_open"}
+
+
+def close_only_season_after(client: TestClient, db: Session, headers: dict[str, str]) -> Season:
+    """
+    Open and close a second fresh Season, later than every other.
+
+    Args:
+        client (TestClient): Test client.
+        db (Session): Test session.
+        headers (dict[str, str]): Who closes it.
+
+    Returns:
+        Season: The closed Season.
+    """
+    season = open_fresh_season(db, "9797")
+    for other in db.scalars(select(Season).where(Season.id != season.id, Season.starts_on >= season.starts_on)):
+        other.starts_on = date(2020, 1, 1)
+    db.commit()
+    client.post(f"{API_URL}/{season.id}/close", headers=headers)
+    return season
+
+
+def test_an_empty_season_is_deleted_with_its_prices(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Q22: a Season prepared by mistake goes.
+    """
+    create_site(db)
+    open_fresh_season(db)
+    headers = build_auth_header(create_staff_user(db, "+212669990342", is_owner=True))
+    db.commit()
+    planned_id = client.post(API_URL, headers=headers).json()["id"]
+
+    response = client.delete(f"{API_URL}/{planned_id}", headers=headers)
+
+    assert response.status_code == 204
+    assert planned_id not in [season["id"] for season in client.get(API_URL, headers=headers).json()]
+
+
+def test_a_season_holding_records_is_kept(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Q22: a Season with a Lot, or whose Payment codes were given, is never deleted; the refusal says which.
+    """
+    site = create_site(db)
+    headers = build_auth_header(create_staff_user(db, "+212669990343", is_owner=True))
+    line = PressLine(site_id=site.id, number=1)
+    db.add(line)
+    season = open_fresh_season(db)
+    db.flush()
+    create_lot(db, site, line.id)
+    paid_season = Season(code="9696", label="Saison payée", starts_on=date(2018, 11, 1), status=SeasonStatus.CLOSED)
+    db.add(paid_season)
+    db.flush()
+    db.add(CodeSequence(site_id=site.id, season_id=paid_season.id, kind=CodeKind.PAYMENT, last_number=1))
+    db.commit()
+
+    assert client.delete(f"{API_URL}/{season.id}", headers=headers).json() == {"code": "season_has_lots"}
+    assert client.delete(f"{API_URL}/{paid_season.id}", headers=headers).json() == {"code": "season_has_payments"}
+
+
+def test_reopening_and_deleting_are_the_owners(client: TestClient, db: Session, storage: FakeStorage) -> None:
+    """
+    Q22: « Gérer les saisons » is not enough.
+    """
+    site = create_site(db)
+    season = open_fresh_season(db)
+    manager = create_staff_user(db, "+212669990344", permissions_by_site={site.id: [Permission.SEASON_MANAGE]})
+    headers = build_auth_header(manager, {site.id: [Permission.SEASON_MANAGE]})
+    db.commit()
+
+    assert client.post(f"{API_URL}/{season.id}/reopen", headers=headers).json() == {"code": "owner_only"}
+    assert client.delete(f"{API_URL}/{season.id}", headers=headers).json() == {"code": "owner_only"}

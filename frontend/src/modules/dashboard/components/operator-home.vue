@@ -70,11 +70,13 @@
           </ul>
         </template>
         <template v-else>
-          <div class="stagger flex flex-col gap-3">
+          <ui-segmented v-model="tab" is-full :options="tabOptionsComputed" :label="$t('dashboard.operator.tabs.label')" />
+          <lots-without-line v-if="tab === 'without-line' && desk.siteId.value" :site-id="desk.siteId.value" can-assign @open="handleOpenLot" />
+          <div v-else class="stagger flex flex-col gap-3">
             <press-line-card v-for="board in desk.lineBoards.value" :key="board.key" :board="board" @open="handleOpenLot" @move="handleMove" />
           </div>
-          <ui-empty-state v-if="!desk.lineBoards.value.length" :message="$t('dashboard.operator.noLot')" />
-          <p v-if="desk.pressedCount.value" class="flex items-start gap-2 rounded-card bg-subtle p-3 body-two">
+          <ui-empty-state v-if="tab === 'lines' && !desk.lineBoards.value.length" :message="$t('dashboard.operator.noLot')" />
+          <p v-if="tab === 'lines' && desk.pressedCount.value" class="flex items-start gap-2 rounded-card bg-subtle p-3 body-two">
             <drop-line-icon class="mt-0.5 h-4 w-4 shrink-0 text-fg-brand" />
             {{ $t('dashboard.operator.pressedWaiting', desk.pressedCount.value) }}
           </p>
@@ -128,17 +130,20 @@ import type { ILot, ILotMove } from 'lot/types/lot';
 
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
+import UiSegmented from 'global/components/ui-segmented.vue';
 import UiQrScanner from 'global/components/ui-qr-scanner.vue';
 import AddLineIcon from 'global/icons/add-line.icon.vue';
 import DropLineIcon from 'global/icons/drop-line.icon.vue';
 import QrScanLineIcon from 'global/icons/qr-scan-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import UserAddLineIcon from 'global/icons/user-add-line.icon.vue';
+import LotsWithoutLine from 'lot/components/lots-without-line.vue';
 import ConfirmMove from 'lot/components/confirm-move.vue';
 import OperatorLotSheet from 'dashboard/components/operator-lot-sheet.vue';
 import DeskLotCard from 'dashboard/components/desk-lot-card.vue';
 import PressLineCard from 'dashboard/components/press-line-card.vue';
 
+type DeskTab = 'lines' | 'without-line';
 type Panel = { kind: 'lot'; lotId: string } | { kind: 'move'; lotId: string; isFromSheet: boolean };
 
 // stores
@@ -153,6 +158,7 @@ const desk = useOperatorDesk();
 const SLIDE_MS = 500;
 const query = ref('');
 const isScanning = ref(false);
+const tab = ref<DeskTab>('lines');
 const panel = ref<Panel | null>(null);
 const isPanelOpen = ref(false);
 const paneTransition = ref('pane-forward');
@@ -161,6 +167,10 @@ let clearTimer = 0;
 
 // computed
 const firstName = computed((): string => sessionStore.session?.firstName ?? '');
+const tabOptionsComputed = computed((): { key: DeskTab; label: string }[] => [
+  { key: 'lines', label: t('dashboard.operator.tabs.lines') },
+  { key: 'without-line', label: t('dashboard.operator.tabs.withoutLine', { count: desk.withoutLineCount.value }) },
+]);
 const searched = computed(() => desk.searchClients(query.value));
 const foundLotsComputed = computed((): ILot[] => {
   const text = query.value.trim().toLowerCase();
@@ -218,6 +228,7 @@ const handleSearchEnter = (): void => {
 };
 
 const handleOpenLot = (lot: ILot): void => {
+  if (!lotStore.lots.some((item) => item.id === lot.id)) lotStore.upsertLot(lot);
   clientStore.fetchAccount(lot.clientId);
   openPanel({ kind: 'lot', lotId: lot.id });
 };

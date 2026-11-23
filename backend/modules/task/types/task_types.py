@@ -7,11 +7,12 @@ from core.types import CamelModel
 
 class TaskKind(StrEnum):
     """
-    What waits on Management: a Discount or Payment to decide, a Refund to make or confirm, a Client who owes, an Invitation not accepted.
+    What waits on Management: a Discount or Payment to decide, an Expense to pay soon or late, a Refund to make or confirm, a Client who owes, an Invitation not accepted.
     """
 
     DISCOUNT = "discount"
     PAYMENT = "payment"
+    EXPENSE_DUE = "expense-due"
     REFUND_MAKE = "refund-make"
     REFUND_CONFIRM = "refund-confirm"
     CLIENT_AT_RISK = "client-at-risk"

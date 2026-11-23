@@ -29,16 +29,22 @@
     "weight": "Poids net des olives",
     "weightTooHigh": "Le poids ne peut pas dépasser {max}.",
     "save": "Enregistrer la réception",
-    "missing": "Il manque : {items}",
-    "missingItems": {
-      "client": "le client",
-      "weight": "le poids",
-      "box": "assez de place dans les box",
-      "notification": "la notification",
-      "contact": "le contact du Client",
-      "line": "le malaxeur et l’heure prévue"
+    "photo": "Photo des olives",
+    "fields": {
+      "client": "Client",
+      "weight": "Poids",
+      "box": "Box",
+      "line": "Malaxeur",
+      "notification": "Notification",
+      "contact": "Contact"
     },
-    "photo": "Photo des olives"
+    "errors": {
+      "client": "Choisissez le client, ou créez-le.",
+      "weight": "Saisissez le poids net.",
+      "box": "Les box choisis ne suffisent pas pour ce poids.",
+      "line": "Choisissez un malaxeur, ou « Plus tard ».",
+      "notification": "Choisissez comment prévenir le client."
+    }
   },
   "done": {
     "waiting": "En attente de pressage",
@@ -53,7 +59,8 @@
     "credit": "Avoir déduit : {amount}",
     "qrLabel": "Code QR du lot {code}",
     "qrHint": "Le code du ticket : à scanner pour retrouver le lot.",
-    "codePending": "Numéro à la synchronisation"
+    "codePending": "Numéro à la synchronisation",
+    "later": "Malaxeur : à attribuer"
   },
   "box": {
     "title": "Box de stockage",
@@ -110,7 +117,9 @@
     "suggested": "Proposé",
     "plannedStart": "Pressage prévu",
     "freeNow": "Libre, peut presser tout de suite",
-    "queueFrom": "{queue} · place dès {at}"
+    "queueFrom": "{queue} · place dès {at}",
+    "later": "Plus tard",
+    "laterHint": "Le malaxeur se choisit après la réception"
   },
   "errors": {
     "box_taken": "Une de ces caisses contient déjà un lot.",

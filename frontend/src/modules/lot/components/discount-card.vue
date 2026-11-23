@@ -25,13 +25,13 @@
     </dl>
 
     <p v-if="!canDecide" class="body-two rounded-card bg-surface/70 p-3 text-center shadow-hairline">{{ $t('lot.discount.ownDiscount') }}</p>
-    <form v-else-if="isRefusing" class="flex flex-col gap-2" @submit.prevent="handleRefuse">
-      <ui-field v-slot="{ id }" :label="$t('lot.discount.reason')">
-        <textarea :id="id" v-model="reason" class="input min-h-20" :placeholder="$t('lot.discount.reasonPlaceholder')" />
+    <form v-else-if="isRefusing" :ref="setFormRoot" novalidate class="flex flex-col gap-2" @submit.prevent="handleRefuse">
+      <ui-field v-slot="{ id, describedBy, isInvalid }" name="reason" :label="$t('lot.discount.reason')" :error="errorOf('reason')" @leave="touch('reason')">
+        <textarea :id="id" :aria-invalid="isInvalid" :aria-describedby="describedBy" v-model="reason" class="input min-h-20" :placeholder="$t('lot.discount.reasonPlaceholder')" />
       </ui-field>
       <div class="grid grid-cols-2 gap-2">
         <button type="button" class="btn-secondary" @click="isRefusing = false">{{ $t('lot.discount.cancel') }}</button>
-        <button type="submit" class="btn-primary bg-danger hover:bg-danger/90" :disabled="!reason.trim() || isLocked">{{ $t('lot.discount.confirmRefuse') }}</button>
+        <button type="submit" class="btn-primary bg-danger hover:bg-danger/90" :disabled="isLocked">{{ $t('lot.discount.confirmRefuse') }}</button>
       </div>
     </form>
     <div v-else-if="!isReadOnly" class="grid grid-cols-2 gap-2">
@@ -49,6 +49,7 @@ import { useI18n } from 'vue-i18n';
 import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useToastStore } from 'global/stores/toast';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { createId } from 'global/composables/crypto';
 import { formatDateTime } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
@@ -77,6 +78,8 @@ const reason = ref('');
 const canDecide = computed((): boolean => sessionStore.canValidate(props.lot.discount?.givenBy ?? ''));
 const isLocked = computed((): boolean => !props.isOnline || lotStore.isSaving);
 
+const { setFormRoot, errorOf, touch, attempt } = useFormFeedback(() => [{ key: 'reason', label: t('lot.discount.reason'), isMissing: !reason.value.trim() }]);
+
 // methods
 const decide = async (isApproved: boolean): Promise<void> => {
   const client = props.lot.clientName;
@@ -90,7 +93,5 @@ const handleApprove = (): void => {
   decide(true);
 };
 
-const handleRefuse = (): void => {
-  if (reason.value.trim()) decide(false);
-};
+const handleRefuse = (): void => attempt(() => decide(false));
 </script>

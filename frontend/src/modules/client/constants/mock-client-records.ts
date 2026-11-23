@@ -1,5 +1,4 @@
 import { daysSince, shiftDate, todayIso } from 'global/composables/date';
-import { SEASON_START } from 'global/constants/period';
 import { CLIENTS_MOCK } from 'client/constants/mock-clients';
 import { ORIGIN_SUGGESTIONS } from 'reception/constants/reception';
 import { SITES_MOCK, SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
@@ -62,6 +61,7 @@ const STREETS = ['Rue Al Massira', 'Avenue Hassan II', 'Quartier Al Qods', 'Doua
 const MOCK_MILLING_RATE = 0.5;
 const HISTORY_VARIETIES = ['Picholine marocaine', 'Haouzia', 'Menara', 'Picholine marocaine', 'Arbequina'];
 const CURRENT_SEASON = '2627';
+const SEASON_START = '2026-10-01';
 const PREVIOUS_SEASON = { code: '2526', start: '2025-10-01' };
 const OLDER_SEASON = { code: '2425', start: '2024-10-01' };
 const SEASON_LENGTH_DAYS = 170;

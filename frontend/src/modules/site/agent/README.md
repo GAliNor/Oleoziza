@@ -16,3 +16,4 @@ Label a Site with `siteStore.sites.find(...)`: every screen already has the list
 - The code (two capital letters) is typed at creation and never sent again.
 - Creating and deleting need the Owner; editing needs `site.manage`. A Site with any record can't be deleted (`site_has_records`).
 - The mock's seeded Sites refuse deletion like the backend's.
+- The site switcher also says the Season (`season-scope-line`), on every staff screen.

@@ -10,13 +10,15 @@
       @update:model-value="emit('update:modelValue', $event)"
     />
     <p v-if="isUnchecked" class="rounded-control bg-warning-subtle p-2 body-two text-fg-warning" role="status">{{ $t('reception.notification.offline') }}</p>
-    <ui-field v-else-if="isContactMissing" v-slot="{ id }" :label="$t(`reception.notification.missing.${modelValue}`)">
+    <ui-field v-else-if="isContactMissing" v-slot="{ id, describedBy, isInvalid }" name="contact" :label="$t(`reception.notification.missing.${modelValue}`)" :error="contactError" @leave="emit('contact-leave')">
       <input
         :id="id"
         :value="contact"
         class="input"
         :type="modelValue === 'email' ? 'email' : 'tel'"
         :inputmode="modelValue === 'email' ? 'email' : 'tel'"
+        :aria-invalid="isInvalid"
+        :aria-describedby="describedBy"
         @input="emit('update:contact', ($event.target as HTMLInputElement).value)"
       />
     </ui-field>
@@ -42,12 +44,14 @@ const props = defineProps<{
   isUnchecked: boolean;
   /** The channels Management enabled; « Aucune » is always offered after them. */
   channels: NotificationChannel[];
+  contactError?: string | null;
 }>();
 
 // emits
 const emit = defineEmits<{
   (event: 'update:modelValue', choice: NotificationChoice): void;
   (event: 'update:contact', contact: string): void;
+  (event: 'contact-leave'): void;
 }>();
 
 // stores

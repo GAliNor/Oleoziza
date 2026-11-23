@@ -11,17 +11,19 @@
       </div>
     </header>
 
-    <form v-if="refund.status === 'to_make' && !isReadOnly" class="flex flex-col gap-3" @submit.prevent="handleMake">
-      <div class="grid grid-cols-3 gap-2">
-        <button v-for="option in METHODS" :key="option" type="button" class="toggle-tile" :class="{ 'toggle-tile-active': method === option }" @click="method = option">
+    <form v-if="refund.status === 'to_make' && !isReadOnly" :ref="setFormRoot" class="flex flex-col gap-3" novalidate @submit.prevent="handleMake">
+      <div class="grid grid-cols-3 gap-2" data-field="method">
+        <button v-for="option in METHODS" :key="option" type="button" class="toggle-tile" :class="{ 'toggle-tile-active': method === option }" :aria-pressed="method === option" @click="method = option">
           {{ $t(`finance.methods.${option}`) }}
         </button>
       </div>
-      <ui-field v-slot="{ id }" :label="$t('finance.detail.reference')">
+      <p v-if="errorOf('method')" class="form-error" role="alert">{{ $t('finance.refunds.methodMissing') }}</p>
+      <ui-field v-slot="{ id }" :label="$t('finance.detail.reference')" is-optional>
         <input :id="id" v-model="reference" class="input" type="text" />
       </ui-field>
       <document-list :documents="documents" :empty-message="$t('finance.documents.none')" can-add @add="handleAddFiles" />
-      <button type="submit" class="btn-primary" :disabled="!method || !isOnline || financeStore.isSaving">{{ $t('finance.refunds.make') }}</button>
+      <button type="submit" class="btn-primary" :disabled="!isOnline || financeStore.isSaving">{{ $t('finance.refunds.make') }}</button>
+      <p v-if="!isOnline" class="body-three">{{ $t('global.locked.offline') }}</p>
     </form>
 
     <template v-else-if="refund.status === 'made'">
@@ -43,7 +45,8 @@ import { useI18n } from 'vue-i18n';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useSessionStore } from 'global/stores/session';
 import { useToastStore } from 'global/stores/toast';
-import { readDocuments } from 'finance/composables/read-documents';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
+import { readFiles } from 'global/composables/read-files';
 import { formatFullDate } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
 import type { IPaymentDocument, IRefund, PaymentMethodKey, RefundStatus } from 'finance/types/finance';
@@ -67,16 +70,20 @@ const method = ref<PaymentMethodKey | null>(null);
 const reference = ref('');
 const documents = ref<IPaymentDocument[]>([]);
 
+const { setFormRoot, errorOf, attempt } = useFormFeedback(() => [{ key: 'method', label: t('finance.form.method'), isMissing: !method.value }]);
+
 // event handlers
 const handleAddFiles = async (files: File[]): Promise<void> => {
-  documents.value = [...documents.value, ...(await readDocuments(files, sessionStore.fullName))];
+  documents.value = [...documents.value, ...(await readFiles(files, sessionStore.fullName))];
 };
 
-const handleMake = async (): Promise<void> => {
+const make = async (): Promise<void> => {
   if (!method.value) return;
   const updated = await financeStore.makeRefund(props.refund, { method: method.value, reference: reference.value.trim() || undefined, documents: documents.value });
   toastStore.push(t(updated ? 'finance.refunds.made' : 'finance.toasts.error'), updated ? 'success' : 'danger');
 };
+
+const handleMake = (): void => attempt(make);
 
 const handleConfirm = async (): Promise<void> => {
   const updated = await financeStore.confirmRefund(props.refund);

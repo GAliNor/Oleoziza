@@ -1,10 +1,14 @@
 <template>
-  <form class="card flex flex-col gap-4" @submit.prevent="handleSave">
+  <no-open-season v-if="seasonStore.isLoaded && !seasonStore.openSeason" action="payment" />
+  <form v-else :ref="setFormRoot" class="card flex flex-col gap-4" novalidate @submit.prevent="handleSave">
     <h2 class="heading-four">{{ $t('finance.form.title') }}</h2>
 
     <p v-if="creditDh" class="rounded-control bg-info-subtle p-3 body-two text-fg-info tabular-nums" role="status">{{ $t('finance.form.credit', { amount: formatMoney(creditDh) }) }}</p>
 
-    <due-lot-picker v-model="tickedIds" :lots="dueLots" :title="$t('finance.form.lots')" :can-discount="siteStore.can('discount.give')" @discount="handleDiscount" />
+    <div data-field="lots">
+      <due-lot-picker v-model="tickedIds" :lots="dueLots" :title="$t('finance.form.lots')" :can-discount="siteStore.can('discount.give')" @discount="handleDiscount" />
+      <p v-if="dueLots.length && errorOf('lots')" class="form-error pt-2" role="alert">{{ errorOf('lots') }}</p>
+    </div>
 
     <discount-form
       v-if="discountLot"
@@ -16,43 +20,45 @@
     />
 
     <template v-if="dueLots.length">
-      <ui-field v-slot="{ id }" :label="$t('finance.form.amount')">
+      <ui-field v-slot="{ id, describedBy, isInvalid }" name="amount" :label="$t('finance.form.amount')" :error="errorOf('amount')" :is-valid="isValid('amount')" @leave="touch('amount')">
         <div class="relative">
-          <input :id="id" v-model.number="amount" class="input pe-14 text-xl figure" type="number" inputmode="decimal" min="0" step="0.01" :aria-invalid="isAmountTooHigh" />
+          <input :id="id" v-model.number="amount" class="input pe-14 text-xl figure" type="number" inputmode="decimal" min="0" step="0.01" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
           <span class="pointer-events-none absolute top-1/2 inset-e-4 -translate-y-1/2 body-two">{{ $t('global.units.dirham') }}</span>
         </div>
-        <p v-if="isAmountTooHigh" class="form-error">{{ $t('finance.form.amountTooHigh', { total: formatMoney(tickedTotal) }) }}</p>
-        <p v-else-if="isPartial" class="body-two">{{ $t('finance.form.allocation') }}</p>
+        <p v-if="isPartial" class="body-two">{{ $t('finance.form.allocation') }}</p>
       </ui-field>
 
-      <section class="flex flex-col gap-2">
+      <section class="flex flex-col gap-2" data-field="method">
         <h3 class="label">{{ $t('finance.form.method') }}</h3>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <button v-for="option in enabledMethods" :key="option.key" type="button" class="toggle-tile" :class="{ 'toggle-tile-active': method === option.key }" @click="method = option.key">
+          <button v-for="option in enabledMethods" :key="option.key" type="button" class="toggle-tile" :class="{ 'toggle-tile-active': method === option.key }" :aria-pressed="method === option.key" @click="method = option.key">
             {{ $t(`finance.methods.${option.key}`) }}
           </button>
         </div>
+        <p v-if="!method && errorOf('method')" class="form-error" role="alert">{{ errorOf('method') }}</p>
         <p v-if="method" class="body-two" role="status">{{ $t(isFinal ? 'finance.form.finalNow' : 'finance.form.waitsConfirmation') }}</p>
       </section>
 
-      <ui-field v-if="method === 'cheque' || method === 'transfer'" v-slot="{ id }" :label="$t(`finance.form.reference.${method}`)">
+      <ui-field v-if="method === 'cheque' || method === 'transfer'" v-slot="{ id }" :label="$t(`finance.form.reference.${method}`)" is-optional>
         <input :id="id" v-model="reference" class="input" type="text" />
       </ui-field>
 
       <template v-if="method === 'oil'">
         <p class="body-two">{{ $t('finance.form.oilQuantity', { quantity: formatOil(oilLitres), price: formatMoney(oilPrice) }) }}</p>
-        <p v-if="isOilTooMuch" class="form-error">{{ $t('finance.form.oilTooMuch', { quantity: formatOil(oilStockLitres) }) }}</p>
+        <p v-if="isOilTooMuch" class="form-error" role="alert">{{ $t('finance.form.oilTooMuch', { quantity: formatOil(oilStockLitres) }) }}</p>
       </template>
 
-      <template v-if="method">
+      <div v-if="method" class="flex flex-col gap-2" data-field="proof">
         <ui-photo-capture v-model="proofUrl" :label="$t('finance.form.proof')" :is-required="needsProof" />
-        <p v-if="needsProof && !proofUrl" class="body-two">{{ $t('finance.form.proofRequired') }}</p>
-      </template>
-
-      <div class="grid grid-cols-2 gap-2">
-        <button type="button" class="btn-secondary" @click="emit('close')">{{ $t('finance.form.cancel') }}</button>
-        <button type="submit" class="btn-primary" :disabled="!canSave">{{ $t('finance.form.save', { amount: formatMoney(typeof amount === 'number' ? amount : 0) }) }}</button>
+        <p v-if="errorOf('proof')" class="form-error" role="alert">{{ errorOf('proof') }}</p>
+        <p v-else-if="needsProof && !proofUrl" class="body-two">{{ $t('finance.form.proofRequired') }}</p>
       </div>
+
+      <ui-form-bar :problems="problemsComputed" :is-attempted="isAttempted" :is-busy="financeStore.isSaving" :submit-label="$t('finance.form.save', { amount: formatMoney(typedAmount) })" @jump="jumpTo" @submit="handleSave">
+        <template #actions>
+          <button type="button" class="btn-secondary min-h-13" @click="emit('close')">{{ $t('finance.form.cancel') }}</button>
+        </template>
+      </ui-form-bar>
     </template>
     <button v-else type="button" class="btn-secondary" @click="emit('close')">{{ $t('finance.form.cancel') }}</button>
   </form>
@@ -66,21 +72,26 @@ import { useI18n } from 'vue-i18n';
 import { useConfigurationStore } from 'configuration/stores/configuration';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useLotStore } from 'lot/stores/lot';
+import { useSeasonStore } from 'season/stores/season';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { allocatePayment } from 'finance/composables/allocate-payment';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { createId } from 'global/composables/crypto';
 import { formatMoney } from 'global/composables/money';
 import { amountDue } from 'lot/composables/fee';
 import { formatOil } from 'lot/composables/quantity';
 import type { IConfiguration, IPaymentMethodSetting } from 'configuration/types/configuration';
+import type { IFormRule } from 'global/types/form';
 import type { PaymentMethodKey } from 'finance/types/finance';
 import type { ILot } from 'lot/types/lot';
 
 import DueLotPicker from 'finance/components/due-lot-picker.vue';
 import DiscountForm from 'lot/components/discount-form.vue';
+import NoOpenSeason from 'season/components/no-open-season.vue';
 import UiField from 'global/components/ui-field.vue';
+import UiFormBar from 'global/components/ui-form-bar.vue';
 import UiPhotoCapture from 'global/components/ui-photo-capture.vue';
 
 // props
@@ -98,6 +109,7 @@ const { t } = useI18n();
 const configurationStore = useConfigurationStore();
 const financeStore = useFinanceStore();
 const lotStore = useLotStore();
+const seasonStore = useSeasonStore();
 const sessionStore = useSessionStore();
 const siteStore = useSiteStore();
 const toastStore = useToastStore();
@@ -129,14 +141,17 @@ const needsProof = computed((): boolean => enabledMethods.value.find((item) => i
 const oilLitres = computed((): number => (oilPrice.value ? Math.round((typedAmount.value / oilPrice.value) * 100) / 100 : 0));
 const isFinal = computed((): boolean => method.value === 'cash' && siteStore.can('payment.confirm'));
 const isOilTooMuch = computed((): boolean => method.value === 'oil' && oilLitres.value > props.oilStockLitres);
-const canSave = computed((): boolean =>
-  !!method.value &&
-  typedAmount.value > 0 &&
-  !isAmountTooHigh.value &&
-  !isOilTooMuch.value &&
-  (!needsProof.value || !!proofUrl.value) &&
-  !financeStore.isSaving,
-);
+const methodErrorComputed = computed((): string | null => {
+  if (!method.value) return null;
+  return isOilTooMuch.value ? t('finance.form.oilTooMuch', { quantity: formatOil(props.oilStockLitres) }) : null;
+});
+const rulesComputed = computed((): IFormRule[] => [
+  { key: 'lots', label: t('finance.form.lots'), isMissing: !tickedLots.value.length },
+  { key: 'amount', label: t('finance.form.amount'), isMissing: !typedAmount.value, error: isAmountTooHigh.value && tickedLots.value.length ? t('finance.form.amountTooHigh', { total: formatMoney(tickedTotal.value) }) : null, isFilled: true },
+  { key: 'method', label: t('finance.form.method'), isMissing: !method.value, error: methodErrorComputed.value },
+  { key: 'proof', label: t('finance.form.proof'), isMissing: needsProof.value && !proofUrl.value },
+]);
+const { setFormRoot, problemsComputed, isAttempted, errorOf, isValid, touch, jumpTo, attempt } = useFormFeedback(() => rulesComputed.value);
 
 // watchers
 watch(
@@ -166,8 +181,8 @@ const handleDiscountSaved = (lot: ILot): void => {
   if (lot.discount?.state === 'pending') tickedIds.value = tickedIds.value.filter((id) => id !== lot.id);
 };
 
-const handleSave = async (): Promise<void> => {
-  if (!canSave.value || !method.value) return;
+const save = async (): Promise<void> => {
+  if (!method.value) return;
   const movement = await financeStore.recordPayment({
     id: paymentId.value,
     siteId: props.siteId,
@@ -187,4 +202,6 @@ const handleSave = async (): Promise<void> => {
   toastStore.push(t(movement.status === 'confirmed' ? 'finance.form.savedFinal' : 'finance.form.saved', { code: movement.code }), 'success');
   emit('saved');
 };
+
+const handleSave = (): void => attempt(save);
 </script>

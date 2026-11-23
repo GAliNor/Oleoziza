@@ -1,5 +1,4 @@
 import { shiftDate, todayIso } from 'global/composables/date';
-import { PREVIOUS_SEASON, SEASON_START } from 'global/constants/period';
 import { SITE_BERKANE_ID, SITE_OUJDA_ID } from 'site/constants/mock-sites';
 import type { ExpensePaidBy, IExpense } from 'expense/types/expense';
 
@@ -21,6 +20,9 @@ const ACCOUNTANT = 'Nadia Boukili';
 const OWNER = 'Mohammed Taibi';
 const SITE_CODES: Record<string, string> = { [SITE_OUJDA_ID]: 'OJ', [SITE_BERKANE_ID]: 'BK' };
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+/** The mock Seasons' first days, from before the app knew real ones. */
+const SEASON_START = '2026-10-01';
+const PREVIOUS_SEASON_START = '2025-10-01';
 const SEASON_MONTHS = new Set([10, 11, 12, 1, 2]);
 
 const isSeasonMonth = (isoDate: string): boolean => SEASON_MONTHS.has(Number(isoDate.slice(5, 7)));
@@ -30,7 +32,7 @@ const monthName = (isoDate: string): string => `${MONTHS[Number(isoDate.slice(5,
 /** The 5th of every month from the previous Season's start up to today. */
 const monthlyDates = (today: string): string[] => {
   const dates: string[] = [];
-  for (let cursor = new Date(`${PREVIOUS_SEASON.from}T12:00:00Z`); ; cursor.setUTCMonth(cursor.getUTCMonth() + 1)) {
+  for (let cursor = new Date(`${PREVIOUS_SEASON_START}T12:00:00Z`); ; cursor.setUTCMonth(cursor.getUTCMonth() + 1)) {
     const date = `${cursor.toISOString().slice(0, 7)}-05`;
     if (date > today) return dates;
     dates.push(date);
@@ -133,6 +135,13 @@ const buildExpenses = (): IExpense[] => {
       id: `expense-${String(index + 1).padStart(4, '0')}`,
       code,
       siteId: seed.siteId,
+      seasonId: null,
+      seasonLabel: seasonCode(seed.date) === '2627' ? 'Saison 2026-2027' : 'Saison 2025-2026',
+      isLocked: seed.date < SEASON_START,
+      paymentState: 'paid',
+      dueOn: null,
+      recurringExpenseId: null,
+      frequency: null,
       date: seed.date,
       categoryId: seed.categoryId,
       description: seed.description,
@@ -154,9 +163,47 @@ const buildExpenses = (): IExpense[] => {
   });
   const duplicate = [...expenses].reverse().find((expense) => expense.categoryId === 'electricity' && expense.siteId === SITE_OUJDA_ID);
   if (duplicate) {
-    expenses.push({ ...duplicate, id: 'expense-duplicate', code: nextCode(sequences, duplicate.siteId, duplicate.date), status: 'cancelled', cancelledBy: OWNER, cancelledAt: duplicate.recordedAt, cancelReason: 'Saisie en double' });
+    expenses.push({ ...duplicate, id: 'expense-duplicate', code: nextCode(sequences, duplicate.siteId, duplicate.date ?? todayIso()), status: 'cancelled', cancelledBy: OWNER, cancelledAt: duplicate.recordedAt, cancelReason: 'Saisie en double' });
   }
-  return expenses.reverse();
+  return [...toPaySeeds(), ...expenses.reverse()];
+};
+
+/** What is still to pay on the demo: a late one, a soon one that comes back every year, and one whose amount isn't known yet. */
+const toPaySeeds = (): IExpense[] => {
+  const base: IExpense = {
+    id: '',
+    code: null,
+    siteId: SITE_OUJDA_ID,
+    seasonId: null,
+    seasonLabel: null,
+    isLocked: false,
+    paymentState: 'to_pay',
+    dueOn: null,
+    recurringExpenseId: null,
+    frequency: null,
+    date: null,
+    categoryId: 'electricity',
+    description: '',
+    amount: null,
+    vatRate: null,
+    supplierId: null,
+    supplier: '',
+    supplierIce: '',
+    supplierIf: '',
+    invoiceNumber: '',
+    invoiceDate: null,
+    paidBy: null,
+    paymentReference: '',
+    documents: [],
+    status: 'recorded',
+    recordedBy: ACCOUNTANT,
+    recordedAt: `${shiftDate(todayIso(), -20)}T09:00:00Z`,
+  };
+  return [
+    { ...base, id: 'expense-due-late', dueOn: shiftDate(todayIso(), -3), amount: 1840, categoryId: 'internet', recurringExpenseId: 'recurring-internet', frequency: 'monthly' },
+    { ...base, id: 'expense-due-soon', dueOn: shiftDate(todayIso(), 12), amount: 9600, categoryId: 'fire_insurance', recurringExpenseId: 'recurring-fire', frequency: 'yearly' },
+    { ...base, id: 'expense-due-unknown', dueOn: shiftDate(todayIso(), 5) },
+  ];
 };
 
 export const EXPENSES_MOCK: IExpense[] = buildExpenses();

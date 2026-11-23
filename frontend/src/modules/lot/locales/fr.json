@@ -171,7 +171,10 @@
     "save": "Enregistrer",
     "saved": "Pressage de {code} replanifié",
     "error": "La planification n’a pas pu être enregistrée. Réessayez.",
-    "first": "Passer en premier sur ce malaxeur"
+    "first": "Passer en premier sur ce malaxeur",
+    "assign": "Choisir le malaxeur",
+    "none": "Ce lot n’a pas encore de malaxeur.",
+    "noLine": "Choisissez un malaxeur."
   },
   "split": {
     "label": "Où va l’huile ?",
@@ -222,6 +225,17 @@
     "reasonPlaceholder": "Pourquoi ce tarif ? (tarif coopérative, erreur à la réception…)",
     "cancel": "Annuler",
     "save": "Corriger le tarif",
-    "saved": "Tarif de {code} corrigé : {rate}/kg"
+    "saved": "Tarif de {code} corrigé : {rate}/kg",
+    "unchanged": "C’est déjà le prix du lot."
+  },
+  "withoutLine": {
+    "title": "Sans malaxeur",
+    "empty": "Aucun lot n’attend de malaxeur.",
+    "offline": "Hors ligne : liste de la dernière connexion",
+    "unsent": "À synchroniser",
+    "pick": "Choisir un malaxeur",
+    "noLine": "Aucun malaxeur n’est configuré sur ce site.",
+    "detail": "Voir le lot",
+    "assigned": "{client} : {line}"
   }
 }

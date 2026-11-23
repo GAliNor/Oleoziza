@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
 import TaskService from 'task/services/task';
-import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
+import { invalidateLoads, LOAD_TTL_MS, slotLoad } from 'global/composables/cached-load';
 import { withStatus } from 'global/composables/with-status';
 import { withClientTaskLinks } from 'task/composables/client-task-links';
 import type { ITaskStore } from 'task/types/task';
@@ -21,11 +21,12 @@ export const useTaskStore = defineStore('task', {
         this,
         'isLoading',
         () =>
-          cachedLoad(
-            `tasks:${siteId}`,
+          slotLoad(
+            'tasks',
+            siteId,
             LOAD_TTL_MS.records,
-            async () => {
-              const tasks = await taskService.getTasks(siteId);
+            () => taskService.getTasks(siteId),
+            (tasks) => {
               this.tasks = tasks.map((task) => ('targetId' in task && typeof task.targetId === 'string' ? withClientTaskLinks(task, task.targetId) : task));
             },
             isForced,

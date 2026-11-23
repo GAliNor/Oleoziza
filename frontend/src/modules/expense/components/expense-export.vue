@@ -23,7 +23,7 @@ import { buildExpenseCsv, exportMonths } from 'expense/composables/expense-expor
 import { downloadText } from 'global/composables/download';
 import { todayIso } from 'global/composables/date';
 import { periodRange } from 'global/composables/use-period';
-import { PREVIOUS_SEASON } from 'global/constants/period';
+import { seasonDates } from 'global/composables/season-dates';
 import type { IPeriod, IPeriodRange } from 'global/types/period';
 import type { ISelectOption } from 'global/types/select';
 
@@ -45,7 +45,7 @@ const rangeKey = ref<string | null>('shown');
 const EXPORT_LOCALE = 'fr';
 
 // computed
-const monthsComputed = computed((): IPeriodRange[] => exportMonths(PREVIOUS_SEASON.from, todayIso()));
+const monthsComputed = computed((): IPeriodRange[] => exportMonths(seasonDates.value.previous.from, todayIso()));
 const rangeOptionsComputed = computed((): ISelectOption[] => [
   { value: 'shown', label: t('expense.export.shown', { period: props.period.label }) },
   ...monthsComputed.value.map((month) => ({ value: month.from, label: formatMonth(month.from) })),

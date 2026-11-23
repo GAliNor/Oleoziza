@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 
+import { i18n } from '~/plugins/i18n';
+
 import ClientService from 'client/services/client';
 import { outbox } from 'global/services/app-outbox';
 import { buildClientName } from 'client/composables/client-name';
@@ -104,8 +106,10 @@ export const useClientStore = defineStore('client', {
       );
     },
     async updateContact(clientId: string, contact: IClientContact): Promise<IClient | null> {
-      const updated = await withStatus(this, 'isSaving', () => clientService.updateContact(clientId, contact));
+      const updated = await withStatus(this, 'isSaving', () => clientService.updateContact(clientId, contact), { errorMessage: i18n.global.t('client.coordinates.saveError') });
       if (!updated) return null;
+      const { location, ...fields } = contact;
+      this.records = this.records.map((record) => (record.id === clientId ? { ...record, ...fields, ...(location ? { province: location.province, region: location.city, address: location.address || null } : {}) } : record));
       const index = this.clients.findIndex((client) => client.id === clientId);
       if (index !== -1) this.clients.splice(index, 1, updated);
       invalidateLoads('client-records');

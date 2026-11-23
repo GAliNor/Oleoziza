@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-w-0 gap-4 overflow-hidden">
+  <div class="flex min-w-0 gap-4 overflow-x-clip">
     <div class="pane pane-list flex w-full shrink-0 flex-col gap-3" :class="{ 'is-away': isOpen }">
       <slot name="list" />
     </div>

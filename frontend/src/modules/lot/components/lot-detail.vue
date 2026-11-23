@@ -58,10 +58,11 @@
 
 <script setup lang="ts">
 // imports
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useFinanceStore } from 'finance/stores/finance';
+import { useLotStore } from 'lot/stores/lot';
 import { useSiteStore } from 'site/stores/site';
 import { millingFee } from 'lot/composables/fee';
 import { buildLotTimeline } from 'lot/composables/timeline';
@@ -87,6 +88,7 @@ const props = defineProps<{ lot: ILot }>();
 // stores
 const { t } = useI18n();
 const financeStore = useFinanceStore();
+const lotStore = useLotStore();
 const siteStore = useSiteStore();
 
 // computed
@@ -107,13 +109,20 @@ const oilWhere = computed((): string => {
   return active.map((storage) => `${tankName(storage.tankId)} · ${formatLitres(storedLeft(storage))}`).join(', ');
 });
 const steps = computed(() =>
-  buildLotTimeline(props.lot, {
+  buildLotTimeline({ ...props.lot, stepPhotos: { ...lotStore.photosByLot[props.lot.id], ...props.lot.stepPhotos } }, {
     lineLabel: lineLabel.value,
     tankLabel: tankName,
     isMoneyShown: siteStore.can(AMOUNT_PERMISSIONS),
   }),
 );
 const isMoneyShownComputed = computed((): boolean => props.lot.mode === 'service_milling' && siteStore.can(AMOUNT_PERMISSIONS));
+
+// watchers
+watch(
+  () => `${props.lot.id}:${props.lot.photoSteps?.join() ?? ''}`,
+  () => lotStore.fetchPhotos(props.lot),
+  { immediate: true },
+);
 
 // lifecycle
 if (siteStore.can('finance.view') && props.lot.siteId) financeStore.fetchMovements(siteStore.currentSiteId ?? props.lot.siteId);

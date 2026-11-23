@@ -1,26 +1,27 @@
 <template>
-  <section class="flex flex-col gap-4">
+  <section :ref="setFormRoot" class="flex flex-col gap-4">
     <template v-if="!created">
       <h1 class="heading-one">{{ $t('client.quick.title') }}</h1>
       <div class="flex items-center gap-3">
         <ui-avatar class="h-16 w-16 shrink-0" :name="displayNameComputed || $t('client.quick.placeholderAvatar')" :variant="clientAvatarVariant(kind)" />
         <ui-segmented v-model="kind" class="flex-1" is-full is-choice :options="kindOptionsComputed" :label="$t('client.quick.kindLabel')" />
       </div>
-      <ui-field v-if="kind === 'company'" v-slot="{ id }" :label="$t('client.quick.companyName')">
-        <input :id="id" v-model="name" class="input" type="text" autocomplete="off" />
+      <ui-field v-if="kind === 'company'" v-slot="{ id, describedBy, isInvalid }" name="companyName" :label="$t('client.quick.companyName')" :error="errorOf('companyName')" :is-valid="isValid('companyName')" @leave="touch('companyName')">
+        <input :id="id" v-model="name" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
       </ui-field>
       <div v-else class="grid gap-4 sm:grid-cols-2">
-        <ui-field v-slot="{ id }" :label="$t('client.quick.firstName')">
-          <input :id="id" v-model="firstName" class="input" type="text" autocomplete="off" />
+        <ui-field v-slot="{ id, describedBy, isInvalid }" name="firstName" :label="$t('client.quick.firstName')" :error="errorOf('firstName')" :is-valid="isValid('firstName')" @leave="touch('firstName')">
+          <input :id="id" v-model="firstName" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
         </ui-field>
-        <ui-field v-slot="{ id }" :label="$t('client.quick.lastName')">
-          <input :id="id" v-model="lastName" class="input" type="text" autocomplete="off" />
+        <ui-field v-slot="{ id, describedBy, isInvalid }" name="lastName" :label="$t('client.quick.lastName')" :error="errorOf('lastName')" :is-valid="isValid('lastName')" @leave="touch('lastName')">
+          <input :id="id" v-model="lastName" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
         </ui-field>
       </div>
-      <ui-field v-slot="{ id }" :label="$t('client.quick.phoneLabel')">
-        <input :id="id" v-model="phone" class="input" type="tel" inputmode="tel" :placeholder="$t('client.quick.phone')" />
+      <ui-field v-slot="{ id, describedBy, isInvalid }" name="phone" :label="$t('client.quick.phoneLabel')" :error="errorOf('phone')" :is-valid="isValid('phone')" @leave="touch('phone')">
+        <ui-phone-input :id="id" v-model="phone" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
+        <client-duplicate v-if="phoneDuplicateComputed && phoneDuplicateComputed.id !== identifierDuplicateComputed?.id" :client="phoneDuplicateComputed" :title="$t('client.quick.duplicate.phone', { name: phoneDuplicateComputed.name })" :can-receive="canReceive" @receive="handleUseDuplicate" />
       </ui-field>
-      <ui-field v-slot="{ id }" :label="$t(`client.quick.identifier.${kind}`)">
+      <ui-field v-slot="{ id, describedBy, isInvalid }" name="identifier" :label="$t(`client.quick.identifier.${kind}`)" is-optional :error="errorOf('identifier')" :is-valid="isValid('identifier')" @leave="touch('identifier')">
         <input
           :id="id"
           v-model="identifier"
@@ -30,32 +31,19 @@
           autocapitalize="characters"
           :inputmode="kind === 'company' ? 'numeric' : 'text'"
           :placeholder="$t(`client.quick.identifierPlaceholder.${kind}`)"
-          :aria-invalid="isIdentifierInvalid"
+          :aria-invalid="isInvalid"
+          :aria-describedby="describedBy"
         />
-        <p v-if="isIdentifierInvalid" class="form-error">{{ $t(`client.quick.identifierInvalid.${kind}`) }}</p>
-        <div v-if="duplicate" class="flex flex-col gap-3 rounded-card bg-warning-subtle p-4" role="status">
-          <p class="min-w-0">
-            <span class="block text-sm font-semibold text-fg-display">{{ $t(`client.quick.duplicate.${kind}`, { name: duplicate.name }) }}</span>
-            <span class="body-two block tabular-nums">{{ formatPhone(duplicate.phone) }}</span>
-          </p>
-          <div class="grid gap-2 sm:grid-cols-2">
-            <router-link class="btn-secondary min-h-14 bg-surface px-3 hover:bg-surface" :to="{ name: 'client-page', params: { id: duplicate.id } }">{{ $t('client.quick.openDuplicate') }}</router-link>
-            <button v-if="canReceive" type="button" class="btn-primary min-h-14 px-3" @click="handleUseDuplicate(duplicate.id)">{{ $t('client.quick.receiveDuplicate') }}</button>
-          </div>
-        </div>
+        <client-duplicate v-if="identifierDuplicateComputed" :client="identifierDuplicateComputed" :title="$t(`client.quick.duplicate.${kind}`, { name: identifierDuplicateComputed.name })" :can-receive="canReceive" @receive="handleUseDuplicate" />
       </ui-field>
-      <ui-field v-slot="{ id }" :label="$t('client.quick.email')">
-        <input :id="id" v-model="email" class="input" type="email" inputmode="email" autocomplete="off" :aria-invalid="isEmailInvalid" />
-        <p v-if="isEmailInvalid" class="form-error">{{ $t('client.quick.emailInvalid') }}</p>
+      <ui-field v-slot="{ id, describedBy, isInvalid }" name="email" :label="$t('client.quick.email')" is-optional :error="errorOf('email')" :is-valid="isValid('email')" @leave="touch('email')">
+        <input :id="id" v-model="email" class="input" type="email" inputmode="email" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
       </ui-field>
-      <location-fields v-model="location" :is-map-shown="isActive" />
+      <ui-disclosure v-model:is-open="isPlaceOpen" :title="$t('client.quick.addPlace')">
+        <location-fields v-model="location" :is-map-shown="isActive && isPlaceOpen" />
+      </ui-disclosure>
       <p v-if="!isOnline" class="body-two">{{ $t('client.quick.offlineHint') }}</p>
-      <div class="flex flex-col gap-2">
-        <button type="button" class="min-h-14 text-md" :class="duplicate ? 'btn-secondary' : 'btn-primary'" :disabled="!canSave" @click="handleSave">
-          {{ $t(duplicate ? 'client.quick.createAnyway' : 'client.quick.create') }}
-        </button>
-        <p v-if="missing.length" class="body-two text-center">{{ $t('client.quick.missing', { items: missing.join(', ') }) }}</p>
-      </div>
+      <ui-form-bar :problems="problemsComputed" :is-attempted="isAttempted" :is-busy="clientStore.isSaving" :submit-label="$t(identifierDuplicateComputed ? 'client.quick.createAnyway' : 'client.quick.create')" @jump="jumpTo" @submit="handleSave" />
     </template>
 
     <template v-else>
@@ -79,18 +67,24 @@ import { useClientStore } from 'client/stores/client';
 import { useSiteStore } from 'site/stores/site';
 import { useOnlineStatus } from 'global/composables/use-online-status';
 import { createId } from 'global/composables/crypto';
-import { formatPhone, normalizePhone } from 'global/composables/phone';
+import { normalizePhone } from 'global/composables/phone';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { isEmail, normalizeIdentifier } from 'auth/composables/normalize-identifier';
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import { normalizeClientIdentifier } from 'client/composables/client-identifier';
-import { trimmedLocation } from 'territory/composables/location';
+import { isLocationEmpty, trimmedLocation } from 'territory/composables/location';
 import { EMPTY_LOCATION } from 'territory/constants/provinces';
+import type { IFormRule } from 'global/types/form';
 import type { ClientKind, IClient } from 'client/types/client';
 import type { ILocation } from 'territory/types/territory';
 
 import UiAvatar from 'global/components/ui-avatar.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
+import UiDisclosure from 'global/components/ui-disclosure.vue';
 import UiField from 'global/components/ui-field.vue';
+import UiFormBar from 'global/components/ui-form-bar.vue';
+import UiPhoneInput from 'global/components/ui-phone-input.vue';
+import ClientDuplicate from 'client/components/client-duplicate.vue';
 import LocationFields from 'territory/components/location-fields.vue';
 
 // props
@@ -119,6 +113,7 @@ const email = ref('');
 const location = ref<ILocation>({ ...EMPTY_LOCATION });
 const created = ref<IClient | null>(null);
 const clientId = ref(createId());
+const isPlaceOpen = ref(false);
 
 // computed
 const kindOptionsComputed = computed((): { key: ClientKind; label: string }[] => [
@@ -127,23 +122,26 @@ const kindOptionsComputed = computed((): { key: ClientKind; label: string }[] =>
 ]);
 const displayNameComputed = computed((): string => (kind.value === 'company' ? name.value.trim() : `${firstName.value.trim()} ${lastName.value.trim()}`.trim()));
 const normalizedIdentifier = computed((): string | null => normalizeClientIdentifier(kind.value, identifier.value));
-const duplicate = computed((): IClient | undefined => (normalizedIdentifier.value ? clientStore.clientByIdentifier(normalizedIdentifier.value) : undefined));
+const identifierDuplicateComputed = computed((): IClient | undefined => (normalizedIdentifier.value ? clientStore.clientByIdentifier(normalizedIdentifier.value) : undefined));
+/** Families may share a phone: it only warns. */
+const phoneDuplicateComputed = computed((): IClient | undefined => {
+  const normalized = normalizePhone(phone.value);
+  return normalized ? clientStore.clients.find((client) => client.phone === normalized) : undefined;
+});
 const canReceive = computed((): boolean => siteStore.can('reception.create'));
-const isIdentifierInvalid = computed((): boolean => !!identifier.value.trim() && !normalizedIdentifier.value);
 const normalizedEmail = computed((): string | null => (isEmail(email.value) ? normalizeIdentifier(email.value) : null));
-const isEmailInvalid = computed((): boolean => !!email.value.trim() && !normalizedEmail.value);
-const missing = computed((): string[] =>
-  [
-    { isMissing: kind.value === 'company' ? name.value.trim().length <= 2 : !firstName.value.trim() || !lastName.value.trim(), key: 'name' },
-    { isMissing: normalizePhone(phone.value) === null, key: 'phone' },
-    { isMissing: !location.value.province, key: 'province' },
-    { isMissing: !location.value.city.trim(), key: 'city' },
-    { isMissing: !location.value.address.trim(), key: 'address' },
-  ]
-    .filter((item) => item.isMissing)
-    .map((item) => t(`client.quick.missingItems.${item.key}`)),
-);
-const canSave = computed((): boolean => !missing.value.length && !isIdentifierInvalid.value && !isEmailInvalid.value && !clientStore.isSaving);
+const rulesComputed = computed((): IFormRule[] => [
+  ...(kind.value === 'company'
+    ? [{ key: 'companyName', label: t('client.quick.companyName'), isMissing: name.value.trim().length <= 2, isFilled: true }]
+    : [
+        { key: 'firstName', label: t('client.quick.firstName'), isMissing: !firstName.value.trim(), isFilled: true },
+        { key: 'lastName', label: t('client.quick.lastName'), isMissing: !lastName.value.trim(), isFilled: true },
+      ]),
+  { key: 'phone', label: t('client.quick.phoneLabel'), isMissing: !phone.value.trim(), error: phone.value.trim() && !normalizePhone(phone.value) ? t('global.form.phoneInvalid') : null, isFilled: true },
+  { key: 'identifier', label: t(`client.quick.identifier.${kind.value}`), error: identifier.value.trim() && !normalizedIdentifier.value ? t(`client.quick.identifierInvalid.${kind.value}`) : null, isFilled: !!identifier.value.trim() },
+  { key: 'email', label: t('client.quick.email'), error: email.value.trim() && !normalizedEmail.value ? t('global.form.emailInvalid') : null, isFilled: !!email.value.trim() },
+]);
+const { setFormRoot, problemsComputed, isAttempted, errorOf, isValid, touch, jumpTo, attempt, reset: resetFeedback } = useFormFeedback(() => rulesComputed.value);
 
 // methods
 const reset = (): void => {
@@ -156,6 +154,8 @@ const reset = (): void => {
   location.value = { ...EMPTY_LOCATION };
   created.value = null;
   clientId.value = createId();
+  isPlaceOpen.value = false;
+  resetFeedback();
 };
 
 // watchers
@@ -172,9 +172,9 @@ watch(
 );
 
 // event handlers
-const handleSave = async (): Promise<void> => {
+const save = async (): Promise<void> => {
   const normalizedPhone = normalizePhone(phone.value);
-  if (!normalizedPhone || !canSave.value) return;
+  if (!normalizedPhone || clientStore.isSaving) return;
   const client = await clientStore.createClient({
     id: clientId.value,
     kind: kind.value,
@@ -185,12 +185,14 @@ const handleSave = async (): Promise<void> => {
     siteId: siteStore.currentSite?.id ?? '',
     identifier: normalizedIdentifier.value,
     email: normalizedEmail.value,
-    location: trimmedLocation(location.value),
+    location: isLocationEmpty(location.value) ? null : trimmedLocation(location.value),
   });
   if (!client) return;
   created.value = client;
   if (props.returnsOnCreate) handleReceive();
 };
+
+const handleSave = (): void => attempt(save);
 
 const handleReceive = (): void => {
   if (created.value) emit('receive', created.value.id);

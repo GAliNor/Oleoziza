@@ -6,6 +6,13 @@ import type { IExpense } from 'expense/types/expense';
 
 const expense = (categoryId: string, amount: number, overrides: Partial<IExpense> = {}): IExpense => ({
   id: `${categoryId}-${amount}`,
+  seasonId: null,
+  seasonLabel: null,
+  isLocked: false,
+  paymentState: 'paid',
+  dueOn: null,
+  recurringExpenseId: null,
+  frequency: null,
   code: null,
   siteId: 'site',
   date: '2026-11-10',

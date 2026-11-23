@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { lotsInPeriod, siteConsumption, summarizeActivity } from 'client/composables/client-activity';
+import { keepSeasonDates } from 'global/composables/season-dates';
 import type { IClientLotLine, IClientSiteFigures } from 'client/types/client';
 
 const TODAY = '2026-11-04';
@@ -12,6 +13,8 @@ const site = (siteId: string): IClientSiteFigures => ({ siteId, siteName: siteId
 const LOTS = [lot('a', 'oujda', '2026-11-01', 1000, 180), lot('b', 'berkane', '2026-10-05', 3000, 540), lot('c', 'oujda', '2025-12-10', 500, 90), lot('d', 'oujda', '2024-12-10', 500, 90)];
 
 describe('lotsInPeriod', () => {
+  beforeEach(() => keepSeasonDates(['2025-10-01', '2026-10-01'], TODAY));
+
   const codes = (key: Parameters<typeof lotsInPeriod>[1]): string[] => lotsInPeriod(LOTS, key, TODAY).map((line) => line.code);
 
   it('keeps every lot for all time', () => {

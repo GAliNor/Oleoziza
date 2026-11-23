@@ -355,3 +355,65 @@
     transform: none;
   }
 }
+
+/* A value becomes its field and back: both stay in place, one clears while the other settles. */
+.morph-enter-active {
+  transition:
+    opacity 360ms var(--ease-premium),
+    transform 520ms var(--ease-spring),
+    filter 360ms var(--ease-premium);
+}
+
+.morph-leave-active {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  pointer-events: none;
+  transition:
+    opacity 160ms ease-out,
+    filter 160ms ease-out;
+}
+
+.morph-enter-from {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(4px) scale(0.985);
+}
+
+.morph-leave-to {
+  opacity: 0;
+  filter: blur(4px);
+}
+
+/* The field's buttons arrive just after it. */
+.morph-enter-active .morph-after {
+  animation: morph-after 460ms 90ms var(--ease-premium) backwards;
+}
+
+@keyframes morph-after {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--flow, 1) * -10px));
+  }
+}
+
+[dir='rtl'] {
+  --flow: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .morph-enter-active,
+  .morph-leave-active {
+    transition: opacity 120ms linear;
+  }
+
+  .morph-enter-from,
+  .morph-leave-to {
+    filter: none;
+    transform: none;
+  }
+
+  .morph-enter-active .morph-after {
+    animation: none;
+  }
+}

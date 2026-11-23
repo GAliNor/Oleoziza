@@ -20,6 +20,9 @@ class Lot(IdMixin, AuditMixin, OfflineEntryMixin, HumanCodeMixin, Base):
     __table_args__ = (
         CheckConstraint("mode <> 'service_milling' OR (suggested_milling_rate_per_kg IS NOT NULL AND milling_rate_per_kg IS NOT NULL)", name="service_milling_has_rates"),
         CheckConstraint("net_weight_in_kg > 0", name="net_weight_is_positive"),
+        CheckConstraint("(press_line_id IS NULL) = (planned_start_at IS NULL)", name="line_and_start_come_together"),
+        CheckConstraint("status = 'waiting' OR press_line_id IS NOT NULL", name="only_a_waiting_lot_has_no_line"),
+        Index("ix_lots_without_line", "site_id", "entered_at", postgresql_where=text("press_line_id IS NULL")),
     )
 
     site_id: Mapped[UUID] = mapped_column(ForeignKey("sites.id"))
@@ -34,8 +37,8 @@ class Lot(IdMixin, AuditMixin, OfflineEntryMixin, HumanCodeMixin, Base):
     daily_price_per_kg: Mapped[Decimal | None] = mapped_column(MONEY)
     notification_choice: Mapped[NotificationChoice] = mapped_column(build_enum_type(NotificationChoice, "lot_notification_choice"))
     status: Mapped[LotStatus] = mapped_column(build_enum_type(LotStatus, "lot_status"), default=LotStatus.WAITING, server_default=LotStatus.WAITING.value)
-    press_line_id: Mapped[UUID] = mapped_column(ForeignKey("press_lines.id"))
-    planned_start_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    press_line_id: Mapped[UUID | None] = mapped_column(ForeignKey("press_lines.id"))
+    planned_start_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     pressing_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     pressing_started_by_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
     pressing_ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

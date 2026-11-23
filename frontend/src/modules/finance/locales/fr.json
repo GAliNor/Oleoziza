@@ -188,10 +188,12 @@
   "link": {
     "title": "Lier ce paiement à des Lots",
     "save": "Lier",
-    "saved": "Paiement lié aux Lots"
+    "saved": "Paiement lié aux Lots",
+    "missing": "Cochez au moins un lot."
   },
   "settle": {
-    "surplus": "Ce paiement dépasse de {amount} ce que doivent ses Lots. Que faire du surplus ?"
+    "surplus": "Ce paiement dépasse de {amount} ce que doivent ses Lots. Que faire du surplus ?",
+    "missing": "Choisissez quoi faire du surplus."
   },
   "refunds": {
     "empty": "Aucun remboursement.",
@@ -207,7 +209,8 @@
     "confirm": "Confirmer le remboursement",
     "confirmed": "Remboursement confirmé",
     "confirmedBy": "Confirmé par {name}, {date}",
-    "ownRecord": "Vous l’avez enregistré : une autre personne doit le confirmer."
+    "ownRecord": "Vous l’avez enregistré : une autre personne doit le confirmer.",
+    "methodMissing": "Choisissez comment le remboursement est fait."
   },
   "cashDesk": {
     "title": "Caisse",
@@ -260,7 +263,8 @@
       "promisedOn": "Date promise pour payer (facultatif)",
       "save": "Enregistrer la relance",
       "saved": "Relance enregistrée",
-      "error": "La relance n’a pas pu être enregistrée. Réessayez."
+      "error": "La relance n’a pas pu être enregistrée. Réessayez.",
+      "missing": "Écrivez une note ou choisissez une date promise."
     }
   },
   "lotPayments": {

@@ -1,5 +1,5 @@
 <template>
-  <section class="flex flex-col gap-5">
+  <section :ref="setFormRoot" class="flex flex-col gap-5">
     <button type="button" class="btn-secondary min-h-14 self-start" @click="emit('close')">
       <arrow-left-line-icon class="h-5 w-5" />
       {{ backLabel }}
@@ -19,7 +19,7 @@
       <span class="rounded-control bg-action px-3 py-1.5 text-fg-on-action">{{ nextLabel }}</span>
     </div>
 
-    <section v-if="lot.status === 'waiting' && lines.length" class="flex flex-col gap-2">
+    <section v-if="lot.status === 'waiting' && lines.length" class="flex flex-col gap-2" data-field="line">
       <h3 class="label">{{ $t('dashboard.operator.confirm.line') }}</h3>
       <div class="grid gap-2" :class="lines.length > 1 ? 'grid-cols-2' : 'grid-cols-1'">
         <button
@@ -32,34 +32,36 @@
           @click="pressLineId = line.id"
         >
           <span class="font-semibold">{{ formatPressLine(line) }}</span>
-          <span class="body-two">{{ busyOn(line.id) ? $t('dashboard.operator.confirm.lineBusy', { client: busyOn(line.id)?.clientName ?? '' }) : $t('dashboard.operator.confirm.lineFree') }}</span>
+          <span class="text-sm font-normal opacity-80">{{ busyOn(line.id) ? $t('dashboard.operator.confirm.lineBusy', { client: busyOn(line.id)?.clientName ?? '' }) : $t('dashboard.operator.confirm.lineFree') }}</span>
         </button>
       </div>
     </section>
 
-    <label v-if="lot.status === 'pressing'" class="flex flex-col gap-1">
-      <span class="label">{{ $t('dashboard.operator.confirm.oil') }}</span>
-      <input v-model.number="oilLitres" class="input text-display-xs font-semibold" type="number" inputmode="decimal" min="0" />
-    </label>
+    <ui-field v-if="lot.status === 'pressing'" v-slot="{ id, describedBy, isInvalid }" name="oil" :label="$t('dashboard.operator.confirm.oil')" :error="errorOf('oil')" :is-valid="isValid('oil')" @leave="touch('oil')">
+      <input :id="id" v-model.number="oilLitres" class="input text-display-xs font-semibold" type="number" inputmode="decimal" min="0" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
+    </ui-field>
 
-    <oil-split v-if="lot.status === 'pressing' && oilLitres" :key="`${lot.id}-${moveId}`" :lot="lot" :oil-litres="oilLitres" :tanks="tanks" :lots="lotStore.lots" @change="split = $event" />
+    <oil-split data-field="split" v-if="lot.status === 'pressing' && oilLitres" :key="`${lot.id}-${moveId}`" :lot="lot" :oil-litres="oilLitres" :tanks="tanks" :lots="lotStore.lots" @change="split = $event" />
 
     <p v-if="isUnpaidWithdrawal" class="rounded-control bg-warning-subtle p-3 text-center font-medium text-fg-warning" role="status">{{ $t('dashboard.operator.confirm.unpaid') }}</p>
 
     <ui-photo-capture v-model="photo" :label="$t('dashboard.operator.confirm.photo')" />
 
-    <div class="grid grid-cols-2 gap-3">
-      <button type="button" class="btn-secondary min-h-16 text-md" @click="emit('close')">{{ $t('dashboard.operator.confirm.no') }}</button>
-      <button type="button" class="btn-primary min-h-16 text-md" :disabled="isDisabled" @click="handleConfirm">{{ $t('dashboard.operator.confirm.yes') }}</button>
-    </div>
+    <ui-form-bar :problems="problemsComputed" :is-attempted="isAttempted" :is-busy="lotStore.isSaving" :submit-label="$t('dashboard.operator.confirm.yes')" @jump="jumpTo" @submit="handleSubmit">
+      <template #actions>
+        <button type="button" class="btn-secondary min-h-13 flex-1 text-md" @click="emit('close')">{{ $t('dashboard.operator.confirm.no') }}</button>
+      </template>
+    </ui-form-bar>
   </section>
 </template>
 
 <script setup lang="ts">
 // imports
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useLotStore } from 'lot/stores/lot';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { createId } from 'global/composables/crypto';
 import type { AvatarVariant } from 'global/types/avatar';
 import type { ILot, ILotMove, IOilSplit } from 'lot/types/lot';
@@ -70,6 +72,8 @@ import { formatPressLine } from 'configuration/composables/equipment';
 import type { IPressLineSetting, ITankSetting } from 'configuration/types/configuration';
 
 import UiAvatar from 'global/components/ui-avatar.vue';
+import UiField from 'global/components/ui-field.vue';
+import UiFormBar from 'global/components/ui-form-bar.vue';
 import UiPhotoCapture from 'global/components/ui-photo-capture.vue';
 import OilSplit from 'lot/components/oil-split.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';
@@ -84,6 +88,7 @@ const emit = defineEmits<{
 }>();
 
 // stores
+const { t } = useI18n();
 const lotStore = useLotStore();
 
 // variables
@@ -96,7 +101,12 @@ const split = ref<IOilSplit | null>(null);
 // computed
 const isUnpaidWithdrawal = computed((): boolean => props.lot.status === 'pressed' && props.lot.mode === 'service_milling' && ['unpaid', 'partial'].includes(paymentStateOf(props.lot)));
 const isLineMissing = computed((): boolean => props.lot.status === 'waiting' && props.lines.length > 0 && (!pressLineId.value || !!busyOn(pressLineId.value)));
-const isDisabled = computed((): boolean => lotStore.isSaving || (props.lot.status === 'pressing' && (!oilLitres.value || !split.value?.isValid)) || isLineMissing.value);
+const isPressingComputed = computed((): boolean => props.lot.status === 'pressing');
+const { setFormRoot, problemsComputed, isAttempted, errorOf, isValid, touch, jumpTo, attempt, reset } = useFormFeedback(() => [
+  { key: 'line', label: t('dashboard.operator.confirm.line'), isMissing: isLineMissing.value },
+  { key: 'oil', label: t('dashboard.operator.confirm.oil'), isMissing: isPressingComputed.value && !oilLitres.value, isFilled: true },
+  { key: 'split', label: t('lot.split.label'), isMissing: isPressingComputed.value && !!oilLitres.value && !split.value?.isValid },
+]);
 
 // methods
 const busyOn = (lineId: string): ILot | undefined => pressingOn(lotStore.lots, lineId, props.lot.id);
@@ -115,13 +125,13 @@ watch(
     photo.value = null;
     split.value = null;
     moveId.value = createId();
+    reset();
     pickLine();
   },
   { immediate: true },
 );
 
-// event handlers
-const handleConfirm = (): void => {
+const save = (): void => {
   const isPressingEnd = props.lot.status === 'pressing' && split.value;
   emit('confirm', props.lot, {
     id: moveId.value,
@@ -131,4 +141,7 @@ const handleConfirm = (): void => {
     ...(isPressingEnd ? { handedLitres: split.value?.handedLitres, pours: split.value?.pours, plannedUntil: split.value?.plannedUntil } : {}),
   });
 };
+
+// event handlers
+const handleSubmit = (): void => attempt(save);
 </script>

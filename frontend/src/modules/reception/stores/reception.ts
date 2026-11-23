@@ -32,6 +32,7 @@ const toReceptionSettings = (configuration: IConfiguration): ISiteReceptionSetti
   boxCapacityKg: configuration.boxCapacityKg,
   pressLines: configuration.pressLines,
   tanks: configuration.tanks,
+  isSeasonOpen: configuration.seasonStatus === 'open',
 });
 
 export const useReceptionStore = defineStore('reception', {

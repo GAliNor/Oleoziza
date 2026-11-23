@@ -30,16 +30,33 @@ export type ExpensePaidBy = 'cash' | 'cheque' | 'transfer' | 'card';
 
 export type ExpenseStatus = 'recorded' | 'cancelled';
 
+/** Only paid ones count in totals, TVA and the export. */
+export type ExpensePaymentState = 'to_pay' | 'paid';
+
+export type ExpenseFrequency = 'monthly' | 'quarterly' | 'yearly';
+
 export type IExpenseDocument = IPaymentDocument;
 
 export interface IExpense {
   id: string;
+  /** The « N° pièce », given when it is paid. */
   code: string | null;
   siteId: string;
-  date: string;
+  /** The Season its payment counts in; null until it is paid. */
+  seasonId: string | null;
+  seasonLabel: string | null;
+  /** Its Season was closed after its payment: nothing changes any more. */
+  isLocked: boolean;
+  paymentState: ExpensePaymentState;
+  dueOn: string | null;
+  recurringExpenseId: string | null;
+  /** How often it comes back; null once stopped. */
+  frequency: ExpenseFrequency | null;
+  /** Payment date. */
+  date: string | null;
   categoryId: string;
   description: string;
-  amount: number;
+  amount: number | null;
   vatRate: number | null;
   supplierId: string | null;
   supplier: string;
@@ -47,7 +64,7 @@ export interface IExpense {
   supplierIf: string;
   invoiceNumber: string;
   invoiceDate: string | null;
-  paidBy: ExpensePaidBy;
+  paidBy: ExpensePaidBy | null;
   paymentReference: string;
   documents: IExpenseDocument[];
   status: ExpenseStatus;
@@ -64,10 +81,13 @@ export interface IExpense {
 export interface IExpensePayload {
   id: string;
   siteId: string;
-  date: string;
+  paymentState: ExpensePaymentState;
+  dueOn: string | null;
+  frequency: ExpenseFrequency | null;
+  date: string | null;
   categoryId: string;
   description: string;
-  amount: number;
+  amount: number | null;
   vatRate: number | null;
   supplierId: string | null;
   supplier: string;
@@ -75,9 +95,18 @@ export interface IExpensePayload {
   supplierIf: string;
   invoiceNumber: string;
   invoiceDate: string | null;
-  paidBy: ExpensePaidBy;
+  paidBy: ExpensePaidBy | null;
   paymentReference: string;
   documents: IExpenseDocument[];
+}
+
+/** An Expense marked paid; the id is minted when the panel opens, so a retry never pays twice. */
+export interface IExpensePayment {
+  id: string;
+  date: string;
+  amount: number;
+  paidBy: ExpensePaidBy;
+  paymentReference: string;
 }
 
 export type ExpenseWarning = 'cash_over_daily_limit' | 'investment_in_cash' | 'vat_without_invoice' | 'vat_without_ice' | 'vat_never_deductible';
@@ -101,6 +130,8 @@ export interface IExpenseListQuery {
   /** A category (all its sub-categories) or one sub-category. */
   categoryId: string | null;
   search: string;
+  /** Paid in the period, or all that is still to pay. */
+  paymentState: ExpensePaymentState;
 }
 
 export interface IExpenseCategoryTotal {
@@ -120,10 +151,19 @@ export interface IExpenseTypeGroup extends IExpenseCategoryTotal {
   rows: IExpenseSubcategoryTotal[];
 }
 
-export type ExpenseView = 'type' | 'list';
+export type ExpenseView = 'type' | 'due' | 'list';
 
-/** The period's Expenses, cancelled ones left out. */
+/** What is still to pay, whatever the period. */
+export interface IExpenseToPay {
+  count: number;
+  amount: number;
+  lateCount: number;
+  unknownAmountCount: number;
+}
+
+/** The period's paid Expenses, cancelled ones left out, and what is still to pay. */
 export interface IExpenseSummary {
+  toPay: IExpenseToPay;
   total: number;
   operating: number;
   investments: number;
@@ -144,6 +184,11 @@ export interface IExpenseService {
   create(payload: IExpensePayload & { recordedBy: string }): Promise<IExpense>;
   update(id: string, payload: IExpensePayload & { updatedBy: string }): Promise<IExpense>;
   cancel(id: string, cancel: IExpenseCancel): Promise<IExpense>;
+  pay(id: string, payment: IExpensePayment): Promise<IExpense>;
+  unpay(id: string, actionId: string): Promise<IExpense>;
+  delete(id: string): Promise<void>;
+  /** Null when the occurrence it was stopped from is the one removed. */
+  stopRecurrence(id: string, actionId: string): Promise<IExpense | null>;
 }
 
 export interface IExpenseStore {
@@ -160,5 +205,6 @@ export interface IExpenseStore {
   isSummaryLoading: boolean;
   hasSummaryError: boolean;
   isSaving: boolean;
+  saveErrorCode: string | null;
   isExporting: boolean;
 }

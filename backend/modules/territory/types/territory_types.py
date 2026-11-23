@@ -38,6 +38,16 @@ class LocationOut(CamelModel):
     address: str
 
 
+class OptionalLocationIn(CamelModel):
+    """
+    A Location of which any part may be missing, such as a Client's.
+    """
+
+    province: str | None = None
+    city: str = Field(default="", max_length=120)
+    address: str = Field(default="", max_length=255)
+
+
 class LocationIn(CamelModel):
     """
     A Location as typed in the location fields: the Province, town and address are all required.

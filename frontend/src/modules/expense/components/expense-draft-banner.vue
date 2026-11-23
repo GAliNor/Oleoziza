@@ -4,7 +4,7 @@
       <receipt-line-icon class="h-5 w-5" />
     </span>
     <div class="min-w-0 flex-1">
-      <p class="font-medium text-fg-display">{{ $t(draft.mode === 'edit' ? 'expense.draft.titleEdit' : 'expense.draft.title') }}</p>
+      <p class="font-medium text-fg-display">{{ $t('expense.draft.title') }}</p>
       <p class="body-two truncate">{{ summaryComputed }}</p>
     </div>
     <div class="flex shrink-0 gap-2">
@@ -21,6 +21,7 @@ import { useI18n } from 'vue-i18n';
 
 import { formatDateTime } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
+import { expenseTitle } from 'expense/composables/expense-title';
 import type { IExpenseDraft } from 'expense/composables/expense-draft-storage';
 
 import ReceiptLineIcon from 'global/icons/receipt-line.icon.vue';
@@ -37,7 +38,7 @@ const { t } = useI18n();
 // computed
 const summaryComputed = computed((): string => {
   const { payload, savedAt } = props.draft;
-  const what = payload.description.trim() || (payload.categoryId ? t(`expense.categories.${payload.categoryId}`) : t('expense.draft.untitled'));
-  return [what, payload.amount > 0 ? formatMoney(payload.amount) : '', t('expense.draft.keptAt', { at: formatDateTime(savedAt) })].filter(Boolean).join(' · ');
+  const what = expenseTitle(payload);
+  return [what, payload.amount ? formatMoney(payload.amount) : '', t('expense.draft.keptAt', { at: formatDateTime(savedAt) })].filter(Boolean).join(' · ');
 });
 </script>

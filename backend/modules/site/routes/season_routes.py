@@ -2,8 +2,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, File, Query, UploadFile, status
 
+from modules.site.services.season_correction_services import SeasonCorrectionService, get_season_correction_service
+from modules.site.services.season_date_services import SeasonDateService, get_season_date_service
 from modules.site.services.season_services import SeasonService, get_season_service
-from modules.site.types.site_types import SeasonArtVariant, SeasonIllustrationChoiceIn, SeasonOut
+from modules.site.types.site_types import SeasonArtVariant, SeasonDatesIn, SeasonIllustrationChoiceIn, SeasonOut
 
 
 router = APIRouter(prefix="/seasons", tags=["season"])
@@ -54,6 +56,22 @@ def choose_season_illustration(season_id: UUID, choice: SeasonIllustrationChoice
     return season_service.choose_illustration(season_id, choice.season_illustration_id)
 
 
+@router.put("/{season_id}/dates", response_model=SeasonOut)
+def set_season_dates(season_id: UUID, dates: SeasonDatesIn, season_date_service: SeasonDateService = Depends(get_season_date_service)) -> SeasonOut:
+    """
+    Move the first or last day of a prepared or open Season.
+
+    Args:
+        season_id (UUID): Season moved.
+        dates (SeasonDatesIn): Its first and last day.
+        season_date_service (SeasonDateService): Injected season date service.
+
+    Returns:
+        SeasonOut: The Season with its new dates.
+    """
+    return season_date_service.set_dates(season_id, dates)
+
+
 @router.post("/{season_id}/open", response_model=SeasonOut)
 def open_season(season_id: UUID, season_service: SeasonService = Depends(get_season_service)) -> SeasonOut:
     """
@@ -82,6 +100,33 @@ def close_season(season_id: UUID, season_service: SeasonService = Depends(get_se
         SeasonOut: The closed Season.
     """
     return season_service.close_season(season_id)
+
+
+@router.post("/{season_id}/reopen", response_model=SeasonOut)
+def reopen_season(season_id: UUID, season_correction_service: SeasonCorrectionService = Depends(get_season_correction_service)) -> SeasonOut:
+    """
+    Open the latest closed Season again, Owner only.
+
+    Args:
+        season_id (UUID): Closed Season.
+        season_correction_service (SeasonCorrectionService): Injected service.
+
+    Returns:
+        SeasonOut: The Season, open.
+    """
+    return season_correction_service.reopen_season(season_id)
+
+
+@router.delete("/{season_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_season(season_id: UUID, season_correction_service: SeasonCorrectionService = Depends(get_season_correction_service)) -> None:
+    """
+    Delete a Season nothing was recorded in, Owner only.
+
+    Args:
+        season_id (UUID): Season.
+        season_correction_service (SeasonCorrectionService): Injected service.
+    """
+    season_correction_service.delete_season(season_id)
 
 
 @router.put("/{season_id}/illustration", response_model=SeasonOut)

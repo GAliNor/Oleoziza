@@ -3,11 +3,12 @@ from decimal import Decimal
 from uuid import UUID
 
 from fastapi import Depends
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from core.database import get_db
 from core.exceptions import RefusedError
+from core.integrations.rustfs.rustfs_client import RustFSClient, get_rustfs_client
 from core.security import get_current_user
 from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
@@ -17,9 +18,10 @@ from modules.configuration.services.configuration_services import ConfigurationS
 from modules.configuration.types.configuration_types import ConfigurationValueKey
 from modules.finance.business.client_credit import use_open_credit
 from modules.lot.business.box_capacity import check_box_capacity
+from modules.lot.business.lot_photos import build_photo_urls, keep_lot_photo
 from modules.lot.business.lot_views import build_lot_views
 from modules.lot.models.lot_models import BoxOccupancy, Lot
-from modules.lot.types.lot_types import LotMode, LotOut, LotReceiveIn
+from modules.lot.types.lot_types import LotMode, LotOut, LotPhotoStep, LotReceiveIn, LotStatus
 from modules.site.business.code_sequences import give_next_code
 from modules.site.business.season_lookup import get_open_season
 from modules.site.business.site_scope import resolve_site_ids
@@ -32,16 +34,18 @@ LOT_RECEIVED_ACTION = "lot.received"
 
 
 class LotService:
-    def __init__(self, db: Session, current_user: CurrentUser) -> None:
+    def __init__(self, db: Session, current_user: CurrentUser, storage: RustFSClient | None = None) -> None:
         """
-        Keep the session and the User reading or moving Lots.
+        Keep the session, the User reading or moving Lots, and the storage of their photos.
 
         Args:
             db (Session): Request-scoped database session.
             current_user (CurrentUser): Signed-in User.
+            storage (RustFSClient | None): RustFS client, the shared one when omitted.
         """
         self.db = db
         self.current_user = current_user
+        self.storage = storage or get_rustfs_client()
 
     def list_lots(self, site_ids: list[UUID], season_id: UUID | None) -> list[LotOut]:
         """
@@ -81,7 +85,7 @@ class LotService:
 
     def receive_lot(self, payload: LotReceiveIn) -> LotOut:
         """
-        Turn one Reception into a waiting Lot in the Boxes it fills, on a Press Line's queue; a replay of the same id answers the Lot already saved.
+        Turn one Reception into a waiting Lot in the Boxes it fills, on a Press Line's queue or with its Press Line left for later, with its photo; a replay of the same id answers the Lot already saved.
 
         Args:
             payload (LotReceiveIn): The Reception as typed.
@@ -90,7 +94,7 @@ class LotService:
             LotOut: The Lot as saved.
 
         Raises:
-            RefusedError: lots_forbidden, season_not_open, client_not_found, variety_not_found, press_line_not_found, box_not_found, box_taken, box_capacity_short.
+            RefusedError: lots_forbidden, season_not_open, client_not_found, variety_not_found, line_incomplete, press_line_not_found, box_not_found, box_taken, box_capacity_short.
         """
         existing = self.db.get(Lot, payload.id)
         if existing is not None:
@@ -104,7 +108,10 @@ class LotService:
         if self.db.get(Client, payload.client_id) is None:
             raise RefusedError("client_not_found", 404)
         variety_id = self._resolve_variety(payload.variety)
-        self._check_press_line(payload.site_id, payload.press_line_id)
+        if (payload.press_line_id is None) != (payload.planned_start_at is None):
+            raise RefusedError("line_incomplete", 422)
+        if payload.press_line_id is not None:
+            self._check_press_line(payload.site_id, payload.press_line_id)
         boxes = self._take_boxes(payload.site_id, payload.box_numbers)
         if not payload.are_boxes_ignored:
             check_box_capacity(boxes, Decimal(str(payload.net_kg)))
@@ -131,12 +138,53 @@ class LotService:
         )
         self.db.add(lot)
         self.db.flush()
+        if payload.photo_url:
+            keep_lot_photo(self.db, self.storage, lot.id, LotPhotoStep.RECEPTION, payload.photo_url, self.current_user.id, entered_at, payload.recorded_offline)
         self.db.add_all([BoxOccupancy(lot_id=lot.id, box_id=box.id, occupied_from=entered_at, created_by_id=self.current_user.id) for box in boxes])
         if lot.mode == LotMode.SERVICE_MILLING:
             use_open_credit(self.db, lot.client_id, lot.site_id, lot.id, lot.net_weight_in_kg * (lot.milling_rate_per_kg or Decimal(0)), self.current_user.id)
         record_audit_event(self.db, self.current_user.id, LOT_RECEIVED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, after={"code": lot.code, "netKg": payload.net_kg, "boxes": payload.box_numbers, "boxesIgnored": payload.are_boxes_ignored})
         self.db.commit()
         return build_lot_views(self.db, [lot])[0]
+
+    def page_lots_without_line(self, site_ids: list[UUID], offset: int, limit: int) -> tuple[list[LotOut], int]:
+        """
+        Read one page of the open Season's waiting Lots that have no Press Line yet, the oldest first.
+
+        Args:
+            site_ids (list[UUID]): Sites to read, every Site held when none.
+            offset (int): First row.
+            limit (int): Rows per page.
+
+        Returns:
+            tuple[list[LotOut], int]: The page and how many there are.
+
+        Raises:
+            RefusedError: site_not_found, site_forbidden.
+        """
+        scoped_site_ids = resolve_site_ids(self.db, self.current_user, site_ids)
+        season = get_open_season(self.db)
+        if season is None:
+            return [], 0
+        query = select(Lot).where(Lot.site_id.in_(scoped_site_ids), Lot.season_id == season.id, Lot.status == LotStatus.WAITING, Lot.press_line_id.is_(None))
+        total = self.db.scalar(select(func.count()).select_from(query.subquery())) or 0
+        lots = list(self.db.scalars(query.order_by(Lot.entered_at, Lot.id).offset(offset).limit(limit)))
+        return build_lot_views(self.db, lots), total
+
+    def list_photos(self, lot_id: UUID) -> dict[LotPhotoStep, str]:
+        """
+        Sign the URLs of a Lot's photos, read when its timeline opens.
+
+        Args:
+            lot_id (UUID): Lot.
+
+        Returns:
+            dict[LotPhotoStep, str]: URLs by step.
+
+        Raises:
+            RefusedError: lot_not_found, site_forbidden.
+        """
+        return build_photo_urls(self.db, self.storage, self.get_lot_row(lot_id).id)
 
     def get_lot_row(self, lot_id: UUID) -> Lot:
         """
@@ -214,15 +262,16 @@ class LotService:
         return list(boxes)
 
 
-def get_lot_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)) -> LotService:
+def get_lot_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user), storage: RustFSClient = Depends(get_rustfs_client)) -> LotService:
     """
     Build the lot service for one request, bound to the signed-in User.
 
     Args:
         db (Session): Request-scoped database session.
         current_user (CurrentUser): User from the access token.
+        storage (RustFSClient): Shared RustFS client.
 
     Returns:
-        LotService: Service bound to the session and actor.
+        LotService: Service bound to the session, actor and storage.
     """
-    return LotService(db, current_user)
+    return LotService(db, current_user, storage)

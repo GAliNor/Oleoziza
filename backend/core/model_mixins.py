@@ -118,6 +118,18 @@ class LocationMixin:
     longitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
 
 
+class OptionalLocationMixin:
+    """
+    Adds an optional place in the Oriental: any of Province, city and address may be missing.
+    """
+
+    province_id: Mapped[str | None] = mapped_column(ForeignKey("provinces.id"))
+    city: Mapped[str | None] = mapped_column(String(NAME_LENGTH))
+    address: Mapped[str | None] = mapped_column(String(ADDRESS_LENGTH))
+    latitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
+    longitude: Mapped[Decimal | None] = mapped_column(COORDINATE)
+
+
 class RetiredMixin:
     """
     Adds retired_at, set when equipment leaves service instead of being deleted.

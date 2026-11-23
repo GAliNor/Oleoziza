@@ -1,7 +1,7 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import { ALL_SITES } from 'site/constants/site';
 import ExpenseMockService from 'expense/services/expense.mock';
-import type { IExpense, IExpenseCancel, IExpenseCategory, IExpenseListQuery, IExpensePayload, IExpenseService, IExpenseSummary, ISupplier } from 'expense/types/expense';
+import type { IExpense, IExpenseCancel, IExpenseCategory, IExpenseListQuery, IExpensePayload, IExpensePayment, IExpenseService, IExpenseSummary, ISupplier } from 'expense/types/expense';
 import type { IPage, IPageQuery } from 'global/types/page';
 import type { IPeriodRange, PeriodKey } from 'global/types/period';
 
@@ -19,7 +19,7 @@ class ExpenseApiService extends BaseService implements IExpenseService {
     return this.request<IPage<IExpense>>({
       method: 'GET',
       url: `${this._BASE_API_URL}/expenses`,
-      params: { ...siteParams(query.siteId), period: query.period, category: query.categoryId ?? undefined, search: query.search || undefined, offset: page.offset, limit: page.limit },
+      params: { ...siteParams(query.siteId), period: query.period, category: query.categoryId ?? undefined, search: query.search || undefined, paymentState: query.paymentState, offset: page.offset, limit: page.limit },
     });
   }
 
@@ -49,6 +49,22 @@ class ExpenseApiService extends BaseService implements IExpenseService {
 
   update(id: string, payload: IExpensePayload & { updatedBy: string }): Promise<IExpense> {
     return this.request<IExpense>({ method: 'PUT', url: `${this._BASE_API_URL}/expenses/${id}`, data: payload });
+  }
+
+  pay(id: string, payment: IExpensePayment): Promise<IExpense> {
+    return this.request<IExpense>({ method: 'POST', url: `${this._BASE_API_URL}/expenses/${id}/pay`, data: payment, headers: { 'Idempotency-Key': payment.id } });
+  }
+
+  unpay(id: string, actionId: string): Promise<IExpense> {
+    return this.request<IExpense>({ method: 'POST', url: `${this._BASE_API_URL}/expenses/${id}/unpay`, data: { id: actionId }, headers: { 'Idempotency-Key': actionId } });
+  }
+
+  delete(id: string): Promise<void> {
+    return this.request<void>({ method: 'DELETE', url: `${this._BASE_API_URL}/expenses/${id}` });
+  }
+
+  stopRecurrence(id: string, actionId: string): Promise<IExpense | null> {
+    return this.request<IExpense | null>({ method: 'POST', url: `${this._BASE_API_URL}/expenses/${id}/stop-recurrence`, data: { id: actionId }, headers: { 'Idempotency-Key': actionId } });
   }
 
   cancel(id: string, cancel: IExpenseCancel): Promise<IExpense> {

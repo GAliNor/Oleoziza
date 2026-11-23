@@ -1,6 +1,8 @@
 import { mockReject, mockResolve } from 'global/services/mock';
+import { slicePage } from 'global/composables/page';
 import { LOTS_MOCK } from 'lot/constants/mock-lots';
 import { MOVEMENTS_MOCK } from 'finance/constants/mock-movements';
+import type { IPage, IPageQuery } from 'global/types/page';
 import type { IMovement, MovementStatus } from 'finance/types/finance';
 import { LOT_STATUSES } from 'lot/constants/lot';
 import { ALL_SITES } from 'site/constants/site';
@@ -38,6 +40,15 @@ export default class LotMockService implements ILotService {
     return mockResolve(siteId === ALL_SITES ? LOTS_MOCK_DB : LOTS_MOCK_DB.filter((lot) => lot.siteId === siteId));
   }
 
+  getWithoutLine(siteId: string, page: IPageQuery): Promise<IPage<ILot>> {
+    const lots = LOTS_MOCK_DB.filter((lot) => (siteId === ALL_SITES || lot.siteId === siteId) && lot.status === 'waiting' && !lot.pressLineId).sort((first, second) => first.receivedAt.localeCompare(second.receivedAt));
+    return mockResolve(slicePage(lots, page));
+  }
+
+  getPhotos(lotId: string): Promise<ILot['stepPhotos']> {
+    return mockResolve({ ...LOTS_MOCK_DB.find((lot) => lot.id === lotId)?.stepPhotos });
+  }
+
   moveLot(lotId: string, move: ILotMovePayload): Promise<ILot> {
     const lot = LOTS_MOCK_DB.find((candidate) => candidate.id === lotId);
     if (!lot) return mockReject(new Error('lot_not_found'));
@@ -57,7 +68,7 @@ export default class LotMockService implements ILotService {
     }
     appliedMoves.add(move.id);
     const at = new Date().toISOString();
-    if (next === 'pressing') lot.pressLineId = lineId;
+    if (next === 'pressing') Object.assign(lot, { pressLineId: lineId, plannedStartAt: lot.plannedStartAt ?? at });
     lot.status = next;
     lot.moves.push({ status: next, at, by: move.by });
     if (move.oilLitres) lot.oilLitres = move.oilLitres;

@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia';
 
 import UserService from 'user/services/user';
-import { withStatus } from 'global/composables/with-status';
+import { logDevError, withStatus } from 'global/composables/with-status';
 import { cachedLoad, LOAD_TTL_MS } from 'global/composables/cached-load';
 import type { LoginMethod } from 'auth/types/auth';
-import type { Permission, UserTitle } from 'global/types/session';
-import type { ILocation } from 'territory/types/territory';
-import type { IStaffForm, IStaffUser, IUserStore, StaffStatus } from 'user/types/user';
+import type { Permission } from 'global/types/session';
+import type { IContactCheck, IContactHolders, IStaffForm, IStaffProfile, IStaffSecret, IStaffUser, IUserStore, StaffRole, StaffStatus } from 'user/types/user';
 
 const userService = new UserService();
 
@@ -16,6 +15,7 @@ export const useUserStore = defineStore('user', {
     isLoading: false,
     isSaving: false,
     hasError: false,
+    saveErrorCode: null,
   }),
   getters: {
     findUser:
@@ -54,11 +54,26 @@ export const useUserStore = defineStore('user', {
     async setStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<boolean> {
       return this.apply(() => userService.updateStatus(id, status));
     },
-    async setTitle(id: string, title: UserTitle | null): Promise<boolean> {
-      return this.apply(() => userService.updateTitle(id, title));
+    async updateProfile(id: string, profile: IStaffProfile): Promise<boolean> {
+      return this.apply(() => userService.updateProfile(id, profile));
     },
-    async setLocation(id: string, location: ILocation | null): Promise<boolean> {
-      return this.apply(() => userService.updateLocation(id, location));
+    async setRole(id: string, role: StaffRole): Promise<boolean> {
+      return this.apply(() => userService.updateRole(id, role));
+    },
+    async setSecret(id: string, secret: IStaffSecret): Promise<boolean> {
+      return this.apply(() => userService.updateSecret(id, secret));
+    },
+    async setOwnership(id: string, isOwner: boolean): Promise<boolean> {
+      return this.apply(() => userService.updateOwnership(id, isOwner));
+    },
+    /** Asked while a contact is typed; a failure says nothing, the save still refuses it. */
+    async checkContacts(contact: IContactCheck): Promise<IContactHolders> {
+      try {
+        return await userService.checkContacts(contact);
+      } catch (error) {
+        logDevError(error);
+        return { phoneTakenBy: null, emailTakenBy: null };
+      }
     },
     async sendInvitation(id: string): Promise<boolean> {
       return this.apply(() => userService.sendInvitation(id));
@@ -74,7 +89,7 @@ export const useUserStore = defineStore('user', {
       return true;
     },
     run<T>(request: () => Promise<T>): Promise<T | null> {
-      return withStatus(this, 'isSaving', request, { errorFlag: 'hasError' });
+      return withStatus(this, 'isSaving', request, { errorCode: 'saveErrorCode' });
     },
   },
 });

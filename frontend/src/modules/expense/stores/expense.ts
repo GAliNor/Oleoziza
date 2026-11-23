@@ -3,10 +3,10 @@ import { defineStore } from 'pinia';
 import ExpenseService from 'expense/services/expense';
 import { useSessionStore } from 'global/stores/session';
 import { withStatus } from 'global/composables/with-status';
-import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
+import { cachedLoad, invalidateLoads, LOAD_TTL_MS, slotLoad } from 'global/composables/cached-load';
 import { emptyPageList, loadPage, replaceOnPage } from 'global/composables/paged-list';
 import { groupCategories } from 'expense/composables/expense-amounts';
-import type { IExpense, IExpenseCategoryGroup, IExpenseListQuery, IExpensePayload, IExpenseStore, ISupplier } from 'expense/types/expense';
+import type { IExpense, IExpenseCategoryGroup, IExpenseListQuery, IExpensePayload, IExpensePayment, IExpenseStore, ISupplier } from 'expense/types/expense';
 import type { IPeriodRange, PeriodKey } from 'global/types/period';
 
 const expenseService = new ExpenseService();
@@ -30,6 +30,7 @@ export const useExpenseStore = defineStore('expense', {
     isSummaryLoading: false,
     hasSummaryError: false,
     isSaving: false,
+    saveErrorCode: null,
     isExporting: false,
   }),
   getters: {
@@ -63,10 +64,15 @@ export const useExpenseStore = defineStore('expense', {
         this,
         'isSummaryLoading',
         () =>
-          cachedLoad(`expense-summary:${siteId}:${period}`, LOAD_TTL_MS.records, async () => {
-            const summary = await expenseService.getSummary(siteId, period);
-            if (this.summaryQuery?.siteId === siteId && this.summaryQuery.period === period) this.summary = summary;
-          }),
+          slotLoad(
+            'expense-summary',
+            `${siteId}:${period}`,
+            LOAD_TTL_MS.records,
+            () => expenseService.getSummary(siteId, period),
+            (summary) => {
+              this.summary = summary;
+            },
+          ),
         { errorFlag: 'hasSummaryError' },
       );
     },
@@ -87,28 +93,59 @@ export const useExpenseStore = defineStore('expense', {
     /** The rows and totals again, after an Expense was added, changed or cancelled. */
     async refresh(): Promise<void> {
       invalidateLoads('expense-summary:');
+      invalidateLoads('tasks:');
       await Promise.all([this.list.query ? this.fetchPage(this.list.query, this.list.page, true) : Promise.resolve(), this.summaryQuery ? this.fetchSummary(this.summaryQuery.siteId, this.summaryQuery.period) : Promise.resolve()]);
     },
     async create(payload: IExpensePayload): Promise<IExpense | null> {
-      const expense = await withStatus(this, 'isSaving', () => expenseService.create({ ...plainPayload(payload), recordedBy: useSessionStore().fullName }));
+      const expense = await this.run(() => expenseService.create({ ...plainPayload(payload), recordedBy: useSessionStore().fullName }));
       if (!expense) return null;
       this.current = expense;
       await this.refresh();
       return expense;
     },
-    async update(id: string, payload: IExpensePayload): Promise<IExpense | null> {
-      const expense = await withStatus(this, 'isSaving', () => expenseService.update(id, { ...plainPayload(payload), updatedBy: useSessionStore().fullName }));
+    update(id: string, payload: IExpensePayload): Promise<IExpense | null> {
+      return this.change(() => expenseService.update(id, { ...plainPayload(payload), updatedBy: useSessionStore().fullName }));
+    },
+    cancel(expense: IExpense, reason: string): Promise<IExpense | null> {
+      return this.change(() => expenseService.cancel(expense.id, { reason, by: useSessionStore().fullName }));
+    },
+    pay(id: string, payment: IExpensePayment): Promise<IExpense | null> {
+      return this.change(() => expenseService.pay(id, { ...payment }));
+    },
+    unpay(id: string, actionId: string): Promise<IExpense | null> {
+      return this.change(() => expenseService.unpay(id, actionId));
+    },
+    /** Only while it is to pay: no money moved. */
+    async delete(id: string): Promise<boolean> {
+      const isDeleted = await this.run(async () => {
+        await expenseService.delete(id);
+        return true;
+      });
+      if (!isDeleted) return false;
+      if (this.current?.id === id) this.current = null;
+      await this.refresh();
+      return true;
+    },
+    /** True once stopped; the occurrence it was stopped from may be the one removed. */
+    async stopRecurrence(id: string, actionId: string): Promise<boolean> {
+      const answer = await this.run(async () => ({ expense: await expenseService.stopRecurrence(id, actionId) }));
+      if (!answer) return false;
+      if (answer.expense) this.replaceExpense(answer.expense);
+      else if (this.current?.id === id) this.current = null;
+      await this.refresh();
+      return true;
+    },
+    /** Puts the answer in place, then reads the page and the totals it changed. */
+    async change(task: () => Promise<IExpense>): Promise<IExpense | null> {
+      const expense = await this.run(task);
       if (!expense) return null;
       this.replaceExpense(expense);
       await this.refresh();
       return expense;
     },
-    async cancel(expense: IExpense, reason: string): Promise<IExpense | null> {
-      const cancelled = await withStatus(this, 'isSaving', () => expenseService.cancel(expense.id, { reason, by: useSessionStore().fullName }));
-      if (!cancelled) return null;
-      this.replaceExpense(cancelled);
-      await this.refresh();
-      return cancelled;
+    /** Keeps why a change was refused, for the form or the property to say. */
+    run<T>(task: () => Promise<T>): Promise<T | null> {
+      return withStatus(this, 'isSaving', task, { errorCode: 'saveErrorCode' });
     },
   },
 });

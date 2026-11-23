@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from core.database import get_db
 from core.integrations.celery.celery_publisher import publish_task
 from core.exceptions import RefusedError
+from core.integrations.rustfs.rustfs_client import RustFSClient, get_rustfs_client
 from core.security import get_current_user
 from core.types import CurrentUser
 from modules.audit.business.audit_events import record_audit_event
@@ -16,10 +17,11 @@ from modules.audit.models.audit_models import AuditEvent
 from modules.client.models.client_models import Client
 from modules.configuration.models.configuration_models import PressLine, Tank
 from modules.lot.business.lot_notifications import build_pressed_notification
+from modules.lot.business.lot_photos import keep_lot_photo
 from modules.lot.business.lot_views import build_lot_views
 from modules.lot.models.lot_models import BoxOccupancy, Lot, Notification
 from modules.lot.services.lot_services import LotService
-from modules.lot.types.lot_types import SEND_LOT_NOTIFICATION_TASK, LotMode, LotMoveIn, LotOut, LotScheduleIn, LotStatus, NotificationStatus, TankPourIn
+from modules.lot.types.lot_types import SEND_LOT_NOTIFICATION_TASK, LotMode, LotMoveIn, LotOut, LotPhotoStep, LotScheduleIn, LotStatus, NotificationStatus, TankPourIn
 from modules.oil.business.tank_fill import get_storage_remainders, get_tank_fills
 from modules.oil.models.oil_models import Storage, StorageDraw, Withdrawal, WithdrawalLine
 from modules.oil.types.oil_types import StorageDrawReason, StorageOwner, WithdrawalKind
@@ -33,19 +35,23 @@ LOT_MOVED_ACTION = "lot.moved"
 
 LOT_SCHEDULED_ACTION = "lot.scheduled"
 
+PHOTO_STEP_AFTER = {LotStatus.WAITING: LotPhotoStep.PRESSING_STARTED, LotStatus.PRESSING: LotPhotoStep.PRESSED, LotStatus.PRESSED: LotPhotoStep.WITHDRAWAL}
+
 
 class LotMoveService:
-    def __init__(self, db: Session, current_user: CurrentUser) -> None:
+    def __init__(self, db: Session, current_user: CurrentUser, storage: RustFSClient) -> None:
         """
-        Keep the session and the Operator moving Lots along their statuses.
+        Keep the session, the Operator moving Lots along their statuses, and the storage of their photos.
 
         Args:
             db (Session): Request-scoped database session.
             current_user (CurrentUser): Signed-in User.
+            storage (RustFSClient): RustFS client.
         """
         self.db = db
         self.current_user = current_user
-        self.lots = LotService(db, current_user)
+        self.storage = storage
+        self.lots = LotService(db, current_user, storage)
         self.queued_notifications: list[Notification] = []
 
     def move_lot(self, lot_id: UUID, payload: LotMoveIn) -> LotOut:
@@ -77,6 +83,8 @@ class LotMoveService:
             self._withdraw_rest(lot, now)
         else:
             raise RefusedError("lot_already_withdrawn")
+        if payload.photo_url:
+            keep_lot_photo(self.db, self.storage, lot.id, PHOTO_STEP_AFTER[before], payload.photo_url, self.current_user.id, now, payload.recorded_offline)
         self.db.flush()
         record_audit_event(self.db, self.current_user.id, LOT_MOVED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, before={"status": before.value}, after={"status": lot.status.value}, event_id=payload.id)
         self.db.commit()
@@ -86,7 +94,7 @@ class LotMoveService:
 
     def schedule_lot(self, lot_id: UUID, payload: LotScheduleIn) -> LotOut:
         """
-        Move a waiting Lot to another Press Line or planned start; a replay answers the Lot as it is.
+        Give a waiting Lot its Press Line, or move it to another one or another planned start; a replay answers the Lot as it is.
 
         Args:
             lot_id (UUID): Lot to plan.
@@ -108,7 +116,7 @@ class LotMoveService:
         line = self.db.get(PressLine, payload.press_line_id)
         if line is None or line.site_id != lot.site_id or line.retired_at is not None:
             raise RefusedError("press_line_not_found", 422)
-        before = {"pressLineId": str(lot.press_line_id), "plannedStartAt": lot.planned_start_at.isoformat()}
+        before = {"pressLineId": str(lot.press_line_id) if lot.press_line_id else None, "plannedStartAt": lot.planned_start_at.isoformat() if lot.planned_start_at else None}
         lot.press_line_id = line.id
         lot.planned_start_at = payload.planned_start_at
         record_audit_event(self.db, self.current_user.id, LOT_SCHEDULED_ACTION, site_id=lot.site_id, entity_type="lot", entity_id=lot.id, before=before, after={"pressLineId": str(line.id), "plannedStartAt": payload.planned_start_at.isoformat()}, event_id=payload.id)
@@ -134,6 +142,7 @@ class LotMoveService:
         if self.db.scalar(select(Lot.id).where(Lot.press_line_id == line.id, Lot.status == LotStatus.PRESSING, Lot.id != lot.id).limit(1)):
             raise RefusedError("line_busy")
         lot.press_line_id = line.id
+        lot.planned_start_at = lot.planned_start_at or now
         lot.status = LotStatus.PRESSING
         lot.pressing_started_at = now
         lot.pressing_started_by_id = self.current_user.id
@@ -262,15 +271,16 @@ class LotMoveService:
         if notification.status == NotificationStatus.QUEUED:
             self.queued_notifications.append(notification)
 
-def get_lot_move_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user)) -> LotMoveService:
+def get_lot_move_service(db: Session = Depends(get_db), current_user: CurrentUser = Depends(get_current_user), storage: RustFSClient = Depends(get_rustfs_client)) -> LotMoveService:
     """
     Build the lot move service for one request, bound to the signed-in User.
 
     Args:
         db (Session): Request-scoped database session.
         current_user (CurrentUser): User from the access token.
+        storage (RustFSClient): Shared RustFS client.
 
     Returns:
-        LotMoveService: Service bound to the session and actor.
+        LotMoveService: Service bound to the session, actor and storage.
     """
-    return LotMoveService(db, current_user)
+    return LotMoveService(db, current_user, storage)

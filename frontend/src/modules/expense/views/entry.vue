@@ -19,10 +19,10 @@
       <ui-master-detail :is-open="isPaneOpenComputed" :back-label="backLabelComputed" @close="handleBack">
         <template #list>
           <expense-draft-banner v-if="savedDraft && canManage" :draft="savedDraft" @resume="handleResumeDraft" @discard="handleDiscardDraft" />
-          <div v-if="!expenseStore.summary" class="grid grid-cols-1 gap-3 @xl:grid-cols-3">
-            <div v-for="index in 3" :key="index" class="skeleton h-28 rounded-card" />
+          <div v-if="!expenseStore.summary" class="grid grid-cols-2 gap-3 @3xl:grid-cols-4">
+            <div v-for="index in 4" :key="index" class="skeleton h-28 rounded-card" />
           </div>
-          <expense-tiles v-else class="rise" :summary="expenseStore.summary" :period-label="period.label" />
+          <expense-tiles v-else class="rise transition-opacity duration-200" :class="{ 'opacity-50': expenseStore.isSummaryLoading }" :aria-busy="expenseStore.isSummaryLoading" :summary="expenseStore.summary" :period-label="period.label" />
           <div class="flex min-w-0 flex-col-reverse items-start gap-3 @2xl:flex-row @2xl:items-center">
             <ui-segmented :model-value="view" :options="viewOptionsComputed" :label="$t('expense.view.label')" @update:model-value="selectView" />
             <div class="ms-auto flex flex-wrap gap-2 whitespace-nowrap">
@@ -30,14 +30,15 @@
               <button v-if="canManage" type="button" class="btn-primary" @click="handleNew">{{ $t('expense.actions.new') }}</button>
             </div>
           </div>
-          <expense-by-type v-if="view === 'type'" :summary="expenseStore.summary" :focus-id="focusId" @select="openType" />
+          <expense-by-type v-if="view === 'type'" class="transition-opacity duration-200" :class="{ 'opacity-50': expenseStore.isSummaryLoading }" :summary="expenseStore.summary" :focus-id="focusId" @select="openType" />
           <template v-else>
             <div class="flex min-w-0 flex-col gap-2 @xl:flex-row @xl:items-center">
               <input v-model="search" class="input min-w-0 @xl:flex-1 @4xl:max-w-sm" type="search" :placeholder="$t('expense.register.search')" />
               <expense-type-filter class="@xl:w-60 @xl:shrink-0" :model-value="categoryId" @update:model-value="selectCategory" />
             </div>
-            <expense-type-total v-if="categoryId && expenseStore.summary" :summary="expenseStore.summary" :category-id="categoryId" :parent-id="focusId" @back="selectView('type')" />
-            <expense-register :list="expenseStore.list" :categories="expenseStore.categories" :selected-id="lastOpenedId" @open="handleOpen" @page="selectPage" />
+            <expense-type-total v-if="view === 'list' && categoryId && expenseStore.summary" :summary="expenseStore.summary" :category-id="categoryId" :parent-id="focusId" @back="selectView('type')" />
+            <expense-due-list v-if="view === 'due'" :list="expenseStore.list" :categories="expenseStore.categories" :selected-id="lastOpenedId" @open="handleOpen" @page="selectPage" />
+            <expense-register v-else :list="expenseStore.list" :categories="expenseStore.categories" :selected-id="lastOpenedId" @open="handleOpen" @page="selectPage" />
           </template>
         </template>
         <template v-if="isPaneOpenComputed" #detail>
@@ -51,7 +52,7 @@
             @close="handleBack"
             @saved="handleSaved"
           />
-          <expense-detail v-else-if="openExpense" :key="openExpense.id" :expense="openExpense" :can-manage="canManage" @edit="handleEdit(openExpense)" @duplicate="handleDuplicate(openExpense)" />
+          <expense-detail v-else-if="openExpense" :key="openExpense.id" :expense="openExpense" :can-manage="canManage" @deleted="handleBack" @duplicate="handleDuplicate(openExpense)" />
           <div v-else class="skeleton h-80 rounded-card" />
         </template>
       </ui-master-detail>
@@ -69,6 +70,7 @@ import { useSiteStore } from 'site/stores/site';
 import { useSessionStore } from 'global/stores/session';
 import { useToastStore } from 'global/stores/toast';
 import { useExpensePage } from 'expense/composables/use-expense-page';
+import { useTasks } from 'task/composables/use-tasks';
 import { useSiteScope } from 'site/composables/use-site-scope';
 import { clearExpenseDraft, readExpenseDraft, type IExpenseDraft } from 'expense/composables/expense-draft-storage';
 import type { ExpenseFormMode } from 'expense/composables/expense-draft';
@@ -79,6 +81,7 @@ import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
 import ExpenseByType from 'expense/components/expense-by-type.vue';
+import ExpenseDueList from 'expense/components/expense-due-list.vue';
 import ExpenseDetail from 'expense/components/expense-detail.vue';
 import ExpenseDraftBanner from 'expense/components/expense-draft-banner.vue';
 import ExpenseExport from 'expense/components/expense-export.vue';
@@ -95,6 +98,7 @@ const siteStore = useSiteStore();
 const sessionStore = useSessionStore();
 const toastStore = useToastStore();
 const { scopeName } = useSiteScope();
+const { load: loadTasks } = useTasks();
 const { view, selectView, openType, focusId, period, periodOptions, selectPeriod, search, categoryId, selectCategory, selectPage, openId, openExpense, open, close, isReadOnly, canManage, reload } = useExpensePage();
 
 // variables
@@ -106,9 +110,11 @@ let formKey = 0;
 
 // computed
 const isPaneOpenComputed = computed((): boolean => Boolean(form.value) || Boolean(openId.value));
+const dueCountComputed = computed((): number => expenseStore.summary?.toPay.count ?? 0);
 const viewOptionsComputed = computed((): { key: ExpenseView; label: string }[] => [
   { key: 'type', label: t('expense.view.byType') },
-  { key: 'list', label: t('expense.view.all') },
+  { key: 'due', label: dueCountComputed.value ? t('expense.view.dueCount', { count: dueCountComputed.value }) : t('expense.view.due') },
+  { key: 'list', label: t('expense.view.paid') },
 ]);
 const backLabelComputed = computed((): string => t(form.value?.source ? 'expense.form.backToExpense' : 'expense.register.back'));
 
@@ -147,6 +153,13 @@ const resumeDraft = async (draft: IExpenseDraft): Promise<void> => {
 
 // watchers
 watch(() => siteStore.currentSiteId, readDraft, { immediate: true });
+/** What is to pay is also what the shell's badges count. */
+watch(
+  () => expenseStore.summary?.toPay,
+  () => {
+    if (siteStore.can('expense.record')) loadTasks();
+  },
+);
 watch(form, (current) => {
   if (!current) readDraft();
 });
@@ -167,8 +180,6 @@ const handleDiscardDraft = (): void => {
   savedDraft.value = null;
   toastStore.push(t('expense.draft.discarded'), 'success');
 };
-
-const handleEdit = (expense: IExpense): void => openForm('edit', expense);
 
 const handleDuplicate = (expense: IExpense): void => openForm('duplicate', expense);
 

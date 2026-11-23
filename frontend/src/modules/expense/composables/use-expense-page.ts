@@ -2,6 +2,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useExpenseStore } from 'expense/stores/expense';
+import { useSeasonStore } from 'season/stores/season';
 import { useSiteStore } from 'site/stores/site';
 import { usePeriod } from 'global/composables/use-period';
 import { DEFAULT_PERIOD } from 'global/constants/period';
@@ -17,12 +18,13 @@ const queryNumber = (value: unknown): number => {
   return Number.isInteger(number) && number > 0 ? number : 1;
 };
 
-/** The Charges page: view, period, type, page and open Expense kept in the URL; « Par type » reads only the summary, « Toutes les charges » each page from the server when it is shown. */
+/** The Charges page: view, period, type, page and open Expense kept in the URL; « Par type » reads only the summary, « À payer » and « Payées » each page from the server when it is shown. */
 export const useExpensePage = () => {
   // stores
   const route = useRoute();
   const router = useRouter();
   const expenseStore = useExpenseStore();
+  const seasonStore = useSeasonStore();
   const siteStore = useSiteStore();
   const { period, periodOptions } = usePeriod();
 
@@ -33,7 +35,7 @@ export const useExpensePage = () => {
 
   // computed
   const categoryId = computed((): string | null => (typeof route.query.category === 'string' && expenseStore.categories.some((item) => item.id === route.query.category) ? route.query.category : null));
-  const view = computed((): ExpenseView => (route.query.view === 'list' ? 'list' : 'type'));
+  const view = computed((): ExpenseView => (route.query.view === 'list' || route.query.view === 'due' ? route.query.view : 'type'));
   const focusId = computed((): string | null => (categoryId.value ? categoryIdOf(expenseStore.categories, categoryId.value) : null));
   const page = computed((): number => queryNumber(route.query.page));
   const openId = computed((): string | null => (typeof route.query.expense === 'string' ? route.query.expense : null));
@@ -45,32 +47,33 @@ export const useExpensePage = () => {
   const canManage = computed((): boolean => !isReadOnly.value && siteStore.can('expense.record'));
 
   // methods
-  const setQuery = (patch: Record<string, string | undefined>): void => {
-    router.replace({ query: { ...route.query, ...patch } });
+  const setQuery = async (patch: Record<string, string | undefined>): Promise<void> => {
+    await router.replace({ query: { ...route.query, ...patch } });
   };
 
-  const selectCategory = (id: string | null): void => setQuery({ category: id ?? undefined, page: undefined, expense: undefined });
+  const selectCategory = (id: string | null): Promise<void> => setQuery({ category: id ?? undefined, page: undefined, expense: undefined });
 
-  /** « Toutes les charges » keeps the type in view; « Par type » shows every category again. */
-  const selectView = (next: ExpenseView): void => setQuery({ view: next === 'list' ? 'list' : undefined, category: next === 'list' ? (categoryId.value ?? undefined) : undefined, page: undefined, expense: undefined });
+  /** The lists keep the type in view; « Par type » shows every category again. */
+  const selectView = (next: ExpenseView): Promise<void> => setQuery({ view: next === 'type' ? undefined : next, category: next === 'type' ? undefined : (categoryId.value ?? undefined), page: undefined, expense: undefined });
 
   /** A tap on a total opens the Expenses behind it; none clears the « Par type » focus. */
-  const openType = (id: string | null): void => setQuery({ view: id ? 'list' : undefined, category: id ?? undefined, page: undefined, expense: undefined });
+  const openType = (id: string | null): Promise<void> => setQuery({ view: id ? 'list' : undefined, category: id ?? undefined, page: undefined, expense: undefined });
 
-  const selectPeriod = (key: PeriodKey): void => setQuery({ period: key === DEFAULT_PERIOD ? undefined : key, page: undefined, expense: undefined });
+  const selectPeriod = (key: PeriodKey): Promise<void> => setQuery({ period: key === DEFAULT_PERIOD ? undefined : key, page: undefined, expense: undefined });
 
-  const selectPage = (number: number): void => setQuery({ page: number > 1 ? String(number) : undefined });
+  const selectPage = (number: number): Promise<void> => setQuery({ page: number > 1 ? String(number) : undefined });
 
-  const open = (id: string): void => setQuery({ expense: id });
+  const open = (id: string): Promise<void> => setQuery({ expense: id });
 
-  const close = (): void => setQuery({ expense: undefined });
+  const close = (): Promise<void> => setQuery({ expense: undefined });
 
   const load = (isForced = false): void => {
     const siteId = siteStore.currentSiteId;
     if (!siteId) return;
     expenseStore.fetchCategories();
+    seasonStore.fetchSeasons();
     expenseStore.fetchSummary(siteId, period.value.key);
-    if (view.value === 'list') expenseStore.fetchPage({ siteId, period: period.value.key, categoryId: categoryId.value, search: searched.value }, page.value, isForced);
+    if (view.value !== 'type') expenseStore.fetchPage({ siteId, period: period.value.key, categoryId: categoryId.value, search: searched.value, paymentState: view.value === 'due' ? 'to_pay' : 'paid' }, page.value, isForced);
   };
 
   // watchers

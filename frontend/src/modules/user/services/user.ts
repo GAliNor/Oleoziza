@@ -1,9 +1,8 @@
 import BaseService, { isMockModule } from 'global/services/base';
 import UserMockService from 'user/services/user.mock';
 import type { LoginMethod } from 'auth/types/auth';
-import type { Permission, UserTitle } from 'global/types/session';
-import type { ILocation } from 'territory/types/territory';
-import type { IStaffForm, IStaffUser, IUserService, StaffStatus } from 'user/types/user';
+import type { Permission } from 'global/types/session';
+import type { IContactCheck, IContactHolders, IStaffForm, IStaffProfile, IStaffSecret, IStaffUser, IUserService, StaffRole, StaffStatus } from 'user/types/user';
 
 class UserApiService extends BaseService implements IUserService {
   private _BASE_API_URL = import.meta.env.VITE_APP_API_BASE_URL + '/user';
@@ -27,17 +26,28 @@ class UserApiService extends BaseService implements IUserService {
     return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/login-methods`, data: { loginMethods } });
   }
 
-  /** Not served by the backend yet: the route comes with the user location work. */
-  updateLocation(id: string, location: ILocation | null): Promise<IStaffUser> {
-    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/location`, data: { location } });
-  }
-
   updateStatus(id: string, status: Exclude<StaffStatus, 'invited'>): Promise<IStaffUser> {
     return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/status`, data: { status } });
   }
 
-  updateTitle(id: string, title: UserTitle | null): Promise<IStaffUser> {
-    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/title`, data: { title } });
+  updateProfile(id: string, profile: IStaffProfile): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/profile`, data: profile });
+  }
+
+  updateRole(id: string, role: StaffRole): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/role`, data: { role } });
+  }
+
+  updateSecret(id: string, secret: IStaffSecret): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/secret`, data: secret });
+  }
+
+  updateOwnership(id: string, isOwner: boolean): Promise<IStaffUser> {
+    return this.request<IStaffUser>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/ownership`, data: { isOwner } });
+  }
+
+  checkContacts(contact: IContactCheck): Promise<IContactHolders> {
+    return this.request<IContactHolders>({ method: 'GET', url: `${this._BASE_API_URL}/contact-check`, params: { ...contact } });
   }
 
   sendInvitation(id: string): Promise<IStaffUser> {

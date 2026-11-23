@@ -13,13 +13,18 @@
       @keydown.up.prevent="handleOpenAt(options.length - 1)"
     >
       <span class="site-pill-mark"><map-pin-line-icon class="h-4 w-4" /></span>
-      <span class="min-w-0 truncate font-semibold text-fg-display">{{ currentLabel }}</span>
-      <span v-if="currentCity" class="hidden shrink-0 text-fg-secondary-paragraph lg:inline">{{ currentCity }}</span>
+      <span class="min-w-0 text-start">
+        <span class="block truncate leading-5 font-semibold text-fg-display">{{ currentLabel }}</span>
+        <season-scope-line />
+      </span>
       <chevron-up-down-line-icon class="h-4 w-4 shrink-0 text-fg-muted transition-colors group-hover:text-fg-secondary-paragraph" />
     </button>
     <span v-else class="site-pill cursor-default">
       <span class="site-pill-mark"><map-pin-line-icon class="h-4 w-4" /></span>
-      <span class="min-w-0 truncate font-semibold text-fg-display">{{ currentLabel }}</span>
+      <span class="min-w-0">
+        <span class="block truncate leading-5 font-semibold text-fg-display">{{ currentLabel }}</span>
+        <season-scope-line />
+      </span>
     </span>
 
     <Transition name="site-menu">
@@ -60,6 +65,7 @@ import { useI18n } from 'vue-i18n';
 import { useSiteStore } from 'site/stores/site';
 import { ALL_SITES } from 'site/constants/site';
 
+import SeasonScopeLine from 'season/components/season-scope-line.vue';
 import CheckLineIcon from 'global/icons/check-line.icon.vue';
 import ChevronUpDownLineIcon from 'global/icons/chevron-up-down-line.icon.vue';
 import MapPinLineIcon from 'global/icons/map-pin-line.icon.vue';
@@ -83,7 +89,6 @@ const isOpen = ref(false);
 // computed
 const hasChoice = computed((): boolean => siteStore.accessibleSites.length > 1);
 const currentLabel = computed((): string => (siteStore.isAllSites ? t('global.site.all') : (siteStore.currentSite?.name ?? '')));
-const currentCity = computed((): string => (siteStore.isAllSites ? '' : (siteStore.currentSite?.city ?? '')));
 const options = computed((): ISiteOption[] => [
   ...siteStore.accessibleSites.map((site) => ({ id: site.id, name: site.name, detail: site.city, mark: initialsOf(site.name) })),
   ...(siteStore.canSelectAll ? [{ id: ALL_SITES, name: t('global.site.all'), detail: t('global.site.allDetail', { count: siteStore.accessibleSites.length }), mark: String(siteStore.accessibleSites.length) }] : []),

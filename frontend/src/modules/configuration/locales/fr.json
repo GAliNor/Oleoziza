@@ -7,8 +7,6 @@
   "retry": "Réessayer",
   "saveError": "La modification a échoué, réessayez.",
   "saved": "Configuration enregistrée",
-  "edit": "Modifier",
-  "save": "Enregistrer",
   "cancel": "Annuler",
   "units": {
     "perKg": "DH/kg",
@@ -38,15 +36,8 @@
     "lastOne": "Il faut garder au moins un mode actif."
   },
   "history": {
-    "title": "Historique ({count})",
-    "empty": "Aucune modification",
-    "line": "{by} · {date}",
-    "methodOn": "Actif",
-    "methodOff": "Coupé",
-    "proofOn": "justificatif obligatoire",
-    "proofOff": "justificatif facultatif"
+    "title": "Historique ({count})"
   },
-  "equipmentTitle": "Box, malaxeurs et cuves",
   "boxes": {
     "title": "Box",
     "hint": "Les contenants où l’on vide les sacs d’un Client pour suivre son Lot jusqu’au pressage.",
@@ -54,36 +45,32 @@
     "capacity": "Capacité d’un Box (kg)",
     "summary": "{count} Box · {capacity} chacun",
     "inUse": "Le Box {number} contient des olives : gardez au moins {number} Box.",
-    "invalid": "Entre 1 et 500 Box, de 50 à 5 000 kg chacun."
+    "invalid": "De 0 à 500 Box, de 50 à 5 000 kg chacun.",
+    "none": "Aucun Box",
+    "of": "Box de",
+    "size": "Nombre et capacité"
   },
   "tanks": {
     "title": "Cuves",
-    "hint": "Les cuves qui gardent l’huile stockée ; chacune ne prend qu’une variété, fixée par le premier versement.",
     "label": "Cuve {number}",
     "capacity": "Capacité de la cuve {number}",
     "summary": "{count} cuve · {total} | {count} cuve · {total} | {count} cuves · {total}",
     "inUse": "Contient de l’huile : ne peut pas être retirée",
     "inUseShort": "occupée",
-    "lockedNote": "{count} cuve contient de l’huile et ne peut pas être retirée. | {count} cuve contient de l’huile et ne peut pas être retirée. | {count} cuves contiennent de l’huile et ne peuvent pas être retirées.",
     "remove": "Retirer la cuve {number}",
     "add": "Ajouter une cuve",
-    "invalid": "Chaque cuve tient entre 100 et 200 000 L.",
-    "saveError": "Enregistrement impossible : une cuve retirée contient de l’huile, ou le réseau a coupé."
+    "invalid": "Chaque cuve tient entre 100 et 200 000 L."
   },
   "pressLines": {
     "title": "Malaxeurs",
-    "hint": "Chaque malaxeur presse un Lot à la fois ; chaque Lot est planifié sur un malaxeur.",
     "label": "Malaxeur {number}",
     "name": "Nom du malaxeur {number}",
     "namePlaceholder": "Nom (facultatif)",
     "summary": "{count} malaxeur | {count} malaxeur | {count} malaxeurs",
     "inUse": "Un Lot y est planifié ou en pressage : ne peut pas être retiré",
     "inUseShort": "occupé",
-    "lockedNote": "{count} malaxeur a un Lot planifié et ne peut pas être retiré. | {count} malaxeur a un Lot planifié et ne peut pas être retiré. | {count} malaxeurs ont un Lot planifié et ne peuvent pas être retirés.",
     "remove": "Retirer le malaxeur {number}",
-    "add": "Ajouter un malaxeur",
-    "invalid": "Gardez au moins un malaxeur.",
-    "saveError": "Enregistrement impossible : un malaxeur retiré a un Lot planifié, ou le réseau a coupé."
+    "add": "Ajouter un malaxeur"
   },
   "season": {
     "tabsLabel": "Saisons",
@@ -91,41 +78,54 @@
     "prepareSubmit": "Préparer {label}",
     "prepared": "{label} préparée : ses prix reprennent ceux de la saison en cours.",
     "open": "Ouvrir cette saison",
-    "openConfirm": "Confirmer : {current} sera clôturée",
-    "openConfirmAlone": "Confirmer l’ouverture",
-    "opened": "{label} est ouverte.",
     "close": "Clôturer la saison",
-    "closeConfirm": "Confirmer la clôture",
-    "closed": "{label} est clôturée.",
     "noSeason": "Aucune saison pour l’instant. Préparez la première.",
     "readOnlyClosed": "Saison clôturée : ses prix se consultent, ils ne changent plus.",
     "art": {
       "change": "Changer l’illustration",
       "chosen": "Illustration changée.",
       "chooseError": "Changement impossible, réessayez."
-    }
-  },
-  "agenda": {
-    "title": "Agenda des prix",
-    "legend": "Rayé : programmé, pas encore en vigueur",
-    "schedule": "Programmer un changement",
-    "newPrice": "Nouveau prix",
-    "from": "À partir du",
-    "submit": "Enregistrer",
-    "saved": "Prix enregistré.",
-    "scheduled": "Changement programmé.",
-    "today": "Aujourd’hui",
-    "segment": "{value} depuis le {date}",
-    "by": "par {name}",
-    "scheduledInfo": "Programmé : {value} à partir du {date}",
-    "cancelChange": "Annuler ce changement",
-    "cancelConfirm": "Confirmer l’annulation",
-    "cancelled": "Changement annulé.",
-    "dateRange": "Choisissez une date entre le {min} et le {max}."
+    },
+    "status": "Statut",
+    "dates": "Dates",
+    "reopen": "Rouvrir la saison",
+    "reopenDone": "{label} est rouverte.",
+    "delete": "Supprimer la saison",
+    "deleteDone": "{label} est supprimée.",
+    "openDone": "{label} est ouverte.",
+    "closeDone": "{label} est clôturée.",
+    "ask": {
+      "delete": "Supprimer la {label} ?",
+      "close": "Clôturer la {label} ?",
+      "open": "Ouvrir la {label} ?",
+      "reopen": "Rouvrir la {label} ?"
+    },
+    "consequences": {
+      "deletePrices": "La {label} et ses prix, sur tous les Sites, sont effacés pour de bon.",
+      "deleteStops": "Plus aucune saison n’est ouverte : la réception et l’encaissement s’arrêtent jusqu’à la prochaine ouverture.",
+      "deleteRefused": "Si elle contient un Lot, un paiement ou une charge, la suppression est refusée et rien n’est perdu.",
+      "deleteKeeps": "Malaxeurs, cuves, Box, modes de paiement, Clients et Utilisateurs restent tels quels.",
+      "closeStops": "La réception et l’encaissement s’arrêtent jusqu’à l’ouverture d’une saison.",
+      "closeLocks": "Ses prix ne changent plus, et les charges payées avant aujourd’hui sont verrouillées.",
+      "closeReopen": "Un propriétaire peut la rouvrir tant qu’aucune autre n’est ouverte.",
+      "openCloses": "La {current} est clôturée au même moment.",
+      "openReceives": "Les réceptions et les paiements suivants comptent dans la {label}.",
+      "openPrices": "Ses prix s’appliquent aux réceptions suivantes ; les Lots déjà reçus gardent le leur.",
+      "reopenReceives": "Les réceptions et les paiements reprennent dans la {label}.",
+      "reopenUnlocks": "Les charges verrouillées à sa clôture peuvent de nouveau changer.",
+      "reopenKeeps": "Ses Lots et ses prix reviennent tels quels."
+    },
+    "startsOn": "Premier jour",
+    "endsOn": "Dernier jour",
+    "datesHint": "Les périodes « Saison » et les charges payées autour du premier jour suivent ; les Lots et leur code restent.",
+    "datesClosed": "Saison clôturée : ses dates ne changent plus.",
+    "datesDone": "Dates de la {label} changées.",
+    "sectionTitle": "Statut et dates",
+    "backToSettings": "Retour à la configuration"
   },
   "site": {
-    "title": "Réglages du moulin",
-    "hint": "Ce qui ne change pas avec la saison : modes de paiement, Box, malaxeurs et cuves."
+    "hint": "Ces réglages ne changent pas avec la saison.",
+    "title": "Réglages du Site"
   },
   "notifications": {
     "title": "Notifications aux clients",
@@ -143,5 +143,30 @@
     "notImplemented": "Bientôt",
     "noneEnabled": "Aucun canal activé : la réception ne demande pas comment prévenir le client.",
     "readOnly": "Seul le propriétaire, ou qui gère la configuration de tous les sites, change les canaux."
+  },
+  "price": {
+    "title": "Prix",
+    "now": "dès maintenant",
+    "fromStart": "dès le premier jour",
+    "since": "depuis le {date}",
+    "default": "valeur de départ",
+    "inForce": "en vigueur",
+    "scheduled": "à venir",
+    "delete": "Supprimer",
+    "deleteConfirm": "Confirmer",
+    "deleted": "Prix supprimé : {value} s’applique.",
+    "noSeason": "Préparez une saison pour fixer ses prix.",
+    "hint": {
+      "open": "Touchez un prix pour le changer : il s’applique aux réceptions suivantes.",
+      "planned": "{label} est préparée : ces prix s’appliqueront dès son premier jour.",
+      "closed": "Saison clôturée : ses prix se consultent, ils ne changent plus."
+    },
+    "change": "Changer"
+  },
+  "equipment": {
+    "remove": "Retirer",
+    "removeConfirm": "Confirmer",
+    "removed": "{name} retiré.",
+    "retired": "{name} n’est plus en service."
   }
 }

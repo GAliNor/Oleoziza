@@ -9,6 +9,8 @@ export interface ISiteReceptionSettings {
   boxCapacityKg: number;
   pressLines: IPressLineSetting[];
   tanks: ITankSetting[];
+  /** Without an open Season nothing can be received. */
+  isSeasonOpen: boolean;
 }
 
 export interface IReceiveLotPayload {
@@ -23,8 +25,9 @@ export interface IReceiveLotPayload {
   isContactMissing: boolean;
   boxNumbers: number[];
   areBoxesIgnored: boolean;
-  pressLineId: string;
-  plannedStartAt: string;
+  /** Both null when the Press Line is left for later. */
+  pressLineId: string | null;
+  plannedStartAt: string | null;
   photoUrl?: string;
   receivedBy: string;
 }

@@ -9,6 +9,8 @@ dependencies = [
     "boto3==1.43.123",
     "celery[redis]==5.6.2",
     "fastapi==0.162.0",
+    "pillow==13.0.0",
+    "pillow-heif==1.8.1",
     "psycopg2-binary==2.9.13",
     "pwdlib[argon2,bcrypt]==0.3.1",
     "pydantic-settings==2.16.2",
@@ -34,14 +36,14 @@ testpaths = ["tests"]
 pythonpath = ["."]
 
 [tool.importlinter]
-root_packages = ["core", "modules", "seeds"]
+root_packages = ["core", "modules", "seeds", "resets"]
 include_external_packages = true
 
 [[tool.importlinter.contracts]]
 name = "core never imports a business module"
 type = "forbidden"
 source_modules = ["core"]
-forbidden_modules = ["modules", "seeds"]
+forbidden_modules = ["modules", "seeds", "resets"]
 
 [[tool.importlinter.contracts]]
 name = "types are the bottom layer"

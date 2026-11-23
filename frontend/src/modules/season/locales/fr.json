@@ -12,5 +12,23 @@
     "none": "Aucune : le dessin",
     "empty": "Aucune illustration disponible pour l’instant : la bannière garde son dessin.",
     "loadError": "Impossible de charger les illustrations."
+  },
+  "scope": {
+    "open": "{season}",
+    "notOpened": "{season} pas encore ouverte",
+    "offSeason": "Hors saison · {season} clôturée",
+    "none": "Aucune saison"
+  },
+  "noSeason": {
+    "title": "Aucune saison n’est ouverte",
+    "manage": {
+      "reception": "Ouvrez la saison pour recevoir des olives.",
+      "payment": "Ouvrez la saison pour encaisser."
+    },
+    "ask": {
+      "reception": "Demandez à la Direction d’ouvrir la saison : rien ne peut être reçu avant.",
+      "payment": "Demandez à la Direction d’ouvrir la saison : aucun paiement ne peut être saisi avant."
+    },
+    "open": "Ouvrir la saison"
   }
 }

@@ -64,7 +64,4 @@ class UserSeed:
     status: UserStatus = UserStatus.ACTIVE
     is_owner: bool = False
     must_change_credential: bool = False
-    province_id: str | None = None
-    city: str | None = None
-    address: str | None = None
     permissions_by_site: dict[str, tuple[Permission, ...]] = field(default_factory=dict)

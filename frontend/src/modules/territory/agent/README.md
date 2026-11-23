@@ -1,7 +1,7 @@
 # Territory
 
 ## Business
-The 8 [Provinces](../../../../../GLOSSARY.md) of the Oriental and their main towns, where Clients, Sites and staff are located: the location fields (province tiles, town chips, address) and the province map.
+The 8 [Provinces](../../../../../GLOSSARY.md) of the Oriental and their main towns, where Clients and Sites are located: the location fields (province tiles, town chips, address) and the province map.
 
 ## Exposes
 - Store `useTerritoryStore`: `provinces`, `findProvince(id)`, `shapes` (the map's SVG paths), `fetchProvinces()` (once per session through `cachedLoad`; the browser also keeps the answer a day).

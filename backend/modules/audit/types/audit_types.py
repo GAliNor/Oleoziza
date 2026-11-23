@@ -25,10 +25,12 @@ class ActivityKind(StrEnum):
     """
 
     RECEPTION = "reception"
+    SCHEDULED = "scheduled"
     PRESSING = "pressing"
     PRESSED = "pressed"
     WITHDRAWAL = "withdrawal"
     STORED = "stored"
+    RATE_CORRECTED = "rate_corrected"
     DISCOUNT_GIVEN = "discount_given"
     DISCOUNT_PENDING = "discount_pending"
     DISCOUNT_APPROVED = "discount_approved"
@@ -40,18 +42,25 @@ class ActivityKind(StrEnum):
     REFUND_MADE = "refund_made"
     REFUND_CONFIRMED = "refund_confirmed"
     EXPENSE_RECORDED = "expense_recorded"
+    EXPENSE_PLANNED = "expense_planned"
+    EXPENSE_PAID = "expense_paid"
+    EXPENSE_UNPAID = "expense_unpaid"
     EXPENSE_UPDATED = "expense_updated"
     EXPENSE_CANCELLED = "expense_cancelled"
+    EXPENSE_DELETED = "expense_deleted"
+    EXPENSE_RECURRENCE_STOPPED = "expense_recurrence_stopped"
     DEBT_CONTACT = "debt_contact"
     CONFIGURATION = "configuration"
 
 
 GROUP_BY_KIND: dict[ActivityKind, ActivityGroup] = {
     ActivityKind.RECEPTION: ActivityGroup.PRODUCTION,
+    ActivityKind.SCHEDULED: ActivityGroup.PRODUCTION,
     ActivityKind.PRESSING: ActivityGroup.PRODUCTION,
     ActivityKind.PRESSED: ActivityGroup.PRODUCTION,
     ActivityKind.WITHDRAWAL: ActivityGroup.PRODUCTION,
     ActivityKind.STORED: ActivityGroup.STORAGE,
+    ActivityKind.RATE_CORRECTED: ActivityGroup.DISCOUNT,
     ActivityKind.DISCOUNT_GIVEN: ActivityGroup.DISCOUNT,
     ActivityKind.DISCOUNT_PENDING: ActivityGroup.DISCOUNT,
     ActivityKind.DISCOUNT_APPROVED: ActivityGroup.DISCOUNT,
@@ -63,8 +72,13 @@ GROUP_BY_KIND: dict[ActivityKind, ActivityGroup] = {
     ActivityKind.REFUND_MADE: ActivityGroup.PAYMENT,
     ActivityKind.REFUND_CONFIRMED: ActivityGroup.PAYMENT,
     ActivityKind.EXPENSE_RECORDED: ActivityGroup.EXPENSE,
+    ActivityKind.EXPENSE_PLANNED: ActivityGroup.EXPENSE,
+    ActivityKind.EXPENSE_PAID: ActivityGroup.EXPENSE,
+    ActivityKind.EXPENSE_UNPAID: ActivityGroup.EXPENSE,
     ActivityKind.EXPENSE_UPDATED: ActivityGroup.EXPENSE,
     ActivityKind.EXPENSE_CANCELLED: ActivityGroup.EXPENSE,
+    ActivityKind.EXPENSE_DELETED: ActivityGroup.EXPENSE,
+    ActivityKind.EXPENSE_RECURRENCE_STOPPED: ActivityGroup.EXPENSE,
     ActivityKind.DEBT_CONTACT: ActivityGroup.FOLLOW,
     ActivityKind.CONFIGURATION: ActivityGroup.CONFIGURATION,
 }

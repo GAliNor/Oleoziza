@@ -6,6 +6,15 @@
       focus:shadow-[0_0_0_4px] focus:shadow-primary-olive-light/70 focus:outline-none disabled:opacity-60;
   }
 
+  .input[aria-invalid='true'] {
+    @apply border-danger focus:border-danger;
+  }
+
+  /* Where « Save » or a chip of the form bar led: the field glows once. */
+  .field-flash {
+    animation: field-flash 1.2s var(--ease-premium);
+  }
+
   .form-error {
     @apply text-sm text-fg-danger;
   }
@@ -17,5 +26,47 @@
 
   .toggle-tile-active {
     @apply border-brand bg-action text-fg-on-action hover:border-brand;
+  }
+}
+
+@keyframes field-flash {
+  0%,
+  60% {
+    border-radius: var(--radius-control);
+    box-shadow: 0 0 0 6px --alpha(var(--color-accent-gold) / 45%);
+  }
+}
+
+.field-message-enter-active,
+.field-message-leave-active {
+  transition:
+    opacity 0.22s var(--ease-premium),
+    transform 0.22s var(--ease-premium);
+}
+
+.field-message-enter-from,
+.field-message-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.tick-enter-active {
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.tick-enter-from {
+  transform: scale(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field-flash {
+    animation: none;
+    outline: 2px solid var(--color-accent-gold);
+  }
+
+  .field-message-enter-active,
+  .field-message-leave-active,
+  .tick-enter-active {
+    transition: none;
   }
 }

@@ -17,3 +17,4 @@ The [Audit Trail](../../../../GLOSSARY.md): one [Audit Event](../../../../GLOSSA
 - Snapshots (`before`/`after`) are the one place JSON columns are allowed.
 - Model: AuditEvent.
 - The Journal maps actions to kinds in `business/journal_feed.py`: a new action a module records shows in the Journal only once it is mapped there.
+- Configuration changes are told as old → new by `business/configuration_story.py`: never a raw key, and older events without a `before` still read well.

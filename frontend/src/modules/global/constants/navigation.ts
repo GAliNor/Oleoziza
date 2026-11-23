@@ -23,7 +23,7 @@ export const NAV_ITEMS: INavItem[] = [
   { name: 'cash-desk', labelKey: 'global.nav.cashDesk', icon: WalletLineIcon, permission: 'payment.record', roles: ['accountant'] },
   { name: 'debt-follow-up', labelKey: 'global.nav.debts', icon: PhoneLineIcon, permission: 'debt.follow', roles: ['accountant'] },
   { name: 'activity', labelKey: 'global.nav.activity', shortLabelKey: 'global.nav.activityShort', icon: HistoryLineIcon, permission: 'audit_trail.view' },
-  { name: 'task', labelKey: 'global.nav.tasks', icon: InboxLineIcon, permission: ['discount.approve', 'payment.confirm', 'refund.manage', 'user.manage'] },
+  { name: 'task', labelKey: 'global.nav.tasks', icon: InboxLineIcon, permission: ['discount.approve', 'payment.confirm', 'refund.manage', 'expense.record', 'user.manage'] },
   { name: 'lot', labelKey: 'global.nav.operations', icon: ScaleLineIcon, permission: ['record.correct', 'audit_trail.view'] },
   { name: 'finance', labelKey: 'global.nav.finances', icon: CoinsLineIcon, permission: 'finance.view' },
   { name: 'expense', labelKey: 'global.nav.expenses', icon: ReceiptLineIcon, permission: ['expense.record', 'finance.view'] },

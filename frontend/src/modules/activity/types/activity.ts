@@ -6,10 +6,12 @@ export type ActivityGroup = 'production' | 'storage' | 'discount' | 'payment' | 
 
 export type ActivityKind =
   | 'reception'
+  | 'scheduled'
   | 'pressing'
   | 'pressed'
   | 'withdrawal'
   | 'stored'
+  | 'rate_corrected'
   | 'discount_given'
   | 'discount_pending'
   | 'discount_approved'
@@ -21,8 +23,13 @@ export type ActivityKind =
   | 'refund_made'
   | 'refund_confirmed'
   | 'expense_recorded'
+  | 'expense_planned'
+  | 'expense_paid'
+  | 'expense_unpaid'
   | 'expense_updated'
   | 'expense_cancelled'
+  | 'expense_deleted'
+  | 'expense_recurrence_stopped'
   | 'debt_contact'
   | 'configuration';
 

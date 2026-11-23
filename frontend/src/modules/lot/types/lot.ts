@@ -1,3 +1,5 @@
+import type { IPage, IPageQuery, IPagedList } from 'global/types/page';
+
 export type ReceptionMode = 'service_milling' | 'purchase';
 export type LotStatus = 'waiting' | 'pressing' | 'pressed' | 'withdrawn';
 
@@ -105,7 +107,10 @@ export interface ILot {
   pendingDh: number;
   creditDh: number;
   moves: ILotMoveRecord[];
+  /** Photos held on this device: just taken, or already read. */
   stepPhotos: Partial<Record<LotStepKey, string>>;
+  /** Steps with a stored photo, read when the timeline opens. */
+  photoSteps?: LotStepKey[];
   receivedAt: string;
   receivedBy: string;
   isPendingSync: boolean;
@@ -166,12 +171,22 @@ export interface ILotService {
   giveDiscount(lotId: string, gift: IDiscountGift & { by: string }): Promise<ILot>;
   scheduleLot(lotId: string, schedule: ILotSchedule): Promise<ILot>;
   correctRate(lotId: string, correction: IRateCorrection & { by: string }): Promise<ILot>;
+  /** One page of a Site's waiting Lots without a Press Line, the oldest first. */
+  getWithoutLine(siteId: string, page: IPageQuery): Promise<IPage<ILot>>;
+  getPhotos(lotId: string): Promise<ILot['stepPhotos']>;
+}
+
+export interface IWithoutLineQuery {
+  siteId: string;
 }
 
 export interface ILotStore {
   lots: ILot[];
+  withoutLine: IPagedList<ILot, IWithoutLineQuery>;
+  photosByLot: Record<string, ILot['stepPhotos']>;
   loadedSiteId: string | null;
   isLoading: boolean;
   isSaving: boolean;
+  isLoadingPhotos: boolean;
   hasError: boolean;
 }

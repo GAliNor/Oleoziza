@@ -11,3 +11,4 @@ Money between the mill and its [Clients](../../../../../GLOSSARY.md): the Financ
 ## Rules and gotchas
 - « Impayés » lists the open Season's Lots with an amount due, oldest first, whatever the page's period.
 - The quick payment reads the Client's oil stock and credit from the client store; when the Client isn't loaded both read 0, so a payment in oil is blocked.
+- Forms use `useFormFeedback`; `payment-form` and `direct-payment-form` show `no-open-season` instead of the form when no Season is open. A picked Payment Proof is shrunk like every photo (`readFiles`).

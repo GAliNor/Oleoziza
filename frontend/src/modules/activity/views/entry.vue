@@ -63,7 +63,7 @@
           <template v-else>
             <TransitionGroup tag="ol" name="row-in" class="card divide-y divide-default overflow-hidden p-0 transition-opacity duration-200" :class="{ 'opacity-50': isFilterLoading }">
               <li v-for="event in activityStore.items" :key="event.id">
-                <activity-row :event="event" :tanks="tanks" />
+                <activity-row :event="event" />
               </li>
             </TransitionGroup>
             <ui-load-more :shown="activityStore.items.length" :total="activityStore.total" :is-loading="activityStore.isLoadingMore" @more="activityStore.fetchMore()" />
@@ -82,7 +82,6 @@ import { useI18n } from 'vue-i18n';
 import { useActivityStore } from 'activity/stores/activity';
 import { useSiteStore } from 'site/stores/site';
 import { useSiteScope } from 'site/composables/use-site-scope';
-import { useSiteEquipment } from 'configuration/composables/use-site-equipment';
 import { ACTIVITY_GROUPS } from 'activity/composables/activity-feed';
 import { MONEY_ACTIVITY_GROUPS } from 'activity/constants/activity';
 import { todayIso } from 'global/composables/date';
@@ -103,7 +102,6 @@ const { t } = useI18n();
 const activityStore = useActivityStore();
 const siteStore = useSiteStore();
 const { scopeName } = useSiteScope();
-const { tanks } = useSiteEquipment(() => siteStore.currentSiteId);
 
 // variables
 const ALL = 'all';

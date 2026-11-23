@@ -6,10 +6,14 @@ from modules.finance.services.discount_services import DiscountService, get_disc
 from modules.finance.services.rate_correction_services import RateCorrectionService, get_rate_correction_service
 from modules.lot.services.lot_move_services import LotMoveService, get_lot_move_service
 from modules.lot.services.lot_services import LotService, get_lot_service
-from modules.lot.types.lot_types import DiscountDecisionIn, DiscountGiftIn, LotMoveIn, LotOut, LotReceiveIn, LotScheduleIn, RateCorrectionIn
+from modules.lot.types.lot_types import DiscountDecisionIn, DiscountGiftIn, LotMoveIn, LotOut, LotPageOut, LotPhotoStep, LotReceiveIn, LotScheduleIn, RateCorrectionIn
 
 
 router = APIRouter(prefix="/lots", tags=["lot"])
+
+PAGE_SIZE = 25
+
+MAX_PAGE_SIZE = 100
 
 
 @router.get("", response_model=list[LotOut])
@@ -45,6 +49,44 @@ def receive_lot(payload: LotReceiveIn, lot_service: LotService = Depends(get_lot
         LotOut: The Lot as saved.
     """
     return lot_service.receive_lot(payload)
+
+
+@router.get("/without-line", response_model=LotPageOut)
+def page_lots_without_line(
+    site_ids: list[UUID] = Query(default=[], alias="siteId"),
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE),
+    lot_service: LotService = Depends(get_lot_service),
+) -> LotPageOut:
+    """
+    Read one page of the waiting Lots without a Press Line, oldest first; declared before /{lot_id} so the path is not read as a Lot.
+
+    Args:
+        site_ids (list[UUID]): Repeated siteId.
+        offset (int): First row.
+        limit (int): Rows per page.
+        lot_service (LotService): Injected lot service.
+
+    Returns:
+        LotPageOut: The page and how many there are.
+    """
+    items, total = lot_service.page_lots_without_line(site_ids, offset, limit)
+    return LotPageOut(items=items, total=total)
+
+
+@router.get("/{lot_id}/photos", response_model=dict[LotPhotoStep, str])
+def list_photos(lot_id: UUID, lot_service: LotService = Depends(get_lot_service)) -> dict[LotPhotoStep, str]:
+    """
+    Read the signed URLs of a Lot's photos.
+
+    Args:
+        lot_id (UUID): Lot.
+        lot_service (LotService): Injected lot service.
+
+    Returns:
+        dict[LotPhotoStep, str]: URLs by step.
+    """
+    return lot_service.list_photos(lot_id)
 
 
 @router.get("/{lot_id}", response_model=LotOut)

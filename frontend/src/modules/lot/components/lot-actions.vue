@@ -14,7 +14,7 @@
     <template v-else>
       <h3 class="label">{{ $t('lot.actions.title') }}</h3>
       <lot-schedule-form v-if="isScheduling" :key="lot.id" :lot="lot" :lines="pressLines" @close="isScheduling = false" />
-      <button v-else-if="canSchedule" type="button" class="btn-secondary min-h-12" @click="isScheduling = true">{{ $t('lot.schedule.open') }}</button>
+      <button v-else-if="canSchedule" type="button" class="btn-secondary min-h-12" @click="isScheduling = true">{{ $t(lot.pressLineId ? 'lot.schedule.open' : 'lot.schedule.assign') }}</button>
       <button v-if="canMove" type="button" class="press min-h-12 w-full rounded-control px-4 font-semibold" :class="LOT_MOVE_TONES[lot.status]" @click="isMoving = true">
         {{ $t(`lot.move.${lot.status}`) }}
       </button>

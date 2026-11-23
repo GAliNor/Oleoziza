@@ -2,8 +2,9 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
+from pydantic import Field
+
 from core.types import CamelModel
-from modules.territory.types.territory_types import LocationOut
 
 
 class Role(StrEnum):
@@ -127,7 +128,6 @@ class StaffUserOut(CamelModel):
     last_name: str
     phone: str | None
     email: str | None
-    location: LocationOut | None
     login_methods: list[LoginMethod]
     status: UserStatus
     sites: dict[str, list[Permission]]
@@ -142,7 +142,6 @@ class StaffUserCreateIn(CamelModel):
     last_name: str
     phone: str | None = None
     email: str | None = None
-    location: LocationOut | None = None
     sites: dict[UUID, list[Permission]]
     is_invited: bool
     first_secret: str | None = None
@@ -160,5 +159,38 @@ class StatusIn(CamelModel):
     status: StaffStatusChange
 
 
-class TitleIn(CamelModel):
-    title: Title | None
+class StaffProfileIn(CamelModel):
+    """
+    Who a staff User is: civility, names, and a phone or an email.
+    """
+
+    title: Title | None = None
+    first_name: str = Field(max_length=120)
+    last_name: str = Field(max_length=120)
+    phone: str | None = None
+    email: str | None = None
+
+
+class RoleIn(CamelModel):
+    """
+    The Role an Owner gives a staff User.
+    """
+
+    role: StaffRole
+
+
+class OwnershipIn(CamelModel):
+    """
+    Whether a Management User is an Owner.
+    """
+
+    is_owner: bool
+
+
+class ContactCheckOut(CamelModel):
+    """
+    Who already logs in with a phone or an email: a name, empty when the holder may not be named, null when it is free.
+    """
+
+    phone_taken_by: str | None
+    email_taken_by: str | None

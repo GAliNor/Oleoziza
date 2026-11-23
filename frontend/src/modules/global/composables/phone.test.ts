@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatPhone, normalizePhone } from 'global/composables/phone';
+import { formatPhone, formatPhoneTyping, normalizePhone } from 'global/composables/phone';
 
 describe('normalizePhone', () => {
   it.each([
@@ -22,5 +22,23 @@ describe('normalizePhone', () => {
 describe('formatPhone', () => {
   it('shows a stored number the Moroccan way', () => {
     expect(formatPhone('+212661234518')).toBe('06 61 23 45 18');
+  });
+});
+
+describe('formatPhoneTyping', () => {
+  it.each([
+    ['06', '06'],
+    ['0661', '06 61'],
+    ['0661234518', '06 61 23 45 18'],
+    ['06 612', '06 61 2'],
+    ['+212661234518', '+212 6 61 23 45 18'],
+    ['+2126', '+212 6'],
+    ['sans numéro', 'sans numéro'],
+  ])('groups %s as %s', (raw, expected) => {
+    expect(formatPhoneTyping(raw)).toBe(expected);
+  });
+
+  it('keeps a number readable by the check', () => {
+    expect(normalizePhone(formatPhoneTyping('+212661234518'))).toBe('+212661234518');
   });
 });

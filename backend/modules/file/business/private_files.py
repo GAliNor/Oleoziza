@@ -9,13 +9,16 @@ from uuid_utils.compat import uuid7
 
 from core.exceptions import RefusedError
 from core.integrations.rustfs.rustfs_client import RustFSClient
+from modules.file.business.image_shrinking import shrink_image
 from modules.file.models.file_models import File
 from modules.file.types.file_types import FileBucket
 
 
 DATA_URL_PATTERN = re.compile(r"^data:(?P<content_type>[\w/+.-]+);base64,(?P<data>.+)$", re.DOTALL)
 
-ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "application/pdf"}
+PDF_CONTENT_TYPE = "application/pdf"
+
+ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", PDF_CONTENT_TYPE}
 
 MAX_SIZE_IN_BYTES = 10 * 1024 * 1024
 
@@ -47,7 +50,7 @@ def decode_data_url(data_url: str) -> tuple[str, bytes]:
 
 def store_private_file(db: Session, storage: RustFSClient, data_url: str, original_name: str, actor_id: UUID | None) -> File:
     """
-    Put a document (Payment Proof, Expense Document) in the private bucket and record it as a File, in the caller's transaction; it is read back through signed URLs.
+    Put a document (Payment Proof, Expense Document, Lot photo) in the private bucket, photos shrunk, and record it as a File, in the caller's transaction; it is read back through signed URLs.
 
     Args:
         db (Session): Session of the record the document proves.
@@ -60,6 +63,8 @@ def store_private_file(db: Session, storage: RustFSClient, data_url: str, origin
         File: The File, added but not committed.
     """
     content_type, content = decode_data_url(data_url)
+    if content_type != PDF_CONTENT_TYPE:
+        content_type, content = shrink_image(content_type, content)
     file_id = uuid7()
     storage_key = f"documents/{file_id}"
     storage.upload_object(storage_key, io.BytesIO(content), content_type, is_private=True)

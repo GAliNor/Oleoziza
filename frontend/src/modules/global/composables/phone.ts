@@ -12,3 +12,12 @@ export const formatPhone = (phone: string): string => {
   const formatted = phone.replace(/^\+212(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/, '0$1 $2 $3 $4 $5');
   return isRtl() ? `\u2066${formatted}\u2069` : formatted;
 };
+
+/** Groups a number while it is typed: « 06 61 23 45 18 », « +212 6 61 23 45 18 ». Anything else is left as typed. */
+export const formatPhoneTyping = (raw: string): string => {
+  const compact = raw.replace(/[\s.\-()]/g, '');
+  const pairs = (digits: string): string => digits.replace(/(\d{2})(?=\d)/g, '$1 ');
+  const international = compact.match(/^(\+212|00212)(\d?)(\d*)$/);
+  if (international) return [international[1], international[2], pairs(international[3])].filter(Boolean).join(' ');
+  return /^\d+$/.test(compact) ? pairs(compact) : raw;
+};

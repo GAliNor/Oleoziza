@@ -16,3 +16,4 @@ Show a Client from `clientStore.clientById(id)`; call `fetchClients()` in the vi
 - A list reload keeps Clients still in the outbox.
 - Until lot and finance are plugged, the mock Lots point at mock Clients that the database doesn't hold.
 - A Lot row of the open Season links to Opérations (`/operations?lot=<id>&fromClient=<clientId>`); closing that Lot comes back to the Client page. Older Seasons' rows stay plain: Opérations holds the open Season only.
+- A Client needs names and a phone only; the address is folded behind « Ajouter une adresse » and edited in place on the Client's page (`client-coordinates.vue`, `canEdit`). A phone or email already used shows that Client (`client-duplicate.vue`) without blocking.

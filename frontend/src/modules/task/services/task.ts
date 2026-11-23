@@ -5,11 +5,11 @@ import type { ITask, ITaskService } from 'task/types/task';
 
 type TaskAnswer = Omit<ITask, 'to'> & { targetId: string };
 
-
-/** Where a task leads: the Discounts queue, the Payment, the Refunds, the Client, or the invited User. */
+/** Where a task leads: the Discounts queue, the Payment, the Expense to pay, the Refunds, the Client, or the invited User. */
 const linkOf = (kind: ITask['kind'], targetId: string): ITask['to'] => {
   if (kind === 'discount') return { name: 'discount-queue' };
   if (kind === 'payment' || kind === 'payout') return { name: 'finance', query: { movement: targetId } };
+  if (kind === 'expense-due') return { name: 'expense', query: { view: 'due', expense: targetId } };
   if (kind === 'refund-make' || kind === 'refund-confirm') return { name: 'finance', query: { tab: 'refunds' } };
   if (kind === 'client-at-risk') return { name: 'client-page', params: { id: targetId } };
   return { name: 'user', query: { user: targetId } };

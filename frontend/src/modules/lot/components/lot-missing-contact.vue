@@ -1,21 +1,25 @@
 <template>
-  <form class="card flex flex-col gap-2 border-warning-subtle bg-warning-subtle" @submit.prevent="handleSave">
+  <form :ref="setFormRoot" class="card flex flex-col gap-2 border-warning-subtle bg-warning-subtle" @submit.prevent="handleSave">
     <label class="body-two text-fg-warning" :for="fieldId">{{ $t(`lot.contact.missing.${channel}`) }}</label>
-    <div class="flex gap-2">
+    <div class="flex gap-2" data-field="contact">
       <input :id="fieldId" v-model="typed" class="input min-w-0 flex-1" :type="channel === 'email' ? 'email' : 'tel'" :inputmode="channel === 'email' ? 'email' : 'tel'" />
-      <button type="submit" class="btn-primary shrink-0" :disabled="!typed.trim() || clientStore.isSaving">{{ $t('lot.contact.save') }}</button>
+      <button type="submit" class="btn-primary shrink-0" :disabled="clientStore.isSaving">{{ $t('lot.contact.save') }}</button>
     </div>
+    <p v-if="errorOf('contact')" class="form-error" role="alert">{{ errorOf('contact') }}</p>
   </form>
 </template>
 
 <script setup lang="ts">
 // imports
-import { useId, ref } from 'vue';
+import { computed, ref, useId } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useClientStore } from 'client/stores/client';
 import { useLotStore } from 'lot/stores/lot';
 import { useToastStore } from 'global/stores/toast';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
+import { normalizePhone } from 'global/composables/phone';
+import { isEmail } from 'auth/composables/normalize-identifier';
 import type { ILot, NotificationChoice } from 'lot/types/lot';
 
 // props
@@ -31,11 +35,25 @@ const toastStore = useToastStore();
 const fieldId = useId();
 const typed = ref('');
 
-// event handlers
-const handleSave = async (): Promise<void> => {
+// computed
+const problemComputed = computed((): string | null => {
+  if (!typed.value.trim()) return null;
+  if (props.channel === 'email') return isEmail(typed.value) ? null : t('global.form.emailInvalid');
+  return normalizePhone(typed.value) ? null : t('global.form.phoneInvalid');
+});
+
+const { setFormRoot, errorOf, attempt } = useFormFeedback(() => [
+  { key: 'contact', label: t(`lot.contact.missing.${props.channel}`), isMissing: !typed.value.trim(), error: problemComputed.value },
+]);
+
+// methods
+const save = async (): Promise<void> => {
   const updated = await clientStore.updateContact(props.lot.clientId, props.channel === 'email' ? { email: typed.value.trim() } : { phone: typed.value.trim() });
   if (!updated) return;
   await lotStore.clearMissingContact(props.lot);
   toastStore.push(t('lot.contact.saved'), 'success');
 };
+
+// event handlers
+const handleSave = (): void => attempt(save);
 </script>

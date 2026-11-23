@@ -37,6 +37,8 @@ export const CONFIGURATIONS_MOCK: Record<string, IConfiguration> = {
     boxCapacityKg: 1000,
     tanks: tanks('oj', [20000, 20000, 10000, 10000, 5000]),
     pressLines: lines('oj', ['', '', '', '', '']),
+    nextTankNumber: 6,
+    nextPressLineNumber: 6,
     notificationChannels: structuredClone([...NOTIFICATION_CHANNELS_MOCK]),
     history: [
       change('oj-rate-2', 'millingRate', 0.5, 12),
@@ -65,6 +67,8 @@ export const CONFIGURATIONS_MOCK: Record<string, IConfiguration> = {
     boxCapacityKg: 1000,
     tanks: tanks('bk', [15000, 10000, 10000, 8000]),
     pressLines: lines('bk', ['']),
+    nextTankNumber: 5,
+    nextPressLineNumber: 2,
     notificationChannels: structuredClone([...NOTIFICATION_CHANNELS_MOCK]),
     history: [
       change('bk-rate-1', 'millingRate', 0.5, 12),
@@ -92,6 +96,8 @@ export const DEFAULT_CONFIGURATION: Omit<IConfiguration, 'siteId'> = {
   boxCapacityKg: 1000,
   tanks: [],
   pressLines: [],
+  nextTankNumber: 1,
+  nextPressLineNumber: 1,
   history: [],
   notificationChannels: structuredClone([...NOTIFICATION_CHANNELS_MOCK]),
 };

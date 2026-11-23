@@ -1,9 +1,10 @@
-import { toIsoDate } from 'global/composables/date';
+import { configurationParams } from 'activity/composables/configuration-story';
+import { todayIso, toIsoDate } from 'global/composables/date';
 import type { ActivityGroup, ActivityKind, IActivity, IActivityDaySummary, IActivityFilter } from 'activity/types/activity';
 import type { IConfigurationChange } from 'configuration/types/configuration';
 import type { IDebtContact, IMovement, IRefund } from 'finance/types/finance';
 import type { IExpense } from 'expense/types/expense';
-import { SEASON_START } from 'global/constants/period';
+import { seasonDates } from 'global/composables/season-dates';
 import type { ILot } from 'lot/types/lot';
 
 export interface IActivitySources {
@@ -14,14 +15,17 @@ export interface IActivitySources {
   debtContacts: readonly IDebtContact[];
   configurationChanges: readonly IConfigurationChange[];
   clientNames: Readonly<Record<string, string>>;
+  tankNumbers: Readonly<Record<string, number>>;
 }
 
 const GROUPS: Record<ActivityKind, ActivityGroup> = {
   reception: 'production',
+  scheduled: 'production',
   pressing: 'production',
   pressed: 'production',
   withdrawal: 'production',
   stored: 'storage',
+  rate_corrected: 'discount',
   discount_given: 'discount',
   discount_pending: 'discount',
   discount_approved: 'discount',
@@ -33,8 +37,13 @@ const GROUPS: Record<ActivityKind, ActivityGroup> = {
   refund_made: 'payment',
   refund_confirmed: 'payment',
   expense_recorded: 'expense',
+  expense_planned: 'expense',
+  expense_paid: 'expense',
+  expense_unpaid: 'expense',
   expense_updated: 'expense',
   expense_cancelled: 'expense',
+  expense_deleted: 'expense',
+  expense_recurrence_stopped: 'expense',
   debt_contact: 'follow',
   configuration: 'configuration',
 };
@@ -59,14 +68,14 @@ const activity = (draft: Draft): IActivity => ({
 
 const lotLink = (lot: ILot): IActivity['to'] => ({ name: 'lot', query: { lot: lot.id } });
 
-const lotEvents = (lot: ILot): IActivity[] => {
+const lotEvents = (lot: ILot, tankNumbers: Readonly<Record<string, number>>): IActivity[] => {
   const events: IActivity[] = [activity({ id: `reception-${lot.id}`, kind: 'reception', at: lot.receivedAt, by: lot.receivedBy, subject: lot.clientName, params: { code: lot.code, variety: lot.variety }, kg: lot.netKg, to: lotLink(lot) })];
   lot.moves.forEach((move, index) => {
     if (move.status === 'pressing') events.push(activity({ id: `pressing-${lot.id}-${index}`, kind: 'pressing', at: move.at, by: move.by, subject: lot.clientName, params: { code: lot.code }, to: lotLink(lot) }));
     if (move.status === 'pressed') events.push(activity({ id: `pressed-${lot.id}-${index}`, kind: 'pressed', at: move.at, by: move.by, subject: lot.clientName, params: { code: lot.code }, litres: lot.oilLitres, to: lotLink(lot) }));
     if (move.status === 'withdrawn') events.push(activity({ id: `withdrawal-${lot.id}-${index}`, kind: 'withdrawal', at: move.at, by: move.by, subject: lot.clientName, params: { code: lot.code }, litres: lot.withdrawnLitres, to: lotLink(lot) }));
   });
-  lot.storages.forEach((storage) => events.push(activity({ id: `stored-${storage.id}`, kind: 'stored', at: storage.from, by: storage.by, subject: lot.clientName, params: { code: lot.code, tankId: storage.tankId }, litres: storage.litres, to: lotLink(lot) })));
+  lot.storages.forEach((storage) => events.push(activity({ id: `stored-${storage.id}`, kind: 'stored', at: storage.from, by: storage.by, subject: lot.clientName, params: { code: lot.code, tankNumber: tankNumbers[storage.tankId] ?? 0 }, litres: storage.litres, to: lotLink(lot) })));
   if (lot.discount) {
     const { discount } = lot;
     events.push(activity({ id: `discount-${lot.id}`, kind: discount.state === 'applied' ? 'discount_given' : 'discount_pending', at: discount.givenAt, by: discount.givenBy, subject: lot.clientName, params: { code: lot.code, percent: discount.percent }, amount: discount.amountDh, to: lotLink(lot) }));
@@ -101,9 +110,9 @@ const refundEvents = (refund: IRefund): IActivity[] => {
 
 /** An Expense entered, changed and cancelled; the link opens it on the Charges page, on the Season it belongs to. */
 const expenseEvents = (expense: IExpense): IActivity[] => {
-  const link = { name: 'expense', query: { period: expense.date >= SEASON_START ? 'season' : 'previous', expense: expense.id } };
-  const fields = { subject: expense.description, params: { code: expense.code ?? '', category: expense.categoryId }, amount: expense.amount, to: link };
-  const events = [activity({ id: `expense-recorded-${expense.id}`, kind: 'expense_recorded', at: expense.recordedAt, by: expense.recordedBy, ...fields })];
+  const link = { name: 'expense', query: { period: (expense.date ?? todayIso()) >= seasonDates.value.currentFrom ? 'season' : 'previous', expense: expense.id } };
+  const fields = { subject: expense.description || expense.supplier, params: { code: expense.code ?? '', category: expense.categoryId }, amount: expense.amount, to: link };
+  const events = [activity({ id: `expense-recorded-${expense.id}`, kind: expense.paymentState === 'paid' ? 'expense_recorded' : 'expense_planned', at: expense.recordedAt, by: expense.recordedBy, ...fields })];
   if (expense.updatedAt && expense.updatedBy) events.push(activity({ id: `expense-updated-${expense.id}`, kind: 'expense_updated', at: expense.updatedAt, by: expense.updatedBy, ...fields }));
   if (expense.cancelledAt && expense.cancelledBy) events.push(activity({ id: `expense-cancelled-${expense.id}`, kind: 'expense_cancelled', at: expense.cancelledAt, by: expense.cancelledBy, ...fields }));
   return events;
@@ -112,14 +121,14 @@ const expenseEvents = (expense: IExpense): IActivity[] => {
 /** Everything done on one Site on one day, newest first, read from the records each event comes from. */
 export const buildActivityFeed = (sources: IActivitySources, day: string): IActivity[] => {
   const events = [
-    ...sources.lots.flatMap(lotEvents),
+    ...sources.lots.flatMap((lot) => lotEvents(lot, sources.tankNumbers)),
     ...sources.movements.flatMap(movementEvents),
     ...sources.refunds.flatMap(refundEvents),
     ...sources.expenses.flatMap(expenseEvents),
     ...sources.debtContacts.map((contact) =>
       activity({ id: `debt-${contact.id}`, kind: 'debt_contact', at: contact.at, by: contact.by, subject: sources.clientNames[contact.clientId] ?? '', params: { contact: contact.kind, promisedOn: contact.promisedOn ?? '' }, to: { name: 'debt-follow-up' } }),
     ),
-    ...sources.configurationChanges.map((change) => activity({ id: `configuration-${change.id}-${change.key}`, kind: 'configuration', at: change.at, by: change.by, subject: change.key, params: { key: change.key }, to: { name: 'configuration' } })),
+    ...sources.configurationChanges.map((change) => activity({ id: `configuration-${change.id}-${change.key}`, kind: 'configuration', at: change.at, by: change.by, subject: '', params: configurationParams(change), to: { name: 'configuration' } })),
   ];
   return events.filter((event) => toIsoDate(event.at) === day).sort((first, second) => second.at.localeCompare(first.at));
 };

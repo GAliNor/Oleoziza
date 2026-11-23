@@ -45,7 +45,7 @@ import ImageLineIcon from 'global/icons/image-line.icon.vue';
 
 // props
 const props = withDefaults(defineProps<{ accept?: string; isMultiple?: boolean; isDisabled?: boolean; hint?: string }>(), {
-  accept: 'image/*,application/pdf',
+  accept: 'image/*,application/pdf,.heic,.heif',
   isMultiple: true,
   isDisabled: false,
   hint: undefined,
@@ -64,7 +64,7 @@ let dragDepth = 0;
 /** Keeps only the files the zone accepts, as the file picker would. */
 const acceptedFiles = (files: File[]): File[] => {
   const rules = props.accept.split(',').map((rule) => rule.trim());
-  return files.filter((file) => rules.some((rule) => (rule.endsWith('/*') ? file.type.startsWith(rule.slice(0, -1)) : file.type === rule)));
+  return files.filter((file) => rules.some((rule) => (rule.startsWith('.') ? file.name.toLowerCase().endsWith(rule) : rule.endsWith('/*') ? file.type.startsWith(rule.slice(0, -1)) : file.type === rule)));
 };
 
 // event handlers

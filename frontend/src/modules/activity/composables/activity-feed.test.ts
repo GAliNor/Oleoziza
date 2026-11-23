@@ -30,7 +30,7 @@ const lot = {
 const cash = { id: 'm1', code: 'P-1', client: 'Ali', method: 'cash', amount: 450, status: 'confirmed', recordedAt: at('12:05'), recordedBy: 'Khadija', decidedAt: at('12:05'), decidedBy: 'Khadija' } as IMovement;
 const cheque = { id: 'm2', code: 'P-2', client: 'Sara', method: 'cheque', amount: 300, status: 'confirmed', recordedAt: at('09:00', '2026-11-08'), recordedBy: 'Khadija', decidedAt: at('15:00'), decidedBy: 'Khadija' } as IMovement;
 
-const sources = { lots: [lot], movements: [cash, cheque], refunds: [], expenses: [], debtContacts: [], configurationChanges: [], clientNames: {} };
+const sources = { lots: [lot], movements: [cash, cheque], refunds: [], expenses: [], debtContacts: [], configurationChanges: [], clientNames: {}, tankNumbers: { t1: 1 } };
 
 describe('buildActivityFeed', () => {
   it('tells the day newest first, from every record, and only that day', () => {
@@ -61,7 +61,7 @@ describe('buildActivityFeed', () => {
   });
 
   it('tells an Expense entered then cancelled as two finance-only events linking to the Charges page', () => {
-    const expense = { id: 'e1', code: 'OJ-C2627-0009', siteId: 's', date: DAY, categoryId: 'electricity', description: 'Électricité', amount: 1200, status: 'cancelled', recordedAt: at('09:30'), recordedBy: 'Nadia', cancelledAt: at('16:00'), cancelledBy: 'Mohammed', cancelReason: 'Saisie en double' } as IExpense;
+    const expense = { id: 'e1', code: 'OJ-C2627-0009', siteId: 's', date: DAY, categoryId: 'electricity', description: 'Électricité', amount: 1200, paymentState: 'paid', status: 'cancelled', recordedAt: at('09:30'), recordedBy: 'Nadia', cancelledAt: at('16:00'), cancelledBy: 'Mohammed', cancelReason: 'Saisie en double' } as IExpense;
     const feed = buildActivityFeed({ ...sources, lots: [], movements: [], expenses: [expense] }, DAY);
     expect(feed.map((event) => event.kind)).toEqual(['expense_cancelled', 'expense_recorded']);
     expect(feed.every((event) => event.group === 'expense' && event.isMoney && event.amount === 1200)).toBe(true);

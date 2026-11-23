@@ -20,7 +20,7 @@ export interface ILineSlot {
   canMove: boolean;
 }
 
-/** One Press Line's now and next, or the Lots still waiting for a Press Line (`line` null). */
+/** One Press Line's now and next. */
 export interface ILineBoard {
   key: string;
   line: IPressLineSetting | null;
@@ -28,12 +28,10 @@ export interface ILineBoard {
   laterCount: number;
 }
 
-const UNPLANNED_BOARD_KEY = 'unplanned';
-
 /** A time today, a date and time otherwise. */
 export const plannedLabel = (at: string): string => (toIsoDate(at) === todayIso() ? formatTime(at) : formatDateTime(at));
 
-/** Per Press Line, the Lot pressing now and the next one waiting, plus a board for Lots with no Press Line yet. */
+/** Per Press Line, the Lot pressing now and the next one waiting. Lots without a Press Line have their own list. */
 export const useLineBoards = (lots: () => readonly ILot[], pressLines: ComputedRef<IPressLineSetting[]>): ComputedRef<ILineBoard[]> => {
   // stores
   const { t } = useI18n();
@@ -73,10 +71,6 @@ export const useLineBoards = (lots: () => readonly ILot[], pressLines: ComputedR
   // computed
   return computed((): ILineBoard[] => {
     const all = lots();
-    const boards = pressLines.value.map((line) => toBoard(line.id, line, lineQueue(all, line.id)));
-    const unplanned = all
-      .filter((lot) => !lot.pressLineId && (lot.status === 'waiting' || lot.status === 'pressing'))
-      .sort((first, second) => first.receivedAt.localeCompare(second.receivedAt));
-    return unplanned.length ? [...boards, toBoard(UNPLANNED_BOARD_KEY, null, unplanned)] : boards;
+    return pressLines.value.map((line) => toBoard(line.id, line, lineQueue(all, line.id)));
   });
 };

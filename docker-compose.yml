@@ -153,7 +153,7 @@ services:
       context: .
       dockerfile: ./docker/backend/Dockerfile
     restart: always
-    entrypoint: ['watchfiles', '--filter', 'python', 'celery -A core.integrations.celery.celery_app worker --loglevel=INFO --concurrency=2', '/app']
+    entrypoint: ['watchfiles', '--filter', 'python', 'celery -A core.integrations.celery.celery_app worker --beat --schedule=/tmp/celerybeat-schedule --loglevel=INFO --concurrency=2', '/app']
     env_file:
       - ./env_files/development/backend.env
     environment:

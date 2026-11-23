@@ -50,10 +50,17 @@
     "refund_made": "تنفيذ الاسترداد عن {code}",
     "refund_confirmed": "تأكيد الاسترداد عن {code}",
     "debt_contact": "تذكير · {contact}",
-    "configuration": "الإعدادات: {setting}",
+    "configuration": "{story}",
     "expense_recorded": "تسجيل المصروف {code} · {category}",
     "expense_updated": "تعديل المصروف {code} · {category}",
-    "expense_cancelled": "إلغاء المصروف {code} · {category}"
+    "expense_cancelled": "إلغاء المصروف {code} · {category}",
+    "scheduled": "{code} على {line} · {start}",
+    "rate_corrected": "تعريفة {code}: {from} ← {to}",
+    "expense_planned": "مصروف في انتظار الدفع · {category}",
+    "expense_paid": "دفع المصروف {code} · {category}",
+    "expense_unpaid": "إعادة المصروف {code} إلى انتظار الدفع · {category}",
+    "expense_deleted": "حذف مصروف في انتظار الدفع · {category}",
+    "expense_recurrence_stopped": "إيقاف التكرار · {category}"
   },
   "settings": {
     "millingRate": "تعريفة العصر",
@@ -66,5 +73,30 @@
     "boxes": "الصناديق",
     "tanks": "الخزانات",
     "pressLines": "الخلاطات"
+  },
+  "reason": "السبب: {reason}",
+  "aPressLine": "خلاط",
+  "aTank": "خزان",
+  "story": {
+    "value": "{setting}: {from} ← {to}",
+    "valueSet": "{setting}: {to}",
+    "valueLater": "{text}، ابتداءً من {date}",
+    "cancelled": "{setting}: إلغاء التغيير المبرمج إلى {from}",
+    "deleted": "{setting}: حذف {from}",
+    "deletedBack": "{setting}: حذف {from} والعودة إلى {to}",
+    "method": "{setting}: {states}",
+    "enabledOn": "مقبول",
+    "enabledOff": "لم يعد مقبولًا",
+    "proofOn": "إثبات إلزامي",
+    "proofOff": "إثبات اختياري",
+    "boxes": "الصناديق: {from} ← {to}، {capacity} لكل واحد",
+    "boxesSet": "الصناديق: {to}، {capacity} لكل واحد",
+    "boxCapacity": "الصناديق: {capacityFrom} ← {capacityTo} لكل واحد",
+    "equipment": "{setting}: {changes}",
+    "added": "إضافة رقم {numbers}",
+    "removed": "حذف رقم {numbers}",
+    "changed": "تعديل رقم {numbers}",
+    "unchanged": "حُفظ دون تغيير",
+    "unknown": "تعديل إعداد"
   }
 }

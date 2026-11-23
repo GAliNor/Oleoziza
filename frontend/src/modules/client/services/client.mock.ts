@@ -52,9 +52,9 @@ export default class ClientMockService implements IClientService {
       followUp: 'active',
       phone: client.phone,
       identifier: payload.identifier ?? '',
-      region: payload.location.city,
-      province: payload.location.province,
-      address: payload.location.address,
+      region: payload.location?.city ?? '',
+      province: payload.location?.province ?? null,
+      address: payload.location?.address || null,
       email: payload.email,
       oilStockLitres: 0,
       balance: 0,
@@ -71,9 +71,10 @@ export default class ClientMockService implements IClientService {
   updateContact(clientId: string, contact: IClientContact): Promise<IClient> {
     const client = CLIENTS_MOCK_DB.find((item) => item.id === clientId);
     if (!client) return mockReject(new Error('client_not_found'));
-    Object.assign(client, contact);
+    const { location, ...fields } = contact;
+    Object.assign(client, fields);
     const record = CLIENT_RECORDS_MOCK_DB.find((item) => item.id === clientId);
-    if (record) Object.assign(record, contact);
+    if (record) Object.assign(record, fields, location ? { province: location.province, region: location.city, address: location.address || null } : {});
     return mockResolve(client);
   }
 }

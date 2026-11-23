@@ -6,7 +6,7 @@ import { useLotStore } from 'lot/stores/lot';
 import { useSessionStore } from 'global/stores/session';
 import { useSiteStore } from 'site/stores/site';
 import { withStatus } from 'global/composables/with-status';
-import { cachedLoad, invalidateLoads, LOAD_TTL_MS } from 'global/composables/cached-load';
+import { invalidateLoads, LOAD_TTL_MS, slotLoad } from 'global/composables/cached-load';
 import { emptyPagedList, loadFirstPage, loadNextPage, replaceInList } from 'global/composables/paged-list';
 import type { IDebtContact, IDebtContactPayload, IFinanceStore, ILotPaymentLink, IMovement, IMovementDecision, IMovementListQuery, IPaymentDocument, IRecordPaymentPayload, IRefund } from 'finance/types/finance';
 import type { PeriodKey } from 'global/types/period';
@@ -37,11 +37,13 @@ export const useFinanceStore = defineStore('finance', {
         this,
         'isLoading',
         () =>
-          cachedLoad(
-            `movements:${siteId}`,
+          slotLoad(
+            'movements',
+            siteId,
             LOAD_TTL_MS.records,
-            async () => {
-              this.movements = await financeService.getMovements(siteId);
+            () => financeService.getMovements(siteId),
+            (movements) => {
+              this.movements = movements;
               this.loadedSiteId = siteId;
             },
             isForced,
@@ -55,24 +57,42 @@ export const useFinanceStore = defineStore('finance', {
         this,
         'isLoading',
         () =>
-          cachedLoad(`sales:${siteId}:${period}`, LOAD_TTL_MS.records, async () => {
-            this.sales = await financeService.getSales(siteId, period);
-          }),
+          slotLoad(
+            'sales',
+            `${siteId}:${period}`,
+            LOAD_TTL_MS.records,
+            () => financeService.getSales(siteId, period),
+            (sales) => {
+              this.sales = sales;
+            },
+          ),
         { errorFlag: 'hasError' },
       );
     },
     async fetchRefunds(siteId: string): Promise<void> {
       await withStatus(this, 'isLoading', () =>
-        cachedLoad(`refunds:${siteId}`, LOAD_TTL_MS.records, async () => {
-          this.refunds = await financeService.getRefunds(siteId);
-        }),
+        slotLoad(
+          'refunds',
+          siteId,
+          LOAD_TTL_MS.records,
+          () => financeService.getRefunds(siteId),
+          (refunds) => {
+            this.refunds = refunds;
+          },
+        ),
       );
     },
     async fetchDebtContacts(siteId: string): Promise<void> {
       await withStatus(this, 'isLoading', () =>
-        cachedLoad(`debt-contacts:${siteId}`, LOAD_TTL_MS.records, async () => {
-          this.debtContacts = await financeService.getDebtContacts(siteId);
-        }),
+        slotLoad(
+          'debt-contacts',
+          siteId,
+          LOAD_TTL_MS.records,
+          () => financeService.getDebtContacts(siteId),
+          (debtContacts) => {
+            this.debtContacts = debtContacts;
+          },
+        ),
       );
     },
     async addDebtContact(payload: Omit<IDebtContactPayload, 'by'>): Promise<IDebtContact | null> {

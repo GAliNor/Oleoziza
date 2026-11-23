@@ -4,7 +4,7 @@
   "since": "aujourd’hui | hier | il y a {count} jours",
   "groups": {
     "decide": "À décider",
-    "money": "Argent à rendre",
+    "money": "Argent à rendre et à payer",
     "follow": "À suivre"
   },
   "empty": {
@@ -37,6 +37,10 @@
     },
     "invitation": {
       "title": "Invitation sans réponse"
+    },
+    "expense-due": {
+      "title": "À payer · {category}",
+      "late": "En retard · {category}"
     }
   },
   "actions": {

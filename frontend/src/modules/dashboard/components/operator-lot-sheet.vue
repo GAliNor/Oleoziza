@@ -11,7 +11,7 @@
 
     <template v-if="lot.status === 'waiting' && lines.length">
       <lot-schedule-form v-if="isScheduling" :key="lot.id" :lot="lot" :lines="lines" @close="isScheduling = false" />
-      <button v-else type="button" class="btn-secondary min-h-14" @click="isScheduling = true">{{ $t('lot.schedule.open') }}</button>
+      <button v-else type="button" class="btn-secondary min-h-14" @click="isScheduling = true">{{ $t(lot.pressLineId ? 'lot.schedule.open' : 'lot.schedule.assign') }}</button>
     </template>
 
     <div class="flex flex-col gap-3">

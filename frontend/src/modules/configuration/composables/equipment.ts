@@ -27,5 +27,5 @@ export const formatPressLine = (line: Pick<IPressLineSetting, 'number' | 'name'>
   return line.name ? `${label} · ${line.name}` : label;
 };
 
-/** The next number free for a new Tank or Line: numbers are never reused within a list. */
-export const nextNumber = (items: readonly { number: number }[]): number => Math.max(0, ...items.map((item) => item.number)) + 1;
+/** The number of one more Tank or Line: past `firstFree` (the server's, which knows retired ones) and every row already typed. */
+export const nextNumber = (items: readonly { number: number }[], firstFree = 1): number => Math.max(firstFree, ...items.map((item) => item.number + 1));

@@ -185,10 +185,19 @@ class LotOut(CamelModel):
     pending_dh: float
     credit_dh: float
     moves: list[LotMoveOut]
-    step_photos: dict[str, str]
+    photo_steps: list[LotPhotoStep]
     received_at: datetime
     received_by: str
     is_pending_sync: bool = False
+
+
+class LotPageOut(CamelModel):
+    """
+    One page of Lots, with the list's size.
+    """
+
+    items: list[LotOut]
+    total: int
 
 
 class LotReceiveIn(CamelModel):
@@ -206,8 +215,9 @@ class LotReceiveIn(CamelModel):
     notification_choice: NotificationChoice
     box_numbers: list[int] = Field(default_factory=list)
     are_boxes_ignored: bool = False
-    press_line_id: UUID
-    planned_start_at: datetime
+    press_line_id: UUID | None = None
+    planned_start_at: datetime | None = None
+    photo_url: str | None = None
     entered_at: datetime | None = None
     recorded_offline: bool = False
     device_label: str | None = Field(default=None, max_length=120)
@@ -233,6 +243,7 @@ class LotMoveIn(CamelModel):
     handed_litres: float | None = Field(default=None, ge=0)
     pours: list[TankPourIn] = []
     planned_until: date | None = None
+    photo_url: str | None = None
     entered_at: datetime | None = None
     recorded_offline: bool = False
     device_label: str | None = Field(default=None, max_length=120)

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Run on the server after every git pull, the first install included, once scripts/production-init.sh has filled
-# env_files/production. Builds the images first, then recreates what changed (a few seconds of downtime), loads the
-# reference data, the Season Illustrations, the Oujda Site (only while no Site exists) and the first Owner, and ends
-# with scripts/production-check.sh.
+# env_files/production. On an update, first dumps the database to backups/before-deploy.dump (restored with
+# scripts/production-restore.sh before-deploy.dump); then builds the images, recreates what changed (a few seconds of
+# downtime; the backend runs the migrations as it starts), loads the reference data, the Season Illustrations, the
+# Oujda Site (only while no Site exists) and the first Owner, and ends with scripts/production-check.sh.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -50,11 +51,23 @@ check_settings() {
   fi
 }
 
+dump_before_deploy() {
+  if [[ -z "$("${COMPOSE[@]}" ps --status running -q oleoziza_db_dump 2> /dev/null)" ]]; then
+    echo "No database running yet: nothing to dump."
+    return
+  fi
+  echo "Dumping the database to backups/before-deploy.dump..."
+  "${COMPOSE[@]}" exec -T oleoziza_db_dump sh -c 'umask 077 && PGPASSWORD="$DB_PASSWORD" pg_dump -h oleoziza_db_backend -U "$DB_USERNAME" -d "$DB_DATABASE" --format=custom --file=/backups/before-deploy.dump.partial && mv /backups/before-deploy.dump.partial /backups/before-deploy.dump' \
+    || refuse "the database dump failed, so nothing was deployed. The running version is untouched."
+}
+
 run_seed() {
   "${COMPOSE[@]}" exec -T oleoziza_backend python -m seeds "$1"
 }
 
 check_settings
+echo "Deploying $(git log -1 --format='%h %s (%cd)' --date=format:'%Y-%m-%d %H:%M')"
+dump_before_deploy
 
 echo "Building the images..."
 "${COMPOSE[@]}" build

@@ -100,9 +100,9 @@ class PriceChangeOut(CamelModel):
 
 class ConfigurationOut(CamelModel):
     site_id: UUID
-    season_id: UUID
-    season_label: str
-    season_status: str
+    season_id: UUID | None
+    season_label: str | None
+    season_status: str | None
     price_changes: list[PriceChangeOut]
     milling_rate: float
     discount_limit: float
@@ -112,6 +112,8 @@ class ConfigurationOut(CamelModel):
     box_capacity_kg: float
     tanks: list[TankSettingOut]
     press_lines: list[PressLineSettingOut]
+    next_tank_number: int
+    next_press_line_number: int
     history: list[ConfigurationChangeOut]
     notification_channels: list["NotificationChannelOut"]
 

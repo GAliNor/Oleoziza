@@ -33,6 +33,7 @@ from modules.lot.models.lot_models import Lot
 from modules.site.business.season_lookup import get_open_season
 from modules.site.models.site_models import Site
 from modules.territory.models.territory_models import Province
+from modules.territory.types.territory_types import OptionalLocationIn
 from modules.user.types.user_types import Permission
 
 
@@ -145,8 +146,6 @@ class ClientService:
         if not (self.current_user.has_permission(payload.site_id, Permission.CLIENT_CREATE) or self.current_user.has_permission(payload.site_id, Permission.RECEPTION_CREATE)):
             raise RefusedError("clients_forbidden", 403)
         identifier = self._validate_identity(payload)
-        if self.db.get(Province, payload.location.province) is None:
-            raise RefusedError("province_not_found", 422)
         client = Client(
             id=payload.id,
             kind=payload.kind,
@@ -158,15 +157,13 @@ class ClientService:
             company_identifier=identifier if payload.kind == ClientKind.COMPANY else None,
             phone=payload.phone,
             email=clean(payload.email),
-            province_id=payload.location.province,
-            city=payload.location.city.strip(),
-            address=payload.location.address.strip(),
             first_site_id=payload.site_id,
             entered_at=payload.entered_at or datetime.now(timezone.utc),
             was_recorded_offline=payload.recorded_offline,
             device_label=payload.device_label,
             created_by_id=self.current_user.id,
         )
+        self._place(client, payload.location)
         self.db.add(client)
         self.db.flush()
         record_audit_event(self.db, self.current_user.id, CLIENT_CREATED_ACTION, site_id=payload.site_id, entity_type="client", entity_id=client.id, after={"name": client.display_name, "phone": client.phone})
@@ -175,29 +172,51 @@ class ClientService:
 
     def update_contact(self, client_id: UUID, payload: ClientContactIn) -> ClientOut:
         """
-        Change a Client's phone or email; the change is audited.
+        Change a Client's phone, email or place; the change is audited.
 
         Args:
             client_id (UUID): Client to change.
-            payload (ClientContactIn): New phone and/or email.
+            payload (ClientContactIn): New phone, email and/or place.
 
         Returns:
             ClientOut: The Client as saved.
 
         Raises:
-            RefusedError: client_not_found, clients_forbidden without client.edit on any Site.
+            RefusedError: client_not_found, clients_forbidden without client.edit on any Site, province_not_found.
         """
         self._require_any(Permission.CLIENT_EDIT)
         client = self._get_client(client_id)
-        before = {"phone": client.phone, "email": client.email}
+        before = build_contact_snapshot(client)
         if payload.phone is not None:
             client.phone = payload.phone
         if payload.email is not None:
             client.email = clean(payload.email)
+        if payload.location is not None:
+            self._place(client, payload.location)
         client.updated_by_id = self.current_user.id
-        record_audit_event(self.db, self.current_user.id, CLIENT_CONTACT_CHANGED_ACTION, site_id=client.first_site_id, entity_type="client", entity_id=client.id, before=before, after={"phone": client.phone, "email": client.email})
+        record_audit_event(self.db, self.current_user.id, CLIENT_CONTACT_CHANGED_ACTION, site_id=client.first_site_id, entity_type="client", entity_id=client.id, before=before, after=build_contact_snapshot(client))
         self.db.commit()
         return map_client(client, self._list_site_ids_by_client([client.id]).get(client.id, [client.first_site_id]))
+
+    def _place(self, client: Client, location: OptionalLocationIn | None) -> None:
+        """
+        Set where a Client is, as much as is known.
+
+        Args:
+            client (Client): Client placed.
+            location (OptionalLocationIn | None): Province, town and address, each possibly missing.
+
+        Raises:
+            RefusedError: province_not_found.
+        """
+        if location is None:
+            return
+        province = location.province or None
+        if province is not None and self.db.get(Province, province) is None:
+            raise RefusedError("province_not_found", 422)
+        client.province_id = province
+        client.city = clean(location.city)
+        client.address = clean(location.address)
 
     def _list_balances(self) -> dict[UUID, dict[UUID, Decimal]]:
         """
@@ -242,7 +261,7 @@ class ClientService:
             follow_up=get_follow_up(lines, open_season_code, balance),
             phone=client.phone,
             identifier=client.national_id_number or client.company_identifier or "",
-            region=client.city,
+            region=client.city or "",
             province=client.province_id,
             address=client.address,
             email=client.email,
@@ -339,6 +358,19 @@ def clean(value: str | None) -> str | None:
         str | None: The trimmed value, or None.
     """
     return value.strip() or None if value else None
+
+
+def build_contact_snapshot(client: Client) -> dict[str, str | None]:
+    """
+    Keep what the Audit Trail compares of a Client's contact.
+
+    Args:
+        client (Client): Client.
+
+    Returns:
+        dict[str, str | None]: Phone, email and place.
+    """
+    return {"phone": client.phone, "email": client.email, "province": client.province_id, "city": client.city, "address": client.address}
 
 
 def map_client(client: Client, site_ids: list[UUID], credit: Decimal = Decimal(0)) -> ClientOut:

@@ -12,7 +12,7 @@
     <p v-else class="body-two rounded-card bg-emphasis/40 p-4 text-center">{{ emptyMessage }}</p>
     <label v-if="canAdd" class="btn-secondary cursor-pointer self-start">
       {{ addLabel ?? $t('finance.documents.add') }}
-      <input class="sr-only" type="file" accept="image/*,application/pdf" multiple @change="handlePick" />
+      <input class="sr-only" type="file" accept="image/*,application/pdf,.heic,.heif" multiple @change="handlePick" />
     </label>
   </div>
 </template>

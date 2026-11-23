@@ -5,10 +5,12 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from core.database import get_db
+from core.helpers import get_local_midnight, get_local_today
 from core.security import get_current_user
 from core.types import CurrentUser
 from modules.auth.models.auth_models import Invitation
 from modules.client.models.client_models import Client
+from modules.expense.business.expense_due import list_due_expenses
 from modules.finance.business.lot_fees import list_client_debts
 from modules.finance.models.finance_models import Discount, Payment, Refund
 from modules.finance.types.finance_types import DiscountState, PaymentStatus, RefundStatus
@@ -46,6 +48,7 @@ class TaskService:
         tasks = [
             *self._discount_tasks(self._sites_with(scoped, Permission.DISCOUNT_APPROVE)),
             *self._payment_tasks(self._sites_with(scoped, Permission.PAYMENT_CONFIRM)),
+            *self._expense_tasks(self._sites_with(scoped, Permission.EXPENSE_RECORD)),
             *self._refund_tasks(self._sites_with(scoped, Permission.REFUND_MANAGE)),
             *self._client_tasks(self._sites_with(scoped, Permission.CLIENT_VIEW)),
             *self._invitation_tasks(self._sites_with(scoped, Permission.USER_MANAGE)),
@@ -115,6 +118,30 @@ class TaskService:
                 target_id=refund.id,
             )
             for refund, client in waiting
+        ]
+
+    def _expense_tasks(self, site_ids: list[UUID]) -> list[TaskOut]:
+        """
+        Expenses to pay soon, or late.
+
+        Returns:
+            list[TaskOut]: One task per Expense worth an alert.
+        """
+        if not site_ids:
+            return []
+        today = get_local_today()
+        return [
+            TaskOut(
+                id=f"expense-{expense.id}",
+                kind=TaskKind.EXPENSE_DUE,
+                group=TaskGroup.MONEY,
+                subject=expense.description or expense.supplier_name or "",
+                params={"category": expense.category_id, "dueOn": expense.due_on.isoformat(), "daysLeft": (expense.due_on - today).days},
+                amount=float(expense.amount) if expense.amount is not None else None,
+                at=get_local_midnight(expense.due_on),
+                target_id=expense.id,
+            )
+            for expense in list_due_expenses(self.db, site_ids, today)
         ]
 
     def _client_tasks(self, site_ids: list[UUID]) -> list[TaskOut]:

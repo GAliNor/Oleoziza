@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-5">
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2" data-field="province">
       <p class="label">{{ $t('territory.fields.area') }}</p>
       <div class="h-72 overflow-hidden rounded-card border border-default bg-subtle sm:h-80">
         <province-map v-if="isMapShown" is-selectable :province-id="modelValue.province" @select="handleProvince" />
@@ -19,10 +19,11 @@
           {{ province.name }}
         </button>
       </div>
+      <p v-if="errors?.province" class="form-error" role="alert">{{ errors.province }}</p>
     </div>
 
-    <ui-field v-slot="{ id }" :label="$t('territory.fields.city')">
-      <input :id="id" class="input" type="text" autocomplete="off" :value="modelValue.city" :placeholder="$t('territory.fields.cityPlaceholder')" @input="handleCityInput" />
+    <ui-field v-slot="{ id, describedBy, isInvalid }" name="city" :label="$t('territory.fields.city')" :error="errors?.city" @leave="emit('leave', 'city')">
+      <input :id="id" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" :value="modelValue.city" :placeholder="$t('territory.fields.cityPlaceholder')" @input="handleCityInput" />
       <div v-if="province" class="flex flex-wrap gap-2">
         <button
           v-for="city in province.cities"
@@ -38,8 +39,8 @@
       </div>
     </ui-field>
 
-    <ui-field v-slot="{ id }" :label="$t('territory.fields.address')">
-      <input :id="id" class="input" type="text" autocomplete="off" :value="modelValue.address" :placeholder="$t('territory.fields.addressPlaceholder')" @input="handleAddress" />
+    <ui-field v-slot="{ id, describedBy, isInvalid }" name="address" :label="$t('territory.fields.address')" :error="errors?.address" @leave="emit('leave', 'address')">
+      <input :id="id" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" :value="modelValue.address" :placeholder="$t('territory.fields.addressPlaceholder')" @input="handleAddress" />
     </ui-field>
   </div>
 </template>
@@ -55,10 +56,10 @@ import type { ILocation, IProvince, ProvinceId } from 'territory/types/territory
 import UiField from 'global/components/ui-field.vue';
 
 // props
-const props = withDefaults(defineProps<{ modelValue: ILocation; isMapShown?: boolean }>(), { isMapShown: true });
+const props = withDefaults(defineProps<{ modelValue: ILocation; isMapShown?: boolean; errors?: Partial<Record<keyof ILocation, string | null>> }>(), { isMapShown: true });
 
 // emits
-const emit = defineEmits<{ (event: 'update:modelValue', location: ILocation): void }>();
+const emit = defineEmits<{ (event: 'update:modelValue', location: ILocation): void; (event: 'leave', field: keyof ILocation): void }>();
 
 // stores
 const territoryStore = useTerritoryStore();

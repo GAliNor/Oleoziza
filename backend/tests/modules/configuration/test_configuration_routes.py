@@ -5,7 +5,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from core.helpers import get_local_today
-from modules.configuration.models.configuration_models import PressLine, Tank
+from modules.configuration.models.configuration_models import Box, PressLine, Tank
+from modules.lot.types.lot_types import LotStatus
 from modules.oil.models.oil_models import Storage
 from modules.oil.types.oil_types import StorageOwner
 from modules.site.types.site_types import SeasonStatus
@@ -151,18 +152,154 @@ def test_equipment_in_use_cannot_be_retired(client: TestClient, db: Session) -> 
 
 def test_a_retired_tank_number_is_never_reused(client: TestClient, db: Session) -> None:
     """
-    A new Tank cannot take the number of one retired before.
+    B18: once a manager retires a Tank its number stays taken, and the page is given the next free one.
     """
     site = create_site(db)
-    get_open_season(db)
-    owner = create_staff_user(db, "+212669990107", is_owner=True)
-    headers = build_auth_header(owner)
-    client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "tanks": [{"id": str(uuid.uuid4()), "number": 1, "capacityLitres": 500}]}, headers=headers)
-    client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "tanks": []}, headers=headers)
+    manager = create_staff_user(db, "+212669990107", permissions_by_site={site.id: [Permission.CONFIGURATION_MANAGE]})
+    headers = build_auth_header(manager, {site.id: [Permission.CONFIGURATION_MANAGE]})
+    tank = {"id": str(uuid.uuid4()), "number": 1, "capacityLitres": 500}
+    client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "tanks": [tank]}, headers=headers)
+    retired = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "tanks": []}, headers=headers).json()
 
-    response = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "tanks": [{"id": str(uuid.uuid4()), "number": 1, "capacityLitres": 500}]}, headers=headers)
+    response = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "tanks": [{**tank, "id": str(uuid.uuid4())}]}, headers=headers)
 
+    assert retired["nextTankNumber"] == 2
     assert response.json() == {"code": "number_taken"}
+
+
+def test_press_lines_are_added_while_others_hold_waiting_lots(client: TestClient, db: Session) -> None:
+    """
+    Adding a Malaxeur keeps the ones already there, busy or not.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990108", is_owner=True)
+    line = PressLine(site_id=site.id, number=1)
+    db.add(line)
+    db.flush()
+    create_lot(db, site, line.id)
+    kept = {"id": str(line.id), "number": 1, "name": ""}
+    added = {"id": str(uuid.uuid4()), "number": 2, "name": "Petit"}
+
+    body = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "pressLines": [kept, added]}, headers=build_auth_header(owner)).json()
+
+    assert body["pressLines"] == [kept, added]
+
+
+def test_an_owner_deletes_equipment_never_used_and_frees_its_number(client: TestClient, db: Session) -> None:
+    """
+    Q4a: a Box, Cuve or Malaxeur added by mistake really goes when an Owner removes it; its number is free again.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990109", is_owner=True)
+    headers = build_auth_header(owner)
+
+    def change(**part: object) -> dict:
+        return client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), **part}, headers=headers).json()
+
+    change(boxes={"count": 3, "capacityKg": 500})
+    change(tanks=[{"id": str(uuid.uuid4()), "number": 1, "capacityLitres": 500}])
+    change(pressLines=[{"id": str(uuid.uuid4()), "number": 1, "name": ""}])
+    change(boxes={"count": 1, "capacityKg": 500})
+    change(tanks=[])
+    body = change(pressLines=[])
+
+    assert (body["nextTankNumber"], body["nextPressLineNumber"]) == (1, 1)
+    assert [db.query(model).filter_by(site_id=site.id).count() for model in (Box, Tank, PressLine)] == [1, 0, 0]
+
+
+def test_an_owner_only_retires_equipment_a_lot_used(client: TestClient, db: Session) -> None:
+    """
+    A Malaxeur that pressed a Lot leaves the page but stays on that Lot, with its number.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990110", is_owner=True)
+    line, other = PressLine(site_id=site.id, number=1), PressLine(site_id=site.id, number=2)
+    db.add_all([line, other])
+    db.flush()
+    create_lot(db, site, line.id).status = LotStatus.PRESSED
+    db.flush()
+
+    body = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "pressLines": [{"id": str(other.id), "number": 2, "name": ""}]}, headers=build_auth_header(owner)).json()
+
+    assert [item["number"] for item in body["pressLines"]] == [2]
+    assert db.get(PressLine, line.id).retired_at is not None
+
+
+def test_settings_outside_seasons_are_saved_without_an_open_season(client: TestClient, db: Session) -> None:
+    """
+    Q23: Payment Methods, Boxes, Cuves and Malaxeurs belong to no Season, so they are read and saved while none is open.
+    """
+    site = create_site(db)
+    open_fresh_season(db).status = SeasonStatus.CLOSED
+    db.flush()
+    owner = create_staff_user(db, "+212669990111", is_owner=True)
+    headers = build_auth_header(owner)
+
+    read = client.get(f"{API_URL}/{site.id}", headers=headers).json()
+    method = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "method": {"key": "cash", "isEnabled": True, "needsProof": True}}, headers=headers).json()
+    boxes = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "boxes": {"count": 4, "capacityKg": 900}}, headers=headers).json()
+
+    assert (read["seasonId"], read["seasonStatus"], read["millingRate"]) == (None, None, 0.5)
+    assert method["methods"][0] == {"key": "cash", "isEnabled": True, "needsProof": True}
+    assert boxes["boxCount"] == 4
+
+
+def test_a_price_still_needs_a_season(client: TestClient, db: Session) -> None:
+    """
+    Q23: a price belongs to a Season, so without an open one it is refused unless its Season is named.
+    """
+    site = create_site(db)
+    season = open_fresh_season(db)
+    season.status = SeasonStatus.PLANNED
+    db.flush()
+    headers = build_auth_header(create_staff_user(db, "+212669990112", is_owner=True))
+    price = {"key": "oilPrice", "amount": 45}
+
+    unnamed = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "value": price}, headers=headers).json()
+    planned = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "seasonId": str(season.id), "value": price}, headers=headers).json()
+
+    assert unnamed == {"code": "season_not_open"}
+    assert planned["oilPrice"] == 45
+
+
+def test_an_owner_deletes_a_price_in_force_and_the_previous_one_applies_again(client: TestClient, db: Session) -> None:
+    """
+    Q4a: a wrong price goes; the one before it, or the default, is back in force.
+    """
+    site = create_site(db)
+    open_fresh_season(db)
+    headers = build_auth_header(create_staff_user(db, "+212669990113", is_owner=True))
+
+    def set_rate(amount: float) -> dict:
+        return client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "value": {"key": "millingRate", "amount": amount}}, headers=headers).json()
+
+    set_rate(0.6)
+    body = set_rate(70)
+    without_wrong = client.delete(f"{API_URL}/{site.id}/price-changes/{body['priceChanges'][1]['id']}", headers=headers).json()
+    without_any = client.delete(f"{API_URL}/{site.id}/price-changes/{body['priceChanges'][0]['id']}", headers=headers).json()
+
+    assert (without_wrong["millingRate"], without_any["millingRate"]) == (0.6, 0.5)
+
+
+def test_a_price_in_force_is_deleted_by_an_owner_only_and_never_in_a_closed_season(client: TestClient, db: Session) -> None:
+    """
+    Q4a: deleting a price in force is the Owner's, and a closed Season keeps its prices.
+    """
+    site = create_site(db)
+    season = open_fresh_season(db)
+    manager = create_staff_user(db, "+212669990114", permissions_by_site={site.id: [Permission.CONFIGURATION_MANAGE]})
+    manager_headers = build_auth_header(manager, {site.id: [Permission.CONFIGURATION_MANAGE]})
+    owner_headers = build_auth_header(create_staff_user(db, "+212669990115", is_owner=True))
+    body = client.patch(f"{API_URL}/{site.id}", json={"id": str(uuid.uuid4()), "value": {"key": "millingRate", "amount": 0.6}}, headers=manager_headers).json()
+    url = f"{API_URL}/{site.id}/price-changes/{body['priceChanges'][0]['id']}"
+
+    by_manager = client.delete(url, headers=manager_headers).json()
+    season.status = SeasonStatus.CLOSED
+    db.flush()
+    once_closed = client.delete(url, headers=owner_headers).json()
+
+    assert by_manager == {"code": "owner_only"}
+    assert once_closed == {"code": "season_closed"}
 
 
 def test_a_price_can_be_scheduled_and_cancelled_before_it_starts(client: TestClient, db: Session) -> None:

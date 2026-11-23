@@ -26,6 +26,18 @@ class SeasonApiService extends BaseService implements ISeasonService {
     return this.request<ISeason>({ method: 'POST', url: `${this._BASE_API_URL}/${id}/close` });
   }
 
+  reopen(id: string): Promise<ISeason> {
+    return this.request<ISeason>({ method: 'POST', url: `${this._BASE_API_URL}/${id}/reopen` });
+  }
+
+  delete(id: string): Promise<void> {
+    return this.request<void>({ method: 'DELETE', url: `${this._BASE_API_URL}/${id}` });
+  }
+
+  setDates(id: string, startsOn: string, endsOn: string): Promise<ISeason> {
+    return this.request<ISeason>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/dates`, data: { startsOn, endsOn } });
+  }
+
   chooseIllustration(id: string, seasonIllustrationId: string | null): Promise<ISeason> {
     return this.request<ISeason>({ method: 'PUT', url: `${this._BASE_API_URL}/${id}/season-illustration`, data: { seasonIllustrationId } });
   }

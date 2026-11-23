@@ -122,5 +122,47 @@ def test_a_contact_change_is_audited(client: TestClient, db: Session) -> None:
     event = db.scalar(select(AuditEvent).where(AuditEvent.entity_id == client_id, AuditEvent.action == "client.contact_changed"))
 
     assert updated["phone"] == "+212661999999"
-    assert event is not None and event.before == {"phone": "+212661223344", "email": None}
+    assert event is not None and event.before["phone"] == "+212661223344"
     assert db.get(Client, client_id) is not None
+
+
+def test_a_client_needs_a_name_and_a_phone_only(client: TestClient, db: Session) -> None:
+    """
+    Q7: no place is asked for; the register shows the Client without one.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990606", is_owner=True)
+    headers = build_auth_header(owner)
+    client_id = uuid7()
+
+    created = client.post(API_URL, json=build_client_body(site.id, client_id, location=None), headers=headers)
+    record = next(item for item in client.get(f"{API_URL}/records", headers=headers).json() if item["id"] == str(client_id))
+
+    assert created.status_code == 200
+    assert (record["region"], record["province"], record["address"]) == ("", None, None)
+
+
+def test_a_place_may_be_partly_known_and_changed_later(client: TestClient, db: Session) -> None:
+    """
+    Q7: a Province alone places the Client on the map; the rest comes when it is known.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990607", is_owner=True)
+    headers = build_auth_header(owner)
+    client_id = uuid7()
+    client.post(API_URL, json=build_client_body(site.id, client_id, location={"province": TEST_PROVINCE_ID}), headers=headers)
+
+    client.patch(f"{API_URL}/{client_id}/contact", json={"location": {"province": TEST_PROVINCE_ID, "city": " Oujda ", "address": ""}}, headers=headers)
+    stored = db.get(Client, client_id)
+
+    assert (stored.province_id, stored.city, stored.address) == (TEST_PROVINCE_ID, "Oujda", None)
+
+
+def test_an_unknown_province_is_refused(client: TestClient, db: Session) -> None:
+    """
+    A Province typed wrong is never stored.
+    """
+    site = create_site(db)
+    owner = create_staff_user(db, "+212669990608", is_owner=True)
+
+    assert client.post(API_URL, json=build_client_body(site.id, uuid7(), location={"province": "atlantis"}), headers=build_auth_header(owner)).json() == {"code": "province_not_found"}

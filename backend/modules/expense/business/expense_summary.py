@@ -7,12 +7,12 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from modules.expense.models.expense_models import Expense, ExpenseCategory
-from modules.expense.types.expense_types import INVESTMENT_CATEGORY_ID, ExpenseCategoryTotalOut, ExpenseStatus, ExpenseSubcategoryTotalOut, ExpenseSummaryOut
+from modules.expense.types.expense_types import INVESTMENT_CATEGORY_ID, ExpenseCategoryTotalOut, ExpensePaymentState, ExpenseStatus, ExpenseSubcategoryTotalOut, ExpenseSummaryOut, ExpenseToPayOut
 
 
 def sum_expenses_by_subcategory(db: Session, site_ids: list[UUID], starts_on: date, ends_on: date) -> list[ExpenseSubcategoryTotalOut]:
     """
-    Total the recorded Expenses of the Sites over a period per sub-category, cancelled ones left out, largest first; TVA derived as TTC × rate / (100 + rate).
+    Total the paid Expenses of the Sites over a period per sub-category, cancelled ones left out, largest first; TVA derived as TTC × rate / (100 + rate).
 
     Args:
         db (Session): Session to read with.
@@ -27,7 +27,7 @@ def sum_expenses_by_subcategory(db: Session, site_ids: list[UUID], starts_on: da
     rows = db.execute(
         select(Expense.category_id, ExpenseCategory.parent_id, func.sum(Expense.amount), func.sum(vat), func.count())
         .join(ExpenseCategory, ExpenseCategory.id == Expense.category_id)
-        .where(Expense.site_id.in_(site_ids), Expense.status == ExpenseStatus.RECORDED, Expense.date >= starts_on, Expense.date <= ends_on)
+        .where(Expense.site_id.in_(site_ids), Expense.status == ExpenseStatus.RECORDED, Expense.payment_state == ExpensePaymentState.PAID, Expense.date >= starts_on, Expense.date <= ends_on)
         .group_by(Expense.category_id, ExpenseCategory.parent_id)
         .order_by(func.sum(Expense.amount).desc(), Expense.category_id)
     ).all()
@@ -37,12 +37,13 @@ def sum_expenses_by_subcategory(db: Session, site_ids: list[UUID], starts_on: da
     ]
 
 
-def build_expense_summary(by_subcategory: list[ExpenseSubcategoryTotalOut]) -> ExpenseSummaryOut:
+def build_expense_summary(by_subcategory: list[ExpenseSubcategoryTotalOut], to_pay: ExpenseToPayOut) -> ExpenseSummaryOut:
     """
     Roll sub-category totals up into the period's summary: totals per category, operating costs and Investments apart.
 
     Args:
         by_subcategory (list[ExpenseSubcategoryTotalOut]): The period's totals per sub-category.
+        to_pay (ExpenseToPayOut): What is still to pay.
 
     Returns:
         ExpenseSummaryOut: The summary, categories and sub-categories largest first.
@@ -57,6 +58,7 @@ def build_expense_summary(by_subcategory: list[ExpenseSubcategoryTotalOut]) -> E
     investments = amounts.get(INVESTMENT_CATEGORY_ID, Decimal(0))
     vat = sum((Decimal(str(row.vat)) for row in by_subcategory), Decimal(0))
     return ExpenseSummaryOut(
+        to_pay=to_pay,
         total=float(total),
         operating=float(total - investments),
         investments=float(investments),

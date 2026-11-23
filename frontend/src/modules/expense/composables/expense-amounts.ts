@@ -1,5 +1,7 @@
 import { INVESTMENT_CATEGORY_ID } from 'expense/constants/expense-categories';
-import type { IExpense, IExpenseCategory, IExpenseCategoryGroup, IExpenseCategoryTotal, IExpenseSubcategoryTotal, IExpenseSummary, IExpenseTypeGroup } from 'expense/types/expense';
+import type { IExpense, IExpenseCategory, IExpenseCategoryGroup, IExpenseCategoryTotal, IExpenseSubcategoryTotal, IExpenseSummary, IExpenseToPay, IExpenseTypeGroup } from 'expense/types/expense';
+
+const NOTHING_TO_PAY: IExpenseToPay = { count: 0, amount: 0, lateCount: 0, unknownAmountCount: 0 };
 
 const roundCentimes = (amount: number): number => Math.round(amount * 100) / 100;
 
@@ -23,20 +25,20 @@ export const groupCategories = (categories: readonly IExpenseCategory[]): IExpen
 
 const byAmount = (first: IExpenseCategoryTotal, second: IExpenseCategoryTotal): number => second.amount - first.amount || first.categoryId.localeCompare(second.categoryId);
 
-/** One total per sub-category with recorded Expenses, largest first, as the backend summary returns them. */
+/** One total per sub-category with paid Expenses, largest first, as the backend summary returns them. */
 export const totalBySubcategory = (expenses: readonly IExpense[], categories: readonly IExpenseCategory[]): IExpenseSubcategoryTotal[] => {
   const rows = new Map<string, IExpenseSubcategoryTotal>();
   expenses
-    .filter((expense) => expense.status === 'recorded')
+    .filter((expense) => expense.status === 'recorded' && expense.paymentState === 'paid')
     .forEach((expense) => {
       const row = rows.get(expense.categoryId) ?? { categoryId: expense.categoryId, parentId: categoryIdOf(categories, expense.categoryId), amount: 0, vat: 0, count: 0 };
-      rows.set(expense.categoryId, { ...row, amount: row.amount + expense.amount, vat: row.vat + vatOf(expense.amount, expense.vatRate), count: row.count + 1 });
+      rows.set(expense.categoryId, { ...row, amount: row.amount + (expense.amount ?? 0), vat: row.vat + vatOf(expense.amount ?? 0, expense.vatRate), count: row.count + 1 });
     });
   return [...rows.values()].map((row) => ({ ...row, amount: roundCentimes(row.amount), vat: roundCentimes(row.vat) })).sort(byAmount);
 };
 
 /** Totals of the recorded Expenses: Investments apart from the operating ones, one line per category and one per sub-category, largest first. */
-export const summarizeExpenses = (expenses: readonly IExpense[], categories: readonly IExpenseCategory[]): IExpenseSummary => {
+export const summarizeExpenses = (expenses: readonly IExpense[], categories: readonly IExpenseCategory[], toPay: IExpenseToPay = NOTHING_TO_PAY): IExpenseSummary => {
   const bySubcategory = totalBySubcategory(expenses, categories);
   const byCategory = new Map<string, IExpenseCategoryTotal>();
   bySubcategory.forEach((row) => {
@@ -46,6 +48,7 @@ export const summarizeExpenses = (expenses: readonly IExpense[], categories: rea
   const total = roundCentimes(bySubcategory.reduce((sum, row) => sum + row.amount, 0));
   const investments = byCategory.get(INVESTMENT_CATEGORY_ID)?.amount ?? 0;
   return {
+    toPay,
     total,
     operating: roundCentimes(total - investments),
     investments,

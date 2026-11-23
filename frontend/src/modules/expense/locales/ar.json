@@ -14,7 +14,12 @@
     "vat": "الضريبة على القيمة المضافة في الفواتير",
     "vatSub": "تُبلَّغ إلى المحاسب",
     "count": "القطع",
-    "countSub": "{count} قطعة مسجلة | قطعة واحدة مسجلة | {count} قطع مسجلة"
+    "countSub": "{count} قطعة مسجلة | قطعة واحدة مسجلة | {count} قطع مسجلة",
+    "toPay": "للدفع",
+    "toPayNone": "لا شيء للدفع",
+    "toPayCount": "{count} مصروف | مصروف واحد | {count} مصاريف",
+    "toPayLate": "{count} متأخر | واحد متأخر | {count} متأخرة",
+    "toPayUnknown": "{count} بدون مبلغ | واحد بدون مبلغ | {count} بدون مبلغ"
   },
   "breakdown": {
     "title": "حسب الفئة",
@@ -31,7 +36,7 @@
       "paidBy": "طريقة الأداء",
       "amount": "المبلغ مع الضريبة"
     },
-    "empty": "لا يوجد مصروف مطابق.",
+    "empty": "لا توجد مصاريف مدفوعة مطابقة.",
     "back": "العودة إلى المصاريف",
     "cancelled": "ملغى",
     "documents": "{count} مرفق | مرفق واحد | {count} مرفقات",
@@ -44,44 +49,41 @@
   "actions": {
     "new": "مصروف جديد",
     "export": "تصدير",
-    "edit": "تعديل",
     "duplicate": "نسخ",
     "cancel": "إلغاء المصروف",
     "confirmCancel": "تأكيد الإلغاء",
     "cancelReason": "سبب الإلغاء",
     "cancelReasonPlaceholder": "مثال: إدخال مكرر",
     "cancelled": "أُلغي المصروف.",
-    "closed": "الموسم مغلق: لم يعد هذا المصروف قابلًا للتعديل."
+    "closed": "الموسم مغلق: لم يعد هذا المصروف قابلًا للتعديل.",
+    "unpay": "إعادة إلى انتظار الدفع",
+    "confirmUnpay": "تأكيد: لن تُحتسب",
+    "unpaid": "أُعيد المصروف إلى انتظار الدفع.",
+    "stopRecurrence": "إيقاف التكرار",
+    "confirmStopRecurrence": "تأكيد: لا مصاريف قادمة",
+    "recurrenceStopped": "تم إيقاف التكرار.",
+    "delete": "حذف",
+    "confirmDelete": "تأكيد الحذف",
+    "confirmDeleteRecurring": "تأكيد: الانتقال إلى التالي",
+    "deleted": "تم حذف المصروف."
   },
   "detail": {
-    "date": "أُدّي في",
-    "category": "الفئة",
-    "supplier": "المورد",
-    "ice": "ICE",
-    "if": "IF",
-    "invoice": "الفاتورة",
-    "invoiceDate": "تاريخ الفاتورة",
-    "paidBy": "طريقة الأداء",
-    "reference": "مرجع الأداء",
-    "inclVat": "المبلغ مع الضريبة",
     "exclVat": "المبلغ دون الضريبة",
     "vat": "الضريبة {rate} %",
     "exempt": "معفى من الضريبة",
-    "noVat": "بدون ضريبة",
     "recordedBy": "أدخله {name}، {at}",
     "updatedBy": "عدّله {name}، {at}",
     "cancelledBy": "ألغاه {name}، {at}: {reason}",
-    "documents": "الوثائق المثبتة",
     "noDocuments": "لا توجد فاتورة مرفقة.",
-    "accountLabel": "حساب CGNC المقترح"
+    "accountLabel": "حساب CGNC المقترح",
+    "recordedByApp": "أُنشئ تلقائياً، {at}"
   },
   "form": {
     "titleNew": "مصروف جديد",
-    "titleEdit": "تعديل {code}",
-    "titleDuplicate": "نسخة من {code}",
+    "titleDuplicate": "نسخة من «{title}»",
     "date": "أُدّي في",
-    "category": "الفئة",
-    "categoryPlaceholder": "اختر فئة",
+    "category": "نوع المصروف",
+    "categoryPlaceholder": "اختر نوعاً",
     "description": "الوصف",
     "descriptionPlaceholder": "مثال: أجور نونبر، الخلاط رقم 5",
     "investmentHint": "اذكر اسم الأصل المشترى: يسجله المحاسب ضمن الأصول الثابتة.",
@@ -103,15 +105,29 @@
     "paymentReference": "مرجع الأداء",
     "paymentReferencePlaceholder": "رقم الشيك أو التحويل",
     "documents": "الوثائق المثبتة",
-    "save": "حفظ المصروف",
-    "saveEdit": "حفظ التعديلات",
+    "save": "تسجيل كمدفوع",
     "close": "إغلاق",
-    "saved": "سُجّل المصروف {code}.",
-    "updated": "عُدّل المصروف {code}.",
-    "required": "التاريخ والفئة والوصف والمبلغ والمورد ضرورية.",
+    "saved": "تم تسجيل المصروف {code} · {scope}.",
     "iceInvalid": "يتكون ICE من 15 رقمًا.",
-    "backToExpense": "العودة إلى المصروف",
-    "removeDocument": "إزالة {name}"
+    "removeDocument": "إزالة {name}",
+    "paymentState": "حالة المصروف",
+    "state": {
+      "paid": "دُفع",
+      "to_pay": "للدفع لاحقاً"
+    },
+    "stateHint": {
+      "paid": "يُحتسب في النتيجة",
+      "to_pay": "تذكير قبل موعد الدفع"
+    },
+    "dueOn": "تاريخ الاستحقاق",
+    "dueOnHint": "تذكير قبل 7 أيام، و30 يوماً للمصاريف الفصلية أو السنوية.",
+    "amountLaterHint": "يمكن تركه فارغاً حتى الدفع.",
+    "frequency": "التكرار",
+    "frequencyHint": "يُنشأ المصروف التالي تلقائياً.",
+    "nextDue": "الاستحقاق التالي: {date}.",
+    "saveToPay": "تسجيل للدفع لاحقاً",
+    "savedToPay": "للدفع في {date} · {scope}.",
+    "backToExpense": "العودة إلى المصروف"
   },
   "warnings": {
     "cash_over_daily_limit": "أكثر من 5000 درهم نقدًا لمورد واحد في اليوم: لن تُخصم الضريبة وجزء من المصروف.",
@@ -275,8 +291,7 @@
   },
   "draft": {
     "title": "مصروف لم يُسجَّل",
-    "titleEdit": "تعديل لم يُسجَّل",
-    "untitled": "بدون وصف",
+    "untitled": "بدون عنوان",
     "keptAt": "حُفظ في {at}",
     "resume": "متابعة",
     "discard": "حذف",
@@ -292,12 +307,16 @@
     "cancel": "إلغاء",
     "nameRequired": "الاسم ضروري.",
     "iceInvalid": "يتكون ICE من 15 رقمًا.",
-    "error": "تعذّر الإنشاء. تحقق من الشبكة وأعد المحاولة."
+    "error": "تعذّر الإنشاء. تحقق من الشبكة وأعد المحاولة.",
+    "add": "مورّد جديد",
+    "clear": "بدون مورّد"
   },
   "view": {
     "label": "عرض المصاريف",
     "byType": "حسب النوع",
-    "all": "كل المصاريف"
+    "due": "للدفع",
+    "dueCount": "للدفع ({count})",
+    "paid": "مدفوعة"
   },
   "byType": {
     "count": "لا قطعة | قطعة واحدة | {count} قطع",
@@ -305,5 +324,45 @@
     "focus": "« {category} » فقط",
     "allTypes": "عرض كل الأنواع",
     "investmentNote": "خارج النتيجة"
+  },
+  "season": {
+    "counted": "تُحتسب في {season} · {site}",
+    "countedOff": "خارج الموسم: تُحتسب في {season}، آخر موسم بدأ · {site}"
+  },
+  "state": {
+    "paid": "مدفوع",
+    "to_pay": "في انتظار الدفع",
+    "late": "متأخر"
+  },
+  "frequency": {
+    "once": "مرة واحدة",
+    "monthly": "كل شهر",
+    "quarterly": "كل ثلاثة أشهر",
+    "yearly": "كل سنة"
+  },
+  "due": {
+    "empty": "لا شيء للدفع حالياً.",
+    "groups": {
+      "late": "متأخرة",
+      "soon": "خلال 30 يوماً",
+      "later": "لاحقاً"
+    },
+    "unknownAmount": "المبلغ غير محدد",
+    "lateBy": "متأخر | متأخر بيوم واحد | متأخر بـ {count} أيام",
+    "inDays": "اليوم | غداً | بعد {count} أيام"
+  },
+  "pay": {
+    "open": "تسجيل الدفع",
+    "title": "دفع المصروف",
+    "submit": "تأكيد الدفع",
+    "dueOn": "للدفع في {date}",
+    "notCounted": "لم تُحتسب بعد في النتيجة.",
+    "done": "تم دفع المصروف {code} · {scope}."
+  },
+  "sections": {
+    "payment": "المبلغ والدفع",
+    "charge": "المصروف",
+    "supplier": "المورّد",
+    "invoice": "الفاتورة والوثائق"
   }
 }

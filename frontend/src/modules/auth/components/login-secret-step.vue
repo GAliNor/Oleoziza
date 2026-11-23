@@ -11,12 +11,12 @@
 
     <pin-pad v-if="step === 'pin'" v-model="secret" :length="PIN_LENGTH" :is-disabled="isLoading" :has-error="!!errorMessage" @complete="emit('submit', $event)" />
 
-    <form v-else class="flex flex-col gap-5" @submit.prevent="emit('submit', secret)">
-      <ui-field v-slot="{ id }" :label="$t(`auth.login.secretLabel.${step}`)">
+    <form v-else :ref="setFormRoot" class="flex flex-col gap-5" novalidate @submit.prevent="attempt(() => emit('submit', secret))">
+      <ui-field v-slot="{ id }" name="secret" :error="errorOf('secret')" :label="$t(`auth.login.secretLabel.${step}`)">
         <code-input v-if="step === 'otp'" :id="id" v-model="secret" :length="OTP_LENGTH" :is-disabled="isLoading" @complete="emit('submit', $event)" />
         <password-input v-else :id="id" v-model="secret" autocomplete="current-password" :is-disabled="isLoading" />
       </ui-field>
-      <button type="submit" class="btn-primary w-full" :disabled="isLoading || !secret">
+      <button type="submit" class="btn-primary w-full" :disabled="isLoading">
         {{ $t('auth.login.submit') }}
         <arrow-right-line-icon class="h-4 w-4" />
       </button>
@@ -48,6 +48,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useAuthStore } from 'auth/stores/auth';
 import { useToastStore } from 'global/stores/toast';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { formatPhone } from 'global/composables/phone';
 import { isEmail } from 'auth/composables/normalize-identifier';
 import { isMockModule } from 'global/services/base';
@@ -86,6 +87,8 @@ let resendTimer: ReturnType<typeof setInterval> | null = null;
 
 // computed
 const displayIdentifier = computed((): string => (isEmail(props.identifier) ? props.identifier : formatPhone(props.identifier)));
+
+const { setFormRoot, errorOf, attempt } = useFormFeedback(() => [{ key: 'secret', label: t(`auth.login.secretLabel.${props.step}`), isMissing: !secret.value }]);
 
 // methods
 const startResendTimer = (): void => {

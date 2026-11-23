@@ -33,20 +33,20 @@
       </button>
     </section>
 
-    <form v-if="row.clientId" class="flex flex-col gap-3 rounded-card bg-subtle p-3" @submit.prevent="handleSave">
+    <form v-if="row.clientId" :ref="setFormRoot" class="flex flex-col gap-3 rounded-card bg-subtle p-3" novalidate @submit.prevent="handleSave">
       <h3 class="label">{{ $t('finance.debts.form.title') }}</h3>
       <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <button v-for="option in KINDS" :key="option" type="button" class="toggle-tile" :class="{ 'toggle-tile-active': kind === option }" @click="kind = option">
           {{ $t(`finance.debts.kinds.${option}`) }}
         </button>
       </div>
-      <ui-field v-slot="{ id }" :label="$t('finance.debts.form.note')">
-        <textarea :id="id" v-model="note" class="input min-h-20" :placeholder="$t('finance.debts.form.notePlaceholder')" />
+      <ui-field v-slot="{ id, isInvalid, describedBy }" name="note" :label="$t('finance.debts.form.note')" :error="errorOf('note')">
+        <textarea :id="id" v-model="note" class="input min-h-20" :aria-invalid="isInvalid" :aria-describedby="describedBy" :placeholder="$t('finance.debts.form.notePlaceholder')" />
       </ui-field>
-      <ui-field v-slot="{ id }" :label="$t('finance.debts.form.promisedOn')">
+      <ui-field v-slot="{ id }" :label="$t('finance.debts.form.promisedOn')" :is-optional="!!note.trim()">
         <ui-date-picker :id="id" v-model="promisedOn" :min="todayIso()" :label="$t('finance.debts.form.promisedOn')" is-clearable />
       </ui-field>
-      <button type="submit" class="btn-primary self-end" :disabled="!canSave">{{ $t('finance.debts.form.save') }}</button>
+      <button type="submit" class="btn-primary self-end" :disabled="financeStore.isSaving">{{ $t('finance.debts.form.save') }}</button>
     </form>
 
     <section class="flex flex-col gap-2">
@@ -74,6 +74,7 @@ import { useI18n } from 'vue-i18n';
 import { useFinanceStore } from 'finance/stores/finance';
 import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { createId } from 'global/composables/crypto';
 import { formatDateTime, formatFullDate, formatShortDate, todayIso } from 'global/composables/date';
 import { formatMoney } from 'global/composables/money';
@@ -107,7 +108,7 @@ const openLotId = ref<string | null>(null);
 const isPaying = ref(props.isPayingAtOpen === true);
 
 // computed
-const canSave = computed((): boolean => (!!note.value.trim() || !!promisedOn.value) && !financeStore.isSaving);
+const { setFormRoot, errorOf, attempt, reset } = useFormFeedback(() => [{ key: 'note', label: t('finance.debts.form.note'), error: note.value.trim() || promisedOn.value ? null : t('finance.debts.form.missing') }]);
 const payableIdsComputed = computed((): string[] => props.row.lots.filter((lot) => !isDiscountPending(lot)).map((lot) => lot.id));
 
 // event handlers
@@ -115,8 +116,7 @@ const handleToggleLot = (lotId: string): void => {
   openLotId.value = openLotId.value === lotId ? null : lotId;
 };
 
-const handleSave = async (): Promise<void> => {
-  if (!canSave.value) return;
+const save = async (): Promise<void> => {
   const saved = await financeStore.addDebtContact({ id: contactId.value, siteId: props.siteId, clientId: props.row.clientId, kind: kind.value, note: note.value.trim(), promisedOn: promisedOn.value || null });
   if (!saved) {
     toastStore.push(t('finance.debts.form.error'), 'danger');
@@ -126,5 +126,8 @@ const handleSave = async (): Promise<void> => {
   contactId.value = createId();
   note.value = '';
   promisedOn.value = '';
+  reset();
 };
+
+const handleSave = (): void => attempt(save);
 </script>

@@ -63,7 +63,7 @@ export const exportMonths = (firstDay: string, today: string): IPeriodRange[] =>
  * `label` reads `expense.export.*` and `expense.categories.*` keys without their prefix.
  */
 export const buildExpenseCsv = (expenses: readonly IExpense[], categories: readonly IExpenseCategory[], siteNames: Record<string, string>, label: Label): string => {
-  const rows = [...expenses].sort((first, second) => Number(first.status === 'cancelled') - Number(second.status === 'cancelled') || first.date.localeCompare(second.date) || (first.code ?? '').localeCompare(second.code ?? ''));
+  const rows = expenses.filter((expense) => expense.paymentState === 'paid').sort((first, second) => Number(first.status === 'cancelled') - Number(second.status === 'cancelled') || (first.date ?? '').localeCompare(second.date ?? '') || (first.code ?? '').localeCompare(second.code ?? ''));
   const lines = rows.map((expense) => {
     const subcategory = categories.find((item) => item.id === expense.categoryId);
     const warnings = expense.status === 'recorded' ? expenseWarnings(expense, categories) : [];
@@ -76,16 +76,16 @@ export const buildExpenseCsv = (expenses: readonly IExpense[], categories: reado
       supplier: expense.supplier,
       supplierIf: expense.supplierIf,
       supplierIce: expense.supplierIce,
-      description: expense.description,
+      description: expense.description || label(`categories.${expense.categoryId}`),
       category: label(`categories.${categoryIdOf(categories, expense.categoryId)}`),
       subcategory: label(`categories.${expense.categoryId}`),
       account: subcategory?.accountCode ?? '',
       vatNature: label(`export.vatNature.${subcategory?.vatNature ?? 'none'}`),
       vatRate: vatRateLabel(expense, (key) => label(`export.vatRate.${key}`)),
-      exclVat: amount(amountExclVat(expense.amount, expense.vatRate)),
-      vat: amount(vatOf(expense.amount, expense.vatRate)),
-      inclVat: amount(expense.amount),
-      paidBy: label(`paidBy.${expense.paidBy}`),
+      exclVat: amount(amountExclVat(expense.amount ?? 0, expense.vatRate)),
+      vat: amount(vatOf(expense.amount ?? 0, expense.vatRate)),
+      inclVat: amount(expense.amount ?? 0),
+      paidBy: expense.paidBy ? label(`paidBy.${expense.paidBy}`) : '',
       paymentReference: expense.paymentReference,
       alert: warnings.map((warning) => label(`export.alerts.${warning}`)).join(' / '),
       documents: expense.documents.length,

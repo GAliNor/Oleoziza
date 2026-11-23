@@ -12,3 +12,4 @@ An Operator receiving a Client's olives: weighing, Boxes, Press Line queue, Noti
 - No reception-settings endpoint: the Configuration the rest of the app caches holds them.
 - The done screen reads the live Lot from the lot store: the code and QR appear once the server answered.
 - Save needs the chosen Boxes to hold the net weight (count × the Site's Box capacity), unless « Ignorer les box » is ticked (`areBoxesIgnored` in the payload): then the Boxes picked are kept, possibly none, and the Lot shows « Hors box ». The backend refuses the same case with `box_capacity_short`.
+- « Plus tard » sends no Press Line nor start; the photo travels with the Lot (`readLightPhoto`). The form uses `useFormFeedback` and `ui-form-bar`; with no open Season it shows `season/components/no-open-season.vue` instead.

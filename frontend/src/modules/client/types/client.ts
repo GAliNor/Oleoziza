@@ -24,6 +24,7 @@ export interface IClient {
 export interface IClientContact {
   phone?: string;
   email?: string;
+  location?: ILocation;
 }
 
 export interface ICreateClientPayload {
@@ -36,7 +37,8 @@ export interface ICreateClientPayload {
   siteId: string;
   identifier: string | null;
   email: string | null;
-  location: ILocation;
+  /** Null when no part of it is known. */
+  location: ILocation | null;
 }
 
 export interface IClientAccountLine {

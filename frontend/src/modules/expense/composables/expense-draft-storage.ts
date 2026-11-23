@@ -13,17 +13,20 @@ export interface IExpenseDraft {
   hasDroppedDocuments: boolean;
 }
 
+/** An Expense is edited in place now: what an earlier version kept of an edit is dropped. */
+const MODES: readonly ExpenseFormMode[] = ['new', 'duplicate'];
+
 const keyOf = (userId: string, siteId: string): string => `${EXPENSE_DRAFT_STORAGE_KEY}:${userId}:${siteId}`;
 
 const isDraft = (value: unknown): value is IExpenseDraft => Boolean(value && typeof value === 'object' && 'payload' in value && (value as IExpenseDraft).payload?.id);
 
 /** Whether anything was typed yet: an untouched form leaves no draft behind. */
 export const isWorthKeeping = (payload: IExpensePayload): boolean =>
-  Boolean(payload.description.trim() || payload.amount > 0 || payload.categoryId || payload.supplier.trim() || payload.invoiceNumber.trim() || payload.documents.length);
+  Boolean(payload.description.trim() || (payload.amount ?? 0) > 0 || payload.categoryId || payload.supplier.trim() || payload.invoiceNumber.trim() || payload.documents.length);
 
 export const readExpenseDraft = (userId: string, siteId: string): IExpenseDraft | null => {
   const value = readStorage<unknown>(keyOf(userId, siteId), null);
-  return isDraft(value) ? value : null;
+  return isDraft(value) && MODES.includes(value.mode) ? value : null;
 };
 
 /** Keeps the draft; when the documents don't fit, keeps it without them and says so. */

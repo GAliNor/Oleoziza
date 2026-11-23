@@ -10,6 +10,13 @@
       @update:model-value="handlePick"
       @create="handleStartCreate"
     />
+    <div v-if="!newSupplier" class="flex flex-wrap gap-1">
+      <button type="button" class="btn-plain min-h-9 px-2" @click="handleStartCreate('')">
+        <add-line-icon class="h-4 w-4" />
+        {{ $t('expense.supplier.add') }}
+      </button>
+      <button v-if="modelValue" type="button" class="btn-plain min-h-9 px-2" @click="handleClear">{{ $t('expense.supplier.clear') }}</button>
+    </div>
 
     <Transition name="menu-pop">
       <div v-if="newSupplier" class="flex flex-col gap-3 rounded-card border border-brand/40 bg-selected/20 p-4" role="group" @keydown.esc.stop="newSupplier = null" :aria-label="$t('expense.supplier.title')">
@@ -21,10 +28,10 @@
           <ui-field v-slot="{ id: nameId }" class="@2xl:col-span-3" :label="$t('expense.supplier.name')">
             <input :id="nameId" ref="nameInput" v-model="newSupplier.name" class="input" type="text" />
           </ui-field>
-          <ui-field v-slot="{ id: iceId }" class="@2xl:col-span-2" :label="$t('expense.form.ice')">
+          <ui-field v-slot="{ id: iceId }" class="@2xl:col-span-2" :label="$t('expense.form.ice')" is-optional>
             <input :id="iceId" v-model="newSupplier.ice" class="input tabular-nums" type="text" inputmode="numeric" maxlength="15" :placeholder="$t('expense.form.iceHint')" />
           </ui-field>
-          <ui-field v-slot="{ id: taxId }" :label="$t('expense.form.if')">
+          <ui-field v-slot="{ id: taxId }" :label="$t('expense.form.if')" is-optional>
             <input :id="taxId" v-model="newSupplier.taxId" class="input tabular-nums" type="text" inputmode="numeric" />
           </ui-field>
         </div>
@@ -43,25 +50,26 @@
 import { computed, nextTick, onMounted, ref } from 'vue';
 
 import { useExpenseStore } from 'expense/stores/expense';
+import { ICE_PATTERN } from 'expense/composables/expense-draft';
 import { createId } from 'global/composables/crypto';
 import type { ISupplier } from 'expense/types/expense';
 import type { ISelectOption } from 'global/types/select';
 
 import UiCombobox from 'global/components/ui-combobox.vue';
 import UiField from 'global/components/ui-field.vue';
+import AddLineIcon from 'global/icons/add-line.icon.vue';
 
 // props
 defineProps<{ id?: string }>();
 
 // emits
 const modelValue = defineModel<string | null>({ required: true });
-const emit = defineEmits<{ (event: 'select', supplier: ISupplier): void }>();
+const emit = defineEmits<{ (event: 'select', supplier: ISupplier): void; (event: 'clear'): void }>();
 
 // stores
 const expenseStore = useExpenseStore();
 
 // variables
-const ICE_PATTERN = /^\d{15}$/;
 const newSupplier = ref<ISupplier | null>(null);
 const nameInput = ref<HTMLInputElement | null>(null);
 const problem = ref<'nameRequired' | 'iceInvalid' | 'error' | null>(null);
@@ -75,6 +83,11 @@ const handlePick = (id: string | null): void => {
   if (!supplier) return;
   modelValue.value = supplier.id;
   emit('select', supplier);
+};
+
+const handleClear = (): void => {
+  modelValue.value = null;
+  emit('clear');
 };
 
 const handleStartCreate = async (name: string): Promise<void> => {

@@ -2,7 +2,7 @@
   <app-operator-shell v-if="isOperatorShell">
     <slot />
   </app-operator-shell>
-  <div v-else class="min-h-dvh md:flex">
+  <div v-else class="min-h-dvh [--bottom-nav:calc(3.5rem+env(safe-area-inset-bottom))] md:flex md:[--bottom-nav:0px]">
     <aside
       class="hidden w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-default bg-surface p-4
         md:sticky md:top-0 md:flex md:h-dvh"
@@ -21,7 +21,7 @@
         >
           <component :is="item.icon" class="h-5 w-5" />
           {{ $t(item.labelKey) }}
-          <span v-if="badgeCounts[item.name]" class="nav-badge ms-auto">{{ badgeCounts[item.name] }}</span>
+          <span v-if="badgeCounts[item.name]" class="nav-badge ms-auto" :class="{ 'nav-badge-late': lateNames.includes(item.name) }">{{ badgeCounts[item.name] }}</span>
         </router-link>
       </nav>
       <div class="mt-auto flex flex-col gap-1 border-t border-default pt-4">
@@ -82,7 +82,7 @@
       >
         <span class="relative">
           <component :is="item.icon" class="h-6 w-6" />
-          <span v-if="badgeCounts[item.name]" class="nav-badge absolute -top-1.5 -end-2.5">{{ badgeCounts[item.name] }}</span>
+          <span v-if="badgeCounts[item.name]" class="nav-badge absolute -top-1.5 -end-2.5" :class="{ 'nav-badge-late': lateNames.includes(item.name) }">{{ badgeCounts[item.name] }}</span>
         </span>
         <span class="max-w-full truncate whitespace-nowrap">{{ $t(item.shortLabelKey ?? item.labelKey) }}</span>
       </router-link>
@@ -102,6 +102,7 @@
           <router-link v-for="item in moreItems" :key="item.name" :to="{ name: item.name }" class="nav-link" active-class="nav-link-active" @click="isMoreOpen = false">
             <component :is="item.icon" class="h-5 w-5" />
             {{ $t(item.labelKey) }}
+            <span v-if="badgeCounts[item.name]" class="nav-badge ms-auto" :class="{ 'nav-badge-late': lateNames.includes(item.name) }">{{ badgeCounts[item.name] }}</span>
           </router-link>
         </div>
       </div>
@@ -122,8 +123,10 @@ import { useSiteStore } from 'site/stores/site';
 import { useToastStore } from 'global/stores/toast';
 import { useNavigation } from 'global/composables/use-navigation';
 import { useOperatorMode } from 'global/composables/use-operator-mode';
+import { EXPENSE_ROUTE_NAME } from 'expense/constants/expense';
 import { HOME_ROUTE_NAME } from 'global/constants/navigation';
 import { useTasks } from 'task/composables/use-tasks';
+import { isLate } from 'task/composables/task-text';
 import { TASK_ROUTE_NAME } from 'task/constants/task';
 import type { INavItem } from 'global/types/navigation';
 
@@ -162,7 +165,10 @@ const moreItems = computed((): INavItem[] => visibleNavItems.value.slice(barItem
 const isMoreActive = computed((): boolean => moreItems.value.some((item) => item.name === route.name));
 const isOperatorShell = computed((): boolean => sessionStore.isOperatorView);
 const hasTaskItem = computed((): boolean => visibleNavItems.value.some((item) => item.name === TASK_ROUTE_NAME));
-const badgeCounts = computed((): Record<string, number> => ({ [TASK_ROUTE_NAME]: hasTaskItem.value ? tasks.value.length : 0 }));
+const dueTasks = computed(() => tasks.value.filter((task) => task.kind === 'expense-due'));
+const badgeCounts = computed((): Record<string, number> => (hasTaskItem.value ? { [TASK_ROUTE_NAME]: tasks.value.length, [EXPENSE_ROUTE_NAME]: dueTasks.value.length } : {}));
+/** A badge turns red once something in it is late. */
+const lateNames = computed((): string[] => (dueTasks.value.some(isLate) ? [EXPENSE_ROUTE_NAME] : []));
 
 // watchers
 watch(

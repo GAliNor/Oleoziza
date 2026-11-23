@@ -6,6 +6,13 @@ import type { IExpense } from 'expense/types/expense';
 
 const expense = (overrides: Partial<IExpense>): IExpense => ({
   id: 'e1',
+  seasonId: null,
+  seasonLabel: null,
+  isLocked: false,
+  paymentState: 'paid',
+  dueOn: null,
+  recurringExpenseId: null,
+  frequency: null,
   code: 'OJ-C2627-0001',
   siteId: 'oj',
   date: '2026-11-05',

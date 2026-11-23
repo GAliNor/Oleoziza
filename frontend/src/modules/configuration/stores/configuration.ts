@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 
+import { i18n } from '~/plugins/i18n';
+
 import ConfigurationService from 'configuration/services/configuration';
 import { useReceptionStore } from 'reception/stores/reception';
 import { useSessionStore } from 'global/stores/session';
@@ -10,6 +12,9 @@ import { NOTIFICATION_CHANNELS_STORAGE_KEY } from 'configuration/constants/confi
 import type { IConfiguration, IConfigurationStore, IConfigurationUpdate, INotificationChannelSetting, NotificationChannel } from 'configuration/types/configuration';
 
 const configurationService = new ConfigurationService();
+
+/** What a Configuration holds that belongs to no Season. */
+const siteSettingsOf = ({ methods, boxCount, boxCapacityKg, tanks, pressLines, nextTankNumber, nextPressLineNumber, history }: IConfiguration): Partial<IConfiguration> => ({ methods, boxCount, boxCapacityKg, tanks, pressLines, nextTankNumber, nextPressLineNumber, history });
 
 export const seasonKey = (siteId: string, seasonId: string): string => `${siteId}:${seasonId}`;
 
@@ -62,24 +67,27 @@ export const useConfigurationStore = defineStore('configuration', {
     /** A change applies to later Receptions: the Reception settings are read again. */
     async update(siteId: string, update: IConfigurationUpdate): Promise<IConfiguration | null> {
       const plain = { ...update, value: update.value && { ...update.value }, boxes: update.boxes && { ...update.boxes }, tanks: update.tanks?.map((tank) => ({ ...tank })), pressLines: update.pressLines?.map((line) => ({ ...line })) };
-      const updated = await withStatus(this, 'isSaving', () => configurationService.update(siteId, { ...plain, by: useSessionStore().fullName }));
+      const updated = await withStatus(this, 'isSaving', () => configurationService.update(siteId, { ...plain, by: useSessionStore().fullName }), { errorMessage: i18n.global.t('configuration.saveError') });
       if (!updated) return null;
       this.keep(updated);
       useReceptionStore().loadedSiteId = null;
       return updated;
     },
-    async cancelPriceChange(siteId: string, changeId: string): Promise<IConfiguration | null> {
-      const updated = await withStatus(this, 'isSaving', () => configurationService.cancelPriceChange(siteId, changeId));
-      if (updated) this.keep(updated);
+    /** Deletes a price version: the one before it applies again, so the Reception reads its settings again. */
+    async deletePriceChange(siteId: string, changeId: string): Promise<IConfiguration | null> {
+      const updated = await withStatus(this, 'isSaving', () => configurationService.deletePriceChange(siteId, changeId), { errorMessage: i18n.global.t('configuration.saveError') });
+      if (!updated) return null;
+      this.keep(updated);
+      useReceptionStore().loadedSiteId = null;
       return updated;
     },
-    /** Files a Configuration under its Season, and as the Site's current one when its Season is open; Site settings are shared by every Season. */
+    /** Files a Configuration under its Season, and as the Site's current one when its Season is open or none is; Site settings are shared by every Season. */
     keep(configuration: IConfiguration): void {
       if (configuration.notificationChannels) this.keepChannels(configuration.notificationChannels);
-      this.bySeason[seasonKey(configuration.siteId, configuration.seasonId)] = configuration;
+      if (configuration.seasonId) this.bySeason[seasonKey(configuration.siteId, configuration.seasonId)] = configuration;
       const current = this.bySite[configuration.siteId];
-      if (configuration.seasonStatus === 'open' || !current) this.bySite[configuration.siteId] = configuration;
-      else this.bySite[configuration.siteId] = { ...current, methods: configuration.methods, boxCount: configuration.boxCount, boxCapacityKg: configuration.boxCapacityKg, tanks: configuration.tanks, pressLines: configuration.pressLines, history: configuration.history };
+      if (configuration.seasonStatus === 'open' || !configuration.seasonId || !current) this.bySite[configuration.siteId] = configuration;
+      else this.bySite[configuration.siteId] = { ...current, ...siteSettingsOf(configuration) };
     },
   },
 });

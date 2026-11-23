@@ -1,7 +1,8 @@
 <template>
-  <form class="flex flex-col gap-4" @submit.prevent="handleSave">
+  <form :ref="setFormRoot" class="flex flex-col gap-4" novalidate @submit.prevent="handleSave">
     <h3 :id="titleId" class="label">{{ $t('lot.schedule.title') }}</h3>
-    <div class="overflow-hidden rounded-card border border-default bg-surface shadow-raised">
+    <p v-if="!lot.pressLineId" class="body-two">{{ $t('lot.schedule.none') }}</p>
+    <div class="overflow-hidden rounded-card border border-default bg-surface shadow-raised" data-field="line">
       <div role="radiogroup" :aria-labelledby="titleId">
         <button
           v-for="(line, index) in lines"
@@ -34,7 +35,7 @@
           </span>
         </button>
       </div>
-      <div class="flex min-h-14 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-default px-4 py-2">
+      <div class="flex min-h-14 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-default px-4 py-2" data-field="start">
         <label :for="startId" class="shrink-0 text-sm font-medium whitespace-nowrap text-fg-primary-paragraph">{{ $t('lot.schedule.plannedStart') }}</label>
         <ui-date-picker :id="startId" v-model="startTyped" class="w-full max-w-64 min-w-0" mode="datetime" :label="$t('lot.schedule.plannedStart')" />
       </div>
@@ -42,9 +43,10 @@
         <button type="button" class="link" @click="handleFirst">{{ $t('lot.schedule.first') }}</button>
       </div>
     </div>
+    <p v-if="errorOf('line') ?? errorOf('start')" class="form-error" role="alert">{{ errorOf('line') ?? `${$t('lot.schedule.plannedStart')} : ${errorOf('start')}` }}</p>
     <div class="grid grid-cols-2 gap-3">
       <button type="button" class="btn-secondary" @click="emit('close')">{{ $t('lot.schedule.cancel') }}</button>
-      <button type="submit" class="btn-primary" :disabled="!canSave">{{ $t('lot.schedule.save') }}</button>
+      <button type="submit" class="btn-primary" :disabled="lotStore.isSaving">{{ $t('lot.schedule.save') }}</button>
     </div>
   </form>
 </template>
@@ -56,10 +58,11 @@ import { useI18n } from 'vue-i18n';
 
 import { useLotStore } from 'lot/stores/lot';
 import { useToastStore } from 'global/stores/toast';
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { createId } from 'global/composables/crypto';
 import { fromDateTimeInput, toDateTimeInput } from 'global/composables/datetime-input';
 import { formatPressLine } from 'configuration/composables/equipment';
-import { firstStart, lineQueue } from 'lot/composables/press-schedule';
+import { firstStart, lineQueue, suggestStart } from 'lot/composables/press-schedule';
 import type { IPressLineSetting } from 'configuration/types/configuration';
 import type { ILot } from 'lot/types/lot';
 
@@ -82,29 +85,32 @@ const scheduleId = createId();
 const titleId = useId();
 const startId = useId();
 const pressLineId = ref(props.lot.pressLineId ?? props.lines[0]?.id ?? '');
-const startTyped = ref(props.lot.plannedStartAt ? toDateTimeInput(props.lot.plannedStartAt) : '');
+const startTyped = ref('');
 
 // computed
 const siteLots = computed((): ILot[] => lotStore.lots.filter((item) => item.siteId === props.lot.siteId));
 const plannedStartAt = computed((): string => fromDateTimeInput(startTyped.value));
-const canSave = computed((): boolean => !!pressLineId.value && !!plannedStartAt.value && !lotStore.isSaving);
+const { setFormRoot, errorOf, attempt } = useFormFeedback(() => [
+  { key: 'line', label: t('lot.schedule.title'), error: pressLineId.value ? null : t('lot.schedule.noLine') },
+  { key: 'start', label: t('lot.schedule.plannedStart'), isMissing: !plannedStartAt.value },
+]);
 
 // methods
 const queueCount = (lineId: string): number => lineQueue(siteLots.value, lineId).filter((item) => item.id !== props.lot.id).length;
+
+startTyped.value = toDateTimeInput(props.lot.plannedStartAt ?? suggestStart(siteLots.value, pressLineId.value, new Date()));
+
+const save = async (): Promise<void> => {
+  const updated = await lotStore.scheduleLot(props.lot, { id: scheduleId, pressLineId: pressLineId.value, plannedStartAt: plannedStartAt.value });
+  if (!updated) return;
+  toastStore.push(t('lot.schedule.saved', { code: updated.code }), 'success');
+  emit('close');
+};
 
 // event handlers
 const handleFirst = (): void => {
   startTyped.value = toDateTimeInput(firstStart(siteLots.value, pressLineId.value, props.lot.id, new Date()));
 };
 
-const handleSave = async (): Promise<void> => {
-  if (!canSave.value) return;
-  const updated = await lotStore.scheduleLot(props.lot, { id: scheduleId, pressLineId: pressLineId.value, plannedStartAt: plannedStartAt.value });
-  if (!updated) {
-    toastStore.push(t('lot.schedule.error'), 'danger');
-    return;
-  }
-  toastStore.push(t('lot.schedule.saved', { code: updated.code }), 'success');
-  emit('close');
-};
+const handleSave = (): void => attempt(save);
 </script>

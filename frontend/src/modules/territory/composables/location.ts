@@ -11,6 +11,8 @@ export const isSameCity = sameName;
 
 export const isLocationComplete = (location: ILocation): boolean => !!location.province && !!location.city.trim() && !!location.address.trim();
 
+export const isLocationEmpty = (location: ILocation): boolean => !location.province && !location.city.trim() && !location.address.trim();
+
 /** Choosing a Province keeps a town typed by hand, and drops one known to belong elsewhere. */
 export const withProvince = (provinces: readonly IProvince[], location: ILocation, province: ProvinceId): ILocation => {
   const owner = provinceOfCity(provinces, location.city);

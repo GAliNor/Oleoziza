@@ -5,7 +5,7 @@ from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, UniqueCons
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.database import Base
-from core.model_mixins import ADDRESS_LENGTH, EMAIL_LENGTH, NAME_LENGTH, PHONE_LENGTH, AuditMixin, IdMixin, build_enum_type
+from core.model_mixins import EMAIL_LENGTH, NAME_LENGTH, PHONE_LENGTH, AuditMixin, IdMixin, build_enum_type
 from modules.user.types.user_types import Language, LoginMethod, Permission, Role, Title, UserStatus
 
 
@@ -26,9 +26,6 @@ class User(IdMixin, AuditMixin, Base):
     last_name: Mapped[str] = mapped_column(String(NAME_LENGTH))
     phone: Mapped[str | None] = mapped_column(String(PHONE_LENGTH), unique=True)
     email: Mapped[str | None] = mapped_column(String(EMAIL_LENGTH), unique=True)
-    province_id: Mapped[str | None] = mapped_column(ForeignKey("provinces.id"))
-    city: Mapped[str | None] = mapped_column(String(NAME_LENGTH))
-    address: Mapped[str | None] = mapped_column(String(ADDRESS_LENGTH))
     language: Mapped[Language] = mapped_column(build_enum_type(Language, "user_language"), default=Language.FR, server_default=Language.FR.value)
     status: Mapped[UserStatus] = mapped_column(build_enum_type(UserStatus, "user_status"), default=UserStatus.INVITED, server_default=UserStatus.INVITED.value)
     must_change_credential: Mapped[bool] = mapped_column(default=False, server_default="false")

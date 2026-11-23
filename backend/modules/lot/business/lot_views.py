@@ -11,6 +11,7 @@ from modules.configuration.models.configuration_models import Box, OliveVariety
 from modules.finance.business.client_credit import get_lot_credits
 from modules.finance.models.finance_models import Discount, Payment, PaymentAllocation
 from modules.finance.types.finance_types import DiscountState, PaymentStatus
+from modules.lot.business.lot_photos import list_photo_steps
 from modules.lot.business.lot_rate_views import list_rate_corrections, map_rate_correction
 from modules.lot.models.lot_models import BoxOccupancy, Lot, Notification
 from modules.lot.types.lot_types import LotDiscountOut, LotMoveOut, LotNotificationOut, LotOut, LotStatus, LotStorageOut, NotificationChoice, NotificationStatus
@@ -42,6 +43,7 @@ def build_lot_views(db: Session, lots: list[Lot]) -> list[LotOut]:
     paid_by_lot, pending_by_lot = list_allocated_amounts(db, lot_ids)
     credit_by_lot = get_lot_credits(db, lot_ids)
     corrections = list_rate_corrections(db, lot_ids)
+    photo_steps = list_photo_steps(db, lot_ids)
     user_ids = {user_id for lot in lots for user_id in (lot.created_by_id, lot.pressing_started_by_id, lot.pressing_ended_by_id)}
     user_ids |= {storage.created_by_id for lot_storages in storages.values() for storage in lot_storages}
     user_ids |= {user_id for discount in discounts.values() for user_id in (discount.created_by_id, discount.decided_by_id)}
@@ -63,7 +65,7 @@ def build_lot_views(db: Session, lots: list[Lot]) -> list[LotOut]:
             pending_by_lot.get(lot.id, Decimal(0)),
             names,
             credit_by_lot.get(lot.id, Decimal(0)),
-        ).model_copy(update={"rate_corrections": [map_rate_correction(correction, names) for correction in corrections.get(lot.id, [])]})
+        ).model_copy(update={"rate_corrections": [map_rate_correction(correction, names) for correction in corrections.get(lot.id, [])], "photo_steps": photo_steps.get(lot.id, [])})
         for lot in lots
     ]
 
@@ -130,7 +132,7 @@ def build_lot_view(
         pending_dh=float(pending),
         credit_dh=float(credit),
         moves=build_moves(lot, last_withdrawal, names),
-        step_photos={},
+        photo_steps=[],
         received_at=lot.entered_at,
         received_by=names.get(lot.created_by_id, "") if lot.created_by_id else "",
     )

@@ -22,6 +22,8 @@ from modules.site.types.site_types import SeasonArtVariant, SeasonIllustrationOu
 from modules.user.types.user_types import Permission
 
 
+FIRST_HARVEST_MONTH = 7
+
 SEASON_START_MONTH = 11
 
 SEASON_START_DAY = 1
@@ -56,7 +58,7 @@ class SeasonService:
         """
         seasons = self.db.scalars(select(Season).order_by(Season.starts_on)).all()
         illustrations = read_season_illustrations(self.db, self.storage, {season.season_illustration_id for season in seasons if season.season_illustration_id})
-        return [self._build_season(season, illustrations) for season in seasons]
+        return [self.build_season(season, illustrations) for season in seasons]
 
     def choose_illustration(self, season_id: UUID, season_illustration_id: UUID | None) -> SeasonOut:
         """
@@ -72,15 +74,15 @@ class SeasonService:
         Raises:
             RefusedError: season_forbidden, season_not_found, season_illustration_not_found.
         """
-        self._check_can_manage()
-        season = self._get_season(season_id)
+        self.check_can_manage()
+        season = self.get_season_row(season_id)
         self._check_illustration_exists(season_illustration_id)
         season.season_illustration_id = season_illustration_id
         season.updated_by_id = self.current_user.id
         after = {"seasonIllustrationId": str(season_illustration_id) if season_illustration_id else None}
         record_audit_event(self.db, self.current_user.id, "season.illustration_chosen", entity_type="season", entity_id=season.id, after=after)
         self.db.commit()
-        return self._build_season(season)
+        return self.build_season(season)
 
     def upload_illustration(self, season_id: UUID, variant: SeasonArtVariant, upload: UploadFile) -> SeasonOut:
         """
@@ -98,8 +100,8 @@ class SeasonService:
             RefusedError: season_forbidden, season_not_found, unsupported_type, too_large.
             StorageError: If RustFS refused or could not be reached.
         """
-        self._check_can_manage()
-        season = self._get_season(season_id)
+        self.check_can_manage()
+        season = self.get_season_row(season_id)
         extension = ILLUSTRATION_EXTENSION_BY_CONTENT_TYPE.get(upload.content_type or "")
         if extension is None:
             raise RefusedError("unsupported_type", 415)
@@ -109,9 +111,9 @@ class SeasonService:
         file = store_season_illustration(self.db, self.storage, season, variant, content, upload.content_type or "", extension, upload.filename or f"{season.code}.{extension}", self.current_user.id)
         record_audit_event(self.db, self.current_user.id, "season.illustration_set", entity_type="season", entity_id=season.id, after={"variant": variant.value, "fileId": str(file.id)})
         self.db.commit()
-        return self._build_season(season)
+        return self.build_season(season)
 
-    def _build_season(self, season: Season, illustrations: dict[UUID, SeasonIllustrationOut] | None = None) -> SeasonOut:
+    def build_season(self, season: Season, illustrations: dict[UUID, SeasonIllustrationOut] | None = None) -> SeasonOut:
         """
         Shape a Season for the front, with the public URLs of its Season Illustration when it uses one.
 
@@ -144,13 +146,13 @@ class SeasonService:
         Raises:
             RefusedError: season_forbidden without season.manage, season_already_planned when one is already prepared, season_illustration_not_found.
         """
-        self._check_can_manage()
+        self.check_can_manage()
         self._check_illustration_exists(season_illustration_id)
         if self.db.scalar(select(Season.id).where(Season.status == SeasonStatus.PLANNED)) is not None:
             raise RefusedError("season_already_planned")
         latest = self.db.scalar(select(Season).order_by(Season.starts_on.desc(), Season.created_at.desc()).limit(1))
         source = self.db.scalar(select(Season).where(Season.status == SeasonStatus.OPEN)) or latest
-        start_year = latest.starts_on.year + 1 if latest else datetime.now(timezone.utc).year
+        start_year = get_harvest_year(latest.starts_on) + 1 if latest else datetime.now(timezone.utc).year
         season = Season(
             code=f"{start_year % 100:02d}{(start_year + 1) % 100:02d}",
             label=f"Saison {start_year}-{start_year + 1}",
@@ -166,7 +168,7 @@ class SeasonService:
             self._carry_prices_over(source, season)
         record_audit_event(self.db, self.current_user.id, "season.prepared", entity_type="season", entity_id=season.id, after={"code": season.code})
         self.db.commit()
-        return self._build_season(season)
+        return self.build_season(season)
 
     def open_season(self, season_id: UUID) -> SeasonOut:
         """
@@ -181,8 +183,8 @@ class SeasonService:
         Raises:
             RefusedError: season_forbidden, season_not_found, season_not_planned.
         """
-        self._check_can_manage()
-        season = self._get_season(season_id)
+        self.check_can_manage()
+        season = self.get_season_row(season_id)
         if season.status != SeasonStatus.PLANNED:
             raise RefusedError("season_not_planned")
         current = self.db.scalar(select(Season).where(Season.status == SeasonStatus.OPEN))
@@ -193,7 +195,7 @@ class SeasonService:
         season.updated_by_id = self.current_user.id
         record_audit_event(self.db, self.current_user.id, "season.opened", entity_type="season", entity_id=season.id, after={"code": season.code})
         self.db.commit()
-        return self._build_season(season)
+        return self.build_season(season)
 
     def close_season(self, season_id: UUID) -> SeasonOut:
         """
@@ -208,13 +210,13 @@ class SeasonService:
         Raises:
             RefusedError: season_forbidden, season_not_found, season_not_open.
         """
-        self._check_can_manage()
-        season = self._get_season(season_id)
+        self.check_can_manage()
+        season = self.get_season_row(season_id)
         if season.status != SeasonStatus.OPEN:
             raise RefusedError("season_not_open")
         self._close(season)
         self.db.commit()
-        return self._build_season(season)
+        return self.build_season(season)
 
     def _close(self, season: Season) -> None:
         """
@@ -243,13 +245,13 @@ class SeasonService:
                 value: Decimal | None = self.db.scalar(
                     select(SiteSetting.value)
                     .where(SiteSetting.site_id == site_id, SiteSetting.season_id == previous.id, SiteSetting.key == key)
-                    .order_by(SiteSetting.effective_from.desc())
+                    .order_by(SiteSetting.effective_from.desc(), SiteSetting.id.desc())
                     .limit(1)
                 )
                 if value is not None:
                     self.db.add(SiteSetting(site_id=site_id, season_id=season.id, key=key, value=value, effective_from=effective_from, created_by_id=self.current_user.id))
 
-    def _get_season(self, season_id: UUID) -> Season:
+    def get_season_row(self, season_id: UUID) -> Season:
         """
         Load a Season or refuse an unknown id.
 
@@ -280,7 +282,7 @@ class SeasonService:
         if season_illustration_id is not None and self.db.get(SeasonIllustration, season_illustration_id) is None:
             raise RefusedError("season_illustration_not_found", 404)
 
-    def _check_can_manage(self) -> None:
+    def check_can_manage(self) -> None:
         """
         Refuse a User without season.manage on any Site; the Owner always may.
 
@@ -290,6 +292,19 @@ class SeasonService:
         permission = Permission.SEASON_MANAGE.value
         if not self.current_user.is_owner and not any(permission in permissions for permissions in self.current_user.permissions_by_site.values()):
             raise RefusedError("season_forbidden", 403)
+
+
+def get_harvest_year(starts_on: date) -> int:
+    """
+    Read the year a Season is named after, whatever day it was moved to: a harvest starts in autumn, or in the winter that follows.
+
+    Args:
+        starts_on (date): First day of the Season.
+
+    Returns:
+        int: Its first year, 2026 for « 2026-2027 ».
+    """
+    return starts_on.year if starts_on.month >= FIRST_HARVEST_MONTH else starts_on.year - 1
 
 
 def get_season_service(

@@ -71,7 +71,12 @@
     },
     "pressedWaiting": "{count} lot pressé attend son client : scannez son ticket ou cherchez-le. | {count} lot pressé attend son client : scannez son ticket ou cherchez-le. | {count} lots pressés attendent leur client : scannez leur ticket ou cherchez-les.",
     "scan": "Scanner",
-    "unknownTicket": "Aucun lot « {code} » sur ce site."
+    "unknownTicket": "Aucun lot « {code} » sur ce site.",
+    "tabs": {
+      "label": "Lots affichés",
+      "lines": "Malaxeurs",
+      "withoutLine": "Sans malaxeur ({count})"
+    }
   },
   "management": {
     "financeHidden": "Finances masquées (autorisation « finance.view »)",

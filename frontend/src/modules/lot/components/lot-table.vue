@@ -7,12 +7,16 @@
       <button v-for="key in LOT_STATUSES" :key="key" type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': status === key }" @click="status = key">
         {{ $t(`lot.status.${key}`) }} <span class="text-fg-muted tabular-nums">{{ countOf(key) }}</span>
       </button>
+      <button type="button" class="choice-chip shrink-0" :class="{ 'choice-chip-active': status === 'without-line' }" @click="status = 'without-line'">
+        {{ $t('lot.withoutLine.title') }} <span class="text-fg-muted tabular-nums">{{ lotStore.withoutLine.total }}</span>
+      </button>
     </div>
   </div>
 
   <ui-master-detail :is-open="isOpen" :back-label="$t(fromClientId ? 'lot.register.backToClient' : 'lot.register.backToLots')" @close="closeLot">
     <template #list>
-      <div class="table-card">
+      <lots-without-line v-if="status === 'without-line' && siteStore.currentSiteId" :site-id="siteStore.currentSiteId" :can-assign="!siteStore.isAllSites && siteStore.can('reception.create')" :search="search" @open="handleOpenWithoutLine" />
+      <div v-else class="table-card">
         <table class="data-table">
           <thead>
             <tr>
@@ -55,7 +59,7 @@
         </table>
         <ui-empty-state v-if="!rows.length" :message="$t('lot.register.empty')" />
       </div>
-      <ui-pagination v-model:page="page" :page-count="pageCount" :total="rows.length" :page-size="PAGE_SIZE" />
+      <ui-pagination v-if="status !== 'without-line'" v-model:page="page" :page-count="pageCount" :total="rows.length" :page-size="PAGE_SIZE" />
     </template>
     <template v-if="active" #detail>
       <lot-detail :key="active.id" :lot="active" />
@@ -68,6 +72,8 @@
 // imports
 import { computed, ref, watch } from 'vue';
 
+import { useLotStore } from 'lot/stores/lot';
+import { useSiteStore } from 'site/stores/site';
 import { useLotRegister, useOpenLot } from 'lot/composables/use-lot-register';
 import { usePagedRows } from 'global/composables/use-paged-rows';
 import { formatKg, formatLitres, formatYield } from 'lot/composables/quantity';
@@ -80,18 +86,21 @@ import UiMasterDetail from 'global/components/ui-master-detail.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import LotDetail from 'lot/components/lot-detail.vue';
 import LotActions from 'lot/components/lot-actions.vue';
+import LotsWithoutLine from 'lot/components/lots-without-line.vue';
 import LotPaymentChip from 'lot/components/lot-payment-chip.vue';
 
 // props
 const props = defineProps<{ search: string }>();
 
 // stores
+const lotStore = useLotStore();
+const siteStore = useSiteStore();
 const { scoped } = useLotRegister();
 const { isOpen, active, lastId, fromClientId, openLot, closeLot } = useOpenLot();
 
 // variables
 const PAGE_SIZE = 10;
-const status = ref<LotStatus | 'all'>('all');
+const status = ref<LotStatus | 'all' | 'without-line'>('all');
 
 // computed
 const rows = computed((): ILot[] => {
@@ -105,6 +114,20 @@ watch([() => props.search, status], () => {
   page.value = 1;
 });
 
+watch(
+  () => siteStore.currentSiteId,
+  (siteId) => {
+    if (siteId) lotStore.fetchWithoutLine(siteId);
+  },
+  { immediate: true },
+);
+
 // methods
 const countOf = (key: LotStatus): number => scoped.value.filter((lot) => lot.status === key).length;
+
+// event handlers
+const handleOpenWithoutLine = (lot: ILot): void => {
+  if (!lotStore.lots.some((item) => item.id === lot.id)) lotStore.upsertLot(lot);
+  openLot(lot.id);
+};
 </script>

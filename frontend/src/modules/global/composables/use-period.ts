@@ -3,7 +3,8 @@ import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 
 import { shiftDate, todayIso } from 'global/composables/date';
-import { DEFAULT_PERIOD, PERIOD_DAYS, PREVIOUS_SEASON, SEASON_START } from 'global/constants/period';
+import { seasonDates } from 'global/composables/season-dates';
+import { DEFAULT_PERIOD, PERIOD_DAYS } from 'global/constants/period';
 import type { IPeriod, IPeriodRange, PeriodKey } from 'global/types/period';
 
 const PERIOD_KEYS = Object.keys(PERIOD_DAYS) as PeriodKey[];
@@ -13,7 +14,7 @@ export const periodRange = (key: PeriodKey, today: string = todayIso()): IPeriod
   if (key === 'today') return { from: today, to: today };
   if (key === 'week') return { from: shiftDate(today, -6), to: today };
   if (key === 'month') return { from: `${today.slice(0, 7)}-01`, to: today };
-  return key === 'season' ? { from: SEASON_START, to: today } : PREVIOUS_SEASON;
+  return key === 'season' ? { from: seasonDates.value.currentFrom, to: today } : seasonDates.value.previous;
 };
 
 /** The period filter shared by the Management pages, kept in the URL as ?period=. */

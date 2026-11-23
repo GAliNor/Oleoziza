@@ -13,12 +13,11 @@
     <p v-if="localError" class="form-error text-center" role="alert">{{ localError }}</p>
   </div>
 
-  <form v-else class="flex flex-col gap-5" @submit.prevent="handlePasswordSubmit">
-    <ui-field v-slot="{ id }" :label="$t('auth.credential.newPassword')">
+  <form v-else :ref="setFormRoot" class="flex flex-col gap-5" novalidate @submit.prevent="attempt(() => emit('submit', password))">
+    <ui-field v-slot="{ id }" name="password" :label="$t('auth.credential.newPassword')" :error="errorOf('password')" :is-valid="isValid('password')" :hint="$t('auth.credential.passwordRule', { length: PASSWORD_MIN_LENGTH })" @leave="touch('password')">
       <password-input :id="id" v-model="password" autocomplete="new-password" :is-disabled="isSubmitting" />
-      <p class="body-two">{{ $t('auth.credential.passwordRule', { length: PASSWORD_MIN_LENGTH }) }}</p>
     </ui-field>
-    <ui-field v-slot="{ id }" :label="$t('auth.credential.confirmPassword')">
+    <ui-field v-slot="{ id }" name="confirmation" :label="$t('auth.credential.confirmPassword')" :error="errorOf('confirmation')" :is-valid="isValid('confirmation')" @leave="touch('confirmation')">
       <password-input
         :id="id"
         v-model="passwordConfirmation"
@@ -26,7 +25,6 @@
         :is-disabled="isSubmitting"
       />
     </ui-field>
-    <p v-if="localError" class="form-error" role="alert">{{ localError }}</p>
     <button type="submit" class="btn-primary w-full" :disabled="isSubmitting">
       {{ submitLabel }}
       <arrow-right-line-icon class="h-4 w-4" />
@@ -39,6 +37,7 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useFormFeedback } from 'global/composables/use-form-feedback';
 import { PASSWORD_MIN_LENGTH, PIN_LENGTH } from 'auth/constants/auth';
 import type { CredentialKind } from 'auth/types/auth';
 
@@ -64,6 +63,11 @@ const password = ref('');
 const passwordConfirmation = ref('');
 const localError = ref('');
 
+const { setFormRoot, errorOf, isValid, touch, attempt } = useFormFeedback(() => [
+  { key: 'password', label: t('auth.credential.newPassword'), isMissing: !password.value, error: password.value.length < PASSWORD_MIN_LENGTH ? t('auth.credential.passwordRule', { length: PASSWORD_MIN_LENGTH }) : null, isFilled: true },
+  { key: 'confirmation', label: t('auth.credential.confirmPassword'), isMissing: !passwordConfirmation.value, error: password.value === passwordConfirmation.value ? null : t('auth.credential.passwordMismatch'), isFilled: true },
+]);
+
 // methods
 const isWeakPin = (value: string): boolean => /^(\d)\1+$/.test(value) || '0123456789'.includes(value);
 
@@ -88,18 +92,5 @@ const handlePinComplete = (value: string): void => {
     return;
   }
   emit('submit', value);
-};
-
-const handlePasswordSubmit = (): void => {
-  localError.value = '';
-  if (password.value.length < PASSWORD_MIN_LENGTH) {
-    localError.value = t('auth.credential.passwordRule', { length: PASSWORD_MIN_LENGTH });
-    return;
-  }
-  if (password.value !== passwordConfirmation.value) {
-    localError.value = t('auth.credential.passwordMismatch');
-    return;
-  }
-  emit('submit', password.value);
 };
 </script>

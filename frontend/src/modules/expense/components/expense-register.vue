@@ -20,9 +20,9 @@
           @click="emit('open', expense.id)"
           @keydown.enter="emit('open', expense.id)"
         >
-          <td class="px-4 py-3 whitespace-nowrap text-fg-primary-paragraph">{{ formatShortDate(`${expense.date}T12:00:00`) }}</td>
+          <td class="px-4 py-3 whitespace-nowrap text-fg-primary-paragraph">{{ expense.date ? formatShortDate(`${expense.date}T12:00:00`) : '' }}</td>
           <td class="px-4 py-3">
-            <p class="font-medium" :class="expense.status === 'cancelled' ? 'line-through' : 'text-fg-display'">{{ expense.description }}</p>
+            <p class="font-medium" :class="expense.status === 'cancelled' ? 'line-through' : 'text-fg-display'">{{ expenseTitle(expense) }}</p>
             <p class="body-two">
               <span class="me-1.5 inline-block h-2 w-2 rounded-full align-middle" :style="{ background: EXPENSE_CATEGORY_COLORS[categoryIdOf(categories, expense.categoryId)] }" />
               {{ $t(`expense.categories.${expense.categoryId}`) }}<span class="hidden whitespace-nowrap @xl:inline"> · {{ expense.code }}</span>
@@ -30,13 +30,13 @@
               <span v-else-if="hasWarning(expense)" class="chip ms-1 bg-warning-subtle text-fg-warning">{{ $t('expense.register.warning') }}</span>
             </p>
           </td>
-          <td class="hidden px-4 py-3 text-fg-primary-paragraph @4xl:table-cell">{{ expense.supplier }}</td>
+          <td class="hidden px-4 py-3 text-fg-primary-paragraph @4xl:table-cell">{{ expense.supplier || '—' }}</td>
           <td class="hidden px-4 py-3 whitespace-nowrap @2xl:table-cell">
-            {{ $t(`expense.paidBy.${expense.paidBy}`) }}
+            {{ expense.paidBy ? $t(`expense.paidBy.${expense.paidBy}`) : '' }}
             <span v-if="expense.documents.length" class="chip ms-1 bg-subtle text-fg-primary-paragraph">{{ $t('expense.register.documents', expense.documents.length) }}</span>
             <span v-else class="chip ms-1 bg-subtle text-fg-secondary-paragraph">{{ $t('expense.register.noDocument') }}</span>
           </td>
-          <td class="px-4 py-3 text-end font-semibold whitespace-nowrap tabular-nums" :class="expense.status === 'cancelled' ? 'line-through' : 'text-fg-accent'">−{{ formatMoney(expense.amount) }}</td>
+          <td class="px-4 py-3 text-end font-semibold whitespace-nowrap tabular-nums" :class="expense.status === 'cancelled' ? 'line-through' : 'text-fg-accent'">−{{ formatMoney(expense.amount ?? 0) }}</td>
         </tr>
       </TransitionGroup>
     </table>
@@ -53,6 +53,7 @@
 import { computed } from 'vue';
 
 import { categoryIdOf } from 'expense/composables/expense-amounts';
+import { expenseTitle } from 'expense/composables/expense-title';
 import { expenseWarnings } from 'expense/composables/expense-warnings';
 import { EXPENSE_CATEGORY_COLORS } from 'expense/constants/expense';
 import { formatMoney } from 'global/composables/money';
