@@ -10,7 +10,7 @@
       </div>
       <header class="flex items-center gap-1.5 border-b border-default bg-surface/90 px-4 py-2.5 backdrop-blur md:gap-2 md:px-8">
         <router-link :to="{ name: 'dashboard' }" class="shrink-0 max-md:has-[+button]:hidden" :aria-label="$t('global.nav.dashboard')">
-          <logo-mark-fill-icon class="h-7 w-7 text-fg-brand" />
+          <ui-logo variant="mark" class="h-8 w-8" />
         </router-link>
         <app-back-button />
         <site-switcher class="flex-1" />
@@ -39,6 +39,7 @@
       <app-sync-issues />
       <slot />
     </main>
+    <app-page-decoration />
 
     <app-toast />
   </div>
@@ -58,10 +59,11 @@ import AppToast from 'global/components/app-toast.vue';
 import UiAvatar from 'global/components/ui-avatar.vue';
 import AppBackButton from 'global/components/app-back-button.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
+import AppPageDecoration from 'global/components/app-page-decoration.vue';
 import AppSyncIssues from 'global/components/app-sync-issues.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import AppUserMenu from 'global/components/app-user-menu.vue';
-import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
+import UiLogo from 'global/components/ui-logo.vue';
 import RefreshLineIcon from 'global/icons/refresh-line.icon.vue';
 import SearchLineIcon from 'global/icons/search-line.icon.vue';
 import ArrowLeftLineIcon from 'global/icons/arrow-left-line.icon.vue';

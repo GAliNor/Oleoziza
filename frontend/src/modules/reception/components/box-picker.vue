@@ -5,12 +5,23 @@
       <p class="body-three tabular-nums">{{ $t('reception.box.free', { free: freeBoxes.length, total: boxCount }) }}</p>
     </div>
 
-    <div class="flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-card px-4 py-3 transition-colors duration-300 ease-(--ease-premium)" :class="STATUS_TONES[status.tone]" role="status">
-      <p class="min-w-0">
-        <span class="block text-sm font-semibold text-fg-display">{{ status.title }}</span>
-        <span class="body-three block">{{ status.detail }}</span>
-      </p>
-      <button v-if="canRestoreSuggestion" type="button" class="link shrink-0" @click="handleUseSuggestion">{{ $t('reception.box.useSuggestion') }}</button>
+    <div
+      ref="statusBox"
+      class="flex min-h-16 flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-card px-4 py-3 transition-colors duration-500 ease-(--ease-premium)"
+      :class="STATUS_TONES[status.tone]"
+      role="status"
+    >
+      <div class="relative min-w-0 flex-1">
+        <Transition name="status-swap">
+          <p :key="status.key" class="min-w-0">
+            <span class="block text-sm font-semibold text-fg-display">{{ status.title }}</span>
+            <span class="body-three block">{{ status.detail }}</span>
+          </p>
+        </Transition>
+      </div>
+      <Transition name="status-action">
+        <button v-if="canRestoreSuggestion" type="button" class="link shrink-0" @click="handleUseSuggestion">{{ $t('reception.box.useSuggestion') }}</button>
+      </Transition>
     </div>
 
     <ui-segmented
@@ -31,25 +42,27 @@
       </template>
     </ui-segmented>
 
-    <Transition name="box-page" mode="out-in">
-      <ul :key="rangeKey" class="grid gap-2" :class="rangesComputed.length > 1 ? 'grid-cols-5 sm:grid-cols-10' : 'grid-cols-6 sm:grid-cols-8'">
-        <li v-for="box in visibleBoxesComputed" :key="box">
-          <button
-            type="button"
-            class="box-tile relative"
-            :class="boxClass(box)"
-            :disabled="occupancy.has(box)"
-            :aria-pressed="modelValue.includes(box)"
-            :aria-label="boxLabel(box)"
-            :title="boxLabel(box)"
-            @click="handleToggle(box)"
-          >
-            {{ box }}
-            <check-line-icon v-if="modelValue.includes(box)" class="check-pop absolute top-0.5 inset-e-0.5 h-3.5 w-3.5" />
-          </button>
-        </li>
-      </ul>
-    </Transition>
+    <div ref="pageBox" class="relative">
+      <Transition :name="isPagingBack ? 'box-page-back' : 'box-page'">
+        <ul :key="rangeKey" class="grid gap-2" :class="rangesComputed.length > 1 ? 'grid-cols-5 sm:grid-cols-10' : 'grid-cols-6 sm:grid-cols-8'">
+          <li v-for="(box, index) in visibleBoxesComputed" :key="box" :style="{ '--tile': index }">
+            <button
+              type="button"
+              class="box-tile relative"
+              :class="boxClass(box)"
+              :disabled="occupancy.has(box)"
+              :aria-pressed="modelValue.includes(box)"
+              :aria-label="boxLabel(box)"
+              :title="boxLabel(box)"
+              @click="handleToggle(box)"
+            >
+              {{ box }}
+              <check-line-icon v-if="modelValue.includes(box)" class="check-pop absolute top-0.5 inset-e-0.5 h-3.5 w-3.5" />
+            </button>
+          </li>
+        </ul>
+      </Transition>
+    </div>
 
     <ul class="body-three flex flex-wrap gap-x-4 gap-y-1" aria-hidden="true">
       <li v-for="item in LEGEND" :key="item.key" class="flex items-center gap-1.5">
@@ -58,12 +71,17 @@
       </li>
     </ul>
 
-    <label class="flex min-h-12 cursor-pointer items-start gap-3 rounded-control border border-default p-3 hover:border-strong">
-      <input v-model="isIgnored" class="mt-0.5 h-5 w-5 shrink-0 accent-(--color-primary-olive-dark)" type="checkbox" />
-      <span class="min-w-0">
+    <label
+      class="press flex min-h-12 cursor-pointer items-center gap-3 rounded-control border p-3
+        has-focus-visible:outline-2 has-focus-visible:outline-focus"
+      :class="isIgnored ? 'border-brand bg-selected/30' : 'border-default hover:border-strong'"
+    >
+      <input v-model="isIgnored" class="sr-only" type="checkbox" role="switch" />
+      <span class="min-w-0 flex-1">
         <span class="block font-medium text-fg-display">{{ $t('reception.box.ignore') }}</span>
         <span class="body-two block">{{ $t('reception.box.ignoreDetail') }}</span>
       </span>
+      <ui-switch :is-on="isIgnored" />
     </label>
   </section>
 </template>
@@ -73,11 +91,13 @@
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useSmoothHeight } from 'global/composables/use-smooth-height';
 import { areSideBySide, boxesNeeded, formatBoxes, suggestBoxes } from 'lot/composables/lot-boxes';
 import { formatKg } from 'lot/composables/quantity';
 import type { ILot } from 'lot/types/lot';
 
 import UiSegmented from 'global/components/ui-segmented.vue';
+import UiSwitch from 'global/components/ui-switch.vue';
 import CheckLineIcon from 'global/icons/check-line.icon.vue';
 
 // props
@@ -108,6 +128,9 @@ const RANGE_SIZE = 20;
 const FLAT_LIMIT = 30;
 const isManual = ref(false);
 const rangeKey = ref('0');
+const isPagingBack = ref(false);
+const statusBox = ref<HTMLElement | null>(null);
+const pageBox = ref<HTMLElement | null>(null);
 
 // computed
 const boxes = computed((): number[] => Array.from({ length: props.boxCount }, (_, index) => index + 1));
@@ -127,22 +150,24 @@ const visibleBoxesComputed = computed((): number[] => rangesComputed.value[Numbe
 const needed = computed((): number => boxesNeeded(props.netKg, props.capacityKg));
 const suggestion = computed((): number[] => suggestBoxes(freeBoxes.value, needed.value));
 const canRestoreSuggestion = computed((): boolean => isManual.value && suggestion.value.length > 0 && suggestion.value.join() !== props.modelValue.join());
-const status = computed((): { tone: StatusTone; title: string; detail: string } => {
+/** `key` names the state, so the card crossfades when the state changes, not on every keystroke of the weight. */
+const status = computed((): { key: string; tone: StatusTone; title: string; detail: string } => {
   const selected = props.modelValue;
   const room = formatKg(selected.length * props.capacityKg);
   const weight = formatKg(props.netKg);
   if (isIgnored.value) {
-    return { tone: 'neutral', title: t('reception.box.ignored'), detail: selected.length ? t('reception.box.ignoredWith', { boxes: formatBoxes(selected) }) : t('reception.box.ignoredNone') };
+    return { key: 'ignored', tone: 'neutral', title: t('reception.box.ignored'), detail: selected.length ? t('reception.box.ignoredWith', { boxes: formatBoxes(selected) }) : t('reception.box.ignoredNone') };
   }
-  if (!freeBoxes.value.length && !selected.length) return { tone: 'danger', title: t('reception.box.noneFree'), detail: t('reception.box.noneFreeDetail') };
-  if (!needed.value && !selected.length) return { tone: 'neutral', title: t('reception.box.waitingWeight'), detail: t('reception.box.waitingWeightDetail', { capacity: formatKg(props.capacityKg) }) };
+  if (!freeBoxes.value.length && !selected.length) return { key: 'noneFree', tone: 'danger', title: t('reception.box.noneFree'), detail: t('reception.box.noneFreeDetail') };
+  if (!needed.value && !selected.length) return { key: 'waitingWeight', tone: 'neutral', title: t('reception.box.waitingWeight'), detail: t('reception.box.waitingWeightDetail', { capacity: formatKg(props.capacityKg) }) };
   if (selected.length < needed.value) {
     const missingKg = formatKg(props.netKg - selected.length * props.capacityKg);
-    return { tone: 'danger', title: t('reception.box.short', { missing: missingKg }), detail: t('reception.box.shortDetail', { room, weight }) };
+    return { key: 'short', tone: 'danger', title: t('reception.box.short', { missing: missingKg }), detail: t('reception.box.shortDetail', { room, weight }) };
   }
   const detail = needed.value ? t('reception.box.fits', { room, weight }) : t('reception.box.room', { room });
-  if (isManual.value) return { tone: 'neutral', title: t('reception.box.chosen', { boxes: formatBoxes(selected) }), detail };
+  if (isManual.value) return { key: 'chosen', tone: 'neutral', title: t('reception.box.chosen', { boxes: formatBoxes(selected) }), detail };
   return {
+    key: 'suggested',
     tone: 'suggested',
     title: t('reception.box.suggested', { boxes: formatBoxes(selected) }),
     detail: areSideBySide(selected) ? detail : `${detail} · ${t('reception.box.notSideBySide')}`,
@@ -150,6 +175,9 @@ const status = computed((): { tone: StatusTone; title: string; detail: string } 
 });
 
 // watchers
+useSmoothHeight(statusBox, () => status.value.key);
+useSmoothHeight(pageBox, rangeKey);
+
 watch(suggestion, (next) => {
   if (!isManual.value) emit('update:modelValue', next);
 });
@@ -178,6 +206,7 @@ const rangeHasChosen = (key: string): boolean => (rangesComputed.value[Number(ke
 
 // event handlers
 const handleRange = (key: string): void => {
+  isPagingBack.value = Number(key) < Number(rangeKey.value);
   rangeKey.value = key;
 };
 
@@ -193,31 +222,136 @@ const handleUseSuggestion = (): void => {
 };
 </script>
 
+
 <style scoped>
+/* Ranges slide the way the user moves through them: the old one dissolves in place while the new tiles arrive one after another. */
 .box-page-enter-active,
-.box-page-leave-active {
+.box-page-back-enter-active {
   transition:
-    opacity 160ms var(--ease-premium),
-    translate 220ms var(--ease-premium);
+    opacity 380ms var(--ease-premium),
+    transform 520ms var(--ease-premium);
+}
+
+.box-page-leave-active,
+.box-page-back-leave-active {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  pointer-events: none;
+  transition:
+    opacity 200ms ease-out,
+    transform 260ms ease-out,
+    filter 200ms ease-out;
 }
 
 .box-page-enter-from {
   opacity: 0;
-  translate: 0 4px;
+  transform: translateX(calc(var(--flow, 1) * 24px));
+}
+
+.box-page-back-enter-from {
+  opacity: 0;
+  transform: translateX(calc(var(--flow, 1) * -24px));
 }
 
 .box-page-leave-to {
   opacity: 0;
+  transform: translateX(calc(var(--flow, 1) * -12px));
+  filter: blur(3px);
+}
+
+.box-page-back-leave-to {
+  opacity: 0;
+  transform: translateX(calc(var(--flow, 1) * 12px));
+  filter: blur(3px);
+}
+
+.box-page-enter-active li,
+.box-page-back-enter-active li {
+  animation: tile-in 460ms calc(var(--tile) * 14ms) var(--ease-premium) backwards;
+}
+
+@keyframes tile-in {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+/* The status card crossfades between states while its color and height glide. */
+.status-swap-enter-active {
+  transition:
+    opacity 360ms var(--ease-premium),
+    transform 460ms var(--ease-premium),
+    filter 360ms var(--ease-premium);
+}
+
+.status-swap-leave-active {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  transition:
+    opacity 180ms ease-out,
+    filter 180ms ease-out;
+}
+
+.status-swap-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+  filter: blur(6px);
+}
+
+.status-swap-leave-to {
+  opacity: 0;
+  filter: blur(4px);
+}
+
+.status-action-enter-active {
+  transition:
+    opacity 320ms var(--ease-premium),
+    scale 420ms var(--ease-spring);
+}
+
+.status-action-leave-active {
+  transition:
+    opacity 160ms ease-out,
+    scale 160ms ease-out;
+}
+
+.status-action-enter-from,
+.status-action-leave-to {
+  opacity: 0;
+  scale: 0.92;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .box-page-enter-active,
-  .box-page-leave-active {
+  .box-page-leave-active,
+  .box-page-back-enter-active,
+  .box-page-back-leave-active,
+  .status-swap-enter-active,
+  .status-swap-leave-active,
+  .status-action-enter-active,
+  .status-action-leave-active {
     transition: opacity 120ms linear;
   }
 
-  .box-page-enter-from {
-    translate: none;
+  .box-page-enter-from,
+  .box-page-leave-to,
+  .box-page-back-enter-from,
+  .box-page-back-leave-to,
+  .status-swap-enter-from,
+  .status-swap-leave-to,
+  .status-action-enter-from,
+  .status-action-leave-to {
+    transform: none;
+    scale: none;
+    filter: none;
+  }
+
+  .box-page-enter-active li,
+  .box-page-back-enter-active li {
+    animation: none;
   }
 }
 </style>

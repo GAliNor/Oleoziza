@@ -1,5 +1,5 @@
 {
-  "appName": "Oleoziza",
+  "appName": "Olivor",
   "back": "Retour",
   "pagination": {
     "label": "Pages",
@@ -259,5 +259,8 @@
     "irreversible": "Cette action ne s’annule pas.",
     "type": "Pour confirmer, tapez « {word} ».",
     "cancel": "Annuler"
+  },
+  "table": {
+    "empty": "Aucune ligne."
   }
 }

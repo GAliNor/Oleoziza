@@ -34,6 +34,8 @@ router.beforeEach(async (to) => {
   }
   if (sessionStore.isStaff) await useSiteStore().fetchSites();
   if (to.meta.permission && !siteStore.can(to.meta.permission)) return { name: HOME_ROUTE_NAME };
+  if (to.meta.isOwnerOnly && !sessionStore.session.isOwner) return { name: HOME_ROUTE_NAME };
+  if (to.meta.isManagementOnly && sessionStore.session.role !== 'management') return { name: HOME_ROUTE_NAME };
   if (to.name === HOME_ROUTE_NAME) {
     if (siteStore.isAwaitingFirstSite) return { name: 'site', query: { site: NEW_SITE } };
     const { canOpenHome, getLandingRoute } = useNavigation();

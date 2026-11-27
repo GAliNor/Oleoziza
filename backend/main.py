@@ -4,7 +4,7 @@ from core.app_init import init_models, init_routers, setup_cors, setup_exception
 from core.http_cache import setup_http_caching
 
 
-app = FastAPI(title="Oleoziza API")
+app = FastAPI(title="Olivor API")
 
 init_models()
 setup_http_caching(app)

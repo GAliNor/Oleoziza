@@ -3,19 +3,27 @@
     <template v-if="!created">
       <h1 class="heading-one">{{ $t('client.quick.title') }}</h1>
       <div class="flex items-center gap-3">
-        <ui-avatar class="h-16 w-16 shrink-0" :name="displayNameComputed || $t('client.quick.placeholderAvatar')" :variant="clientAvatarVariant(kind)" />
+        <span class="grid h-16 w-16 shrink-0">
+          <Transition name="avatar-swap">
+            <ui-avatar :key="kind" class="h-16 w-16 [grid-area:1/1]" :name="displayNameComputed || $t('client.quick.placeholderAvatar')" :variant="clientAvatarVariant(kind)" />
+          </Transition>
+        </span>
         <ui-segmented v-model="kind" class="flex-1" is-full is-choice :options="kindOptionsComputed" :label="$t('client.quick.kindLabel')" />
       </div>
-      <ui-field v-if="kind === 'company'" v-slot="{ id, describedBy, isInvalid }" name="companyName" :label="$t('client.quick.companyName')" :error="errorOf('companyName')" :is-valid="isValid('companyName')" @leave="touch('companyName')">
-        <input :id="id" v-model="name" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
-      </ui-field>
-      <div v-else class="grid gap-4 sm:grid-cols-2">
-        <ui-field v-slot="{ id, describedBy, isInvalid }" name="firstName" :label="$t('client.quick.firstName')" :error="errorOf('firstName')" :is-valid="isValid('firstName')" @leave="touch('firstName')">
-          <input :id="id" v-model="firstName" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
-        </ui-field>
-        <ui-field v-slot="{ id, describedBy, isInvalid }" name="lastName" :label="$t('client.quick.lastName')" :error="errorOf('lastName')" :is-valid="isValid('lastName')" @leave="touch('lastName')">
-          <input :id="id" v-model="lastName" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
-        </ui-field>
+      <div ref="nameBlock" class="relative">
+        <Transition name="name-swap">
+          <ui-field v-if="kind === 'company'" key="company" v-slot="{ id, describedBy, isInvalid }" name="companyName" :label="$t('client.quick.companyName')" :error="errorOf('companyName')" :is-valid="isValid('companyName')" @leave="touch('companyName')">
+            <input :id="id" v-model="name" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
+          </ui-field>
+          <div v-else key="individual" class="grid gap-4 sm:grid-cols-2">
+            <ui-field v-slot="{ id, describedBy, isInvalid }" name="firstName" :label="$t('client.quick.firstName')" :error="errorOf('firstName')" :is-valid="isValid('firstName')" @leave="touch('firstName')">
+              <input :id="id" v-model="firstName" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
+            </ui-field>
+            <ui-field v-slot="{ id, describedBy, isInvalid }" name="lastName" :label="$t('client.quick.lastName')" :error="errorOf('lastName')" :is-valid="isValid('lastName')" @leave="touch('lastName')">
+              <input :id="id" v-model="lastName" class="input" type="text" autocomplete="off" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
+            </ui-field>
+          </div>
+        </Transition>
       </div>
       <ui-field v-slot="{ id, describedBy, isInvalid }" name="phone" :label="$t('client.quick.phoneLabel')" :error="errorOf('phone')" :is-valid="isValid('phone')" @leave="touch('phone')">
         <ui-phone-input :id="id" v-model="phone" :aria-invalid="isInvalid" :aria-describedby="describedBy" />
@@ -26,6 +34,7 @@
           :id="id"
           v-model="identifier"
           class="input tabular-nums"
+          :class="kind === 'company' ? 'placeholder-swap-a' : 'placeholder-swap-b'"
           type="text"
           autocomplete="off"
           autocapitalize="characters"
@@ -69,6 +78,7 @@ import { useOnlineStatus } from 'global/composables/use-online-status';
 import { createId } from 'global/composables/crypto';
 import { normalizePhone } from 'global/composables/phone';
 import { useFormFeedback } from 'global/composables/use-form-feedback';
+import { useSmoothHeight } from 'global/composables/use-smooth-height';
 import { isEmail, normalizeIdentifier } from 'auth/composables/normalize-identifier';
 import { clientAvatarVariant } from 'client/composables/avatar-variant';
 import { normalizeClientIdentifier } from 'client/composables/client-identifier';
@@ -114,6 +124,8 @@ const location = ref<ILocation>({ ...EMPTY_LOCATION });
 const created = ref<IClient | null>(null);
 const clientId = ref(createId());
 const isPlaceOpen = ref(false);
+const nameBlock = ref<HTMLElement | null>(null);
+useSmoothHeight(nameBlock, kind);
 
 // computed
 const kindOptionsComputed = computed((): { key: ClientKind; label: string }[] => [
@@ -209,3 +221,117 @@ const handleLater = (): void => {
   emit('later');
 };
 </script>
+
+<style scoped>
+/* Switching Particulier / Entreprise: the old name fields dissolve where they stand while the new ones settle in, and the form below glides to its new height. */
+.name-swap-enter-active {
+  transition:
+    opacity 420ms var(--ease-premium),
+    transform 560ms var(--ease-premium),
+    filter 420ms var(--ease-premium);
+}
+
+.name-swap-leave-active {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  pointer-events: none;
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out,
+    filter 200ms ease-out;
+}
+
+.name-swap-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+  filter: blur(8px);
+}
+
+.name-swap-leave-to {
+  opacity: 0;
+  transform: scale(0.985);
+  filter: blur(6px);
+}
+
+.name-swap-enter-active > :nth-child(2) {
+  animation: name-follow 560ms 70ms var(--ease-premium) backwards;
+}
+
+@keyframes name-follow {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* The placeholder has no element to transition: switching between two identical animations restarts the fade on each change. */
+.placeholder-swap-a::placeholder {
+  animation: placeholder-in-a 420ms var(--ease-premium);
+}
+
+.placeholder-swap-b::placeholder {
+  animation: placeholder-in-b 420ms var(--ease-premium);
+}
+
+@keyframes placeholder-in-a {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes placeholder-in-b {
+  from {
+    opacity: 0;
+  }
+}
+
+.avatar-swap-enter-active {
+  transition:
+    opacity 320ms var(--ease-premium),
+    transform 520ms var(--ease-spring),
+    filter 320ms var(--ease-premium);
+}
+
+.avatar-swap-leave-active {
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out,
+    filter 200ms ease-out;
+}
+
+.avatar-swap-enter-from {
+  opacity: 0;
+  transform: scale(0.82);
+  filter: blur(4px);
+}
+
+.avatar-swap-leave-to {
+  opacity: 0;
+  transform: scale(1.06);
+  filter: blur(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .name-swap-enter-active,
+  .name-swap-leave-active,
+  .avatar-swap-enter-active,
+  .avatar-swap-leave-active {
+    transition: opacity 120ms linear;
+  }
+
+  .name-swap-enter-from,
+  .name-swap-leave-to,
+  .avatar-swap-enter-from,
+  .avatar-swap-leave-to {
+    transform: none;
+    filter: none;
+  }
+
+  .name-swap-enter-active > :nth-child(2),
+  .placeholder-swap-a::placeholder,
+  .placeholder-swap-b::placeholder {
+    animation: none;
+  }
+}
+</style>

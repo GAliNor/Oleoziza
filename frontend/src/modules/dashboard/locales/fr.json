@@ -155,7 +155,7 @@
       "result": "Résultat",
       "margin": "{percent} % du CA",
       "noRevenue": "pas de CA sur la période",
-      "investments": "Investissements de la période : {amount}, gardés à part, non déduits du résultat.",
+      "investments": "Investissements de la période : {amount}, hors résultat.",
       "byCategory": "Charges par catégorie"
     }
   },

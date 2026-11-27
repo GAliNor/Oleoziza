@@ -16,6 +16,7 @@ class ResetModule(StrEnum):
     CONFIGURATION = "configuration"
     SEASONS = "seasons"
     JOURNAL = "journal"
+    ASSISTANT = "assistant"
     STAFF = "staff"
 
 

@@ -153,7 +153,32 @@ services:
       context: .
       dockerfile: ./docker/backend/Dockerfile
     restart: always
-    entrypoint: ['watchfiles', '--filter', 'python', 'celery -A core.integrations.celery.celery_app worker --beat --schedule=/tmp/celerybeat-schedule --loglevel=INFO --concurrency=2', '/app']
+    entrypoint: ['watchfiles', '--filter', 'python', 'celery -A core.integrations.celery.celery_app worker -Q celery --beat --schedule=/tmp/celerybeat-schedule --loglevel=INFO --concurrency=2', '/app']
+    env_file:
+      - ./env_files/development/backend.env
+    environment:
+      CURRENT_ENV: ${CURRENT_ENV:-development}
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+    volumes:
+      - ./backend:/app
+    networks:
+      - app-network
+
+  oleoziza_assistant_worker:
+    container_name: oleoziza_assistant_worker_${CURRENT_ENV:-development}
+    depends_on:
+      oleoziza_db_backend:
+        condition: service_healthy
+      oleoziza_redis:
+        condition: service_healthy
+      oleoziza_rustfs:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+    restart: always
+    entrypoint: ['watchfiles', '--filter', 'python', 'celery -A core.integrations.celery.celery_app worker -Q assistant -n assistant@%h --loglevel=INFO --concurrency=2', '/app']
     env_file:
       - ./env_files/development/backend.env
     environment:

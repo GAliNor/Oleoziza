@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ""
     CELERY_BROKER_DB: int = 0
     CELERY_RESULT_DB: int = 1
+    REDIS_CACHE_DB: int = 2
     CELERY_BROKER_TIMEOUT_IN_SECONDS: float = 1.0
     CELERY_VISIBILITY_TIMEOUT_IN_SECONDS: int = 3600
 
@@ -46,6 +47,9 @@ class Settings(BaseSettings):
     AUTH_MAX_FAILED_LOGIN_ATTEMPTS: int = 5
     AUTH_LOCK_DURATION_IN_SECONDS: int = 900
     AUTH_INVITATION_EXPIRY_IN_SECONDS: int = 604_800
+
+    AI_SECRETS_KEY: str = ""
+    AI_REQUEST_TIMEOUT_IN_SECONDS: float = 90.0
 
     FRONT_BASE_URL: str = "http://localhost:32501"
 
@@ -89,6 +93,16 @@ class Settings(BaseSettings):
             str: Redis URL on the result database.
         """
         return self._build_redis_url(self.CELERY_RESULT_DB)
+
+    @property
+    def redis_cache_url(self) -> str:
+        """
+        Build the Redis URL of the cache database, which carries the Assistant's event streams.
+
+        Returns:
+            str: Redis URL on REDIS_CACHE_DB.
+        """
+        return self._build_redis_url(self.REDIS_CACHE_DB)
 
     def _build_redis_url(self, database: int) -> str:
         """

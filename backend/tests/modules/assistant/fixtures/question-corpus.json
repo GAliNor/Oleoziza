@@ -1,0 +1,1240 @@
+[
+ {
+  "language": "fr",
+  "question": "Quel est notre chiffre d'affaires cette saison ?",
+  "topic": "revenue",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "CA de la saison : {q1.revenue}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "revenue",
+      "collected",
+      "pending",
+      "outstanding"
+     ],
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "number",
+     "query_id": "q1",
+     "title": "CA",
+     "label_field": "revenue",
+     "value_field": "revenue"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "ar",
+  "question": "ما هو رقم المعاملات هذا الشهر؟",
+  "topic": "revenue",
+  "plan": {
+   "kind": "answer",
+   "language": "ar",
+   "message": "رقم المعاملات: {q1.revenue}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "revenue",
+      "collected",
+      "pending",
+      "outstanding"
+     ],
+     "period": "this_month"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "number",
+     "query_id": "q1",
+     "title": "رقم المعاملات",
+     "label_field": null,
+     "value_field": "revenue"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_latin",
+  "question": "ch7al dkhlna had simana?",
+  "topic": "revenue",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_latin",
+   "message": "Had simana: {q1.revenue}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "revenue",
+      "collected",
+      "pending",
+      "outstanding"
+     ],
+     "period": "last_7_days"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_arabic",
+  "question": "شحال دخلنا اليوم؟",
+  "topic": "revenue",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_arabic",
+   "message": "اليوم: {q1.revenue}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "revenue",
+      "collected",
+      "pending",
+      "outstanding"
+     ],
+     "period": "today"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Compare le CA de cette saison avec la précédente",
+  "topic": "compare",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "Évolution : {q1.revenue_change_pct} %.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "revenue"
+     ],
+     "period": "season",
+     "compare": "previous_season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "number",
+     "query_id": "q1",
+     "title": "CA",
+     "label_field": "revenue",
+     "value_field": "revenue"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Combien a dépensé le client Karim Bennani chez nous ?",
+  "topic": "client_spend",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "{q2.revenue}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "client",
+     "fields": [
+      "id",
+      "name"
+     ],
+     "filters": [
+      {
+       "field": "name",
+       "op": "matches",
+       "value": "Karim Bennani"
+      }
+     ],
+     "expects_one_record": true
+    },
+    {
+     "id": "q2",
+     "entity": "lot",
+     "measures": [
+      "revenue",
+      "count"
+     ],
+     "filters": [
+      {
+       "field": "client_id",
+       "op": "eq",
+       "value": "{q1.id}"
+      }
+     ],
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_latin",
+  "question": "ch7al khlless Karim f had saison?",
+  "topic": "client_spend",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_latin",
+   "message": "{q2.collected}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "client",
+     "fields": [
+      "id",
+      "name"
+     ],
+     "filters": [
+      {
+       "field": "name",
+       "op": "matches",
+       "value": "Karim"
+      }
+     ],
+     "expects_one_record": true
+    },
+    {
+     "id": "q2",
+     "entity": "lot",
+     "measures": [
+      "collected"
+     ],
+     "filters": [
+      {
+       "field": "client_id",
+       "op": "eq",
+       "value": "{q1.id}"
+      }
+     ],
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Combien avons-nous payé à Karim pour ses olives ?",
+  "topic": "purchase",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "{q2.purchase_amount}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "client",
+     "fields": [
+      "id",
+      "name"
+     ],
+     "filters": [
+      {
+       "field": "name",
+       "op": "matches",
+       "value": "Karim"
+      }
+     ],
+     "expects_one_record": true
+    },
+    {
+     "id": "q2",
+     "entity": "lot",
+     "measures": [
+      "purchase_amount",
+      "net_weight_kg"
+     ],
+     "filters": [
+      {
+       "field": "client_id",
+       "op": "eq",
+       "value": "{q1.id}"
+      },
+      {
+       "field": "mode",
+       "op": "eq",
+       "value": "purchase"
+      }
+     ],
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Qui sont les 5 clients qui nous doivent le plus ?",
+  "topic": "ranking",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "Les {q1.rows} plus gros impayés.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "client_name"
+     ],
+     "measures": [
+      "outstanding"
+     ],
+     "filters": [
+      {
+       "field": "outstanding",
+       "op": "gt",
+       "value": "0"
+      }
+     ],
+     "order_by": {
+      "field": "outstanding",
+      "direction": "desc"
+     },
+     "limit": 5,
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "table",
+     "query_id": "q1",
+     "title": "Impayés",
+     "label_field": null,
+     "value_field": null
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "ar",
+  "question": "من هم أكبر عشرة زبناء من حيث الكمية هذا الموسم؟",
+  "topic": "ranking",
+  "plan": {
+   "kind": "answer",
+   "language": "ar",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "client_name"
+     ],
+     "measures": [
+      "net_weight_kg"
+     ],
+     "order_by": {
+      "field": "net_weight_kg",
+      "direction": "desc"
+     },
+     "limit": 10,
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "bar_chart",
+     "query_id": "q1",
+     "title": "الكميات",
+     "label_field": "client_name",
+     "value_field": "net_weight_kg"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_arabic",
+  "question": "شكون لي جاب بزاف ديال الزيتون هاد الشهر؟",
+  "topic": "ranking",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_arabic",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "client_name"
+     ],
+     "measures": [
+      "net_weight_kg"
+     ],
+     "order_by": {
+      "field": "net_weight_kg",
+      "direction": "desc"
+     },
+     "limit": 1,
+     "period": "this_month"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quel est le rendement moyen par variété cette saison ?",
+  "topic": "yield",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "variety"
+     ],
+     "measures": [
+      "yield",
+      "oil_litres"
+     ],
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "bar_chart",
+     "query_id": "q1",
+     "title": "Rendement",
+     "label_field": "variety",
+     "value_field": "yield"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_latin",
+  "question": "chno rendement dyal lyoum?",
+  "topic": "yield",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_latin",
+   "message": "{q1.yield} L/q.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "yield"
+     ],
+     "period": "today"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Combien de lots attendent encore d'être triturés ?",
+  "topic": "waiting",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "{q1.count} lots.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "count",
+      "average_days_waiting"
+     ],
+     "filters": [
+      {
+       "field": "status",
+       "op": "eq",
+       "value": "waiting"
+      }
+     ],
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quels lots attendent depuis plus de 3 jours ?",
+  "topic": "waiting",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "code",
+      "client_name",
+      "days_waiting"
+     ],
+     "filters": [
+      {
+       "field": "days_waiting",
+       "op": "gt",
+       "value": "3"
+      }
+     ],
+     "order_by": {
+      "field": "days_waiting",
+      "direction": "desc"
+     },
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "cards",
+     "query_id": "q1",
+     "title": "Lots en attente",
+     "label_field": null,
+     "value_field": null
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_arabic",
+  "question": "شحال من يوم باقي للعصير ديال اللوطات اللي مخطط ليهم؟",
+  "topic": "days_until",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_arabic",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "code",
+      "client_name",
+      "planned_start_date",
+      "days_until_planned_start"
+     ],
+     "filters": [
+      {
+       "field": "status",
+       "op": "eq",
+       "value": "waiting"
+      },
+      {
+       "field": "planned_start_date",
+       "op": "is_not_empty",
+       "value": ""
+      }
+     ],
+     "order_by": {
+      "field": "days_until_planned_start",
+      "direction": "asc"
+     },
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "table",
+     "query_id": "q1",
+     "title": "المواعيد",
+     "label_field": null,
+     "value_field": null
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Combien de jours reste-t-il avant la fin des stockages des clients ?",
+  "topic": "days_until",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "storage",
+     "fields": [
+      "client_name",
+      "tank_number",
+      "remaining_litres",
+      "planned_until",
+      "days_until_planned_end"
+     ],
+     "filters": [
+      {
+       "field": "owner",
+       "op": "eq",
+       "value": "client"
+      },
+      {
+       "field": "planned_until",
+       "op": "is_not_empty",
+       "value": ""
+      }
+     ],
+     "order_by": {
+      "field": "days_until_planned_end",
+      "direction": "asc"
+     }
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "table",
+     "query_id": "q1",
+     "title": "Stockages",
+     "label_field": null,
+     "value_field": null
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quels clients n'ont pas retiré leur huile et quand doivent-ils venir ?",
+  "topic": "days_until",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "storage",
+     "fields": [
+      "client_name",
+      "remaining_litres",
+      "days_until_planned_end"
+     ],
+     "filters": [
+      {
+       "field": "owner",
+       "op": "eq",
+       "value": "client"
+      }
+     ],
+     "order_by": {
+      "field": "days_until_planned_end",
+      "direction": "asc"
+     }
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "ar",
+  "question": "كم لترا من الزيت مخزنة للزبناء حاليا؟",
+  "topic": "stock",
+  "plan": {
+   "kind": "answer",
+   "language": "ar",
+   "message": "{q1.remaining_litres}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "storage",
+     "measures": [
+      "remaining_litres",
+      "count"
+     ],
+     "filters": [
+      {
+       "field": "owner",
+       "op": "eq",
+       "value": "client"
+      }
+     ]
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quel est le stock d'huile du moulin ?",
+  "topic": "stock",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "{q1.remaining_litres}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "storage",
+     "measures": [
+      "remaining_litres"
+     ],
+     "filters": [
+      {
+       "field": "owner",
+       "op": "eq",
+       "value": "mill"
+      }
+     ]
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_latin",
+  "question": "ch7al b9a blasa f les cuves?",
+  "topic": "tanks",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_latin",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "tank",
+     "fields": [
+      "number",
+      "site_name",
+      "capacity_litres",
+      "filled_litres",
+      "free_litres"
+     ],
+     "order_by": {
+      "field": "number",
+      "direction": "asc"
+     }
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "table",
+     "query_id": "q1",
+     "title": "Cuves",
+     "label_field": null,
+     "value_field": null
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Combien de litres ont été retirés cette semaine ?",
+  "topic": "withdrawals",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "{q1.litres}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "withdrawal",
+     "measures": [
+      "litres",
+      "count"
+     ],
+     "period": "this_week"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quel est notre résultat ce mois-ci ?",
+  "topic": "result",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "Résultat : {c1.value}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "revenue"
+     ],
+     "period": "this_month"
+    },
+    {
+     "id": "q2",
+     "entity": "expense",
+     "measures": [
+      "operating_amount"
+     ],
+     "filters": [
+      {
+       "field": "payment_state",
+       "op": "eq",
+       "value": "paid"
+      }
+     ],
+     "period": "this_month"
+    }
+   ],
+   "calcs": [
+    {
+     "id": "c1",
+     "op": "difference",
+     "left": "{q1.revenue}",
+     "right": "{q2.operating_amount}"
+    }
+   ],
+   "blocks": [
+    {
+     "type": "number",
+     "query_id": "c1",
+     "title": "Résultat",
+     "label_field": null,
+     "value_field": null
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_arabic",
+  "question": "شحال صرفنا على الضو هاد الموسم؟",
+  "topic": "expenses",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_arabic",
+   "message": "{q1.amount_total}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "expense",
+     "measures": [
+      "amount_total"
+     ],
+     "filters": [
+      {
+       "field": "category",
+       "op": "matches",
+       "value": "energy"
+      }
+     ],
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Charges par catégorie cette saison",
+  "topic": "expenses",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "expense",
+     "fields": [
+      "category"
+     ],
+     "measures": [
+      "amount_total"
+     ],
+     "filters": [
+      {
+       "field": "payment_state",
+       "op": "eq",
+       "value": "paid"
+      }
+     ],
+     "order_by": {
+      "field": "amount_total",
+      "direction": "desc"
+     },
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "bar_chart",
+     "query_id": "q1",
+     "title": "Charges",
+     "label_field": "category",
+     "value_field": "amount_total"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quelles charges sont à payer dans les 10 prochains jours ?",
+  "topic": "days_until",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "expense",
+     "fields": [
+      "description",
+      "supplier",
+      "amount",
+      "due_date",
+      "days_until_due"
+     ],
+     "filters": [
+      {
+       "field": "payment_state",
+       "op": "eq",
+       "value": "to_pay"
+      },
+      {
+       "field": "days_until_due",
+       "op": "lte",
+       "value": "10"
+      }
+     ],
+     "order_by": {
+      "field": "days_until_due",
+      "direction": "asc"
+     },
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "ar",
+  "question": "ما نسبة غير المستخلص من رقم المعاملات؟",
+  "topic": "ratio",
+  "plan": {
+   "kind": "answer",
+   "language": "ar",
+   "message": "{c1.value} %.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "measures": [
+      "revenue",
+      "collected",
+      "pending",
+      "outstanding"
+     ],
+     "period": "season"
+    }
+   ],
+   "calcs": [
+    {
+     "id": "c1",
+     "op": "ratio",
+     "left": "{q1.outstanding}",
+     "right": "{q1.revenue}"
+    }
+   ],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Combien de paiements en attente de confirmation ?",
+  "topic": "payments",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "{q1.count} paiements, {q1.amount_total}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "payment",
+     "measures": [
+      "count",
+      "amount_total"
+     ],
+     "filters": [
+      {
+       "field": "status",
+       "op": "eq",
+       "value": "pending"
+      }
+     ],
+     "period": "all_time"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Encaissements par mode de paiement ce mois",
+  "topic": "payments",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "payment",
+     "fields": [
+      "method"
+     ],
+     "measures": [
+      "amount_total"
+     ],
+     "period": "this_month"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "bar_chart",
+     "query_id": "q1",
+     "title": "Encaissé",
+     "label_field": "method",
+     "value_field": "amount_total"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_latin",
+  "question": "ch7al mn remise tʿtat had saison?",
+  "topic": "discounts",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_latin",
+   "message": "{q1.amount_total}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "discount",
+     "measures": [
+      "amount_total",
+      "count"
+     ],
+     "filters": [
+      {
+       "field": "state",
+       "op": "in",
+       "value": "applied,approved"
+      }
+     ],
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Combien de nouveaux clients ce mois-ci ?",
+  "topic": "clients",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "{q1.count}.",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "client",
+     "measures": [
+      "count"
+     ],
+     "filters": [
+      {
+       "field": "first_seen_date",
+       "op": "gte",
+       "value": "2026-11-01"
+      }
+     ]
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Réceptions par semaine depuis le début de la saison",
+  "topic": "trend",
+  "plan": {
+   "kind": "answer",
+   "language": "fr",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "received_week"
+     ],
+     "measures": [
+      "net_weight_kg"
+     ],
+     "order_by": {
+      "field": "received_week",
+      "direction": "asc"
+     },
+     "period": "season"
+    }
+   ],
+   "calcs": [],
+   "blocks": [
+    {
+     "type": "bar_chart",
+     "query_id": "q1",
+     "title": "Olives reçues",
+     "label_field": "received_week",
+     "value_field": "net_weight_kg"
+    }
+   ],
+   "next": null
+  }
+ },
+ {
+  "language": "darija_arabic",
+  "question": "شحال من لوط دخل لكل معصرة اليوم؟",
+  "topic": "sites",
+  "plan": {
+   "kind": "answer",
+   "language": "darija_arabic",
+   "message": "",
+   "queries": [
+    {
+     "id": "q1",
+     "entity": "lot",
+     "fields": [
+      "site_name"
+     ],
+     "measures": [
+      "count",
+      "net_weight_kg"
+     ],
+     "period": "today"
+    }
+   ],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quel temps fera-t-il demain à Oujda ?",
+  "topic": "off_topic",
+  "plan": {
+   "kind": "off_topic",
+   "language": "fr",
+   "message": "Je réponds seulement aux questions sur l'activité du moulin.",
+   "queries": [],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "ar",
+  "question": "اكتب لي قصيدة",
+  "topic": "off_topic",
+  "plan": {
+   "kind": "off_topic",
+   "language": "ar",
+   "message": "أجيب فقط عن أسئلة نشاط المعصرة.",
+   "queries": [],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ },
+ {
+  "language": "fr",
+  "question": "Quel est le profit net après impôts ?",
+  "topic": "clarify",
+  "plan": {
+   "kind": "clarify",
+   "language": "fr",
+   "message": "Je n'ai pas les impôts ; voulez-vous le résultat (CA − charges) ?",
+   "queries": [],
+   "calcs": [],
+   "blocks": [],
+   "next": null
+  }
+ }
+]

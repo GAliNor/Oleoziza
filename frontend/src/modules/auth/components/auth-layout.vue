@@ -5,7 +5,7 @@
     <div class="flex min-h-[calc(100dvh-14rem)] flex-col px-6 pt-20 pb-8 md:min-h-dvh md:px-12 md:py-10 lg:px-20 xl:px-28">
       <header class="rise flex items-center justify-between gap-4">
         <div>
-          <logo-full-fill-icon class="h-10 w-auto text-fg-brand" />
+          <ui-logo class="h-11" />
           <span class="sr-only">{{ $t('global.appName') }}</span>
         </div>
         <ui-language-switch class="w-56" />
@@ -33,5 +33,5 @@
 import AuthArt from 'auth/components/auth-art.vue';
 import AppToast from 'global/components/app-toast.vue';
 import UiLanguageSwitch from 'global/components/ui-language-switch.vue';
-import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';
+import UiLogo from 'global/components/ui-logo.vue';
 </script>

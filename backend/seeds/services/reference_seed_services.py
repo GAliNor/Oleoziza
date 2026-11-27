@@ -6,12 +6,14 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 
 from sqlalchemy.orm import Session
 
+from modules.ai.models.ai_models import AiFeatureSetting, AiModel, AiProvider
+from modules.ai.types.ai_types import DEFAULT_PAYLOAD_RETENTION_DAYS, AiApiStyle, AiFeature, AiProviderKind
 from modules.configuration.models.configuration_models import OliveVariety
 from modules.expense.models.expense_models import ExpenseCategory
 from modules.expense.types.expense_types import ExpenseCategoryType, ExpenseVatNature
 from modules.territory.models.territory_models import City, Province
 from modules.territory.types.territory_types import ProvinceKind
-from seeds.constants.reference_seed_constants import EXPENSE_CATEGORY_TREE, OLIVE_VARIETIES, PROVINCES, RETIRED_EXPENSE_CATEGORY_IDS
+from seeds.constants.reference_seed_constants import AI_MODELS, AI_PROVIDER, EXPENSE_CATEGORY_TREE, OLIVE_VARIETIES, PROVINCES, RETIRED_EXPENSE_CATEGORY_IDS
 
 
 PROVINCE_BOUNDARIES_FILE = Path(__file__).resolve().parent.parent / "fixtures" / "oriental-provinces.json"
@@ -29,7 +31,7 @@ class ReferenceSeedService:
 
     def run(self) -> None:
         """
-        Load or refresh the eight Provinces of the Oriental with their outlines and towns, the olive varieties and the Expense Categories.
+        Load or refresh the eight Provinces of the Oriental with their outlines and towns, the olive varieties, the Expense Categories and the AI provider, models and AI Feature settings.
         """
         boundaries = read_province_boundaries()
         for province_position, province in enumerate(PROVINCES, start=1):
@@ -52,6 +54,7 @@ class ReferenceSeedService:
         for variety_id, variety_name in OLIVE_VARIETIES:
             self.db.merge(OliveVariety(id=variety_id, name=variety_name, is_active=True))
         self._seed_expense_categories()
+        self._seed_ai()
         self.db.commit()
 
     def _seed_expense_categories(self) -> None:
@@ -64,6 +67,38 @@ class ReferenceSeedService:
         for category_id, subcategories in EXPENSE_CATEGORY_TREE:
             for position, (subcategory_id, account_code, vat_nature, is_vat_never_deductible) in enumerate(subcategories, start=1):
                 self.db.merge(ExpenseCategory(id=subcategory_id, type=ExpenseCategoryType.SUBCATEGORY, parent_id=category_id, position=position, account_code=account_code, vat_nature=ExpenseVatNature(vat_nature), is_vat_never_deductible=is_vat_never_deductible, is_active=subcategory_id not in RETIRED_EXPENSE_CATEGORY_IDS))
+
+    def _seed_ai(self) -> None:
+        """
+        Add the OpenAI provider, its two priced models and the model of each AI Feature when missing; an Owner's key, prices and choices are never overwritten.
+        """
+        provider_id = build_reference_id("ai-provider", AI_PROVIDER.label)
+        if self.db.get(AiProvider, provider_id) is None:
+            self.db.add(AiProvider(id=provider_id, kind=AiProviderKind.OPENAI, label=AI_PROVIDER.label, base_url=AI_PROVIDER.base_url, api_style=AiApiStyle.OPENAI_CHAT))
+            self.db.flush()
+        for model in AI_MODELS:
+            model_id = build_reference_id("ai-model", model.name)
+            if self.db.get(AiModel, model_id) is None:
+                self.db.add(AiModel(id=model_id, provider_id=provider_id, name=model.name, input_price_per_million=Decimal(model.input_price), cached_input_price_per_million=Decimal(model.cached_input_price), output_price_per_million=Decimal(model.output_price), supports_structured_output=model.supports_structured_output))
+        self.db.flush()
+        for model in AI_MODELS:
+            feature = AiFeature(model.feature)
+            if self.db.get(AiFeatureSetting, feature) is None:
+                self.db.add(AiFeatureSetting(feature=feature, model_id=build_reference_id("ai-model", model.name), payload_retention_days=DEFAULT_PAYLOAD_RETENTION_DAYS))
+
+
+def build_reference_id(kind: str, name: str) -> UUID:
+    """
+    Derive a stable id for a reference row, so re-running the seed finds it instead of adding a copy.
+
+    Args:
+        kind (str): Kind of row, such as ai-model.
+        name (str): Its natural name.
+
+    Returns:
+        UUID: The same UUID on every run.
+    """
+    return uuid5(NAMESPACE_URL, f"oleoziza:{kind}:{name}")
 
 
 def build_city_id(province_id: str, city_name: str) -> UUID:

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Run on the server after every git pull, the first install included, once scripts/production-init.sh has filled
-# env_files/production. On an update, first dumps the database to backups/before-deploy.dump (restored with
+# env_files/production. It first reruns production-init.sh, which only adds what a new version needs (new keys, the AI
+# master key, the frontend's module list) and never changes a value already set. On an update, it then dumps the database to backups/before-deploy.dump (restored with
 # scripts/production-restore.sh before-deploy.dump); then builds the images, recreates what changed (a few seconds of
 # downtime; the backend runs the migrations as it starts), loads the reference data, the Season Illustrations, the
 # Oujda Site (only while no Site exists) and the first Owner, and ends with scripts/production-check.sh.
@@ -65,6 +66,7 @@ run_seed() {
   "${COMPOSE[@]}" exec -T oleoziza_backend python -m seeds "$1"
 }
 
+scripts/production-init.sh
 check_settings
 echo "Deploying $(git log -1 --format='%h %s (%cd)' --date=format:'%Y-%m-%d %H:%M')"
 dump_before_deploy

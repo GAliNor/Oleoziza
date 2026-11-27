@@ -17,18 +17,18 @@ export const HOME_ROUTE_NAME = 'dashboard';
 
 export const OPERATOR_MODE_STORAGE_KEY = 'oleoziza.operator-mode.v1';
 
-/** Management's order: Dashboard, Journal, To-do, then the rest. The Accountant has no Home, so it lands on the cash desk, the first item it can open. */
+/** Management's order: Dashboard, Journal, To-do (daily), then Operations, Finances, Charges, Clients (occasional), then Users, Sites, Configuration (once per Season). The Accountant has no Home, so it lands on the cash desk, the first item it can open. */
 export const NAV_ITEMS: INavItem[] = [
-  { name: HOME_ROUTE_NAME, labelKey: 'global.nav.dashboard', shortLabelKey: 'global.nav.dashboardShort', icon: HomeLineIcon, managementPermission: 'dashboard.view' },
-  { name: 'cash-desk', labelKey: 'global.nav.cashDesk', icon: WalletLineIcon, permission: 'payment.record', roles: ['accountant'] },
-  { name: 'debt-follow-up', labelKey: 'global.nav.debts', icon: PhoneLineIcon, permission: 'debt.follow', roles: ['accountant'] },
-  { name: 'activity', labelKey: 'global.nav.activity', shortLabelKey: 'global.nav.activityShort', icon: HistoryLineIcon, permission: 'audit_trail.view' },
-  { name: 'task', labelKey: 'global.nav.tasks', icon: InboxLineIcon, permission: ['discount.approve', 'payment.confirm', 'refund.manage', 'expense.record', 'user.manage'] },
-  { name: 'lot', labelKey: 'global.nav.operations', icon: ScaleLineIcon, permission: ['record.correct', 'audit_trail.view'] },
-  { name: 'finance', labelKey: 'global.nav.finances', icon: CoinsLineIcon, permission: 'finance.view' },
-  { name: 'expense', labelKey: 'global.nav.expenses', icon: ReceiptLineIcon, permission: ['expense.record', 'finance.view'] },
-  { name: 'client-search', labelKey: 'global.nav.clients', icon: GroupLineIcon, permission: 'client.view' },
-  { name: 'user', labelKey: 'global.nav.users', icon: UserSettingsLineIcon, permission: 'user.manage' },
-  { name: 'site', labelKey: 'global.nav.sites', icon: MapPinLineIcon, permission: 'site.manage' },
-  { name: 'configuration', labelKey: 'global.nav.configuration', shortLabelKey: 'global.nav.configurationShort', icon: SlidersLineIcon, permission: 'configuration.manage' },
+  { name: HOME_ROUTE_NAME, group: 'daily', labelKey: 'global.nav.dashboard', shortLabelKey: 'global.nav.dashboardShort', icon: HomeLineIcon, managementPermission: 'dashboard.view' },
+  { name: 'cash-desk', group: 'daily', labelKey: 'global.nav.cashDesk', icon: WalletLineIcon, permission: 'payment.record', roles: ['accountant'] },
+  { name: 'debt-follow-up', group: 'daily', labelKey: 'global.nav.debts', icon: PhoneLineIcon, permission: 'debt.follow', roles: ['accountant'] },
+  { name: 'activity', group: 'daily', labelKey: 'global.nav.activity', shortLabelKey: 'global.nav.activityShort', icon: HistoryLineIcon, permission: 'audit_trail.view' },
+  { name: 'task', group: 'daily', labelKey: 'global.nav.tasks', icon: InboxLineIcon, permission: ['discount.approve', 'payment.confirm', 'refund.manage', 'expense.record', 'user.manage'] },
+  { name: 'lot', group: 'occasional', labelKey: 'global.nav.operations', icon: ScaleLineIcon, permission: ['record.correct', 'audit_trail.view'] },
+  { name: 'finance', group: 'occasional', labelKey: 'global.nav.finances', icon: CoinsLineIcon, permission: 'finance.view' },
+  { name: 'expense', group: 'occasional', labelKey: 'global.nav.expenses', icon: ReceiptLineIcon, permission: ['expense.record', 'finance.view'] },
+  { name: 'client-search', group: 'occasional', labelKey: 'global.nav.clients', icon: GroupLineIcon, permission: 'client.view' },
+  { name: 'user', group: 'seasonal', labelKey: 'global.nav.users', icon: UserSettingsLineIcon, permission: 'user.manage' },
+  { name: 'site', group: 'seasonal', labelKey: 'global.nav.sites', icon: MapPinLineIcon, permission: 'site.manage' },
+  { name: 'configuration', group: 'seasonal', labelKey: 'global.nav.configuration', shortLabelKey: 'global.nav.configurationShort', icon: SlidersLineIcon, permission: 'configuration.manage' },
 ];

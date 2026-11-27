@@ -11,6 +11,8 @@ from core.database import engine
 
 RESULT_EXPIRY_IN_SECONDS = 86_400
 
+TASK_ROUTES = {"assistant.*": {"queue": "assistant"}}
+
 
 def build_task_module_names() -> list[str]:
     """
@@ -24,7 +26,7 @@ def build_task_module_names() -> list[str]:
 
 def create_celery_app() -> Celery:
     """
-    Build the Celery app on Redis: JSON only, late acknowledgement, one task prefetched per process, short broker timeouts so a publish never hangs a request.
+    Build the Celery app on Redis: JSON only, late acknowledgement, one task prefetched per process, short broker timeouts so a publish never hangs a request; Assistant tasks go to their own queue.
 
     Returns:
         Celery: The configured Celery app.
@@ -49,6 +51,7 @@ def create_celery_app() -> Celery:
             "socket_timeout": settings.CELERY_BROKER_TIMEOUT_IN_SECONDS,
         },
         result_expires=RESULT_EXPIRY_IN_SECONDS,
+        task_routes=TASK_ROUTES,
     )
     return celery
 

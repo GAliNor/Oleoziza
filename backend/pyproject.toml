@@ -8,7 +8,9 @@ dependencies = [
     "alembic==1.20.1",
     "boto3==1.43.123",
     "celery[redis]==5.6.2",
+    "cryptography==50.0.2",
     "fastapi==0.162.0",
+    "httpx==0.28.1",
     "pillow==13.0.0",
     "pillow-heif==1.8.1",
     "psycopg2-binary==2.9.13",
@@ -16,6 +18,7 @@ dependencies = [
     "pydantic-settings==2.16.2",
     "pyjwt[crypto]==2.15.1",
     "python-multipart==0.0.33",
+    "redis==8.1.0",
     "sqlalchemy==2.1.6",
     "uuid-utils==1.2.0",
     "uvicorn[standard]==0.54.0",
@@ -93,5 +96,5 @@ allow_indirect_imports = true
 name = "only integrations import their third-party package"
 type = "forbidden"
 source_modules = ["modules"]
-forbidden_modules = ["boto3", "botocore", "celery", "redis"]
+forbidden_modules = ["boto3", "botocore", "celery", "redis", "httpx"]
 allow_indirect_imports = true

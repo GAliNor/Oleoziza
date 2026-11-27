@@ -29,16 +29,17 @@ def build_etag(body: bytes) -> str:
 
 def is_cacheable(request: Request, response: Response) -> bool:
     """
-    Tell whether a response can carry an ETag: a successful API GET.
+    Tell whether a response can carry an ETag: a successful API GET that is not an event stream, which must flow as it is written.
 
     Args:
         request (Request): Incoming request.
         response (Response): Answer about to leave.
 
     Returns:
-        bool: True for a 200 answer to a GET under /api.
+        bool: True for a 200 answer to a GET under /api, other than text/event-stream.
     """
-    return request.method == "GET" and response.status_code == 200 and request.url.path.startswith("/api/")
+    is_event_stream = response.headers.get("content-type", "").startswith("text/event-stream")
+    return request.method == "GET" and response.status_code == 200 and request.url.path.startswith("/api/") and not is_event_stream
 
 
 class EtagMiddleware(BaseHTTPMiddleware):

@@ -184,7 +184,34 @@ services:
       oleoziza_rustfs:
         condition: service_healthy
     restart: always
-    entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'worker', '--beat', '--schedule=/tmp/celerybeat-schedule', '--loglevel=INFO', '--concurrency=2']
+    entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'worker', '-Q', 'celery', '--beat', '--schedule=/tmp/celerybeat-schedule', '--loglevel=INFO', '--concurrency=2']
+    env_file:
+      - ./env_files/${CURRENT_ENV}/backend.env
+    environment:
+      CURRENT_ENV: ${CURRENT_ENV}
+      DB_USER: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_DATABASE}
+      CORS_ALLOWED_ORIGINS: https://${PUBLIC_HOST}
+      RUSTFS_PUBLIC_ENDPOINT_URL: https://${PUBLIC_HOST}
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY}
+    networks:
+      - app-network
+
+  oleoziza_assistant_worker:
+    image: oleoziza-backend:${CURRENT_ENV}
+    pull_policy: never
+    container_name: oleoziza_assistant_worker_${CURRENT_ENV}
+    depends_on:
+      oleoziza_db_backend:
+        condition: service_healthy
+      oleoziza_redis:
+        condition: service_healthy
+      oleoziza_rustfs:
+        condition: service_healthy
+    restart: always
+    entrypoint: ['celery', '-A', 'core.integrations.celery.celery_app', 'worker', '-Q', 'assistant', '-n', 'assistant@%h', '--loglevel=INFO', '--concurrency=2']
     env_file:
       - ./env_files/${CURRENT_ENV}/backend.env
     environment:

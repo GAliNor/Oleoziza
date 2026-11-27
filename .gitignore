@@ -20,3 +20,6 @@ env_files/production/*.env
 
 # the production database dump written by the oleoziza_db_dump service
 /backups/
+
+# Impeccable design tool state (local, per developer)
+.impeccable/

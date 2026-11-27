@@ -43,7 +43,7 @@ def run_seed(part: SeedPart) -> int:
         try:
             if part == SeedPart.REFERENCE:
                 ReferenceSeedService(db).run()
-                print("reference: provinces, cities, olive varieties and expense categories loaded")
+                print("reference: provinces, cities, olive varieties, expense categories and AI models loaded")
             elif part == SeedPart.ILLUSTRATIONS:
                 added_codes = IllustrationSeedService(db, get_rustfs_client()).run()
                 print(f"illustrations: {', '.join(added_codes) if added_codes else 'none new'} added")

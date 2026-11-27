@@ -130,6 +130,18 @@
             </ui-bar-chart>
           </kit-demo>
 
+          <kit-demo name="ui-table">
+            <ui-table :columns="TABLE_COLUMNS" :rows="TABLE_ROWS" row-key="client" caption="Impayés" />
+          </kit-demo>
+
+          <kit-demo name="ui-shimmer-text">
+            <p class="text-sm"><ui-shimmer-text text="Je lis les lots de la saison…" /></p>
+          </kit-demo>
+
+          <kit-demo name="ui-waveform">
+            <ui-waveform class="text-fg-brand" :levels="WAVEFORM_LEVELS" label="Enregistrement en cours" />
+          </kit-demo>
+
           <kit-demo name="ui-field">
             <ui-field v-slot="{ id }" :label="$t('kit.components.label')">
               <input :id="id" class="input" :placeholder="$t('kit.components.placeholder')" />
@@ -201,7 +213,10 @@ import UiDatePicker from 'global/components/ui-date-picker.vue';
 import UiPagination from 'global/components/ui-pagination.vue';
 import UiProgressBar from 'global/components/ui-progress-bar.vue';
 import UiSegmented from 'global/components/ui-segmented.vue';
+import UiShimmerText from 'global/components/ui-shimmer-text.vue';
 import UiStatTile from 'global/components/ui-stat-tile.vue';
+import UiTable from 'global/components/ui-table.vue';
+import UiWaveform from 'global/components/ui-waveform.vue';
 
 // variables
 const SECTIONS = ['palette', 'tokens', 'shadows', 'radius', 'typography', 'components', 'kit'] as const;
@@ -234,6 +249,16 @@ const CHART_BARS = [
   { label: 'mer.', values: { olives: 410 } },
   { label: 'auj.', values: { olives: 1240 }, isCurrent: true },
 ];
+const TABLE_COLUMNS = [
+  { key: 'client', label: 'Client' },
+  { key: 'lots', label: 'Lots', isNumeric: true },
+  { key: 'owed', label: 'Reste à encaisser', isNumeric: true, format: (value: unknown) => `${Number(value).toLocaleString('fr-MA')} DH` },
+];
+const TABLE_ROWS = [
+  { client: 'Karim Bennani', lots: 4, owed: 9800 },
+  { client: 'Coopérative Al Amal', lots: 7, owed: 6350 },
+];
+const WAVEFORM_LEVELS = [0.2, 0.45, 0.8, 0.6, 0.3, 0.7, 0.95, 0.5, 0.25, 0.6, 0.85, 0.4, 0.2, 0.55, 0.75, 0.35];
 const segment = ref<'one' | 'two'>('one');
 const demoPage = ref(1);
 const demoDay = ref('');

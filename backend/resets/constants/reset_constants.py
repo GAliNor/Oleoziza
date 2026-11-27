@@ -35,10 +35,11 @@ SCOPES: dict[ResetModule, ResetScope] = {
         needs=(ResetModule.LOTS, ResetModule.FINANCES, ResetModule.CHARGES),
     ),
     ResetModule.JOURNAL: ResetScope(label="Journal (the whole Audit Trail)", tables=("audit_events",)),
+    ResetModule.ASSISTANT: ResetScope(label="Assistant Conversations (AI settings and usage kept)", tables=("assistant_conversations", "assistant_questions")),
     ResetModule.STAFF: ResetScope(label="Staff Users, Owners kept", tables=()),
 }
 
-KEPT_TABLES = frozenset({"sites", "provinces", "cities", "expense_categories", "olive_varieties", "season_illustrations"})
+KEPT_TABLES = frozenset({"sites", "provinces", "cities", "expense_categories", "olive_varieties", "season_illustrations", "ai_providers", "ai_models", "ai_feature_settings", "ai_calls", "ai_call_payloads"})
 
 PARTLY_RESET_TABLES = frozenset({"users", "site_assignments", "site_assignment_permissions", "user_login_methods", "credentials", "invitations", "one_time_codes", "files"})
 

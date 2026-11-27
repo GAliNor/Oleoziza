@@ -9,25 +9,30 @@
         </router-link>
       </header>
 
-      <div class="grid grid-cols-[1fr_auto_1fr] items-end gap-x-3 gap-y-4 sm:grid-cols-[1fr_auto_1fr_auto_1.2fr]">
-        <div class="min-w-0">
-          <p class="eyebrow">{{ $t('dashboard.management.result.revenue') }}</p>
-          <p class="text-xl figure text-fg-display sm:text-display-xs">{{ formatMoneyRounded(figuresComputed.revenue) }}</p>
+      <dl class="flex flex-col">
+        <div class="flex items-baseline justify-between gap-4 pb-2">
+          <dt class="body-two">{{ $t('dashboard.management.result.revenue') }}</dt>
+          <dd class="text-lg figure text-fg-display">{{ formatMoneyRounded(figuresComputed.revenue) }}</dd>
         </div>
-        <span class="pb-1 text-xl text-fg-secondary-paragraph" aria-hidden="true">−</span>
-        <div class="min-w-0">
-          <p class="eyebrow">{{ $t('dashboard.management.result.expenses') }}</p>
-          <p class="text-xl figure text-fg-accent sm:text-display-xs">{{ formatMoneyRounded(summaryComputed.operating) }}</p>
+        <div class="flex items-baseline justify-between gap-4 border-b border-default pb-3">
+          <dt class="body-two">{{ $t('dashboard.management.result.expenses') }}</dt>
+          <dd class="text-lg figure text-fg-accent">{{ formatMoneyRounded(-summaryComputed.operating) }}</dd>
         </div>
-        <span class="hidden pb-1 text-xl text-fg-secondary-paragraph sm:block" aria-hidden="true">=</span>
-        <div class="col-span-3 min-w-0 rounded-card bg-subtle p-4 sm:col-span-1">
-          <p class="eyebrow">{{ $t('dashboard.management.result.result') }}</p>
-          <p class="text-display-xs figure" :class="resultComputed >= 0 ? 'text-fg-brand' : 'text-fg-danger'">{{ formatMoneyRounded(resultComputed) }}</p>
-          <p class="body-three">{{ marginComputed }}</p>
+        <div class="flex items-baseline justify-between gap-4 pt-3">
+          <dt class="flex flex-col">
+            <span class="label">{{ $t('dashboard.management.result.result') }}</span>
+            <span class="body-three">{{ marginComputed }}</span>
+          </dt>
+          <dd class="text-display-xs figure" :class="resultComputed >= 0 ? 'text-fg-brand' : 'text-fg-danger'">{{ formatMoneyRounded(resultComputed) }}</dd>
         </div>
+      </dl>
+
+      <div v-if="figuresComputed.revenue > 0" class="flex h-1.5 gap-0.5 overflow-hidden rounded-control" aria-hidden="true">
+        <span v-if="expenseShareComputed > 0" class="bg-accent-brown transition-[width] duration-500" :style="{ width: `${expenseShareComputed}%` }" />
+        <span class="flex-1 bg-primary-olive-mid" />
       </div>
 
-      <p class="body-two border-t border-subtle pt-4">
+      <p v-if="summaryComputed.investments > 0" class="body-three">
         {{ $t('dashboard.management.result.investments', { amount: formatMoneyRounded(summaryComputed.investments) }) }}
       </p>
     </div>
@@ -75,6 +80,10 @@ const operatingSummaryComputed = computed((): IExpenseSummary | null =>
   summaryComputed.value ? { ...summaryComputed.value, total: summaryComputed.value.operating, byCategory: summaryComputed.value.byCategory.filter((row) => row.categoryId !== INVESTMENT_CATEGORY_ID) } : null,
 );
 const resultComputed = computed((): number => (summaryComputed.value && figuresComputed.value ? resultOf(figuresComputed.value.revenue, summaryComputed.value) : 0));
+const expenseShareComputed = computed((): number => {
+  const revenue = figuresComputed.value?.revenue ?? 0;
+  return revenue ? Math.min(100, ((summaryComputed.value?.operating ?? 0) / revenue) * 100) : 0;
+});
 /** Percent with a true minus sign, like the money figures. */
 const signedPercent = (value: number): string => `${value < 0 ? '−' : ''}${formatNumber(Math.abs(value))}`;
 

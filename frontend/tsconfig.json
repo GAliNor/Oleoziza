@@ -35,7 +35,9 @@
       "lot/*": ["src/modules/lot/*"],
       "kit/*": ["src/modules/kit/*"],
       "territory/*": ["src/modules/territory/*"],
-      "activity/*": ["src/modules/activity/*"]
+      "activity/*": ["src/modules/activity/*"],
+      "assistant/*": ["src/modules/assistant/*"],
+      "ai/*": ["src/modules/ai/*"]
     }
   },
   "include": ["env.d.ts", "src/**/*.ts", "src/**/*.vue"]

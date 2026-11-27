@@ -1,0 +1,97 @@
+{
+  "title": "Intelligence artificielle",
+  "subtitle": "Réservé aux propriétaires : la consommation de l’assistant, la clé du fournisseur, le budget et les modèles.",
+  "tabsLabel": "Sections de l’IA",
+  "tabs": {
+    "monitoring": "Suivi",
+    "access": "Clé et budget",
+    "models": "Modèles"
+  },
+  "loading": "Chargement…",
+  "retry": "Réessayer",
+  "loadError": "Les réglages de l’IA n’ont pas pu être chargés.",
+  "noSecretsKey": "Le serveur n’a pas de clé de chiffrement (AI_SECRETS_KEY) : aucune clé ne peut être enregistrée.",
+  "key": {
+    "sectionHint": "La clé qui paie les réponses et la dictée de l’assistant.",
+    "label": "Clé OpenAI",
+    "hint": "Testée avant d’être enregistrée ; seuls ses 4 derniers caractères restent visibles.",
+    "saved": "•••• {lastFour}",
+    "none": "Aucune clé",
+    "add": "Ajouter",
+    "replace": "Remplacer",
+    "placeholder": "sk-…",
+    "remove": "Retirer la clé",
+    "removeConfirm": "Retirer ?",
+    "tooShort": "Cette clé est trop courte."
+  },
+  "budget": {
+    "label": "Budget IA",
+    "monthly": "Budget du mois",
+    "hint": "Au-delà, l’assistant refuse les questions jusqu’au mois suivant.",
+    "spent": "{spent} dépensés ce mois",
+    "invalid": "Entrez un montant positif."
+  },
+  "features": {
+    "assistant": "Réponses de l’assistant",
+    "assistant_transcription": "Dictée",
+    "connection_test": "Test de connexion",
+    "none": "Aucun modèle"
+  },
+  "test": {
+    "run": "Tester",
+    "ok": "Fonctionne",
+    "failed": "Le test a échoué"
+  },
+  "status": {
+    "reserved": "En cours",
+    "succeeded": "Réussi",
+    "failed": "Échoué",
+    "refused": "Refusé"
+  },
+  "monitoring": {
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
+    "spent": "Dépensé",
+    "ofBudget": "sur un budget de {budget}",
+    "calls": "Appels",
+    "averageCost": "{cost} en moyenne par appel",
+    "remaining": "Reste du budget",
+    "reserved": "{amount} réservés par des appels en cours",
+    "byFeature": "Par fonction",
+    "byMember": "Par utilisateur",
+    "feature": "Fonction",
+    "user": "Utilisateur",
+    "cost": "Coût",
+    "empty": "Aucun usage ce mois.",
+    "system": "Système",
+    "callsTitle": "Derniers appels",
+    "filter": "Filtrer les appels",
+    "all": "Tout",
+    "noCalls": "Aucun appel pour ce filtre.",
+    "date": "Date",
+    "tokens": "Jetons générés",
+    "duration": "Durée",
+    "status": "État",
+    "problem": "Problème",
+    "error": "La consommation n’a pas pu être chargée.",
+    "privacy": "Seuls les comptes, durées et coûts sont visibles ; les questions restent privées."
+  },
+  "models": {
+    "featuresTitle": "Modèle par fonction",
+    "featuresHint": "Un nouveau modèle est testé avec la clé avant d’être choisi.",
+    "featureDetail": {
+      "assistant": "Comprend la question et prépare le calcul.",
+      "assistant_transcription": "Transforme la voix en texte."
+    },
+    "model": "Modèle",
+    "needsKey": "Ajoutez d’abord une clé dans « Clé et budget ».",
+    "catalog": "Modèles disponibles",
+    "empty": "Aucun modèle.",
+    "inputPrice": "Entrée / million de jetons",
+    "outputPrice": "Sortie / million de jetons",
+    "state": "État",
+    "active": "Actif",
+    "archived": "Archivé",
+    "pricesHint": "Les prix servent à estimer chaque appel avant de l’envoyer, pour ne jamais dépasser le budget."
+  }
+}

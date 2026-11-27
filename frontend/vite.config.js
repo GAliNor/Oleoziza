@@ -14,8 +14,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Oleoziza',
-        short_name: 'Oleoziza',
+        name: 'Olivor',
+        short_name: 'Olivor',
         description: "Gestion des moulins à huile d'olive",
         lang: 'fr',
         theme_color: '#73835A',
@@ -70,6 +70,8 @@ export default defineConfig({
       kit: fromSrc('modules/kit'),
       territory: fromSrc('modules/territory'),
       activity: fromSrc('modules/activity'),
+      assistant: fromSrc('modules/assistant'),
+      ai: fromSrc('modules/ai'),
     },
   },
 });

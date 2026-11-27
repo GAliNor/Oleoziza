@@ -24,27 +24,11 @@
       <Transition v-else :name="`day-${direction}`" mode="out-in">
         <div :key="activityStore.loadedDay ?? ''" class="flex flex-col gap-5 transition-opacity duration-200" :class="{ 'opacity-50': isDayLoading }" :aria-busy="isDayLoading">
           <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <div class="card flex flex-col gap-1 p-4">
-              <p class="eyebrow">{{ $t('activity.summary.receptions') }}</p>
-              <p class="text-display-xs figure text-fg-display">{{ summary.receptions }}</p>
-              <p class="body-two">{{ formatKg(summary.receivedKg) }}</p>
-            </div>
-            <div class="card flex flex-col gap-1 p-4">
-              <p class="eyebrow">{{ $t('activity.summary.stored') }}</p>
-              <p class="text-display-xs figure text-fg-display">{{ formatLitresRounded(summary.storedLitres) }}</p>
-              <p class="body-two">{{ $t('activity.summary.storedSub') }}</p>
-            </div>
+            <ui-stat-tile :label="$t('activity.summary.receptions')" :value="summary.receptions" :sub="formatKg(summary.receivedKg)" />
+            <ui-stat-tile :label="$t('activity.summary.stored')" :value="summary.storedLitres" :format="formatLitresRounded" :sub="$t('activity.summary.storedSub')" />
             <template v-if="isFinanceShown">
-              <div class="card flex flex-col gap-1 p-4">
-                <p class="eyebrow">{{ $t('activity.summary.discounts') }}</p>
-                <p class="text-display-xs figure text-fg-display">{{ summary.discounts }}</p>
-                <p class="body-two">{{ $t('activity.summary.discountsSub', { amount: formatMoney(summary.discountDh) }) }}</p>
-              </div>
-              <div class="card flex flex-col gap-1 p-4">
-                <p class="eyebrow">{{ $t('activity.summary.collected') }}</p>
-                <p class="text-display-xs figure text-fg-display">{{ formatMoney(summary.collectedDh) }}</p>
-                <p class="body-two">{{ $t('activity.summary.collectedSub') }}</p>
-              </div>
+              <ui-stat-tile :label="$t('activity.summary.discounts')" :value="summary.discounts" :sub="$t('activity.summary.discountsSub', { amount: formatMoney(summary.discountDh) })" />
+              <ui-stat-tile :label="$t('activity.summary.collected')" :value="summary.collectedDh" :format="formatMoney" :sub="$t('activity.summary.collectedSub')" />
             </template>
           </div>
 
@@ -94,6 +78,7 @@ import AppLayout from 'global/components/app-layout.vue';
 import UiEmptyState from 'global/components/ui-empty-state.vue';
 import UiLoadMore from 'global/components/ui-load-more.vue';
 import UiSelect from 'global/components/ui-select.vue';
+import UiStatTile from 'global/components/ui-stat-tile.vue';
 import ActivityDayBar from 'activity/components/activity-day-bar.vue';
 import ActivityRow from 'activity/components/activity-row.vue';
 

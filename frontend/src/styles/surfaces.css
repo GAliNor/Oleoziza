@@ -38,6 +38,12 @@
     @apply bg-selected text-fg-brand;
   }
 
+  /* A hairline between nav groups, fading at both ends. */
+  .nav-divider {
+    @apply mx-3 my-2 h-px border-0;
+    background-image: linear-gradient(to right, transparent, var(--border-color-default) 20%, var(--border-color-default) 80%, transparent);
+  }
+
   /* How many things wait behind a nav entry: small, warm, never alarming. */
   .nav-badge {
     @apply grid h-5 min-w-5 place-items-center rounded-full bg-accent-brown px-1.5 text-xs font-semibold text-white tabular-nums;

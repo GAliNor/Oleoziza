@@ -1,6 +1,6 @@
 {
   "title": "Sites",
-  "subtitle": "Les moulins gérés dans Oleoziza",
+  "subtitle": "Les moulins gérés dans Olivor",
   "count": "aucun site | {n} site | {n} sites",
   "create": "Nouveau site",
   "back": "Retour aux sites",
@@ -39,6 +39,6 @@
   },
   "firstSite": {
     "title": "Commencez par créer votre premier site",
-    "text": "Oleoziza s’organise par site, c’est-à-dire par moulin. Dès que ce premier site est enregistré, tout le reste s’ouvre : tableau de bord, réceptions, clients, finances, utilisateurs et configuration."
+    "text": "Olivor s’organise par site, c’est-à-dire par moulin. Dès que ce premier site est enregistré, tout le reste s’ouvre : tableau de bord, réceptions, clients, finances, utilisateurs et configuration."
   }
 }

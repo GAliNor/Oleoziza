@@ -1,7 +1,7 @@
 <template>
   <div class="field flex flex-col gap-2" :data-field="name" @focusout="handleFocusOut">
     <div class="flex items-center gap-2">
-      <label class="label" :for="id">{{ label }}</label>
+      <label class="label" :for="id"><ui-text-swap :text="label" /></label>
       <span v-if="isOptional" class="caption">{{ $t('global.form.optional') }}</span>
       <Transition name="tick">
         <check-line-icon v-if="isValid && !error" class="ms-auto h-4 w-4 text-fg-success" />
@@ -19,6 +19,7 @@
 // imports
 import { useId } from 'vue';
 
+import UiTextSwap from 'global/components/ui-text-swap.vue';
 import CheckLineIcon from 'global/icons/check-line.icon.vue';
 
 // props

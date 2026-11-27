@@ -10,7 +10,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.algorithms import ECAlgorithm
 
 from core.config import get_settings
-from core.exceptions import AuthError
+from core.exceptions import AuthError, RefusedError
 from core.types import CurrentUser
 
 
@@ -23,6 +23,8 @@ REFRESH_TOKEN_TYPE = "refresh"
 REQUIRED_CLAIMS = ["sub", "type", "iat", "exp", "jti"]
 
 SESSION_EXPIRED_CODE = "session_expired"
+
+MANAGEMENT_ROLE = "management"
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -112,3 +114,39 @@ def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(
         raise AuthError(SESSION_EXPIRED_CODE)
     claims = decode_token(credentials.credentials, ACCESS_TOKEN_TYPE)
     return CurrentUser(id=UUID(claims["sub"]), role=claims["role"], is_owner=claims["isOwner"], permissions_by_site=claims.get("sites", {}))
+
+
+def get_current_owner(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+    """
+    Let only an Owner through, for settings no Permission can grant.
+
+    Args:
+        current_user (CurrentUser): The signed-in User.
+
+    Returns:
+        CurrentUser: The Owner.
+
+    Raises:
+        RefusedError: owner_only (403) for anyone else.
+    """
+    if not current_user.is_owner:
+        raise RefusedError("owner_only", 403)
+    return current_user
+
+
+def get_current_manager(current_user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+    """
+    Let only a Management User through, for what the Management Role opens rather than a Permission.
+
+    Args:
+        current_user (CurrentUser): The signed-in User.
+
+    Returns:
+        CurrentUser: The Management User.
+
+    Raises:
+        RefusedError: management_only (403) for any other Role.
+    """
+    if current_user.role != MANAGEMENT_ROLE:
+        raise RefusedError("management_only", 403)
+    return current_user

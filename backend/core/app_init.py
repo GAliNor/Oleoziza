@@ -99,9 +99,9 @@ def build_refused_error_response(request: Request, error: RefusedError) -> JSONR
         error (RefusedError): Refusal raised by a service.
 
     Returns:
-        JSONResponse: The error status with {"code": ...}.
+        JSONResponse: The error status with {"code": ...} and the refusal's details beside it.
     """
-    return JSONResponse(status_code=error.status_code, content={"code": error.code})
+    return JSONResponse(status_code=error.status_code, content={**error.details, "code": error.code})
 
 
 def build_validation_error_response(request: Request, error: RequestValidationError) -> JSONResponse:

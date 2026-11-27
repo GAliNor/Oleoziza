@@ -24,7 +24,7 @@ INVALID_INVITATION_CODE = "invalid_invitation"
 
 INVITATION_TOKEN_BYTES = 32
 
-INVITATION_EMAIL_SUBJECT = "Votre accès à Oleoziza"
+INVITATION_EMAIL_SUBJECT = "Votre accès à Olivor"
 
 
 class InvitationService:
@@ -80,10 +80,10 @@ class InvitationService:
         user = self.db.get(User, invitation.user_id)
         link = f"{self.settings.FRONT_BASE_URL}/invitation/{token}"
         if invitation.channel == MessageChannel.EMAIL:
-            body = f"Bonjour {user.first_name},\n\nVoici le lien pour choisir votre accès à Oleoziza :\n{link}\n\nCe lien est valable 7 jours."
+            body = f"Bonjour {user.first_name},\n\nVoici le lien pour choisir votre accès à Olivor :\n{link}\n\nCe lien est valable 7 jours."
             get_mail_client().send(invitation.sent_to, INVITATION_EMAIL_SUBJECT, body)
         else:
-            get_sms_client().send(invitation.sent_to, f"Oleoziza : choisissez votre code d'accès ici {link}")
+            get_sms_client().send(invitation.sent_to, f"Olivor : choisissez votre code d'accès ici {link}")
 
     def get_invitation(self, token: str) -> InvitationOut:
         """

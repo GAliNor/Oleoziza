@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Run once on a new server, before scripts/production-up.sh. Creates env_files/production/*.env from the templates and fills
-# only the values still empty or set to change-me; a value already set is never touched, so running it again is harmless.
+# Run once on a new server, before scripts/production-up.sh, which also runs it on every deploy. Creates
+# env_files/production/*.env from the templates, adds the keys a newer template brought, and fills only the values still empty
+# or set to change-me; a value already set is never touched (VITE_API_MODULES excepted: it is code wiring, so the template's
+# list wins), so running it again is harmless.
 # Answers can be given ahead as environment variables (PUBLIC_HOST, ACME_EMAIL, SEED_OWNER_FIRST_NAME, SEED_OWNER_LAST_NAME,
 # SEED_OWNER_EMAIL, SEED_OWNER_PASSWORD); whatever is missing is asked.
 set -euo pipefail
@@ -75,6 +77,33 @@ fill_secret() {
   write_value "$file" "$key" "$(od -An -tx1 -N"$bytes" /dev/urandom | tr -d ' \n')"
 }
 
+# A Fernet key: 32 random bytes, URL-safe base64. Generated once; replacing it would make every saved AI provider key unreadable.
+fill_fernet_key() {
+  local file=$1 key=$2
+  is_unset "$(read_value "$file" "$key")" || return 0
+  write_value "$file" "$key" "$(head -c 32 /dev/urandom | base64 | tr -d '\n' | tr '+/' '-_')"
+}
+
+# Keys a newer template brought, appended with the template's value (a change-me one is filled below).
+add_missing_keys() {
+  local file=$1 line key
+  while IFS= read -r line; do
+    [[ "$line" =~ ^([A-Z_][A-Z0-9_]*)= ]] || continue
+    key=${BASH_REMATCH[1]}
+    [[ "$key" == SEED_OWNER_PASSWORD ]] && continue
+    grep -q "^$key=" "$file" && continue
+    printf '%s\n' "$line" >> "$file"
+    echo "  added $key to $file"
+  done < "$file.example"
+}
+
+# A value owned by the code, not by the server: the template's value replaces the server's.
+sync_template_value() {
+  local file=$1 key=$2 value
+  value=$(read_value "$file.example" "$key")
+  [[ "$(read_value "$file" "$key")" == "$value" ]] || write_value "$file" "$key" "$value"
+}
+
 fill_owner_password() {
   is_unset "$(read_value "$BACKEND_ENV" SEED_OWNER_PASSWORD)" || return 0
   local value=${SEED_OWNER_PASSWORD:-} again
@@ -128,6 +157,12 @@ for file in "$DOCKER_ENV" "$BACKEND_ENV" "$FRONTEND_ENV"; do
   chmod 600 "$file"
 done
 
+echo "Settings this version brings:"
+for file in "$DOCKER_ENV" "$BACKEND_ENV" "$FRONTEND_ENV"; do
+  add_missing_keys "$file"
+done
+sync_template_value "$FRONTEND_ENV" VITE_API_MODULES
+
 owner_is_new=false
 is_unset "$(read_value "$BACKEND_ENV" SEED_OWNER_EMAIL)" && owner_is_new=true
 
@@ -144,6 +179,7 @@ fill_secret "$DOCKER_ENV" DB_PASSWORD 24
 fill_secret "$DOCKER_ENV" RUSTFS_ACCESS_KEY 8
 fill_secret "$DOCKER_ENV" RUSTFS_SECRET_KEY 16
 fill_auth_keys
+fill_fernet_key "$BACKEND_ENV" AI_SECRETS_KEY
 
 echo
 echo "Production settings are complete in $ENV_DIR (readable by you only)."

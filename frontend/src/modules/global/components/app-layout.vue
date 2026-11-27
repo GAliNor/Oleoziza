@@ -8,21 +8,18 @@
         md:sticky md:top-0 md:flex md:h-dvh"
     >
       <router-link :to="{ name: HOME_ROUTE_NAME }" class="press self-start rounded-control px-3 py-1 focus-visible:outline-2 focus-visible:outline-focus" :aria-label="$t('global.nav.dashboard')">
-        <logo-full-fill-icon class="h-10 w-auto text-fg-brand" />
+        <ui-logo class="h-11" />
         <span class="sr-only">{{ $t('global.appName') }}</span>
       </router-link>
       <nav class="flex flex-col gap-1">
-        <router-link
-          v-for="item in visibleNavItems"
-          :key="item.name"
-          :to="{ name: item.name }"
-          class="nav-link"
-          active-class="nav-link-active"
-        >
-          <component :is="item.icon" class="h-5 w-5" />
-          {{ $t(item.labelKey) }}
-          <span v-if="badgeCounts[item.name]" class="nav-badge ms-auto" :class="{ 'nav-badge-late': lateNames.includes(item.name) }">{{ badgeCounts[item.name] }}</span>
-        </router-link>
+        <template v-for="(item, index) in visibleNavItems" :key="item.name">
+          <hr v-if="startsGroup(visibleNavItems, index)" class="nav-divider" />
+          <router-link :to="{ name: item.name }" class="nav-link" active-class="nav-link-active">
+            <component :is="item.icon" class="h-5 w-5" />
+            {{ $t(item.labelKey) }}
+            <span v-if="badgeCounts[item.name]" class="nav-badge ms-auto" :class="{ 'nav-badge-late': lateNames.includes(item.name) }">{{ badgeCounts[item.name] }}</span>
+          </router-link>
+        </template>
       </nav>
       <div class="mt-auto flex flex-col gap-1 border-t border-default pt-4">
         <p class="truncate px-3 label">{{ sessionStore.fullName }}</p>
@@ -49,7 +46,7 @@
           backdrop-blur md:px-8"
       >
         <router-link :to="{ name: HOME_ROUTE_NAME }" class="shrink-0 md:hidden" :aria-label="$t('global.nav.dashboard')">
-          <logo-mark-fill-icon class="h-7 w-7 text-fg-brand" />
+          <ui-logo variant="mark" class="h-8 w-8" />
         </router-link>
         <app-back-button />
         <site-switcher />
@@ -68,6 +65,7 @@
         <slot />
       </main>
     </div>
+    <app-page-decoration />
 
     <nav
       class="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-default bg-surface
@@ -99,11 +97,14 @@
           {{ $t('global.nav.more') }}
         </button>
         <div v-if="isMoreOpen" class="absolute inset-e-2 bottom-full mb-2 flex min-w-52 flex-col gap-1 rounded-card border border-default bg-surface p-2 shadow-overlay">
-          <router-link v-for="item in moreItems" :key="item.name" :to="{ name: item.name }" class="nav-link" active-class="nav-link-active" @click="isMoreOpen = false">
-            <component :is="item.icon" class="h-5 w-5" />
-            {{ $t(item.labelKey) }}
-            <span v-if="badgeCounts[item.name]" class="nav-badge ms-auto" :class="{ 'nav-badge-late': lateNames.includes(item.name) }">{{ badgeCounts[item.name] }}</span>
-          </router-link>
+          <template v-for="(item, index) in moreItems" :key="item.name">
+            <hr v-if="startsGroup(moreItems, index)" class="nav-divider" />
+            <router-link :to="{ name: item.name }" class="nav-link" active-class="nav-link-active" @click="isMoreOpen = false">
+              <component :is="item.icon" class="h-5 w-5" />
+              {{ $t(item.labelKey) }}
+              <span v-if="badgeCounts[item.name]" class="nav-badge ms-auto" :class="{ 'nav-badge-late': lateNames.includes(item.name) }">{{ badgeCounts[item.name] }}</span>
+            </router-link>
+          </template>
         </div>
       </div>
     </nav>
@@ -132,14 +133,14 @@ import type { INavItem } from 'global/types/navigation';
 
 import AppToast from 'global/components/app-toast.vue';
 import AppBackButton from 'global/components/app-back-button.vue';
+import AppPageDecoration from 'global/components/app-page-decoration.vue';
 import AppNetworkBadge from 'global/components/app-network-badge.vue';
 import SiteSwitcher from 'site/components/site-switcher.vue';
 import LockLineIcon from 'global/icons/lock-line.icon.vue';
 import LogoutLineIcon from 'global/icons/logout-line.icon.vue';
 import MoreLineIcon from 'global/icons/more-line.icon.vue';
 import ScaleLineIcon from 'global/icons/scale-line.icon.vue';
-import LogoFullFillIcon from 'global/icons/logo-full-fill.icon.vue';
-import LogoMarkFillIcon from 'global/icons/logo-mark-fill.icon.vue';
+import UiLogo from 'global/components/ui-logo.vue';
 import AppOperatorShell from 'global/components/app-operator-shell.vue';
 import AppUserMenu from 'global/components/app-user-menu.vue';
 import UiLanguageSwitch from 'global/components/ui-language-switch.vue';
@@ -151,7 +152,7 @@ const toastStore = useToastStore();
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const { visibleNavItems, canOpenHome, getLandingRoute } = useNavigation();
+const { visibleNavItems, canOpenHome, getLandingRoute, startsGroup } = useNavigation();
 const { canWorkAsOperator, workAsOperator } = useOperatorMode();
 const { tasks, load: loadTasks } = useTasks();
 

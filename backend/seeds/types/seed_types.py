@@ -65,3 +65,27 @@ class UserSeed:
     is_owner: bool = False
     must_change_credential: bool = False
     permissions_by_site: dict[str, tuple[Permission, ...]] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class AiProviderSeed:
+    """
+    The AI provider the mill starts with, before an Owner saves its key.
+    """
+
+    label: str
+    base_url: str
+
+
+@dataclass(frozen=True)
+class AiModelSeed:
+    """
+    One priced model and the AI Feature it serves by default.
+    """
+
+    name: str
+    feature: str
+    input_price: str
+    cached_input_price: str
+    output_price: str
+    supports_structured_output: bool

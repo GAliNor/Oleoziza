@@ -1,4 +1,4 @@
-from seeds.types.seed_types import ProvinceSeed
+from seeds.types.seed_types import AiModelSeed, AiProviderSeed, ProvinceSeed
 
 
 PROVINCES: tuple[ProvinceSeed, ...] = (
@@ -160,3 +160,10 @@ EXPENSE_CATEGORY_TREE: tuple[tuple[str, tuple[tuple[str, str | None, str, bool],
 )
 
 RETIRED_EXPENSE_CATEGORY_IDS: frozenset[str] = frozenset({"generator_diesel"})
+
+AI_PROVIDER = AiProviderSeed("OpenAI", "https://api.openai.com/v1")
+
+AI_MODELS: tuple[AiModelSeed, ...] = (
+    AiModelSeed("gpt-6-luna", "assistant", "0.10", "0.01", "0.50", True),
+    AiModelSeed("gpt-transcribe", "assistant_transcription", "0", "0", "0", False),
+)

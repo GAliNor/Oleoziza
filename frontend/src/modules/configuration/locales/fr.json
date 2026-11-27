@@ -168,5 +168,24 @@
     "removeConfirm": "Confirmer",
     "removed": "{name} retiré.",
     "retired": "{name} n’est plus en service."
+  },
+  "hub": {
+    "subtitle": "Deux espaces : la saison et ses paramètres, puis l’intelligence artificielle.",
+    "settings": {
+      "title": "Saison et paramètres",
+      "description": "La saison, les prix et les règles de chaque site, et les notifications aux clients.",
+      "items": {
+        "season": "Saison",
+        "prices": "Prix",
+        "equipment": "Malaxeurs, cuves, box",
+        "payments": "Modes de paiement",
+        "notifications": "Notifications"
+      }
+    },
+    "ai": {
+      "description": "La clé OpenAI, le budget du mois, les modèles et le suivi de la consommation de l’assistant.",
+      "noKey": "Aucune clé : l’assistant ne répond pas encore.",
+      "status": "Clé •••• {lastFour} · {spent} dépensés sur {budget}"
+    }
   }
 }

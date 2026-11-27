@@ -27,8 +27,11 @@ export const useNavigation = () => {
     return item ? { name: item.name } : null;
   };
 
+  /** True when the item opens a new group, so the menu draws a line above it. */
+  const startsGroup = (items: INavItem[], index: number): boolean => index > 0 && items[index].group !== items[index - 1].group;
+
   // computed
   const visibleNavItems = computed((): INavItem[] => NAV_ITEMS.filter(canOpen));
 
-  return { visibleNavItems, canOpen, canOpenHome, getLandingRoute };
+  return { visibleNavItems, canOpen, startsGroup, canOpenHome, getLandingRoute };
 };

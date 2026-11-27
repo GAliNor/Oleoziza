@@ -7,7 +7,7 @@ const MALE_HAIR = [
   ),
 ];
 
-const PALETTE = {
+export const PALETTE = {
   primaryOliveLight: '#D2D6BD',
   primaryOlive: '#73835A',
   primaryOliveDark: '#5C6A47',

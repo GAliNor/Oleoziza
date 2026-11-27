@@ -27,13 +27,14 @@ export default class BaseService {
   }
 
   /** Sends once, without refreshing: for the auth calls themselves. */
-  protected async send<T>({ method, url, data, params, headers }: IAPICallConfig): Promise<T> {
+  protected async send<T>({ method, url, data, params, headers, signal }: IAPICallConfig): Promise<T> {
     const accessToken = getAccessToken();
     const response = await http<T>({
       method,
       url,
       data,
       params,
+      signal,
       headers: {
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...headers,
